@@ -1,0 +1,242 @@
+<div class="band topband">
+  <div class="wrap top">
+    <a class="brand" href="{{BASE}}"><b>Basketball<i>Stats</i></b><span>Στατιστικά EuroLeague {{SEASON}}</span></a>
+    <nav class="nav" aria-label="Ενότητες">
+      <a href="{{BASE}}" data-v="stand">Βαθμολογία</a>
+      <a href="{{BASE}}thermometro/" data-v="form">Θερμόμετρο</a>
+      <a href="{{BASE}}fantasy/" data-v="fantasy">Fantasy</a>
+      <a href="{{BASE}}prognostika/" data-v="preds">Προγνωστικά</a>
+      <a href="{{BASE}}arthra/" data-v="articles">Άρθρα</a>
+    </nav>
+    <div class="search">
+      <input id="q" type="search" autocomplete="off" placeholder="Αναζήτηση παίκτη ή ομάδας…" aria-label="Αναζήτηση παίκτη ή ομάδας">
+      <div class="sugg" id="sugg" hidden></div>
+    </div>
+  </div>
+</div>
+
+<div id="vStand"{{HIDDEN_vStand}}>
+  <div class="band">
+    <div class="wrap shero">
+      <div><h1>Βαθμολογία</h1><p id="standSub"></p></div>
+      <div class="zones"><span><i class="z1"></i>1–6 Playoffs</span><span><i class="z2"></i>7–10 Play-in</span></div>
+    </div>
+  </div>
+  {{AD}}<main class="wrap one">
+    <section>
+      <div class="tbl"><table id="standTbl" class="stand"></table></div>
+      <p class="note">Η σειρά είναι η επίσημη της Ευρωλίγκας (με τα κριτήρια ισοβαθμίας). Πατήστε μια ομάδα για τη σελίδα της.</p>
+    </section>
+    <section>
+      <div class="head"><div><h2>Επόμενη αγωνιστική</h2><p class="sub" id="nextSub"></p></div></div>
+      <div class="fixtures" id="nextRound"></div>
+    </section>
+    <section>
+      <h2>Ομαδικά στατιστικά</h2>
+      <p class="sub">Ανά αγώνα. Οι αποδόσεις υπολογίζονται ανά 100 κατοχές. Πατήστε μια στήλη για ταξινόμηση.</p>
+      <div class="tbl"><table id="teamStats" class="sortable"></table></div>
+    </section>
+  </main>
+</div>
+
+<div id="vPreds"{{HIDDEN_vPreds}}>
+  <div class="band">
+    <div class="wrap shero">
+      <div><h1>Προγνωστικά</h1><p id="predSub"></p></div>
+      <div class="zones"><span>21+ · Παίξτε υπεύθυνα</span></div>
+    </div>
+  </div>
+  {{AD}}<main class="wrap one">
+    <section>
+      <h2>Η εκτίμηση των αριθμών</h2>
+      <p class="sub">Τελικό σκορ, πιθανότητα νίκης και σύνολο πόντων από την επιθετική και αμυντική απόδοση των ομάδων ανά 100 κατοχές, τον ρυθμό τους και το πλεονέκτημα έδρας</p>
+      <div class="preds" id="preds"></div>
+      <p class="note">Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.</p>
+    </section>
+    <section id="predArtSec">
+      <h2>Τα προγνωστικά μας</h2>
+      <p class="sub">Η ανάλυση και οι επιλογές μας για κάθε αγωνιστική</p>
+      <div class="alist" id="predArts"></div>
+    </section>
+  </main>
+</div>
+
+<div id="vFantasy"{{HIDDEN_vFantasy}}>
+  <div class="band">
+    <div class="wrap shero">
+      <div><h1>Fantasy</h1><p id="fanSub"></p></div>
+      <div class="zones"><span><i class="z1"></i>Εύκολος αντίπαλος</span><span><i class="lowz"></i>Δύσκολος αντίπαλος</span></div>
+    </div>
+  </div>
+  {{AD}}<main class="wrap one">
+    <section>
+      <div class="head">
+        <div><h2>Ποιους να βάλεις</h2><p class="sub" id="fanPicksSub"></p></div>
+        <div class="seg" id="fanSeg" role="group" aria-label="Θέση"><button data-p="Guard" class="on">Γκαρντ</button><button data-p="Forward">Φόργουορντ</button><button data-p="Center">Σέντερ</button></div>
+      </div>
+      <div class="tbl"><table id="fanPicks"></table></div>
+      <p class="note">Η εκτίμηση συνδυάζει κατά 50% τον μέσο PIR της σεζόν και κατά 50% τον μέσο PIR των 3 τελευταίων αγώνων. Μετά προσαρμόζεται στον αντίπαλο (πόσο PIR δέχεται σε σχέση με τον μέσο όρο της λίγκας) και στην έδρα (+3% εντός, −3% εκτός). Η θέση δίπλα στον αντίπαλο δείχνει πόσο PIR δέχεται: 1η σημαίνει ότι δέχεται τα περισσότερα.</p>
+    </section>
+    <section>
+      <h2>Δυσκολία προγράμματος</h2>
+      <p class="sub">Οι επόμενες 5 αγωνιστικές κάθε ομάδας. Πράσινο: αντίπαλος που δέχεται πολύ PIR. Κόκκινο: σφιχτή άμυνα. ×2: διπλή εβδομάδα. Ταξινόμηση από το πιο εύκολο πρόγραμμα.</p>
+      <div class="tbl"><table id="fanSched" class="sched"></table></div>
+    </section>
+    <section>
+      <h2>Η πεντάδα της αγωνιστικής</h2>
+      <p class="sub" id="fanTotSub"></p>
+      <div class="leaders tot" id="fanTot"></div>
+    </section>
+  </main>
+</div>
+
+<div id="vForm"{{HIDDEN_vForm}}>
+  <div class="band">
+    <div class="wrap shero">
+      <div><h1>Θερμόμετρο</h1><p>Ποιος ανεβαίνει και ποιος πέφτει: οι τελευταίοι 3 αγώνες σε σύγκριση με τους προηγούμενους</p></div>
+      <div class="zones"><span><i class="hot"></i>Ζεσταίνεται</span><span><i class="cold"></i>Κρυώνει</span></div>
+    </div>
+  </div>
+  {{AD}}<main class="wrap">
+    <div class="col">
+      <section>
+        <h2>Ζεσταίνονται</h2>
+        <p class="sub">Η μεγαλύτερη άνοδος σε PIR ανά αγώνα</p>
+        <div class="heatlist" id="fHot"></div>
+      </section>
+      <section>
+        <h2>Κρυώνουν</h2>
+        <p class="sub">Η μεγαλύτερη πτώση σε PIR ανά αγώνα</p>
+        <div class="heatlist" id="fCold"></div>
+      </section>
+    </div>
+    <div class="col">
+      <section>
+        <h2>Ομάδες</h2>
+        <p class="sub">Μέση διαφορά πόντων στους 3 τελευταίους αγώνες σε σχέση με τους προηγούμενους</p>
+        <div class="heatlist" id="fTeams"></div>
+      </section>
+      <section>
+        <h2>Πώς μετράει</h2>
+        <p class="sub" style="margin:0">Για κάθε παίκτη συγκρίνουμε τον μέσο PIR των 3 τελευταίων αγώνων του με τον μέσο PIR όλων των προηγούμενων. Η διαφορά είναι οι «βαθμοί» του θερμομέτρου: από +5 και πάνω «καίει», από +2 έως +5 ζεσταίνεται, από −2 έως +2 είναι σταθερός, από −2 έως −5 κρυώνει και κάτω από −5 είναι παγωμένος. Μετράμε όσους έχουν τουλάχιστον 5 αγώνες και 10 λεπτά μέσο όρο. Για τις ομάδες μετράει η διαφορά πόντων.</p>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="vTeam"{{HIDDEN_vTeam}}>
+  <div class="band">
+    <div class="wrap hero">
+      <div class="bigcrest" id="tCrest"></div>
+      <div class="who"><h1 id="tName">{{TEAM_H1}}</h1><div class="meta" id="tMeta"></div>{{TEAM_LEDE}}</div>
+      <div class="rec" id="tRec"></div>
+    </div>
+    <div class="wrap"><div class="board" id="tBoard"></div></div>
+  </div>
+  {{AD}}<main class="wrap">
+    <div class="col">
+      <section>
+        <h2>Αποτελέσματα</h2>
+        <p class="sub">Διαφορά πόντων ανά αγωνιστική (πάνω από τη γραμμή: νίκη)</p>
+        <div class="chart" id="tChart"></div>
+        <div class="results" id="tResults"></div>
+      </section>
+      <section>
+        <h2>Ρόστερ</h2>
+        <p class="sub">Μέσοι όροι ανά αγώνα· πατήστε παίκτη για το προφίλ του ή στήλη για ταξινόμηση</p>
+        <div class="tbl"><table id="tRoster" class="sortable"></table></div>
+      </section>
+    </div>
+    <div class="col">
+      <section>
+        <h2>Οι τέσσερις παράγοντες</h2>
+        <p class="sub">Επίθεση και άμυνα στα τέσσερα στοιχεία που κρίνουν τα ματς· σε παρένθεση η θέση στη λίγκα</p>
+        <div class="tbl"><table id="tFactors"></table></div>
+      </section>
+      <section>
+        <h2>Ηγέτες ομάδας</h2>
+        <div class="leaders" id="tLeaders"></div>
+      </section>
+      <section>
+        <h2>Θερμόμετρο ρόστερ</h2>
+        <p class="sub">Τελευταίοι 3 αγώνες σε σχέση με τους προηγούμενους (PIR)</p>
+        <div class="heatlist" id="tHeat"></div>
+      </section>
+      <section>
+        <h2>Πρόγραμμα</h2>
+        <p class="sub">Οι επόμενοι αγώνες (ώρα Ελλάδας)</p>
+        <div class="fixtures" id="tNext"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="vPlayer"{{HIDDEN_vPlayer}}>
+<div class="band">
+  <div class="wrap hero">
+    <div class="jersey" id="jersey"></div>
+    <div class="who">
+      <h1 id="pname">{{PLAYER_H1}}</h1>
+      <div class="meta" id="pmeta"></div>{{PLAYER_LEDE}}
+    </div>
+    <div class="rec" id="prec"></div>
+  </div>
+  <div class="wrap"><div class="board" id="board"></div></div>
+</div>
+
+{{AD}}<main class="wrap">
+  <div class="col">
+    <section>
+      <div class="head">
+        <div><h2>Μέσοι όροι σεζόν</h2><p class="sub" id="avgsub"></p></div>
+        <div class="seg" id="modeSeg" role="group" aria-label="Τρόπος προβολής">
+          <button data-m="avg" class="on">Ανά αγώνα</button><button data-m="p36">Ανά 36'</button><button data-m="tot">Σύνολα</button>
+        </div>
+      </div>
+      <div class="tbl"><table id="avgtbl"></table></div>
+      <div class="adv" id="adv"></div>
+    </section>
+    <section>
+      <h2>Ευστοχία</h2>
+      <p class="sub">Εύστοχα / προσπάθειες και ποσοστό σε κάθε είδος σουτ</p>
+      <div class="shoot" id="shoot"></div>
+    </section>
+    <section>
+      <h2>Πορεία ανά αγωνιστική</h2>
+      <p class="sub">Πόντοι (στήλες) και PIR (γραμμή) σε κάθε αγώνα</p>
+      <div class="chart" id="chart"></div>
+    </section>
+    <section>
+      <h2>Αγώνες</h2>
+      <p class="sub">Όλοι οι αγώνες κανονικής περιόδου με συμμετοχή</p>
+      <div class="tbl"><table id="log"></table></div>
+    </section>
+  </div>
+  <div class="col">
+    <section>
+      <h2>Θερμόμετρο</h2>
+      <div id="pHeat"></div>
+    </section>
+    <section>
+      <h2>Κατάταξη στη λίγκα</h2>
+      <p class="sub" id="pctsub"></p>
+      <div class="seg" id="cmpSeg" role="group" aria-label="Σύγκριση με">
+        <button data-c="all" class="on">Όλη η λίγκα</button><button data-c="pos">Ίδια θέση</button>
+      </div>
+      <div class="pct" id="pct"></div>
+      <p class="note">Δίπλα σε κάθε κατηγορία, ο παίκτης που είναι πρώτος.</p>
+    </section>
+    <section>
+      <h2>Διαχωρισμοί</h2>
+      <p class="sub">Μέσοι όροι ανά συνθήκη αγώνα</p>
+      <div class="tbl splits"><table id="splits"></table></div>
+    </section>
+    <section>
+      <h2 id="matesTitle">Συμπαίκτες</h2>
+      <p class="sub">Ταξινομημένοι κατά PIR — πατήστε για προφίλ</p>
+      <div class="mates" id="mates"></div>
+    </section>
+  </div>
+</main>
+</div>
+{{AD}}<footer class="wrap"><nav class="foot"><a href="{{BASE}}">Βαθμολογία</a><a href="{{BASE}}thermometro/">Θερμόμετρο</a><a href="{{BASE}}fantasy/">Fantasy</a><a href="{{BASE}}prognostika/">Προγνωστικά</a><a href="{{BASE}}arthra/">Άρθρα</a><a href="{{BASE}}politiki-aporritou/">Πολιτική απορρήτου</a></nav>Πηγή δεδομένων: επίσημα στατιστικά EuroLeague. Ενημέρωση: <span id="upd">{{UPDATED}}</span>. Η κατάταξη παικτών αφορά όσους έχουν τουλάχιστον 3 αγώνες και 10 λεπτά μέσο όρο. Τα ομαδικά στατιστικά προκύπτουν από τα ατομικά στατιστικά των αγώνων.</footer>
