@@ -10,6 +10,8 @@ title_en: Olympiacos vs Crvena Zvezda: our prediction
 description_en: Why Olympiacos are favourites at SEF and what to expect on the boards.
 title_es: Olympiacos – Estrella Roja: nuestro pronóstico
 description_es: Por qué el Olympiacos es favorito en el SEF y qué esperar en el rebote.
+title_sr: Olimpijakos – Crvena zvezda: naša prognoza
+description_sr: Zašto je Olimpijakos favorit u SEF-u i šta očekivati u skoku.
 ---
 
 Τα αρχεία που ξεκινούν με κάτω παύλα (_) δεν δημοσιεύονται. Αντέγραψε αυτό το αρχείο με νέο όνομα, π.χ. `oly-red-10.md`, και γράψε το κείμενό σου.
@@ -24,10 +26,11 @@ description_es: Por qué el Olympiacos es favorito en el SEF y qué esperar en e
 - **draft: true**: αν δεν θες να δημοσιευτεί ακόμη
 - **title_en** και **description_en**: ο τίτλος και η περιγραφή στα αγγλικά (προαιρετικά)
 - **title_es** και **description_es**: ο τίτλος και η περιγραφή στα ισπανικά (προαιρετικά)
+- **title_sr** και **description_sr**: ο τίτλος και η περιγραφή στα σερβικά, με λατινικούς χαρακτήρες (προαιρετικά)
 
-## Αγγλική και ισπανική εκδοχή
+## Αγγλική, ισπανική και σερβική εκδοχή
 
-Αν θες το άρθρο και στο αγγλικό site, γράψε `title_en` πάνω και, στο τέλος του ελληνικού κειμένου, μια γραμμή `=== English ===` και από κάτω το κείμενο στα αγγλικά. Για το ισπανικό site: `title_es` πάνω και μια γραμμή `=== Español ===` με το ισπανικό κείμενο. Χωρίς αυτά, το άρθρο εμφανίζεται μόνο στα ελληνικά.
+Αν θες το άρθρο και στο αγγλικό site, γράψε `title_en` πάνω και, στο τέλος του ελληνικού κειμένου, μια γραμμή `=== English ===` και από κάτω το κείμενο στα αγγλικά. Για το ισπανικό site: `title_es` πάνω και μια γραμμή `=== Español ===` με το ισπανικό κείμενο. Για το σερβικό: `title_sr` και γραμμή `=== Srpski ===`. Χωρίς αυτά, το άρθρο εμφανίζεται μόνο στα ελληνικά.
 
 ## Μορφοποίηση
 
@@ -42,3 +45,7 @@ Files starting with an underscore (_) are not published. This is where the Engli
 === Español ===
 
 Los archivos que empiezan por guion bajo (_) no se publican. Aquí va la versión en español del artículo.
+
+=== Srpski ===
+
+Fajlovi koji počinju donjom crtom (_) se ne objavljuju. Ovde ide srpska verzija članka.
