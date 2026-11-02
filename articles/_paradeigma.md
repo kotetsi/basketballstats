@@ -8,6 +8,8 @@ game: OLY-RED
 author: Νίκος
 title_en: Olympiacos vs Crvena Zvezda: our prediction
 description_en: Why Olympiacos are favourites at SEF and what to expect on the boards.
+title_es: Olympiacos – Estrella Roja: nuestro pronóstico
+description_es: Por qué el Olympiacos es favorito en el SEF y qué esperar en el rebote.
 ---
 
 Τα αρχεία που ξεκινούν με κάτω παύλα (_) δεν δημοσιεύονται. Αντέγραψε αυτό το αρχείο με νέο όνομα, π.χ. `oly-red-10.md`, και γράψε το κείμενό σου.
@@ -21,10 +23,11 @@ description_en: Why Olympiacos are favourites at SEF and what to expect on the b
 - **round** και **game**: για προγνωστικό αγώνα, με τους κωδικούς ομάδων (γηπεδούχος-φιλοξενούμενος, π.χ. OLY-RED). Τότε στη σελίδα Προγνωστικά εμφανίζεται κουμπί «Διάβασε το προγνωστικό μας» κάτω από τον αγώνα.
 - **draft: true**: αν δεν θες να δημοσιευτεί ακόμη
 - **title_en** και **description_en**: ο τίτλος και η περιγραφή στα αγγλικά (προαιρετικά)
+- **title_es** και **description_es**: ο τίτλος και η περιγραφή στα ισπανικά (προαιρετικά)
 
-## Αγγλική εκδοχή
+## Αγγλική και ισπανική εκδοχή
 
-Αν θες το άρθρο και στο αγγλικό site, γράψε `title_en` πάνω και, στο τέλος του ελληνικού κειμένου, μια γραμμή `=== English ===` και από κάτω το κείμενο στα αγγλικά. Χωρίς αυτά, το άρθρο εμφανίζεται μόνο στα ελληνικά.
+Αν θες το άρθρο και στο αγγλικό site, γράψε `title_en` πάνω και, στο τέλος του ελληνικού κειμένου, μια γραμμή `=== English ===` και από κάτω το κείμενο στα αγγλικά. Για το ισπανικό site: `title_es` πάνω και μια γραμμή `=== Español ===` με το ισπανικό κείμενο. Χωρίς αυτά, το άρθρο εμφανίζεται μόνο στα ελληνικά.
 
 ## Μορφοποίηση
 
@@ -35,3 +38,7 @@ description_en: Why Olympiacos are favourites at SEF and what to expect on the b
 === English ===
 
 Files starting with an underscore (_) are not published. This is where the English version of the article goes.
+
+=== Español ===
+
+Los archivos que empiezan por guion bajo (_) no se publican. Aquí va la versión en español del artículo.
