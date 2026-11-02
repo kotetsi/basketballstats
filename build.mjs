@@ -57,7 +57,8 @@ async function pool(items, n, fn) {
   return out;
 }
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const slugify = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const GR = { α: 'a', β: 'v', γ: 'g', δ: 'd', ε: 'e', ζ: 'z', η: 'i', θ: 'th', ι: 'i', κ: 'k', λ: 'l', μ: 'm', ν: 'n', ξ: 'x', ο: 'o', π: 'p', ρ: 'r', σ: 's', ς: 's', τ: 't', υ: 'y', φ: 'f', χ: 'ch', ψ: 'ps', ω: 'o' };
+const slugify = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[α-ω]/g, c => GR[c] || '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 function niceName(n) {
   const [a, b] = n.split(',').map(s => s.trim());
   const cap = s => s.toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu, (m, p, c) => p + c.toUpperCase());
@@ -95,6 +96,74 @@ function markdown(md) {
   flush();
   return out.join('\n');
 }
+
+// ---------- Tipsters (ένα αρχείο .md ανά tipster στον φάκελο tipsters/)
+// Γραμμή επιλογής:  αγωνιστική | ΓΗΠ-ΦΙΛ | επιλογή | απόδοση (προαιρετική)
+// Επιλογές: 1, 2, 1 -5.5, 2 +7.5, over 160.5, under 160.5
+function parsePick(sel) {
+  const s = sel.trim().toLowerCase().replace(',', '.');
+  let m;
+  if (/^[12]$/.test(s)) return { kind: 'ml', side: +s };
+  if ((m = s.match(/^([12])\s*([+-]\s*\d+(?:\.\d+)?)$/))) return { kind: 'hc', side: +m[1], line: parseFloat(m[2].replace(/\s/g, '')) };
+  if ((m = s.match(/^(over|under|o|u|πάνω|πανω|κάτω|κατω)\s*(\d+(?:\.\d+)?)$/))) return { kind: 'tot', over: /^(over|o|πάνω|πανω)$/.test(m[1]), line: parseFloat(m[2]) };
+  return null;
+}
+function pickLabel(p, h, a) {
+  const tn = c => (TEAMS[c] || [c])[0];
+  if (p.kind === 'ml') return `Νίκη ${tn(p.side === 1 ? h : a)}`;
+  if (p.kind === 'hc') return `${tn(p.side === 1 ? h : a)} ${p.line > 0 ? '+' : ''}${p.line}`;
+  return `${p.over ? 'Over' : 'Under'} ${p.line} πόντοι`;
+}
+function gradePick(p, hs, as) {
+  let v;
+  if (p.kind === 'ml') v = p.side === 1 ? hs - as : as - hs;
+  else if (p.kind === 'hc') v = (p.side === 1 ? hs - as : as - hs) + p.line;
+  else v = p.over ? hs + as - p.line : p.line - (hs + as);
+  return v > 0 ? 'W' : v < 0 ? 'L' : 'P';
+}
+async function loadTipsters(games) {
+  const dir = path.join(ROOT, 'tipsters');
+  let files = [];
+  try { files = (await fs.readdir(dir)).filter(f => f.endsWith('.md') && !f.startsWith('_')); } catch { return []; }
+  const out = [];
+  for (const f of files) {
+    const txt = await fs.readFile(path.join(dir, f), 'utf8');
+    const m = txt.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+    const meta = {}; let body = txt;
+    if (m) { body = m[2]; for (const line of m[1].split(/\r?\n/)) { const k = line.match(/^(\w+):\s*(.*)$/); if (k) meta[k[1]] = k[2].replace(/^["']|["']$/g, '').trim(); } }
+    const name = meta.name || f.replace(/\.md$/, '');
+    const slug = meta.slug || slugify(name) || slugify(f.replace(/\.md$/, ''));
+    const picks = [], errors = [];
+    for (const raw of body.split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#') || !line.includes('|')) continue;
+      const parts = line.split('|').map(x => x.trim());
+      const round = parseInt(parts[0], 10);
+      const gm = (parts[1] || '').toUpperCase().match(/^([A-Z]{3})\s*-\s*([A-Z]{3})$/);
+      const p = parsePick(parts[2] || '');
+      const odds = parts[3] ? parseFloat(parts[3].replace(',', '.')) : null;
+      if (!round || !gm || !p) { errors.push(line); continue; }
+      const [, h, a] = gm;
+      const g = games.find(x => x[0] === round && x[2] === h && x[3] === a);
+      let res = 'pending';
+      if (!g) { res = 'unknown'; errors.push(line + '  (δεν βρέθηκε αυτός ο αγώνας σε αυτή την αγωνιστική: έλεγξε ποιος είναι γηπεδούχος)'); }
+      else if (g[6]) res = gradePick(p, g[4], g[5]);
+      picks.push({ round, h, a, label: pickLabel(p, h, a), odds: odds && odds > 1 ? odds : null, res, score: g && g[6] ? `${g[4]}-${g[5]}` : '', date: g ? g[1] : '' });
+    }
+    if (errors.length) console.warn(`Tipster ${name}: ${errors.length} γραμμές με πρόβλημα:`, errors);
+    const settled = picks.filter(x => x.res === 'W' || x.res === 'L');
+    const W = settled.filter(x => x.res === 'W').length, L = settled.length - W;
+    const withOdds = picks.filter(x => x.odds && (x.res === 'W' || x.res === 'L' || x.res === 'P'));
+    const units = withOdds.reduce((s, x) => s + (x.res === 'W' ? x.odds - 1 : x.res === 'L' ? -1 : 0), 0);
+    const staked = withOdds.filter(x => x.res !== 'P').length;
+    picks.sort((x, y) => y.round - x.round || (y.date || '').localeCompare(x.date || ''));
+    out.push({ name, slug, bio: meta.bio || '', picks, W, L, P: picks.filter(x => x.res === 'P').length,
+      pending: picks.filter(x => x.res === 'pending').length, pct: settled.length ? W / settled.length : null,
+      units, roi: staked ? units / staked : null, form: picks.filter(x => x.res === 'W' || x.res === 'L').slice(0, 5).map(x => x.res).join('') });
+  }
+  return out.sort((x, y) => (y.units - x.units) || ((y.pct ?? -1) - (x.pct ?? -1)));
+}
+
 async function loadArticles() {
   const dir = path.join(ROOT, 'articles');
   let files = [];
@@ -207,8 +276,10 @@ async function main() {
   await fs.rm(OUT, { recursive: true, force: true });
   await fs.mkdir(path.join(OUT, 'assets'), { recursive: true });
   const articles = await loadArticles();
+  const tipsters = await loadTipsters(league.games);
   await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated, teams: TEAMS, players, league,
-    articles: articles.map(({ html, ...a }) => a) }));
+    articles: articles.map(({ html, ...a }) => a),
+    tips: tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label }))) }));
   await fs.copyFile(path.join(ROOT, 'src', 'app.js'), path.join(OUT, 'assets', 'app.js'));
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
   const shell = await fs.readFile(path.join(ROOT, 'src', 'shell.html'), 'utf8');
@@ -311,6 +382,38 @@ ${body}
 <div class="prose">${a.html}</div>
 ${a.type === 'prognostiko' ? `<p class="note">Τα προγνωστικά αποτελούν προσωπική άποψη και όχι συμβουλή. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα. <a href="${BASE}prognostika/">Δείτε τις εκτιμήσεις της αγωνιστικής</a>.</p>` : ''}
 </article>` });
+  }
+
+
+  // Tipsters
+  const pctTxt = v => (v == null ? '–' : Math.round(v * 100) + '%');
+  const unitsTxt = v => (v > 0 ? '+' : '') + v.toFixed(2);
+  const resChip = r => r === 'W' ? '<span class="res w">Ν</span>' : r === 'L' ? '<span class="res l">Η</span>' : r === 'P' ? '<span class="res p">=</span>' : '<span class="res q">…</span>';
+  const tName = c => (TEAMS[c] || [c])[0];
+  const gameTxt = p => `${esc(tName(p.h))} – ${esc(tName(p.a))}`;
+  const disclaimer = `<p class="note">Οι επιλογές των tipsters είναι προσωπικές απόψεις και όχι συμβουλή. Οι μονάδες υπολογίζονται με 1 μονάδα ποντάρισμα ανά επιλογή και μόνο όπου δηλώθηκε απόδοση. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.</p>`;
+  const nextR = Math.min(...league.games.filter(g => !g[6]).map(g => g[0]));
+  const upcoming = tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ ...p, t })));
+  const byGame = {};
+  for (const p of upcoming) (byGame[`${p.round}|${p.h}|${p.a}`] ||= []).push(p);
+  await simplePage('tipsters/', { view: 'tipsters', title: `Tipsters EuroLeague: βαθμολογία και επιλογές ${nextR}ης αγωνιστικής | ${SITE_NAME}`,
+    desc: `Οι tipsters του ${SITE_NAME}: ποσοστό επιτυχίας, μονάδες κέρδους και οι επιλογές τους για την ${nextR}η αγωνιστική της ${S}.`,
+    main: `<section class="article wide"><h1>Tipsters</h1><p class="sub">Η βαθμολογία ενημερώνεται αυτόματα με τα τελικά σκορ κάθε αγώνα</p>
+${tipsters.length ? `<div class="tbl"><table class="tiptbl"><thead><tr><th>#</th><th>Tipster</th><th>Επιλογές</th><th>Ν-Η</th><th>Επιτυχία</th><th>Μονάδες</th><th>ROI</th><th>Φόρμα</th></tr></thead><tbody>
+${tipsters.map((t, i) => `<tr><td>${i + 1}</td><td class="l"><a class="tlink" href="${BASE}tipsters/${t.slug}/"><span>${esc(t.name)}</span></a></td><td>${t.W + t.L + t.P}</td><td>${t.W}-${t.L}${t.P ? `-${t.P}` : ''}</td><td>${pctTxt(t.pct)}</td><td class="${t.units > 0 ? 'up' : t.units < 0 ? 'down' : ''}">${unitsTxt(t.units)}</td><td>${t.roi == null ? '–' : (t.roi > 0 ? '+' : '') + Math.round(t.roi * 100) + '%'}</td><td>${t.form.split('').map(resChip).join(' ') || '–'}</td></tr>`).join('')}
+</tbody></table></div>` : `<p class="sub">Δεν υπάρχουν ακόμη tipsters.</p>`}
+</section>
+<section class="article wide"><h2>Οι επιλογές για τους επόμενους αγώνες</h2>
+${Object.keys(byGame).length ? `<div class="tipgames">${Object.values(byGame).map(ps => `<div class="fx"><span class="when">${ps[0].round}η αγωνιστική</span><div class="row"><b>${gameTxt(ps[0])}</b></div>${ps.map(p => `<div class="row"><a href="${BASE}tipsters/${p.t.slug}/">${esc(p.t.name)}</a><span>${esc(p.label)}${p.odds ? ` @ ${p.odds.toFixed(2)}` : ''}</span></div>`).join('')}</div>`).join('')}</div>` : `<p class="sub">Δεν έχουν δηλωθεί ακόμη επιλογές για τους επόμενους αγώνες.</p>`}
+${disclaimer}</section>` });
+  for (const t of tipsters) {
+    await simplePage(`tipsters/${t.slug}/`, { view: 'tipsters', title: `${t.name}: επιλογές και βαθμολογία tipster EuroLeague | ${SITE_NAME}`,
+      desc: `${t.name}: ${t.W}-${t.L} στις επιλογές EuroLeague, ποσοστό επιτυχίας ${pctTxt(t.pct)}, ${unitsTxt(t.units)} μονάδες.`,
+      main: `<section class="article wide"><p class="sub"><a href="${BASE}tipsters/">Tipsters</a></p><h1>${esc(t.name)}</h1>${t.bio ? `<p class="lede2">${esc(t.bio)}</p>` : ''}
+<div class="adv tipstats"><div><span>Επιλογές</span><b>${t.W + t.L + t.P}</b></div><div><span>Ν-Η</span><b>${t.W}-${t.L}</b></div><div><span>Επιτυχία</span><b>${pctTxt(t.pct)}</b></div><div><span>Μονάδες</span><b>${unitsTxt(t.units)}</b></div></div>
+<div class="tbl"><table class="tiptbl"><thead><tr><th>Αγ.</th><th>Αγώνας</th><th>Επιλογή</th><th>Απόδοση</th><th>Σκορ</th><th>Αποτέλεσμα</th></tr></thead><tbody>
+${t.picks.map(p => `<tr><td>${p.round}</td><td class="l">${gameTxt(p)}</td><td class="l">${esc(p.label)}</td><td>${p.odds ? p.odds.toFixed(2) : '–'}</td><td>${p.score || '–'}</td><td>${p.res === 'unknown' ? '<span class="res q" title="Δεν βρέθηκε ο αγώνας">?</span>' : resChip(p.res === 'pending' ? 'Q' : p.res)}</td></tr>`).join('')}
+</tbody></table></div>${disclaimer}</section>` });
   }
 
   // πολιτική απορρήτου
