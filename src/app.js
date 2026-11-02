@@ -446,7 +446,7 @@ function renderPreds(){
       '<div class="pbar" title="Πιθανότητα νίκης"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div>'+
       '<div class="rk pfacts">Φαβορί: <b>'+tName(fav)+'</b> ('+pp+'%) · Σύνολο ~'+Math.round(x.total)+' πόντοι'+(h2h.length?' · Φέτος: '+h2h.map(z=>z[2]+' '+z[4]+'-'+z[5]+' '+z[3]).join(', '):'')+'</div>';}
     return '<article class="pcard"><div class="when">'+when(w)+'</div><div class="pgrid">'+side(h,1)+'<div class="pmid">'+mid+'</div>'+side(a,0)+'</div>'+
-      (art?'<a class="pread" href="'+art.url+'">Διάβασε το προγνωστικό μας →</a>':'')+'</article>';}).join('');
+      (art?'<a class="pread" href="'+art.url+'">Διάβασε το προγνωστικό μας →</a>':'')+((D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).length?'<div class="ptips"><a href="'+BASE+'tipsters/">Tipsters</a>: '+(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).map(t=>'<span><b>'+t.n.replace(/</g,'')+'</b> '+t.l.replace(/</g,'')+'</span>').join(' · ')+'</div>':'')+'</article>';}).join('');
   box.querySelectorAll('.hotp').forEach(el=>el.textContent=byCode[el.dataset.c].name);
   const L=document.getElementById('predArts');
   if(arts.length){L.innerHTML=arts.slice(0,8).map(z=>'<a class="acard" href="'+z.url+'"><time>'+z.dateText+'</time><h2></h2><p></p></a>').join('');

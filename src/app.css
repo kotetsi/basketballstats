@@ -233,3 +233,13 @@ tbody tr.click:hover td{background:var(--accent-soft)}
 .pfacts{line-height:1.4}
 .pread{display:inline-block;margin-top:10px;color:var(--accent);font-weight:600;text-decoration:none;font-size:14px}
 @media (max-width:640px){.pgrid{grid-template-columns:1fr 1fr}.pmid{grid-column:1/-1;grid-row:2}}
+.article.wide{max-width:1000px}
+.tiptbl td.up{color:var(--good);font-weight:600}
+.tiptbl td.down{color:var(--low);font-weight:600}
+.res.p{background:var(--flat)} .res.q{background:var(--line);color:var(--muted)}
+.tipgames{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-top:10px}
+.tipstats{margin:16px 0}
+.lede2{color:var(--muted);margin:0 0 8px}
+.ptips{margin-top:8px;font-size:13px;color:var(--muted)}
+.ptips a{color:var(--accent);font-weight:600;text-decoration:none}
+.ptips b{color:var(--ink);font-weight:600}
