@@ -1,0 +1,12 @@
+{
+  "name": "basketballstats",
+  "private": true,
+  "type": "module",
+  "description": "BasketballStats: στατιστικά EuroLeague στα ελληνικά",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:offline": "node build.mjs --offline",
+    "preview": "cd dist && python3 -m http.server 8080"
+  },
+  "engines": { "node": ">=18" }
+}
