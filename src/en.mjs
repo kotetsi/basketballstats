@@ -186,15 +186,15 @@ export const PHRASES = {
 };
 
 // Εφαρμογή: πρώτα τα κομμάτια κώδικα, μετά οι φράσεις (οι μεγαλύτερες πρώτες)
-export function translate(src, code, label) {
+export function translate(src, code, label, phrases = PHRASES) {
   let out = src;
   for (const [a, b] of code) {
     const before = out;
     out = a instanceof RegExp ? out.replace(a, b) : out.replaceAll(a, b);
-    if (before === out) console.warn(`[en] ${label}: δεν βρέθηκε το κομμάτι «${String(a).slice(0, 60)}»`);
+    if (before === out) console.warn(`[i18n] ${label}: δεν βρέθηκε το κομμάτι «${String(a).slice(0, 60)}»`);
   }
-  for (const k of Object.keys(PHRASES).sort((x, y) => y.length - x.length)) out = out.replaceAll(k, PHRASES[k]);
+  for (const k of Object.keys(phrases).sort((x, y) => y.length - x.length)) out = out.replaceAll(k, phrases[k]);
   const left = [...new Set(out.match(/[Ͱ-Ͽἀ-῿][^'"<>`\n]{0,40}/g) || [])];
-  if (left.length) console.warn(`[en] ${label}: έμεινε αμετάφραστο κείμενο:`, left.slice(0, 20));
+  if (left.length) console.warn(`[i18n] ${label}: έμεινε αμετάφραστο κείμενο:`, left.slice(0, 20));
   return out;
 }
