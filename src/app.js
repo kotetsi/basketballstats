@@ -3,6 +3,9 @@ const BASE=document.body.dataset.base||'/';
 let D;
 try{D=await fetch(BASE+'assets/data.json',{cache:'no-cache'}).then(r=>r.json());}catch(e){document.querySelectorAll('main').forEach(m=>m.insertAdjacentHTML('afterbegin','<section><p class="sub" style="margin:0">Τα δεδομένα δεν φόρτωσαν. Δοκιμάστε ανανέωση της σελίδας.</p></section>'));return;}
 const UPDATED=D.updated;
+const LGK=(document.documentElement.lang||'el').slice(0,2), DL=LGK!=='el'&&D[LGK]?D[LGK]:D;
+const INJ=DL.inj||{}, INJL=DL.injL||'';
+const injB=c=>{const x=INJ[c];if(!x)return '';const t=x.t.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');return '<span class="inj'+(x.m?'':' out')+'" title="'+t+'" aria-label="'+t+'" role="img">✚</span>';};
 const RAW=D.players;
 const TEAMS=D.teams;
 const POS={Guard:"Γκαρντ",Forward:"Φόργουορντ",Center:"Σέντερ"};
@@ -59,6 +62,7 @@ function render(code){
   
   document.getElementById('jersey').textContent=p.no?'#'+p.no:'';
   document.getElementById('pname').textContent=p.name;
+  if(INJ[p.c])document.getElementById('pname').insertAdjacentHTML('beforeend',injB(p.c));
   const age=p.age?p.age+' ετών':'';
   const meta=document.getElementById('pmeta'); meta.innerHTML='';
   const chip=document.createElement('button'); chip.className='teamchip'; 
@@ -66,6 +70,7 @@ function render(code){
   chip.appendChild(document.createTextNode(tName(p.t)));
   chip.title='Σελίδα ομάδας';chip.onclick=()=>{location.href=tUrl(p.t.split(';').pop());};
   meta.appendChild(chip);
+  if(INJ[p.c]){const s=document.createElement('span');s.className='injnote'+(INJ[p.c].m?'':' out');s.textContent='✚ '+INJ[p.c].t;meta.appendChild(s);}
   [[POS[p.pos]||p.pos],[p.h?(p.h/100).toFixed(2).replace('.',',')+' μ.':''],[age],[COUNTRY[p.ct]||p.ct]].forEach(([t])=>{if(t){const s=document.createElement('span');s.textContent=t;meta.appendChild(s);}});
   const W=p.games.filter(r=>r[4]>r[5]).length, L=p.games.length-W;
   document.getElementById('prec').innerHTML='<span>Ρεκόρ με τον παίκτη</span><b>'+W+'–'+L+'</b><span>'+A.GS+' βασικός σε '+A.G+'</span>';
@@ -292,7 +297,7 @@ function renderTeam(c){
   const g1=p=>p.A.G||1;
   sortable(document.getElementById('tRoster'),[
     {k:'no',h:'#',v:p=>-(+p.no||99),f:p=>p.no||'',d:-1},
-    {k:'name',h:'Παίκτης',l:1,v:p=>p.name,f:p=>'<a class="tlink" href="'+pUrl(p.c)+'\"><span>'+p.name.replace(/</g,'')+'</span></a>',d:1},
+    {k:'name',h:'Παίκτης',l:1,v:p=>p.name,f:p=>'<a class="tlink" href="'+pUrl(p.c)+'\"><span>'+p.name.replace(/</g,'')+'</span>'+injB(p.c)+'</a>',d:1},
     {k:'pos',h:'Θέση',l:1,v:p=>POS[p.pos]||p.pos,f:p=>POS[p.pos]||p.pos,d:1},
     {k:'g',h:'Αγ.',v:p=>p.A.G,f:p=>p.A.G},
     {k:'min',h:'Λεπ.',v:p=>p.A.min/g1(p),f:p=>p.A.G?mmss(p.A.min*60/g1(p)):'–'},
@@ -326,7 +331,7 @@ function heatLab(d,s){s=s||1;return d>=5*s?['Καίει','var(--hot)']:d>=2*s?['
 const deg=d=>(d>0?'+':d<0?'−':'')+Math.abs(d).toFixed(1)+'°';
 const heatElig=()=>P.filter(p=>p.A.G>=5&&p.A.min/p.A.G>=10).map(p=>({p,h:heatOf(p)})).filter(x=>x.h);
 function hrow(p,h,sub){const [,col]=heatLab(h.d);
-  return '<a class="hrow" href="'+pUrl(p.c)+'\"><span class="deg" style="background:'+col+'">'+deg(h.d)+'</span><span class="nm"><span class="pn"></span><small>'+(sub||tName(p.t))+'</small></span><span class="tr">PIR '+f1(h.pre)+' → <b>'+f1(h.l3)+'</b></span></a>';}
+  return '<a class="hrow" href="'+pUrl(p.c)+'\"><span class="deg" style="background:'+col+'">'+deg(h.d)+'</span><span class="nm"><span class="pn"></span>'+injB(p.c)+'<small>'+(sub||tName(p.t))+'</small></span><span class="tr">PIR '+f1(h.pre)+' → <b>'+f1(h.l3)+'</b></span></a>';}
 function fillNames(el,list){el.querySelectorAll('.pn').forEach((s,i)=>{s.textContent=list[i].p.name;});}
 
 function renderPHeat(){
@@ -384,13 +389,17 @@ function renderFantasy(){
   const nr=Math.min(...GAMES.filter(g=>!g[6]).map(g=>g[0]));
   document.getElementById('fanSub').textContent='Προτάσεις για την '+nr+'η αγωνιστική με βάση φόρμα, μέσο όρο και αντίπαλο';
   // picks
-  const pool=P.filter(p=>p.pos===fpos&&!p.t.includes(';')&&p.A.G>=3&&p.A.min/p.A.G>=12).map(p=>({p,x:proj(p)})).filter(o=>o.x).sort((a,b)=>FSORT[fsort][1](b.x)-FSORT[fsort][1](a.x)).slice(0,15);
+  const cand=P.filter(p=>p.pos===fpos&&!p.t.includes(';')&&p.A.G>=3&&p.A.min/p.A.G>=12);
+  const outL=cand.filter(p=>INJ[p.c]).sort((a,b)=>b.A.pir/b.A.G-a.A.pir/a.A.G);
+  const pool=cand.filter(p=>!INJ[p.c]).map(p=>({p,x:proj(p)})).filter(o=>o.x).sort((a,b)=>FSORT[fsort][1](b.x)-FSORT[fsort][1](a.x)).slice(0,15);
   document.getElementById('fanPicksSub').textContent='Οι 15 πρώτοι ανά θέση με βάση '+FSORT[fsort][0]+' · πατήστε μια στήλη για άλλη ταξινόμηση';
   const tb=document.getElementById('fanPicks');
   tb.innerHTML='<thead><tr><th>#</th><th>Παίκτης</th><th>Αντίπαλος</th>'+[['base','PIR','Μέσο PIR σεζόν'],['rec','Τελ. 3','Μέσο PIR 3 τελευταίων'],['heat','Θερμόμετρο','Φόρμα: τελευταίοι 3 σε σχέση με τους προηγούμενους'],['v','Εκτίμηση','Εκτίμηση PIR για τον επόμενο αγώνα']].map(([k,l,ti])=>'<th class="sth'+(fsort===k?' sorted':'')+'" data-s="'+k+'" title="'+ti+'" tabindex="0" role="button">'+l+(fsort===k?' ▼':'')+'</th>').join('')+'</tr></thead><tbody>'+
    pool.map((o,i)=>{const x=o.x,rk=allowedRank(x.opp),lab=x.h?heatLab(x.h.d):null;
     return '<tr class="click" data-c="'+o.p.c+'"><td>'+(i+1)+'</td><td class="l"><a class="tlink" href="'+pUrl(o.p.c)+'\">'+crest(o.p.t)+'<span class="pn"></span></a></td><td class="l">'+(x.home?'vs ':'@ ')+tName(x.opp)+' <span class="ease" style="background:'+easeCol(rk)+'" title="'+ord(rk)+' σε PIR που δέχεται">'+ord(rk)+'</span></td><td>'+f1(x.base)+'</td><td>'+f1(x.rec)+'</td><td>'+(lab?'<span class="deg sm" style="background:'+lab[1]+'">'+deg(x.h.d)+'</span>':'–')+'</td><td class="hi">'+f1(x.v)+'</td></tr>';}).join('')+'</tbody>';
   tb.querySelectorAll('.pn').forEach((s,i)=>s.textContent=pool[i].p.name);
+  const fo=document.getElementById('fanOut');
+  if(fo){fo.hidden=!outL.length;fo.innerHTML=outL.length?'<b>'+INJL+'</b> '+outL.map(p=>'<a class="tlink" href="'+pUrl(p.c)+'"><span class="pn"></span>'+injB(p.c)+'</a>').join(', '):'';fo.querySelectorAll('.pn').forEach((s,i)=>s.textContent=outL[i].name);}
   tb.onclick=e=>{const th=e.target.closest('th.sth');if(th){fsort=th.dataset.s;renderFantasy();return;}if(e.target.closest('a'))return;const tr=e.target.closest('tr.click');if(tr)location.href=pUrl(tr.dataset.c);};
   // schedule difficulty
   const R=[...new Set(GAMES.filter(g=>!g[6]).map(g=>g[0]))].slice(0,5);

@@ -260,3 +260,4 @@ a.pklink:hover{color:var(--accent)}
 .pickbox small{display:block;color:var(--muted);font-size:12px}
 .pickbox.W{border-color:var(--good)} .pickbox.L{border-color:var(--low)}
 @media (max-width:640px){.pickbox{grid-template-columns:1fr}}
+.inj{display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-left:.35em;border-radius:50%;background:#d93025;color:#fff;font-size:11px;font-weight:800;line-height:1;vertical-align:.1em;cursor:help;flex:none}.inj.out{background:#e8710a}#pname .inj{font-size:.42em;vertical-align:.45em}.tlink .inj{margin-left:-2px}.injnote{color:#d93025;font-weight:600}.injnote.out{color:#e8710a}#fanOut a{white-space:nowrap}
