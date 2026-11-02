@@ -243,3 +243,19 @@ tbody tr.click:hover td{background:var(--accent-soft)}
 .ptips{margin-top:8px;font-size:13px;color:var(--muted)}
 .ptips a{color:var(--accent);font-weight:600;text-decoration:none}
 .ptips b{color:var(--ink);font-weight:600}
+.tippick{display:flex;justify-content:space-between;gap:10px;color:inherit;text-decoration:none;padding:4px 0;border-top:1px dashed var(--line)}
+.tippick:hover .tl{color:var(--accent)}
+.tippick .tn{font-weight:600;white-space:nowrap}
+.tippick .tl{text-align:right}
+.tippick i{font-style:normal;color:var(--accent);font-size:12px;white-space:nowrap}
+a.pklink{color:var(--ink);font-weight:600;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.pklink:hover{color:var(--accent)}
+.ptips a.tipa{color:var(--muted);font-weight:400;text-decoration:none;border-bottom:1px dotted var(--accent)}
+.ptips a.tipa:hover{color:var(--accent)}
+.pickbox{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:8px 0 24px}
+.pickbox div{background:var(--surface);padding:12px 14px}
+.pickbox span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pickbox b{font-family:var(--display);font-size:22px;font-weight:800}
+.pickbox small{display:block;color:var(--muted);font-size:12px}
+.pickbox.W{border-color:var(--good)} .pickbox.L{border-color:var(--low)}
+@media (max-width:640px){.pickbox{grid-template-columns:1fr}}
