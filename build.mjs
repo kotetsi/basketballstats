@@ -324,7 +324,48 @@ async function main() {
   const adHead = AD_CLIENT ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(AD_CLIENT)}" crossorigin="anonymous"></script>\n` : '';
   const shellB = shell.replaceAll('{{BASE}}', BASE).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL);
   const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
-  const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit);
+  const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit)
+    .replace('Πολιτική απορρήτου</a>', `Πολιτική απορρήτου</a><a href="${BASE}efarmogi/">Εφαρμογή</a>`);
+
+  // ---- εφαρμογή (PWA): εικονίδια, manifest, service worker, κουμπί εγκατάστασης
+  for (const f of await fs.readdir(path.join(ROOT, 'src'))) if (/\.(png|svg)$/.test(f)) await fs.copyFile(path.join(ROOT, 'src', f), path.join(OUT, f));
+  await fs.writeFile(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
+    name: `${SITE_NAME}: στατιστικά EuroLeague`, short_name: SITE_NAME, lang: 'el', dir: 'ltr',
+    description: 'Βαθμολογία, στατιστικά παικτών και ομάδων, Θερμόμετρο φόρμας, Fantasy και προγνωστικά EuroLeague στα ελληνικά.',
+    id: BASE, start_url: BASE + '?source=app', scope: BASE, display: 'standalone', orientation: 'portrait',
+    background_color: '#1d2330', theme_color: '#1d2330', categories: ['sports'],
+    icons: [
+      { src: BASE + 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: BASE + 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: BASE + 'maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }],
+    shortcuts: [
+      { name: 'Βαθμολογία', url: BASE },
+      { name: 'Fantasy', url: BASE + 'fantasy/' },
+      { name: 'Προγνωστικά', url: BASE + 'prognostika/' },
+      { name: 'Tipsters', url: BASE + 'tipsters/' }],
+  }, null, 1));
+  // service worker: πρώτα δίκτυο (για φρέσκα στατιστικά), αν δεν υπάρχει σύνδεση η αποθηκευμένη έκδοση
+  await fs.writeFile(path.join(OUT, 'sw.js'), `const C='bs-${ver}', OFF='${BASE}efarmogi/';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['${BASE}',OFF,'${BASE}assets/data.json','${BASE}icon-192.png'])).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);
+  if(r.method!=='GET'||u.origin!==location.origin)return;
+  e.respondWith(fetch(r).then(res=>{if(res.ok){const cp=res.clone();caches.open(C).then(c=>c.put(r,cp));}return res;})
+    .catch(()=>caches.match(r,{ignoreSearch:u.pathname.endsWith('.css')||u.pathname.endsWith('.js')}).then(m=>m||(r.mode==='navigate'?caches.match(OFF):Response.error()))));});
+`);
+  const pwaHead = `<script>
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('${BASE}sw.js'));
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.bsInstall=e;document.documentElement.classList.add('can-install');});
+addEventListener('click',e=>{const b=e.target.closest('[data-install]');if(b&&window.bsInstall){window.bsInstall.prompt();window.bsInstall.userChoice.then(()=>{window.bsInstall=null;document.documentElement.classList.remove('can-install');});}});
+</script>
+<style>.only-install{display:none}.can-install .only-install{display:inline-flex}
+.appbox{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:18px 0}
+.appbox>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.appbox h3{margin:0 0 8px;font-family:var(--display);font-size:20px}
+.appbox ol{margin:0;padding-left:20px}.appbox li{margin:4px 0}
+.appbtn{align-items:center;gap:8px;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:12px 18px;font:600 16px var(--body);cursor:pointer}
+.apphero{display:flex;flex-wrap:wrap;gap:18px;align-items:center}.apphero>div{flex:1 1 260px;min-width:0}.apphero h1{font-size:clamp(26px,7vw,40px);margin:0 0 6px}.apphero img{width:96px;height:96px;border-radius:22px}</style>
+`;
 
   function head(title, desc, url) {
     return `<!doctype html>
@@ -342,11 +383,19 @@ async function main() {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(url)}">
 <meta name="theme-color" content="#1d2330">
+<link rel="manifest" href="${BASE}manifest.webmanifest">
+<link rel="icon" href="${BASE}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${BASE}favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="${BASE}apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="${esc(SITE_NAME)}">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@600;800&family=Fira+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="${BASE}assets/app.css?v=${ver}">
-${adHead}</head>`;
+${adHead}${pwaHead}</head>`;
   }
   async function write(rel, html) {
     const file = path.join(OUT, rel, 'index.html');
@@ -461,6 +510,18 @@ ${p.html ? `<div class="prose">${p.html}</div>` : `<p class="sub">Ο ${esc(t.nam
 ${disclaimer}</article>` });
     }
   }
+
+  // σελίδα εφαρμογής (και σελίδα εκτός σύνδεσης)
+  await simplePage('efarmogi/', { view: 'app', title: `Εφαρμογή ${SITE_NAME} για κινητό: EuroLeague στατιστικά στην οθόνη σου`,
+    desc: `Βάλε το ${SITE_NAME} στην αρχική οθόνη του κινητού σου, σε Android και iPhone. Δωρεάν, χωρίς λήψη από store.`,
+    main: `<div class="article"><div class="apphero"><img src="${BASE}icon-192.png" alt="" width="96" height="96"><div><h1>Το ${esc(SITE_NAME)} στο κινητό σου</h1><p class="sub">Δωρεάν, χωρίς εγγραφή και χωρίς λήψη από store. Ανοίγει σε πλήρη οθόνη σαν κανονική εφαρμογή και δείχνει τα τελευταία στατιστικά που είδες ακόμη και χωρίς σύνδεση.</p></div></div>
+<p><button class="appbtn only-install" data-install type="button">Εγκατάσταση εφαρμογής</button></p>
+<div class="appbox">
+<div><h3>Android (Chrome)</h3><ol><li>Πάτησε το κουμπί «Εγκατάσταση εφαρμογής» πιο πάνω.</li><li>Αν δεν εμφανίζεται, άνοιξε το μενού ⋮ πάνω δεξιά.</li><li>Διάλεξε «Εγκατάσταση εφαρμογής» ή «Προσθήκη στην αρχική οθόνη».</li></ol></div>
+<div><h3>iPhone (Safari)</h3><ol><li>Άνοιξε το ${esc(SITE_NAME)} στο Safari.</li><li>Πάτησε το κουμπί κοινοποίησης (τετράγωνο με βέλος προς τα πάνω).</li><li>Διάλεξε «Προσθήκη στην οθόνη Αφετηρίας» και μετά «Προσθήκη».</li></ol></div>
+<div><h3>Υπολογιστής</h3><ol><li>Άνοιξε το site σε Chrome ή Edge.</li><li>Πάτησε το εικονίδιο εγκατάστασης στη γραμμή διεύθυνσης ή το κουμπί πιο πάνω.</li></ol></div>
+</div>
+<p class="note">Αν βλέπεις αυτή τη σελίδα χωρίς να την άνοιξες εσύ, μάλλον δεν έχεις σύνδεση στο ίντερνετ. Οι σελίδες που άνοιξες πρόσφατα είναι διαθέσιμες και εκτός σύνδεσης.</p></div>` });
 
   // πολιτική απορρήτου
   const owner = CONF.owner || '[Επωνυμία ιδιοκτήτη]', email = CONF.email || '[email επικοινωνίας]';
