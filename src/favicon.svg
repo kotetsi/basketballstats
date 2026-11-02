@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1d2330"/>
+  <g transform="translate(256 236)">
+    <circle r="150" fill="#e9773f"/>
+    <g fill="none" stroke="#1d2330" stroke-width="13" stroke-linecap="round">
+      <path d="M0-150V150"/>
+      <path d="M-150 0H150"/>
+      <path d="M-106-106C-50-60-50 60-106 106"/>
+      <path d="M106-106C50-60 50 60 106 106"/>
+    </g>
+  </g>
+  <g fill="#f3f1ec" stroke="#1d2330" stroke-width="14" paint-order="stroke">
+    <rect x="150" y="360" width="52" height="66" rx="6"/>
+    <rect x="230" y="320" width="52" height="106" rx="6"/>
+    <rect x="310" y="276" width="52" height="150" rx="6"/>
+  </g>
+</svg>

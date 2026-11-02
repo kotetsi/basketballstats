@@ -187,8 +187,8 @@ q.addEventListener('keydown',e=>{if(sg.hidden)return;const bs=[...sg.querySelect
   bs.forEach((b,i)=>b.classList.toggle('on',i===sel));});
 q.addEventListener('blur',()=>setTimeout(()=>sg.hidden=true,120));
 
-document.getElementById('modeSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;mode=b.dataset.m;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===b));renderAvg();});
-document.getElementById('cmpSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cmp=b.dataset.c;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===b));renderPct();});
+document.getElementById('modeSeg')?.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;mode=b.dataset.m;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===b));renderAvg();});
+document.getElementById('cmpSeg')?.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cmp=b.dataset.c;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===b));renderPct();});
 {const u=document.getElementById('upd');if(u)u.textContent=UPDATED;}
 
 // ---- league: standings, schedule, team aggregates
@@ -417,8 +417,8 @@ function renderFantasy(){
   F.querySelectorAll('.ld').forEach((b,i)=>{b.querySelector('em').textContent=all[i].p.name;b.onclick=()=>{location.href=pUrl(all[i].p.c);};});
 }
 
-document.getElementById('fanPicks').addEventListener('keydown',e=>{const th=e.target.closest('th.sth');if(th&&(e.key==='Enter'||e.key===' ')){e.preventDefault();fsort=th.dataset.s;renderFantasy();}});
-document.getElementById('fanSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fpos=b.dataset.p;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===b));renderFantasy();});
+document.getElementById('fanPicks')?.addEventListener('keydown',e=>{const th=e.target.closest('th.sth');if(th&&(e.key==='Enter'||e.key===' ')){e.preventDefault();fsort=th.dataset.s;renderFantasy();}});
+document.getElementById('fanSeg')?.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fpos=b.dataset.p;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===b));renderFantasy();});
 
 // ---- Προγνωστικά: εκτίμηση από αποδόσεις ανά 100 κατοχές
 const HCA=3; // πλεονέκτημα έδρας σε πόντους
@@ -466,4 +466,5 @@ else if(VIEW==='fantasy'){show('fantasy');renderFantasy();}
 else if(VIEW==='preds'){show('preds');renderPreds();}
 else if(VIEW==='stand'){show('stand');renderStand();}
 else{document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v===VIEW));}
+{const n=document.querySelector('.nav'),a=n&&n.querySelector('a.on');if(a&&a.offsetLeft+a.offsetWidth>n.clientWidth)n.scrollLeft=a.offsetLeft-16;}
 })();
