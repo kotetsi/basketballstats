@@ -3,12 +3,13 @@ name: High Fidelity
 bio: 
 bio_en: 
 bio_es: 
+bio_sr: 
 ---
 
 # Επιλογές του High Fidelity, μία ανά γραμμή:
 # αγωνιστική | ΓΗΠΕΔΟΥΧΟΣ-ΦΙΛΟΞΕΝΟΥΜΕΝΟΣ | επιλογή | απόδοση
 # Από κάτω, όσες γραμμές θέλεις με την ανάλυση της επιλογής.
-# Για την αγγλική έκδοση: γραμμή «EN:» και από κάτω η ανάλυση στα αγγλικά. Για την ισπανική: γραμμή «ES:».
+# Για την αγγλική έκδοση: γραμμή «EN:» και από κάτω η ανάλυση στα αγγλικά. Για την ισπανική: γραμμή «ES:». Για τη σερβική: «SR:».
 
 10 | ASV-MUN | Norris πόντοι 10+ | 2.77
 Ο Miles Norris βρήκε ρόλο τις δύο τελευταίες αγωνιστικές: πάνω από 22 λεπτά ως βασικός, με **17 πόντους** κόντρα στην Μπαρτσελόνα και **14** στο Βελιγράδι απέναντι στον Ερυθρό Αστέρα. Μέχρι τότε δεν είχε περάσει τους 9.
@@ -30,3 +31,10 @@ Miles Norris ha encontrado su sitio en las dos últimas jornadas: más de 22 min
 El ASVEL tiene una de las defensas más abiertas de la liga: recibe 92,3 puntos por partido, la quinta peor marca. Si Norris mantiene sus minutos, el 10+ es un objetivo realista a cuota 2,77.
 
 El riesgo: en los 7 partidos de la temporada solo ha llegado a 10 puntos dos veces.
+
+SR:
+Majls Noris je u poslednja dva kola dobio ulogu: više od 22 minuta u startnoj petorci, sa **17 poena** protiv Barselone i **14** u Beogradu protiv Crvene zvezde. Pre toga nije prelazio 9.
+
+Asvel ima jednu od najotvorenijih odbrana u ligi: prima 92,3 poena po utakmici, peti najlošiji učinak. Ako Noris zadrži minutažu, 10+ je realan cilj po kvoti 2,77.
+
+Rizik: u 7 utakmica ove sezone samo je dva puta stigao do 10 poena.

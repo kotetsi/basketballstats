@@ -3,6 +3,7 @@ name: Όνομα Tipster
 bio: Μία πρόταση για τον tipster (προαιρετικό).
 bio_en: The same sentence in English (optional).
 bio_es: La misma frase en español (opcional).
+bio_sr: Ista rečenica na srpskom (opciono).
 ---
 
 # Τα αρχεία που ξεκινούν με κάτω παύλα (_) δεν δημοσιεύονται.
@@ -32,8 +33,8 @@ bio_es: La misma frase en español (opcional).
 # Κενή γραμμή = νέα παράγραφος. Μπορείς να γράψεις **έντονα** και *πλάγια*.
 #
 # ΑΓΓΛΙΚΑ / ΙΣΠΑΝΙΚΑ: κάτω από την ελληνική ανάλυση γράψε μια γραμμή «EN:» και από κάτω το κείμενο στα αγγλικά,
-# και μια γραμμή «ES:» με το κείμενο στα ισπανικά. Η επιλογή εμφανίζεται έτσι κι αλλιώς και στο αγγλικό (/en/)
-# και στο ισπανικό site (/es/), με μεταφρασμένο τίτλο.
+# μια γραμμή «ES:» με το κείμενο στα ισπανικά και μια γραμμή «SR:» με το κείμενο στα σερβικά (λατινικά). Η επιλογή εμφανίζεται έτσι κι αλλιώς και στο αγγλικό (/en/)
+# στο ισπανικό (/es/) και στο σερβικό site (/sr/), με μεταφρασμένο τίτλο.
 #
 # 10 | ASV-MUN | Norris πόντοι 10+ | 2.77
 # Ο Norris βρήκε ρόλο τις δύο τελευταίες αγωνιστικές...
@@ -41,6 +42,8 @@ bio_es: La misma frase en español (opcional).
 # Norris has found a role over the last two rounds...
 # ES:
 # Norris ha encontrado su sitio en las dos últimas jornadas...
+# SR:
+# Noris je u poslednja dva kola dobio ulogu...
 #
 # Παραδείγματα:
 # 10 | OLY-RED | 1 | 1.55
