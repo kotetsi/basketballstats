@@ -1,0 +1,30 @@
+# Τραυματίες EuroLeague
+
+Οι παίκτες αυτής της λίστας εμφανίζονται στο site με κόκκινο ✚ και δεν μπαίνουν στις προτάσεις του Fantasy.
+
+Επιπλέον, το site βάζει αυτόματα πορτοκαλί ✚ σε όποιον δεν έχει αγωνιστεί στους 2 ή περισσότερους
+τελευταίους αγώνες της ομάδας του (ενώ πριν έπαιζε κανονικά). Αυτό γίνεται μόνο του σε κάθε ενημέρωση.
+
+## Πώς προσθέτεις παίκτη
+
+Μία γραμμή ανά παίκτη, με τα πεδία χωρισμένα με |
+
+    ημερομηνία είδησης | επώνυμο | ομάδα | επιστροφή | ελληνικά | English | Español | Srpski
+
+- **ημερομηνία είδησης**: π.χ. 2026-10-30
+- **επώνυμο**: όπως στο site, χωρίς τόνους (π.χ. Montero)
+- **ομάδα**: ο κωδικός της ομάδας (OLY, PAN, MAD, BAR, ULK, IST, RED, PAR, ZAL, TEL, HTA, DUB, MUN, MIL, VIR, PAM, BAS, ASV, PRS, BES)
+- **επιστροφή**: μήνας (2027-05) ή ημερομηνία (2026-11-10) ή - αν δεν είναι γνωστή
+- Τα κείμενα σε άλλες γλώσσες είναι προαιρετικά (αν λείπουν, γράφει απλώς «Injured» κ.λπ.)
+
+Η γραμμή σβήνει μόνη της από το site μόλις ο παίκτης ξαναπαίξει, οπότε δεν χρειάζεται να τη σβήνεις.
+
+## Λίστα
+
+2026-10-30 | Montero | OLY | 2027-05 | Χειρουργείο στον μηνίσκο του αριστερού γονάτου, εκτός περίπου 6 μήνες | Left knee meniscus surgery, out about 6 months | Operado del menisco de la rodilla izquierda, unos 6 meses de baja | Operacija meniskusa levog kolena, van terena oko 6 meseci
+2026-10-20 | Fournier | OLY | 2026-11-10 | Ώμος και γόνατο, εκτός περίπου 20 ημέρες | Shoulder and knee, out about 20 days | Hombro y rodilla, unos 20 días de baja | Rame i koleno, van terena oko 20 dana
+2026-10-29 | Lundberg | TEL | - | Μερική ρήξη τένοντα τετρακεφάλου | Partial quadriceps tendon tear | Rotura parcial del tendón del cuádriceps | Delimično pucanje tetive kvadricepsa
+2026-10-30 | Dozier | IST | 2026-11-13 | Μέση, εκτός 1-2 εβδομάδες | Back, out 1-2 weeks | Espalda, 1-2 semanas de baja | Leđa, van terena 1-2 nedelje
+2026-10-30 | Jekiri | PAR | - | Θλάση στη βουβωνική χώρα | Groin strain | Distensión en la ingle | Istegnuće prepone
+2026-10-29 | Smith Jr | MAD | - | Ενόχληση στο πέλμα του δεξιού ποδιού | Discomfort in the sole of the right foot | Molestias en la planta del pie derecho | Bol u tabanu desnog stopala
+2026-10-30 | Reuvers | PAM | - | Πόδι | Foot | Pie | Stopalo

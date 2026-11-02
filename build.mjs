@@ -144,6 +144,54 @@ function gradePick(p, hs, as) {
   else v = p.over ? hs + as - p.line : p.line - (hs + as);
   return v > 0 ? 'W' : v < 0 ? 'L' : 'P';
 }
+// ---- Τραυματίες: χειροκίνητη λίστα (traumaties.md) + αυτόματος εντοπισμός απουσιών
+async function loadInjuries(players, games) {
+  const out = { el: {}, en: {}, es: {}, sr: {} };
+  const done = games.filter(g => g[6]);
+  // αυτόματα: έλειψε από τους 2+ τελευταίους αγώνες της ομάδας του, ενώ έπαιζε κανονικά
+  for (const p of players) {
+    if (p.t.includes(';')) continue;
+    const pl = p.g.filter(r => r[7] > 0);
+    if (pl.length < 3 || pl.reduce((s, r) => s + r[7], 0) / pl.length < 600) continue;
+    const have = new Set(pl.map(r => r[0]));
+    const tg = done.filter(g => g[2] === p.t || g[3] === p.t).sort((a, b) => a[0] - b[0]);
+    let miss = 0; for (let i = tg.length - 1; i >= 0 && !have.has(tg[i][0]); i--) miss++;
+    if (miss < 2) continue;
+    const srN = miss >= 5 ? `poslednjih ${miss} utakmica` : `poslednje ${miss} utakmice`;
+    out.el[p.c] = { m: 0, t: `Δεν έχει αγωνιστεί στους τελευταίους ${miss} αγώνες της ομάδας του` };
+    out.en[p.c] = { m: 0, t: `Has missed his team's last ${miss} games` };
+    out.es[p.c] = { m: 0, t: `Se ha perdido los últimos ${miss} partidos de su equipo` };
+    out.sr[p.c] = { m: 0, t: `Propustio je ${srN} svog tima` };
+  }
+  // χειροκίνητα: ημερομηνία | παίκτης | ομάδα | επιστροφή | ελληνικά | english | español | srpski
+  let txt = '';
+  try { txt = await fs.readFile(path.join(ROOT, 'traumaties.md'), 'utf8'); } catch { }
+  const today = new Date().toISOString().slice(0, 10);
+  const MON = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' };
+  const fmtRet = (r, lg) => {
+    if (!/^\d{4}-\d{2}(-\d{2})?$/.test(r)) return r;
+    const d = new Date(r.length === 7 ? r + '-15' : r);
+    return d.toLocaleDateString(MON[lg], r.length === 7 ? { month: 'long', year: 'numeric' } : { day: 'numeric', month: 'long' });
+  };
+  const LBL = { el: ['Τραυματίας', 'Επιστροφή'], en: ['Injured', 'Expected back'], es: ['Lesionado', 'Regreso previsto'], sr: ['Povređen', 'Očekivani povratak'] };
+  for (const line of txt.split(/\r?\n/)) {
+    if (!/^\s*\d{4}-\d{2}-\d{2}\s*\|/.test(line)) continue;
+    const [date, who, team, ret, ...notes] = line.split('|').map(s => s.trim());
+    const key = who.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const p = players.find(x => x.t.split(';').pop() === team.toUpperCase() && x.n.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().includes(key));
+    if (!p) { console.warn('Τραυματίες: δεν βρέθηκε ο παίκτης', who, team); continue; }
+    if (p.g.some(r => r[7] > 0 && r[1] > date)) { console.log('Τραυματίες: ο', who, 'έχει ξαναπαίξει, αγνοείται'); continue; }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(ret) && ret < today && !out.el[p.c]) continue;
+    ['el', 'en', 'es', 'sr'].forEach((lg, i) => {
+      const note = notes[i] || '';
+      const r = ret && ret !== '-' ? ` · ${LBL[lg][1]}: ${fmtRet(ret, lg)}` : '';
+      out[lg][p.c] = { m: 1, t: `${LBL[lg][0]}${note ? ': ' + note : ''}${r}` };
+    });
+  }
+  console.log('Τραυματίες/απόντες:', Object.keys(out.el).length);
+  return out;
+}
+
 async function loadTipsters(games, players) {
   const dir = path.join(ROOT, 'tipsters');
   let files = [];
@@ -351,13 +399,15 @@ async function main() {
   await fs.mkdir(path.join(OUT, 'assets'), { recursive: true });
   const articles = await loadArticles();
   const tipsters = await loadTipsters(league.games, players);
+  const INJ = await loadInjuries(players, league.games);
+  const INJL = { el: 'Εκτός (τραυματίες ή απόντες):', en: 'Out (injured or absent):', es: 'Bajas (lesionados o ausentes):', sr: 'Van terena (povređeni ili odsutni):' };
   const pendingTips = lg => tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label[lg], u: p.url[lg] })));
   const artList = lg => articles.filter(a => a[lg]).map(a => ({ title: a[lg].title, desc: a[lg].desc, type: a.type, round: a.round, game: a.game, author: a.author, date: a.date, dateText: a[lg].dateText, slug: a[lg].slug, url: a[lg].url }));
   await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated: UPD.el, teams: TEAMS, players, league,
-    articles: artList('el'), tips: pendingTips('el'),
-    en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en') },
-    es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es') },
-    sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr') } }));
+    articles: artList('el'), tips: pendingTips('el'), inj: INJ.el, injL: INJL.el,
+    en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en'), inj: INJ.en, injL: INJL.en },
+    es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es },
+    sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr } }));
   const appSrc = await fs.readFile(path.join(ROOT, 'src', 'app.js'), 'utf8');
   await fs.writeFile(path.join(OUT, 'assets', 'app.js'), appSrc);
   await fs.writeFile(path.join(OUT, 'assets', 'app.en.js'), translate(appSrc, APP_CODE, 'app.js (en)'));
