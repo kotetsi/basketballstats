@@ -49,7 +49,7 @@ main{padding-block:24px 48px;display:grid;grid-template-columns:minmax(0,1.55fr)
 section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
 section h2{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.4px;margin:0 0 4px}
 .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
-.col{display:grid;gap:24px;align-content:start;min-width:0}
+.col{display:grid;gap:24px;align-content:start;min-width:0;grid-template-columns:minmax(0,1fr)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-bottom:12px}
 .seg button{border:0;background:none;padding:6px 12px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer}
 .seg button.on{background:var(--ink);color:var(--surface)}
