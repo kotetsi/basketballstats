@@ -1,0 +1,50 @@
+# Κάθε βράδυ: τραβάει νέα δεδομένα από την EuroLeague, ξαναχτίζει τις σελίδες
+# και τις δημοσιεύει στο GitHub Pages. Τρέχει και όταν αλλάζει κάτι στο repo
+# (π.χ. νέο άρθρο) και χειροκίνητα από την καρτέλα Actions.
+name: Ενημέρωση site
+
+on:
+  schedule:
+    - cron: "15 0 * * *"    # 02:15 ώρα Ελλάδας τον χειμώνα (03:15 το καλοκαίρι)
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Λήψη δεδομένων και παραγωγή σελίδων
+        run: node build.mjs
+      - name: Αποθήκευση των νέων δεδομένων στο repo
+        run: |
+          git config user.name "basketballstats-bot"
+          git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add data/cache.json
+          git diff --cached --quiet || (git commit -m "Ενημέρωση δεδομένων $(date -u +%F)" && git push)
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
