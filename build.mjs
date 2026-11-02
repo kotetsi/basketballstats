@@ -356,6 +356,11 @@ self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);
   const pwaHead = `<script>
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('${BASE}sw.js'));
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.bsInstall=e;document.documentElement.classList.add('can-install');});
+addEventListener('load',()=>{const ua=navigator.userAgent,ios=/iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  if(!ios||!/Safari/.test(ua)||/CriOS|FxiOS|EdgiOS|OPiOS|GSA|FBAN|FBAV|Instagram|Line\\//.test(ua)||navigator.standalone||location.pathname.indexOf('/efarmogi/')>-1)return;
+  try{if(localStorage.getItem('bsIosHint'))return;}catch(e){}
+  setTimeout(()=>{const d=document.createElement('div');d.className='ioshint';d.innerHTML='<img src="${BASE}icon-192.png" alt=""><span><b>Βάλε το ${esc(SITE_NAME)} στην οθόνη σου</b>Πάτα <svg viewBox="0 0 20 24" aria-label="κοινοποίηση"><path d="M10 2v13M5 7l5-5 5 5M3 11v10h14V11" fill="none" stroke="currentColor" stroke-width="2"/></svg> και «Προσθήκη στην οθόνη Αφετηρίας»</span><button type="button" aria-label="Κλείσιμο">×</button>';
+    d.querySelector('button').onclick=()=>{d.remove();try{localStorage.setItem('bsIosHint','1');}catch(e){}};document.body.appendChild(d);},2500);});
 addEventListener('click',e=>{const b=e.target.closest('[data-install]');if(b&&window.bsInstall){window.bsInstall.prompt();window.bsInstall.userChoice.then(()=>{window.bsInstall=null;document.documentElement.classList.remove('can-install');});}});
 </script>
 <style>.only-install{display:none}.can-install .only-install{display:inline-flex}
@@ -364,6 +369,9 @@ addEventListener('click',e=>{const b=e.target.closest('[data-install]');if(b&&wi
 .appbox h3{margin:0 0 8px;font-family:var(--display);font-size:20px}
 .appbox ol{margin:0;padding-left:20px}.appbox li{margin:4px 0}
 .appbtn{align-items:center;gap:8px;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:12px 18px;font:600 16px var(--body);cursor:pointer}
+.ioshint{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:50;display:flex;gap:12px;align-items:center;background:#1d2330;color:#f3f1ec;border-radius:12px;padding:12px 10px 12px 12px;box-shadow:0 8px 28px rgba(0,0,0,.35);font-size:14px;line-height:1.35}
+.ioshint img{width:42px;height:42px;border-radius:10px;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.2)}.ioshint span{flex:1}.ioshint b{display:block;font-size:15px}
+.ioshint svg{width:15px;height:18px;vertical-align:-3px;color:#e9773f}.ioshint button{background:none;border:0;color:inherit;font-size:26px;line-height:1;padding:4px 8px;cursor:pointer;opacity:.8}
 .apphero{display:flex;flex-wrap:wrap;gap:18px;align-items:center}.apphero>div{flex:1 1 260px;min-width:0}.apphero h1{font-size:clamp(26px,7vw,40px);margin:0 0 6px}.apphero img{width:96px;height:96px;border-radius:22px}</style>
 `;
 
