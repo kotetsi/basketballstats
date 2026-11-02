@@ -100,9 +100,17 @@ function markdown(md) {
 // ---------- Tipsters (ένα αρχείο .md ανά tipster στον φάκελο tipsters/)
 // Γραμμή επιλογής:  αγωνιστική | ΓΗΠ-ΦΙΛ | επιλογή | απόδοση (προαιρετική)
 // Επιλογές: 1, 2, 1 -5.5, 2 +7.5, over 160.5, under 160.5
+const PROP_STATS = { 'πόντοι': 'pts', 'ποντοι': 'pts', 'πόντους': 'pts', 'pts': 'pts', 'points': 'pts', 'ριμπάουντ': 'reb', 'ριμπαουντ': 'reb', 'reb': 'reb', 'rebounds': 'reb',
+  'ασίστ': 'ast', 'ασιστ': 'ast', 'ast': 'ast', 'assists': 'ast', 'τρίποντα': '3pm', 'τριποντα': '3pm', '3pm': '3pm', 'pir': 'pir' };
+const PROP_LABEL = { pts: 'πόντοι', reb: 'ριμπάουντ', ast: 'ασίστ', '3pm': 'τρίποντα', pir: 'PIR' };
+const propValue = (stat, r) => stat === 'pts' ? r[8] : stat === 'reb' ? r[15] + r[16] : stat === 'ast' ? r[17] : stat === '3pm' ? r[11] : r[25];
 function parsePick(sel) {
   const s = sel.trim().toLowerCase().replace(',', '.');
   let m;
+  // ατομικά: "Norris πόντοι 10+", "Norris πόντοι over 9.5", "Miles Norris ριμπάουντ under 4.5"
+  if ((m = s.match(/^(.+?)\s+(\S+)\s+(\d+)\s*\+$/)) && PROP_STATS[m[2]]) return { kind: 'prop', who: m[1], stat: PROP_STATS[m[2]], min: +m[3] };
+  if ((m = s.match(/^(.+?)\s+(\S+)\s+(over|under|o|u|πάνω|πανω|κάτω|κατω)\s*(\d+(?:\.\d+)?)$/)) && PROP_STATS[m[2]])
+    return { kind: 'prop', who: m[1], stat: PROP_STATS[m[2]], over: /^(over|o|πάνω|πανω)$/.test(m[3]), line: parseFloat(m[4]) };
   if (/^[12]$/.test(s)) return { kind: 'ml', side: +s };
   if ((m = s.match(/^([12])\s*([+-]\s*\d+(?:\.\d+)?)$/))) return { kind: 'hc', side: +m[1], line: parseFloat(m[2].replace(/\s/g, '')) };
   if ((m = s.match(/^(over|under|o|u|πάνω|πανω|κάτω|κατω)\s*(\d+(?:\.\d+)?)$/))) return { kind: 'tot', over: /^(over|o|πάνω|πανω)$/.test(m[1]), line: parseFloat(m[2]) };
@@ -110,6 +118,7 @@ function parsePick(sel) {
 }
 function pickLabel(p, h, a) {
   const tn = c => (TEAMS[c] || [c])[0];
+  if (p.kind === 'prop') return p.min != null ? `${p.name} ${p.min}+ ${PROP_LABEL[p.stat]}` : `${p.name} ${p.over ? 'over' : 'under'} ${p.line} ${PROP_LABEL[p.stat]}`;
   if (p.kind === 'ml') return `Νίκη ${tn(p.side === 1 ? h : a)}`;
   if (p.kind === 'hc') return `${tn(p.side === 1 ? h : a)} ${p.line > 0 ? '+' : ''}${p.line}`;
   return `${p.over ? 'Over' : 'Under'} ${p.line} πόντοι`;
@@ -121,7 +130,7 @@ function gradePick(p, hs, as) {
   else v = p.over ? hs + as - p.line : p.line - (hs + as);
   return v > 0 ? 'W' : v < 0 ? 'L' : 'P';
 }
-async function loadTipsters(games) {
+async function loadTipsters(games, players) {
   const dir = path.join(ROOT, 'tipsters');
   let files = [];
   try { files = (await fs.readdir(dir)).filter(f => f.endsWith('.md') && !f.startsWith('_')); } catch { return []; }
@@ -146,9 +155,21 @@ async function loadTipsters(games) {
       const [, h, a] = gm;
       const g = games.find(x => x[0] === round && x[2] === h && x[3] === a);
       let res = 'pending';
+      if (p.kind === 'prop') {
+        const words = p.who.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().split(/\s+/);
+        const cands = players.filter(x => [h, a].includes(x.t.split(';').pop()) || x.t.split(';').some(t => t === h || t === a))
+          .filter(x => { const nm = x.n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); return words.every(w => nm.includes(w)); });
+        if (cands.length !== 1) { errors.push(line + (cands.length ? '  (βρέθηκαν πολλοί παίκτες με αυτό το όνομα: γράψε και το μικρό όνομα)' : '  (δεν βρέθηκε παίκτης με αυτό το όνομα στις δύο ομάδες)')); continue; }
+        p.player = cands[0]; p.name = niceName(cands[0].n);
+      }
       if (!g) { res = 'unknown'; errors.push(line + '  (δεν βρέθηκε αυτός ο αγώνας σε αυτή την αγωνιστική: έλεγξε ποιος είναι γηπεδούχος)'); }
+      else if (g[6] && p.kind === 'prop') {
+        const row = p.player.g.find(r => r[0] === round && r[7] > 0);
+        if (!row) res = 'P'; // δεν αγωνίστηκε: η επιλογή ακυρώνεται
+        else { const v = propValue(p.stat, row); const d = p.min != null ? v - p.min + 0.5 : (p.over ? v - p.line : p.line - v); res = d > 0 ? 'W' : d < 0 ? 'L' : 'P'; p.val = v; }
+      }
       else if (g[6]) res = gradePick(p, g[4], g[5]);
-      picks.push({ round, h, a, label: pickLabel(p, h, a), odds: odds && odds > 1 ? odds : null, res, score: g && g[6] ? `${g[4]}-${g[5]}` : '', date: g ? g[1] : '' });
+      picks.push({ round, h, a, label: pickLabel(p, h, a), odds: odds && odds > 1 ? odds : null, res, score: g && g[6] ? `${g[4]}-${g[5]}` + (p.kind === 'prop' && p.val != null ? ` · ${p.val} ${PROP_LABEL[p.stat]}` : '') : '', date: g ? g[1] : '' });
     }
     if (errors.length) console.warn(`Tipster ${name}: ${errors.length} γραμμές με πρόβλημα:`, errors);
     const settled = picks.filter(x => x.res === 'W' || x.res === 'L');
@@ -276,7 +297,7 @@ async function main() {
   await fs.rm(OUT, { recursive: true, force: true });
   await fs.mkdir(path.join(OUT, 'assets'), { recursive: true });
   const articles = await loadArticles();
-  const tipsters = await loadTipsters(league.games);
+  const tipsters = await loadTipsters(league.games, players);
   await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated, teams: TEAMS, players, league,
     articles: articles.map(({ html, ...a }) => a),
     tips: tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label }))) }));
