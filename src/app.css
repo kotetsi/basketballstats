@@ -323,3 +323,10 @@ a.pklink:hover{color:var(--accent)}
 .odistl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px}
 @media (max-width:440px){.otiles{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){#fanPosT small{display:none}}
+/* άρθρα αγωνιστικής, widgets */
+.recap h2{margin:28px 0 6px}.recap ul{padding-left:20px;margin:6px 0}.recap li{margin:6px 0}.recap .glist .res{width:22px}
+.recaps .acard h2{margin:0;font-size:20px}
+.wbox{max-width:760px;margin:0 auto;width:100%;display:grid;gap:6px}.wbox h2{margin:0}
+.wprev{border:1px dashed var(--line);border-radius:10px;padding:8px;background:var(--bg)}.wprev iframe{width:100%;max-width:460px;border:0;display:block}
+.wbox textarea{width:100%;font:12px/1.4 ui-monospace,Consolas,monospace;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);resize:vertical}
+.wcopy{justify-self:start;border:0;border-radius:7px;background:var(--accent);color:#fff;font:inherit;font-weight:600;padding:8px 14px;cursor:pointer}
