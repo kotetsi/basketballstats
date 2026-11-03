@@ -45,10 +45,89 @@ const TEAMS = {
 const LANGS = ['el', 'en', 'es', 'sr'];
 const TEAM_IDX = { el: [0, 2], en: [3, 4], es: [5, 6], sr: [7, 8] }; // θέση ονόματος και slug στο TEAMS
 const PATHS = {
-  el: { team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi' },
-  en: { team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app' },
-  es: { team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app' },
-  sr: { team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija' },
+  el: { team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas' },
+  en: { team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game' },
+  es: { team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido' },
+  sr: { team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica' },
+};
+// κείμενα των νέων ενοτήτων του app (γραμμές, με/χωρίς, σελίδες αγώνων) ανά γλώσσα
+const UI = {
+  el: {
+    gpath: 'agonas', rd: '{n}η αγωνιστική', final: 'τελικό', est: 'εκτίμηση σκορ', fav: 'Φαβορί: <b>{t}</b> ({p}%)', total: 'Σύνολο ~{n} πόντοι',
+    gameLink: 'Ανάλυση αγώνα →', soon: 'προσεχώς', recHome: 'Έδρα', recAway: 'Εκτός', heat: 'Θερμόμετρο', W: 'Ν', L: 'Η',
+    noInj: 'Δεν υπάρχουν γνωστές απουσίες.', player: 'Παίκτης', min: 'Λεπ.', pts: 'Πόντ.', reb: 'Ριμπ.', ast: 'Ασίστ',
+    ovr: 'Γραμμή πόντων', ovrT: 'Πόσες φορές πέρασε το όριο πόντων κοντά στον μέσο όρο του', h2hNone: 'Δεν έχουν άλλο αγώνα μεταξύ τους φέτος.', readPred: 'Διάβασε το προγνωστικό μας →',
+    ff: { ppg: 'Πόντοι ανά αγώνα', oppg: 'Πόντοι κατά', ortg: 'Επιθετική απόδοση', drtg: 'Αμυντική απόδοση', net: 'Καθαρή απόδοση', pace: 'Ρυθμός (κατοχές)', efg: 'Ευστοχία (eFG%)', tovp: 'Λάθη ανά κατοχή', orbp: 'Επιθ. ριμπάουντ %', ftr: 'Βολές ανά σουτ', p3: 'Τρίποντα %' },
+    pTitle: 'Γραμμές παίκτη', pSub: 'Πόσες φορές πέρασε το όριο σε κάθε κατηγορία. Αλλάξτε το όριο με − και +.',
+    pk: { pts: 'Πόντοι', reb: 'Ριμπάουντ', ast: 'Ασίστ', pra: 'Π+Ρ+Α', m3: 'Τρίποντα', pir: 'PIR' }, pLine: 'Όριο',
+    pAll: 'Όλη η σεζόν', pLast: 'Τελευταίοι {n}', pHome: 'Εντός έδρας', pAway: 'Εκτός έδρας', pVs: 'Με {t}',
+    pAvg: 'Μέσος όρος {a} · διάμεσος {m}', pNext: 'Επόμενος αγώνας: {g}',
+    pNote: 'Μετράνε μόνο οι αγώνες που αγωνίστηκε. Στατιστική πληροφορία, όχι συμβουλή στοιχήματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.',
+    wTitle: 'Με και χωρίς αυτόν', wSub: 'Η ομάδα στους αγώνες που έπαιξε και σε αυτούς που έλειψε (από την πρώτη του εμφάνιση)',
+    wWith: 'Με αυτόν', wWithout: 'Χωρίς αυτόν', wMar: 'Διαφορά', wPF: 'Υπέρ', wPA: 'Κατά', wGames: '{n} αγώνες',
+    wMinT: 'Ποιος παίρνει τα λεπτά του', wMinSub: 'Μέσα λεπτά και PIR των συμπαικτών όταν παίζει και όταν λείπει',
+    wMinW: 'Λεπτά με', wMinWo: 'Λεπτά χωρίς', wPirW: 'PIR με', wPirWo: 'PIR χωρίς',
+    wSmall: 'Μικρό δείγμα ({n} αγώνες χωρίς αυτόν): τα νούμερα αλλάζουν εύκολα.',
+    wTeamT: 'Με και χωρίς', wTeamSub: 'Ρεκόρ της ομάδας με και χωρίς κάθε βασικό παίκτη (σε παρένθεση η μέση διαφορά πόντων)', wMissed: 'Απουσίες',
+    wNone: 'Όλοι οι βασικοί παίκτες έχουν αγωνιστεί σε κάθε αγώνα από την πρώτη τους εμφάνιση.',
+  },
+  en: {
+    gpath: 'game', rd: 'Round {n}', final: 'final', est: 'projected score', fav: 'Favourite: <b>{t}</b> ({p}%)', total: 'Total ~{n} points',
+    gameLink: 'Game preview →', soon: 'upcoming', recHome: 'Home', recAway: 'Away', heat: 'Thermometer', W: 'W', L: 'L',
+    noInj: 'No known absences.', player: 'Player', min: 'Min', pts: 'Pts', reb: 'Reb', ast: 'Ast',
+    ovr: 'Points line', ovrT: 'How often he went over the points line closest to his average', h2hNone: 'No other meeting between them this season.', readPred: 'Read our prediction →',
+    ff: { ppg: 'Points per game', oppg: 'Points allowed', ortg: 'Offensive rating', drtg: 'Defensive rating', net: 'Net rating', pace: 'Pace (possessions)', efg: 'Shooting (eFG%)', tovp: 'Turnovers per possession', orbp: 'Offensive rebound %', ftr: 'Free throws per shot', p3: '3-point %' },
+    pTitle: 'Player lines', pSub: 'How often he went over the line in each category. Change the line with − and +.',
+    pk: { pts: 'Points', reb: 'Rebounds', ast: 'Assists', pra: 'P+R+A', m3: 'Threes', pir: 'PIR' }, pLine: 'Line',
+    pAll: 'Whole season', pLast: 'Last {n}', pHome: 'Home', pAway: 'Away', pVs: 'Vs {t}',
+    pAvg: 'Average {a} · median {m}', pNext: 'Next game: {g}',
+    pNote: 'Only games he played count. Statistical information, not betting advice. Betting is for adults only (21+ in Greece, 18+ in most countries). Please gamble responsibly.',
+    wTitle: 'With and without him', wSub: 'The team in the games he played and in the ones he missed (since his first appearance)',
+    wWith: 'With him', wWithout: 'Without him', wMar: 'Margin', wPF: 'For', wPA: 'Against', wGames: '{n} games',
+    wMinT: 'Who takes his minutes', wMinSub: 'Teammates’ average minutes and PIR when he plays and when he is out',
+    wMinW: 'Min with', wMinWo: 'Min without', wPirW: 'PIR with', wPirWo: 'PIR without',
+    wSmall: 'Small sample ({n} games without him): the numbers can swing easily.',
+    wTeamT: 'With and without', wTeamSub: 'The team’s record with and without each key player (average point margin in brackets)', wMissed: 'Missed',
+    wNone: 'Every key player has played in every game since his first appearance.',
+  },
+  es: {
+    gpath: 'partido', rd: 'Jornada {n}', final: 'final', est: 'marcador estimado', fav: 'Favorito: <b>{t}</b> ({p}%)', total: 'Total ~{n} puntos',
+    gameLink: 'Previa del partido →', soon: 'próximamente', recHome: 'Local', recAway: 'Visitante', heat: 'Termómetro', W: 'V', L: 'D',
+    noInj: 'No hay bajas conocidas.', player: 'Jugador', min: 'Min', pts: 'Pts', reb: 'Reb', ast: 'Asis',
+    ovr: 'Línea de puntos', ovrT: 'Cuántas veces superó la línea de puntos más cercana a su promedio', h2hNone: 'No tienen otro partido entre ellos esta temporada.', readPred: 'Lee nuestro pronóstico →',
+    ff: { ppg: 'Puntos por partido', oppg: 'Puntos en contra', ortg: 'Rating ofensivo', drtg: 'Rating defensivo', net: 'Rating neto', pace: 'Ritmo (posesiones)', efg: 'Acierto (eFG%)', tovp: 'Pérdidas por posesión', orbp: 'Rebote ofensivo %', ftr: 'Tiros libres por tiro', p3: 'Triples %' },
+    pTitle: 'Líneas del jugador', pSub: 'Cuántas veces superó la línea en cada categoría. Cambia la línea con − y +.',
+    pk: { pts: 'Puntos', reb: 'Rebotes', ast: 'Asistencias', pra: 'P+R+A', m3: 'Triples', pir: 'PIR' }, pLine: 'Línea',
+    pAll: 'Toda la temporada', pLast: 'Últimos {n}', pHome: 'En casa', pAway: 'Fuera', pVs: 'Contra {t}',
+    pAvg: 'Promedio {a} · mediana {m}', pNext: 'Próximo partido: {g}',
+    pNote: 'Solo cuentan los partidos que jugó. Información estadística, no un consejo de apuestas. Las apuestas son solo para adultos (+21 en Grecia, +18 en España y la mayoría de países). Juega con responsabilidad.',
+    wTitle: 'Con y sin él', wSub: 'El equipo en los partidos que jugó y en los que se perdió (desde su primera aparición)',
+    wWith: 'Con él', wWithout: 'Sin él', wMar: 'Diferencia', wPF: 'A favor', wPA: 'En contra', wGames: '{n} partidos',
+    wMinT: 'Quién se queda con sus minutos', wMinSub: 'Minutos y PIR medios de sus compañeros cuando juega y cuando no está',
+    wMinW: 'Min con', wMinWo: 'Min sin', wPirW: 'PIR con', wPirWo: 'PIR sin',
+    wSmall: 'Muestra pequeña ({n} partidos sin él): las cifras pueden cambiar fácilmente.',
+    wTeamT: 'Con y sin', wTeamSub: 'Balance del equipo con y sin cada jugador clave (entre paréntesis, la diferencia media de puntos)', wMissed: 'Ausencias',
+    wNone: 'Todos los jugadores clave han jugado todos los partidos desde su primera aparición.',
+  },
+  sr: {
+    gpath: 'utakmica', rd: '{n}. kolo', final: 'konačno', est: 'procenjeni rezultat', fav: 'Favorit: <b>{t}</b> ({p}%)', total: 'Ukupno ~{n} poena',
+    gameLink: 'Najava utakmice →', soon: 'uskoro', recHome: 'Kod kuće', recAway: 'U gostima', heat: 'Termometar', W: 'P', L: 'I',
+    noInj: 'Nema poznatih odsustava.', player: 'Igrač', min: 'Min', pts: 'Poeni', reb: 'Skok', ast: 'Asist',
+    ovr: 'Linija poena', ovrT: 'Koliko puta je prešao liniju poena najbližu svom proseku', h2hNone: 'Nemaju drugu međusobnu utakmicu ove sezone.', readPred: 'Pročitaj našu prognozu →',
+    ff: { ppg: 'Poeni po utakmici', oppg: 'Primljeni poeni', ortg: 'Napadački rejting', drtg: 'Odbrambeni rejting', net: 'Neto rejting', pace: 'Ritam (posedi)', efg: 'Šut (eFG%)', tovp: 'Izgubljene lopte po posedu', orbp: 'Skok u napadu %', ftr: 'Slobodna bacanja po šutu', p3: 'Trojke %' },
+    pTitle: 'Linije igrača', pSub: 'Koliko puta je prešao liniju u svakoj kategoriji. Promeni liniju sa − i +.',
+    pk: { pts: 'Poeni', reb: 'Skokovi', ast: 'Asistencije', pra: 'P+S+A', m3: 'Trojke', pir: 'PIR' }, pLine: 'Linija',
+    pAll: 'Cela sezona', pLast: 'Poslednjih {n}', pHome: 'Kod kuće', pAway: 'U gostima', pVs: 'Protiv: {t}',
+    pAvg: 'Prosek {a} · medijana {m}', pNext: 'Sledeća utakmica: {g}',
+    pNote: 'Računaju se samo utakmice koje je odigrao. Statistička informacija, a ne savet za klađenje. Klađenje je dozvoljeno samo punoletnim osobama (21+ u Grčkoj, 18+ u Srbiji i većini zemalja). Igrajte odgovorno.',
+    wTitle: 'Sa njim i bez njega', wSub: 'Tim na utakmicama koje je igrao i na onima koje je propustio (od njegovog prvog nastupa)',
+    wWith: 'Sa njim', wWithout: 'Bez njega', wMar: 'Razlika', wPF: 'Dati', wPA: 'Primljeni', wGames: 'Utakmica: {n}',
+    wMinT: 'Ko preuzima njegove minute', wMinSub: 'Prosečni minuti i PIR saigrača kada igra i kada ga nema',
+    wMinW: 'Min sa', wMinWo: 'Min bez', wPirW: 'PIR sa', wPirWo: 'PIR bez',
+    wSmall: 'Mali uzorak (utakmica bez njega: {n}): brojke se lako menjaju.',
+    wTeamT: 'Sa njim i bez njega', wTeamSub: 'Skor tima sa i bez svakog ključnog igrača (u zagradi prosečna razlika u poenima)', wMissed: 'Odsustva',
+    wNone: 'Svi ključni igrači su igrali na svakoj utakmici od svog prvog nastupa.',
+  },
 };
 const ordEn = n => { const t = n % 100; return n + (t > 10 && t < 14 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] || 'th')); };
 
@@ -404,10 +483,10 @@ async function main() {
   const pendingTips = lg => tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label[lg], u: p.url[lg] })));
   const artList = lg => articles.filter(a => a[lg]).map(a => ({ title: a[lg].title, desc: a[lg].desc, type: a.type, round: a.round, game: a.game, author: a.author, date: a.date, dateText: a[lg].dateText, slug: a[lg].slug, url: a[lg].url }));
   await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated: UPD.el, teams: TEAMS, players, league,
-    articles: artList('el'), tips: pendingTips('el'), inj: INJ.el, injL: INJL.el,
-    en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en'), inj: INJ.en, injL: INJL.en },
-    es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es },
-    sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr } }));
+    articles: artList('el'), tips: pendingTips('el'), inj: INJ.el, injL: INJL.el, ui: UI.el,
+    en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en'), inj: INJ.en, injL: INJL.en, ui: UI.en },
+    es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: UI.es },
+    sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr, ui: UI.sr } }));
   const appSrc = await fs.readFile(path.join(ROOT, 'src', 'app.js'), 'utf8');
   await fs.writeFile(path.join(OUT, 'assets', 'app.js'), appSrc);
   await fs.writeFile(path.join(OUT, 'assets', 'app.en.js'), translate(appSrc, APP_CODE, 'app.js (en)'));
@@ -429,6 +508,7 @@ async function main() {
     if (k === 'player') return B(lg) + P.player + '/' + v + '/';
     if (k === 'article') { const a = artBySlug[v]; return a && a[lg] ? a[lg].url : null; }
     if (k === 'tipster') return B(lg) + 'tipsters/' + v + '/';
+    if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
     return B(lg) + P[k] + '/';
   }
@@ -556,10 +636,10 @@ ${adHead}${pwaHead(LG)}</head>`;
       await fs.writeFile(file, html);
     }
     // απλή σελίδα (άρθρα, tipsters, πολιτική απορρήτου): ίδια κεφαλίδα και υποσέλιδο
-    async function simplePage(key, { title, desc, view, main }) {
+    async function simplePage(key, { title, desc, view, main, id = '' }) {
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
       await write(url, `${head(title, desc, url, alt)}
-<body ${bodyAttrs(view)}>
+<body ${bodyAttrs(view, id)}>
 ${topband.replace('{{LANGSW}}', langSw(alt))}
 ${adUnit(LG)}<main class="wrap one">${main}</main>
 ${footer}
@@ -765,6 +845,46 @@ ${disclaimer}</article>` });
         `${n} (${tn}) in the ${S}: ${s.G} games, ${f1(s.pts)} points, ${f1(s.reb)} rebounds, ${f1(s.ast)} assists and ${f1(s.pir)} PIR per game.`, `${n} (${tn}) en la ${S}: ${s.G} partidos, ${f1(s.pts)} puntos, ${f1(s.reb)} rebotes, ${f1(s.ast)} asistencias y ${f1(s.pir)} de PIR por partido.`, `${n} (${tn}) u ${S}: ${s.G} utakmica, ${f1(s.pts)} poena, ${f1(s.reb)} skokova, ${f1(s.ast)} asistencija i ${f1(s.pir)} PIR po utakmici.`);
       await page('player:' + p.s, { view: 'player', id: p.c, h1p: n, ledep: lede,
         title: T(`${n} στατιστικά ${S} (${tn}) | ${SITE_NAME}`, `${n} stats ${S} (${tn}) | ${SITE_NAME}`, `Estadísticas de ${n} en la ${S} (${tn}) | ${SITE_NAME}`, `${n} statistika ${S} (${tn}) | ${SITE_NAME}`), desc: lede });
+    }
+
+    // σελίδες αγώνων: μία για κάθε αγώνα της σεζόν
+    const LOC = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG];
+    const gDateB = s => new Date(Date.UTC(2020 + (+s[8]), +s.slice(0, 2) - 1, +s.slice(2, 4), +s.slice(4, 6), +s.slice(6, 8)));
+    const rdTxt = r => T(`${r}η αγωνιστική`, `Round ${r}`, `Jornada ${r}`, `${r}. kolo`);
+    for (const g of league.games) {
+      const [r, w, h, a, hs, as, pl] = g;
+      if (!TEAMS[h] || !TEAMS[a]) continue;
+      const H = tName(h), A = tName(a), d = gDateB(w);
+      const dt = d.toLocaleString(LOC, { timeZone: 'Europe/Athens', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+      const vs = T(`${H} - ${A}`, `${H} vs ${A}`, `${H} - ${A}`, `${H} - ${A}`);
+      const sc = LG === 'sr' ? `${hs}:${as}` : `${hs}-${as}`;
+      const title = pl
+        ? T(`${vs} ${sc}: στατιστικά αγώνα (${rdTxt(r)} EuroLeague)`, `${vs} ${sc}: game stats (EuroLeague ${rdTxt(r)})`, `${vs} ${sc}: estadísticas del partido (${rdTxt(r).toLowerCase()} de la EuroLeague)`, `${vs} ${sc}: statistika utakmice (${rdTxt(r)} Evrolige)`)
+        : T(`${vs}: πρόβλεψη, στατιστικά και απουσίες (${rdTxt(r)} EuroLeague)`, `${vs}: prediction, stats and injuries (EuroLeague ${rdTxt(r)})`, `${vs}: pronóstico, estadísticas y bajas (${rdTxt(r).toLowerCase()} de la EuroLeague)`, `${vs}: prognoza, statistika i povrede (${rdTxt(r)} Evrolige)`);
+      const desc = pl
+        ? T(`${vs} ${sc} στην ${rdTxt(r)} της ${S}: οι κορυφαίοι του αγώνα, η φόρμα, οι τέσσερις παράγοντες και τα μεταξύ τους.`, `${vs} ${sc} in ${rdTxt(r)} of the ${S}: top performers, form, four factors and head-to-head.`, `${vs} ${sc} en la ${rdTxt(r).toLowerCase()} de la ${S}: los mejores del partido, la forma, los cuatro factores y los enfrentamientos.`, `${vs} ${sc} u ${rdTxt(r)} ${S}: najbolji igrači utakmice, forma, četiri faktora i međusobni dueli.`)
+        : T(`${vs} (${dt}): εκτίμηση σκορ, πιθανότητα νίκης, φόρμα, τέσσερις παράγοντες, απουσίες και βασικοί παίκτες με τις γραμμές τους.`, `${vs} (${dt}): projected score, win probability, form, four factors, injuries and key players with their lines.`, `${vs} (${dt}): marcador estimado, probabilidad de victoria, forma, cuatro factores, bajas y jugadores clave con sus líneas.`, `${vs} (${dt}): procenjeni rezultat, verovatnoća pobede, forma, četiri faktora, povrede i ključni igrači sa linijama.`);
+      const ld = { '@context': 'https://schema.org', '@type': 'SportsEvent', name: vs, sport: 'Basketball', startDate: d.toISOString(),
+        eventStatus: 'https://schema.org/EventScheduled', homeTeam: { '@type': 'SportsTeam', name: H }, awayTeam: { '@type': 'SportsTeam', name: A },
+        superEvent: { '@type': 'SportsEvent', name: S }, url: SITE_URL + urlFor(LG, `game:${r}|${h}|${a}`) };
+      const main = `<article class="game">
+<p class="kicker">EuroLeague · ${esc(rdTxt(r))}</p>
+<h1>${esc(H)} – ${esc(A)}</h1>
+<p class="lede">${esc(dt)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)')}${pl ? ` · ${T('Τελικό', 'Final', 'Final', 'Konačan rezultat')} ${sc}` : ''}</p>
+<section class="gtop" id="gTop"></section>
+<div class="gcols2">
+<section><h2>${T('Φόρμα', 'Form', 'Forma', 'Forma')}</h2><p class="sub">${T('Οι 5 τελευταίοι αγώνες κάθε ομάδας', 'Each team’s last 5 games', 'Los últimos 5 partidos de cada equipo', 'Poslednjih 5 utakmica svakog tima')}</p><div class="gcols" id="gForm"></div></section>
+<section><h2>${T('Απουσίες', 'Injuries and absences', 'Bajas', 'Odsutni igrači')}</h2><p class="sub">${T('✚ κόκκινο: τραυματίας · ✚ πορτοκαλί: έχει χάσει τους τελευταίους αγώνες', '✚ red: injured · ✚ orange: has missed the latest games', '✚ rojo: lesionado · ✚ naranja: se ha perdido los últimos partidos', '✚ crveno: povređen · ✚ narandžasto: propustio je poslednje utakmice')}</p><div class="gcols" id="gInj"></div></section>
+</div>
+<section><h2>${pl ? T('Οι κορυφαίοι του αγώνα', 'Top performers', 'Los mejores del partido', 'Najbolji igrači utakmice') : T('Βασικοί παίκτες', 'Key players', 'Jugadores clave', 'Ključni igrači')}</h2><p class="sub">${pl ? T('Κατά PIR στον αγώνα', 'By PIR in the game', 'Por PIR en el partido', 'Po PIR-u na utakmici') : T('Μέσοι όροι σεζόν και πόσες φορές πέρασαν τη γραμμή πόντων τους', 'Season averages and how often they went over their points line', 'Promedios de la temporada y cuántas veces superaron su línea de puntos', 'Proseci u sezoni i koliko puta su prešli svoju liniju poena')}</p><div class="gcols" id="gKey"></div></section>
+<section><h2>${T('Σύγκριση ομάδων', 'Team comparison', 'Comparativa de equipos', 'Poređenje timova')}</h2><p class="sub">${T('Ανά αγώνα και ανά 100 κατοχές · σε παρένθεση η θέση στη λίγκα · με έντονα το καλύτερο', 'Per game and per 100 possessions · league rank in brackets · better value in bold', 'Por partido y por 100 posesiones · entre paréntesis, el puesto en la liga · en negrita, el mejor', 'Po utakmici i na 100 poseda · u zagradi mesto u ligi · podebljano bolje')}</p><div class="tbl"><table id="gFactors"></table></div></section>
+<section><h2>${T('Μεταξύ τους φέτος', 'Head-to-head this season', 'Enfrentamientos esta temporada', 'Međusobni dueli ove sezone')}</h2><div id="gH2H"></div></section>
+<section id="gTipsSec" hidden><h2>${T('Τα προγνωστικά μας', 'Our predictions', 'Nuestros pronósticos', 'Naše prognoze')}</h2><div id="gTips"></div></section>
+<p class="note">${T('Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.', 'The projections are statistical and are not betting advice. Betting is for adults only (21+ in Greece, 18+ in most countries). Please gamble responsibly.', 'Las estimaciones son estadísticas y no son un consejo de apuestas. Las apuestas son solo para adultos (+21 en Grecia, +18 en España y la mayoría de países). Juega con responsabilidad.', 'Procene su statističke i nisu savet za klađenje. Klađenje je dozvoljeno samo punoletnim osobama (21+ u Grčkoj, 18+ u Srbiji i većini zemalja). Igrajte odgovorno.')}</p>
+<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Όλα τα προγνωστικά της αγωνιστικής →', 'All predictions for the round →', 'Todos los pronósticos de la jornada →', 'Sve prognoze za kolo →')}</a></p>
+<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>
+</article>`;
+      await simplePage(`game:${r}|${h}|${a}`, { view: 'game', id: `${r}|${h}|${a}`, title: `${title} | ${SITE_NAME}`, desc, main });
     }
   }
 
