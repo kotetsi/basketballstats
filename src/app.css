@@ -446,3 +446,8 @@ section.career tr.cur td{font-weight:600}
 .fx .fxfilters select{max-width:100%}.fx .fxfilters label{max-width:100%}.fx h1{overflow-wrap:anywhere}@media (max-width:640px){.fx h1{font-size:30px}}
 article.fx,section.fxdash{min-width:0}
 .fx > *,.lead > *{min-width:0}
+/* parlay */
+.paroli .parpick{margin:10px 0;border:1px solid var(--line);border-radius:10px;padding:12px 14px}.paroli .parpick h3{margin:2px 0 6px}.paroli .parpick h3 a{color:inherit}.paroli .parpick ul{margin:6px 0 0;padding-left:18px}.paroli .parpick.ok{border-color:#2e7d32}.paroli .parpick.ko{border-color:#c62828}
+.paroli .parsel{margin:0}.paroli .parres{margin:6px 0 0;font-weight:600}
+.paroli .partot{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;border:2px solid var(--accent);border-radius:10px;padding:10px 14px;margin:14px 0}.paroli .partot>b{font-family:var(--display);font-size:26px}
+.paroli b.ok{color:#2e7d32}.paroli b.ko{color:#c62828}

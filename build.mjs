@@ -741,6 +741,7 @@ async function main() {
     if (k === 'widget') return B(lg) + 'widget/' + ({ el: { st: 'vathmologia', rd: 'agonistiki' }, en: { st: 'standings', rd: 'round' }, es: { st: 'clasificacion', rd: 'jornada' }, sr: { st: 'tabela', rd: 'kolo' } })[lg][v] + '/';
     if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
+    if (k === 'paroli') return B(lg) + ({ el: 'paroli', en: 'parlay', es: 'combinada', sr: 'tiket' })[lg] + '/' + (v ? ({ el: `agonistiki-${v}`, en: `round-${v}`, es: `jornada-${v}`, sr: `${v}-kolo` })[lg] + '/' : '');
     if (k === 'fx') return B(lg) + P.fantasy + '/' + v + '/';
     if (k === 'hist') return B(lg) + P.hist + '/' + (v ? v + '/' : '');
     if (k === 'lead') return B(lg) + P.lead + '/' + (v ? LEAD_SUB[lg][v] + '/' : '');
@@ -1161,12 +1162,85 @@ ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: t
         ld: [{ '@context': 'https://schema.org', '@type': 'Article', headline: fTitle(r), inLanguage: LG, datePublished: data.fetchedAt.slice(0, 10), dateModified: data.fetchedAt.slice(0, 10), author: { '@type': 'Organization', name: SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME } }, crumbs([[SITE_NAME, B(LG)], [T('Άρθρα', 'Articles', 'Artículos', 'Članci'), urlFor(LG, 'articles')], [fTitle(r), urlFor(LG, 'fpick:' + r)]])] });
     }
 
+    // ---- Το παρολί της αγωνιστικής: οι πιο σίγουρες εκτιμήσεις του μοντέλου, με δεδομένα μόνο πριν από την αγωνιστική
+    const nextRoundP = (league.games.find(g => !g[6]) || [0])[0];
+    const pRounds = [...new Set(league.games.map(g => g[0]))].filter(r => r >= 3 && r <= nextRoundP).sort((a, b) => b - a);
+    const recBefore = (c, r) => { const gs = league.games.filter(g => g[6] && g[0] < r && (g[2] === c || g[3] === c)); const w = gs.filter(g => (g[2] === c ? g[4] > g[5] : g[5] > g[4])).length; return [w, gs.length - w]; };
+    const formBefore = (c, r) => league.games.filter(g => g[6] && g[0] < r && (g[2] === c || g[3] === c)).slice(-5).map(g => ((g[2] === c ? g[4] > g[5] : g[5] > g[4]) ? T('Ν', 'W', 'V', 'P') : T('Η', 'L', 'D', 'I'))).join('');
+    const paroliFor = r => {
+      const M = teamModel(players, r);
+      const cand = league.games.filter(g => g[0] === r && TEAMS[g[2]] && TEAMS[g[3]]).map(g => { const x = M.predict(g[2], g[3]); if (!x) return null; const homeFav = x.prob >= 0.5; return { g, x, fav: homeFav ? g[2] : g[3], dog: homeFav ? g[3] : g[2], p: homeFav ? x.prob : 1 - x.prob }; }).filter(Boolean).sort((a, b) => b.p - a.p);
+      const picks = cand.filter(c => c.p >= 0.6).slice(0, 3);
+      picks.sort((a, b) => a.g[1].slice(0, 8).localeCompare(b.g[1].slice(0, 8)));
+      if (picks.length < 2) return null;
+      const P = picks.reduce((s, c) => s * c.p, 1);
+      const done = picks.every(c => c.g[6]);
+      for (const c of picks) c.hit = c.g[6] ? ((c.g[4] > c.g[5] ? c.g[2] : c.g[3]) === c.fav) : null;
+      return { r, picks, P, done, won: done ? picks.every(c => c.hit) : null };
+    };
+    const PAR = Object.fromEntries(pRounds.map(r => [r, paroliFor(r)]).filter(x => x[1]));
+    const parRounds = Object.keys(PAR).map(Number).sort((a, b) => b - a);
+    const parTitle = r => T(`Το παρολί της ${r}ης αγωνιστικής της EuroLeague`, `EuroLeague Round ${r} parlay`, `La combinada de la jornada ${r} de la EuroLeague`, `Tiket ${r}. kola Evrolige`);
+    const fo = p => (1 / p).toFixed(2);
+    const RG = T('Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.', 'These are statistical estimates, not betting advice. Betting is for adults only (21+ in Greece, 18+ in most countries). Please gamble responsibly.', 'Son estimaciones estadísticas, no un consejo de apuestas. Las apuestas son solo para adultos (+21 en Grecia, +18 en España y la mayoría de países). Juega con responsabilidad.', 'Ovo su statističke procene, a ne savet za klađenje. Klađenje je samo za punoletne (21+ u Grčkoj, 18+ u većini zemalja). Igrajte odgovorno.');
+    const parDone = parRounds.map(r => PAR[r]).filter(x => x.done);
+    const pickDone = parDone.flatMap(x => x.picks);
+    const recTxt = parDone.length ? T(`Μέχρι τώρα: ${parDone.filter(x => x.won).length} από ${parDone.length} παρολί βγήκαν και ${pickDone.filter(c => c.hit).length} από ${pickDone.length} επιλογές (το μοντέλο περίμενε ${f1(pickDone.reduce((s, c) => s + c.p, 0))}).`, `So far: ${parDone.filter(x => x.won).length} of ${parDone.length} parlays won and ${pickDone.filter(c => c.hit).length} of ${pickDone.length} picks (the model expected ${f1(pickDone.reduce((s, c) => s + c.p, 0))}).`, `Hasta ahora: ${parDone.filter(x => x.won).length} de ${parDone.length} combinadas acertadas y ${pickDone.filter(c => c.hit).length} de ${pickDone.length} selecciones (el modelo esperaba ${f1(pickDone.reduce((s, c) => s + c.p, 0))}).`, `Do sada: ${parDone.filter(x => x.won).length} od ${parDone.length} tiketa prošlo i ${pickDone.filter(c => c.hit).length} od ${pickDone.length} parova (model je očekivao ${f1(pickDone.reduce((s, c) => s + c.p, 0))}).`) : '';
+    for (const r of parRounds) {
+      const X = PAR[r];
+      const live = r === nextRoundP && !X.done;
+      const why = c => {
+        const [fw, fl] = recBefore(c.fav, r), [dw, dl] = recBefore(c.dog, r), ff = formBefore(c.fav, r), df = formBefore(c.dog, r);
+        const home = c.g[2] === c.fav;
+        const out = [];
+        out.push(T(`${tName(c.fav)} ${fw}-${fl}${ff ? ` (φόρμα ${ff})` : ''}, ${tName(c.dog)} ${dw}-${dl}${df ? ` (φόρμα ${df})` : ''} πριν από την αγωνιστική.`, `${tName(c.fav)} ${fw}-${fl}${ff ? ` (form ${ff})` : ''}, ${tName(c.dog)} ${dw}-${dl}${df ? ` (form ${df})` : ''} before the round.`, `${tName(c.fav)} ${fw}-${fl}${ff ? ` (racha ${ff})` : ''}, ${tName(c.dog)} ${dw}-${dl}${df ? ` (racha ${df})` : ''} antes de la jornada.`, `${tName(c.fav)} ${fw}-${fl}${ff ? ` (forma ${ff})` : ''}, ${tName(c.dog)} ${dw}-${dl}${df ? ` (forma ${df})` : ''} pre kola.`));
+        out.push(T(`Εκτίμηση σκορ ${Math.round(c.x.ph)}-${Math.round(c.x.pa)}${home ? ', με την έδρα υπέρ του φαβορί' : ', ακόμη και εκτός έδρας'}.`, `Projected score ${Math.round(c.x.ph)}-${Math.round(c.x.pa)}${home ? ', with home court for the favourite' : ', even on the road'}.`, `Marcador estimado ${Math.round(c.x.ph)}-${Math.round(c.x.pa)}${home ? ', con el factor cancha a favor del favorito' : ', incluso a domicilio'}.`, `Procenjeni rezultat ${Math.round(c.x.ph)}:${Math.round(c.x.pa)}${home ? ', uz domaći teren za favorita' : ', čak i u gostima'}.`));
+        if (live) { const inj = t => players.filter(p => p.t.split(';').pop() === t && INJ[LG][p.c] && INJ[LG][p.c].m === 1).map(p => niceName(p.n)); const a = inj(c.fav), b = inj(c.dog); if (a.length || b.length) out.push(T('Τραυματίες', 'Injured', 'Lesionados', 'Povređeni') + ': ' + [[c.fav, a], [c.dog, b]].filter(x => x[1].length).map(([t, l]) => `${tName(t)}: ${l.join(', ')}`).join(' · ') + '.'); }
+        const prev = league.games.find(o => o[6] && o[0] < r && ((o[2] === c.fav && o[3] === c.dog) || (o[2] === c.dog && o[3] === c.fav)));
+        if (prev) out.push(T(`Φέτος: ${tName(prev[2])} – ${tName(prev[3])} ${prev[4]}-${prev[5]}.`, `Earlier this season: ${tName(prev[2])} ${prev[4]}-${prev[5]} ${tName(prev[3])}.`, `Esta temporada: ${tName(prev[2])} ${prev[4]}-${prev[5]} ${tName(prev[3])}.`, `Ove sezone: ${tName(prev[2])} - ${tName(prev[3])} ${prev[4]}:${prev[5]}.`));
+        return out;
+      };
+      const card = c => `<div class="pcard parpick${c.hit === true ? ' ok' : c.hit === false ? ' ko' : ''}"><p class="kicker">${esc(new Date(gameDate(c.g[1])).toLocaleString(({ el: "el-GR", en: "en-GB", es: "es-ES", sr: "sr-Latn-RS" }[LG]), { timeZone: 'Europe/Athens', weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }))}</p><h3><a href="${urlFor(LG, `game:${c.g[0]}|${c.g[2]}|${c.g[3]}`)}">${esc(tName(c.g[2]))} – ${esc(tName(c.g[3]))}</a></h3><p class="parsel">${T('Επιλογή', 'Pick', 'Selección', 'Izbor')}: <b>${T('νίκη', 'win', 'gana', 'pobeda')} ${esc(tName(c.fav))}</b> · ${T('πιθανότητα', 'probability', 'probabilidad', 'verovatnoća')} ${Math.round(c.p * 100)}% · ${T('δίκαιη απόδοση', 'fair odds', 'cuota justa', 'fer kvota')} ${fo(c.p)}</p><ul>${why(c).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${c.g[6] ? `<p class="parres">${T('Αποτέλεσμα', 'Result', 'Resultado', 'Rezultat')}: ${c.g[4]}-${c.g[5]} ${c.hit ? '✔' : '✘'}</p>` : ''}</div>`;
+      const intro = live
+        ? T(`Οι ${X.picks.length} πιο σίγουρες εκτιμήσεις του μοντέλου μας για την ${r}η αγωνιστική της ${S}. Πιθανότητα να βγουν όλες: ${Math.round(X.P * 100)}% (δίκαιη συνολική απόδοση ${fo(X.P)}).`, `Our model's ${X.picks.length} most confident calls for Round ${r} of the ${S}. Chance that all of them land: ${Math.round(X.P * 100)}% (fair combined odds ${fo(X.P)}).`, `Las ${X.picks.length} estimaciones más seguras de nuestro modelo para la jornada ${r} de la ${S}. Probabilidad de acertarlas todas: ${Math.round(X.P * 100)}% (cuota justa combinada ${fo(X.P)}).`, `${X.picks.length} najsigurnije procene našeg modela za ${r}. kolo ${S}. Šansa da sve prođu: ${Math.round(X.P * 100)}% (fer ukupna kvota ${fo(X.P)}).`)
+        : T(`Το παρολί του μοντέλου για την ${r}η αγωνιστική, με τα δεδομένα που υπήρχαν πριν από αυτήν: ${X.done ? (X.won ? 'βγήκε' : 'δεν βγήκε') : 'σε εξέλιξη'} (${X.picks.filter(c => c.hit).length}/${X.picks.length}).`, `The model's parlay for Round ${r}, built with the data available before it: ${X.done ? (X.won ? 'won' : 'lost') : 'in progress'} (${X.picks.filter(c => c.hit).length}/${X.picks.length}).`, `La combinada del modelo para la jornada ${r}, con los datos disponibles antes de ella: ${X.done ? (X.won ? 'acertada' : 'fallada') : 'en juego'} (${X.picks.filter(c => c.hit).length}/${X.picks.length}).`, `Tiket modela za ${r}. kolo, sa podacima pre kola: ${X.done ? (X.won ? 'prošao' : 'pao') : 'u toku'} (${X.picks.filter(c => c.hit).length}/${X.picks.length}).`);
+      const main = `<article class="article paroli">
+<p class="kicker">${esc(rdTxt0(r))} · ${T('Παρολί', 'Parlay', 'Combinada', 'Tiket')}</p>
+<h1>${esc(parTitle(r))}</h1>
+<p class="lede2">${esc(intro)}</p>
+${X.picks.map(card).join('')}
+<div class="partot"><span>${T('Σύνολο', 'Total', 'Total', 'Ukupno')}</span><b>${Math.round(X.P * 100)}%</b><span>${T('δίκαιη απόδοση', 'fair odds', 'cuota justa', 'fer kvota')} <b>${fo(X.P)}</b></span>${X.done ? `<b class="${X.won ? 'ok' : 'ko'}">${X.won ? T('Βγήκε', 'Won', 'Acertada', 'Prošao') : T('Δεν βγήκε', 'Lost', 'Fallada', 'Pao')}</b>` : ''}</div>
+${recTxt ? `<p><b>${esc(recTxt)}</b> <a href="${urlFor(LG, 'paroli')}">${T('Όλο το ρεκόρ →', 'Full record →', 'Historial completo →', 'Ceo učinak →')}</a></p>` : ''}
+<p class="note">${T('Η «δίκαιη απόδοση» είναι 1 διά την πιθανότητα του μοντέλου: αν μια στοιχηματική δίνει μεγαλύτερη απόδοση, το μοντέλο θεωρεί ότι η επιλογή έχει αξία. Δεν συγκρίνουμε με αποδόσεις στοιχηματικών.', '“Fair odds” are 1 divided by the model’s probability: if a bookmaker offers higher odds, the model sees value in the pick. We do not compare with bookmaker odds.', 'La «cuota justa» es 1 dividido por la probabilidad del modelo: si una casa ofrece una cuota mayor, el modelo ve valor en la selección. No comparamos con cuotas de casas de apuestas.', '„Fer kvota” je 1 podeljeno verovatnoćom modela: ako kladionica nudi veću kvotu, model vidi vrednost u izboru. Ne poredimo sa kvotama kladionica.')}</p>
+<p class="note">${esc(RG)}</p>
+</article>`;
+      await simplePage('paroli:' + r, { view: 'articles', title: `${parTitle(r)}: ${X.picks.map(c => tName(c.fav)).join(', ')} | ${SITE_NAME}`, desc: intro.slice(0, 300), main,
+        ld: crumbs([[SITE_NAME, B(LG)], [T('Παρολί', 'Parlays', 'Combinadas', 'Tiketi'), urlFor(LG, 'paroli')], [parTitle(r), urlFor(LG, 'paroli:' + r)]]) });
+    }
+    if (parRounds.length) {
+      const cal = [[0.6, 0.7], [0.7, 0.8], [0.8, 1.01]].map(([a, b]) => { const x = pickDone.filter(c => c.p >= a && c.p < b); return { a, b, n: x.length, h: x.filter(c => c.hit).length, e: x.reduce((s, c) => s + c.p, 0) }; }).filter(x => x.n);
+      const main = `<article class="article paroli">
+<h1>${T('Το παρολί της αγωνιστικής: όλο το ρεκόρ', 'The round parlay: full record', 'La combinada de la jornada: historial completo', 'Tiket kola: ceo učinak')}</h1>
+<p class="lede2">${esc(T('Σε κάθε αγωνιστική το μοντέλο διαλέγει τις 2-3 πιο σίγουρες νίκες, μόνο με όσα ήξερε πριν από την αγωνιστική. Εδώ φαίνονται όλα, και όσα βγήκαν και όσα όχι.', 'Every round the model picks its 2-3 most confident wins, using only what it knew before the round. Everything is shown here, hits and misses.', 'En cada jornada el modelo elige sus 2-3 victorias más seguras, solo con lo que sabía antes de la jornada. Aquí está todo, aciertos y fallos.', 'U svakom kolu model bira 2-3 najsigurnije pobede, samo sa onim što je znao pre kola. Ovde je sve, i pogoci i promašaji.'))} ${esc(recTxt)}</p>
+<div class="tbl"><table><thead><tr><th class="l">${T('Αγωνιστική', 'Round', 'Jornada', 'Kolo')}</th><th class="l">${T('Επιλογές', 'Picks', 'Selecciones', 'Parovi')}</th><th>${T('Πιθανότητα', 'Probability', 'Probabilidad', 'Verovatnoća')}</th><th>${T('Δίκαιη απόδοση', 'Fair odds', 'Cuota justa', 'Fer kvota')}</th><th>${T('Αποτέλεσμα', 'Result', 'Resultado', 'Rezultat')}</th></tr></thead><tbody>${parRounds.map(r => { const X = PAR[r]; return `<tr><td class="l"><a href="${urlFor(LG, 'paroli:' + r)}">${esc(rdTxt0(r))}</a></td><td class="l">${X.picks.map(c => `${esc(tName(c.fav))}${c.hit === true ? ' ✔' : c.hit === false ? ' ✘' : ''}`).join(', ')}</td><td>${Math.round(X.P * 100)}%</td><td>${fo(X.P)}</td><td>${X.done ? (X.won ? `<b class="ok">${T('Βγήκε', 'Won', 'Acertada', 'Prošao')}</b>` : `<b class="ko">${T('Δεν βγήκε', 'Lost', 'Fallada', 'Pao')}</b>`) : T('Σε εξέλιξη', 'Upcoming', 'Pendiente', 'U toku')}</td></tr>`; }).join('')}</tbody></table></div>
+${cal.length ? `<h2>${T('Βγαίνουν όσο λέει το μοντέλο;', 'Do the picks land as often as the model says?', '¿Se cumplen tanto como dice el modelo?', 'Da li prolaze onoliko koliko model kaže?')}</h2><div class="tbl"><table><thead><tr><th class="l">${T('Πιθανότητα', 'Probability', 'Probabilidad', 'Verovatnoća')}</th><th>${T('Επιλογές', 'Picks', 'Selecciones', 'Parovi')}</th><th>${T('Βγήκαν', 'Hits', 'Aciertos', 'Pogođeno')}</th><th>${T('Αναμενόμενα', 'Expected', 'Esperados', 'Očekivano')}</th></tr></thead><tbody>${cal.map(x => `<tr><td class="l">${Math.round(x.a * 100)}–${Math.min(100, Math.round(x.b * 100))}%</td><td>${x.n}</td><td>${x.h}</td><td>${f1(x.e)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+<p class="note">${esc(RG)}</p>
+</article>`;
+      await simplePage('paroli', { view: 'articles', title: T(`Παρολί EuroLeague: το ρεκόρ του μοντέλου ανά αγωνιστική | ${SITE_NAME}`, `EuroLeague parlays: the model's record by round | ${SITE_NAME}`, `Combinadas de la EuroLeague: el historial del modelo por jornada | ${SITE_NAME}`, `Tiketi Evrolige: učinak modela po kolima | ${SITE_NAME}`), desc: (recTxt || parTitle(parRounds[0])).slice(0, 300), main });
+      if (LG === 'el') {
+        const X = PAR[parRounds[0]];
+        await fs.mkdir(path.join(OUT, 'api', 'paroli'), { recursive: true });
+        await fs.writeFile(path.join(OUT, 'api', 'paroli', 'latest.json'), JSON.stringify({ round: X.r, P: X.P, done: X.done, won: X.won, url: SITE_URL + urlFor('el', 'paroli:' + X.r), picks: X.picks.map(c => ({ h: c.g[2], a: c.g[3], fav: c.fav, p: c.p, hit: c.hit, date: gameDate(c.g[1]).toISOString(), score: c.g[6] ? [c.g[4], c.g[5]] : null })), record: { won: parDone.filter(x => x.won).length, n: parDone.length, hits: pickDone.filter(c => c.hit).length, picks: pickDone.length } }));
+      }
+    }
+
     // άρθρα
     const typeLabel = t => (t === 'prognostiko' ? T('Προγνωστικό', 'Prediction', 'Pronóstico', 'Prognoza') : T('Άρθρο', 'Article', 'Artículo', 'Članak'));
     const arts = articles.filter(a => a[LG]);
     await simplePage('articles', { view: 'articles', title: T(`Άρθρα και προγνωστικά EuroLeague | ${SITE_NAME}`, `EuroLeague articles and predictions | ${SITE_NAME}`, `Artículos y pronósticos de la EuroLeague | ${SITE_NAME}`, `Članci i prognoze Evrolige | ${SITE_NAME}`),
       desc: T(`Αναλύσεις, προεπισκοπήσεις αγωνιστικών και προγνωστικά για την ${S}.`, `Analysis, round previews and predictions for the ${S}.`, `Análisis, previas de cada jornada y pronósticos de la ${S}.`, `Analize, najave kola i prognoze za ${S}.`),
       main: `<section class="article"><h1>${T('Άρθρα', 'Articles', 'Artículos', 'Članci')}</h1><p class="sub">${T('Αναλύσεις, προεπισκοπήσεις και προγνωστικά για την', 'Analysis, previews and predictions for the', 'Análisis, previas y pronósticos de la', 'Analize, najave i prognoze za')} ${esc(S)}</p>` +
+        (parRounds.length ? `<h2>${T('Το παρολί της αγωνιστικής', 'The round parlay', 'La combinada de la jornada', 'Tiket kola')}</h2><div class="alist recaps">${parRounds.map(r => `<a class="acard" href="${urlFor(LG, 'paroli:' + r)}"><time>${esc(rdTxt0(r))}</time><h2>${esc(parTitle(r))}</h2></a>`).join('')}</div>` : '') +
         (fRounds.length ? `<h2>Fantasy: ${T('ποιους να πάρεις', 'who to pick', 'a quién fichar', 'koga izabrati')}</h2><div class="alist recaps">${fRounds.map(r => `<a class="acard" href="${urlFor(LG, 'fpick:' + r)}"><time>${esc(rdTxt0(r))}</time><h2>${esc(fTitle(r))}</h2></a>`).join('')}</div>` : '') +
         (doneRounds.length ? `<h2>${T('Η αγωνιστική σε αριθμούς', 'The round in numbers', 'La jornada en cifras', 'Kolo u brojkama')}</h2><div class="alist recaps">${doneRounds.map(r => `<a class="acard" href="${urlFor(LG, 'recap:' + r)}"><time>${esc(rdTxt0(r))}</time><h2>${esc(recapTitle(r))}</h2></a>`).join('')}</div><h2>${T('Αναλύσεις και προγνωστικά', 'Analysis and predictions', 'Análisis y pronósticos', 'Analize i prognoze')}</h2>` : '') +
         (arts.length ? `<div class="alist">${arts.map(a => `<a class="acard" href="${a[LG].url}"><time>${esc(typeLabel(a.type))} · ${esc(a[LG].dateText)}</time><h2>${esc(a[LG].title)}</h2><p>${esc(a[LG].desc)}</p></a>`).join('')}</div>`
