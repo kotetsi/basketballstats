@@ -28,3 +28,5 @@
 2026-10-30 | Jekiri | PAR | - | Θλάση στη βουβωνική χώρα | Groin strain | Distensión en la ingle | Istegnuće prepone
 2026-10-29 | Smith Jr | MAD | - | Ενόχληση στο πέλμα του δεξιού ποδιού | Discomfort in the sole of the right foot | Molestias en la planta del pie derecho | Bol u tabanu desnog stopala
 2026-10-30 | Reuvers | PAM | - | Πόδι | Foot | Pie | Stopalo
+2026-10-30 | Maledon | MAD | - | Διάστρεμμα στο δεξί γόνατο, χρόνος απουσίας άγνωστος | Right knee sprain, no timetable for his return | Esguince en la rodilla derecha, sin plazo de regreso | Uganuće desnog kolena, rok povratka nepoznat
+2026-10-30 | Jantunen | MAD | 2027-01 | Πλήρης ρήξη της πελματιαίας περιτονίας στο αριστερό πόδι, εκτός 2-3 μήνες | Complete plantar fascia tear in the left foot, out 2-3 months | Rotura completa de la fascia plantar del pie izquierdo, 2-3 meses de baja | Potpuno pucanje plantarne fascije levog stopala, van terena 2-3 meseca
