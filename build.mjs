@@ -72,6 +72,7 @@ const UI = {
     wNone: 'Όλοι οι βασικοί παίκτες έχουν αγωνιστεί σε κάθε αγώνα από την πρώτη τους εμφάνιση.',
     pd: { title: 'Άμυνα ανά θέση', sub: 'PIR που δέχεται κάθε ομάδα ανά αγώνα από γκαρντ, φόργουορντ και σέντερ (και οι πόντοι). Πράσινο: δίνει πολλά, καλό για Fantasy. Κόκκινο: σφιχτή άμυνα. Πατήστε μια στήλη για ταξινόμηση.', team: 'Ομάδα', Guard: 'Γκαρντ', Forward: 'Φόργουορντ', Center: 'Σέντερ', ptsS: 'π.', cellT: 'PIR ανά αγώνα (πόντοι)', gives: 'δίνει', note: 'Οι εκτιμήσεις PIR στο «Ποιους να βάλεις» λαμβάνουν υπόψη και πόσο δίνει ο αντίπαλος στη θέση του παίκτη.' },
     po: { title: 'Πιθανότητες τελικής θέσης', sub: '{n} προσομοιώσεις των {g} αγώνων που απομένουν, με το μοντέλο των προγνωστικών. Πατήστε μια στήλη για ταξινόμηση.', team: 'Ομάδα', rec: 'Αναμ. ρεκόρ', recT: 'Μέσο τελικό ρεκόρ στις προσομοιώσεις', top4: 'Top 4', top4T: 'Πλεονέκτημα έδρας στα playoffs', top6: 'Playoffs', pin: 'Play-in', out: 'Εκτός', best: 'Πιθανότερη θέση', note: 'Playoffs: θέσεις 1-6 · Play-in: 7-10 · Εκτός: 11-20. Κάθε αγώνας κρίνεται με βάση τις αποδόσεις των ομάδων ανά 100 κατοχές και την έδρα, με τυχαιότητα στην απόδοση κάθε ομάδας. Οι ισοβαθμίες λύνονται με τη διαφορά πόντων και όχι με τα επίσημα κριτήρια. Στατιστική εκτίμηση, όχι πρόβλεψη.', teamT: 'Πιθανότητες', teamSub: 'Αναμενόμενο ρεκόρ {r} · πιθανότερη θέση: {b}', dist: 'Πιθανότητα για κάθε θέση από 1 έως 20', all: 'Όλες οι ομάδες →' },
+    vid: { title: 'Βίντεο', hl: 'Highlights αγώνων (EuroLeague)', team: 'Από το κανάλι της ομάδας', yt: 'Όλα τα βίντεο στο YouTube →', play: 'Αναπαραγωγή', note: 'Τα βίντεο φορτώνουν από το YouTube μόνο όταν πατήσεις αναπαραγωγή.' },
   },
   en: {
     gpath: 'game', rd: 'Round {n}', final: 'final', est: 'projected score', fav: 'Favourite: <b>{t}</b> ({p}%)', total: 'Total ~{n} points',
@@ -93,6 +94,7 @@ const UI = {
     wNone: 'Every key player has played in every game since his first appearance.',
     pd: { title: 'Defense by position', sub: 'PIR each team allows per game to guards, forwards and centers (and points). Green: gives up a lot, good for Fantasy. Red: tight defense. Click a column to sort.', team: 'Team', Guard: 'Guards', Forward: 'Forwards', Center: 'Centers', ptsS: 'pts', cellT: 'PIR per game (points)', gives: 'allows', note: 'The PIR projections in “Who to pick” also take into account what the opponent allows at the player’s position.' },
     po: { title: 'Final standings odds', sub: '{n} simulations of the {g} remaining games, using the predictions model. Click a column to sort.', team: 'Team', rec: 'Proj. record', recT: 'Average final record in the simulations', top4: 'Top 4', top4T: 'Home-court advantage in the playoffs', top6: 'Playoffs', pin: 'Play-in', out: 'Out', best: 'Most likely place', note: 'Playoffs: places 1-6 · Play-in: 7-10 · Out: 11-20. Each game is decided from the teams’ ratings per 100 possessions and home court, with randomness in each team’s level. Ties are broken by point difference, not the official criteria. A statistical estimate, not a prediction.', teamT: 'Odds', teamSub: 'Projected record {r} · most likely place: {b}', dist: 'Chance of each place from 1 to 20', all: 'All teams →' },
+    vid: { title: 'Videos', hl: 'Game highlights (EuroLeague)', team: 'From the team’s channel', yt: 'All videos on YouTube →', play: 'Play', note: 'Videos load from YouTube only when you press play.' },
   },
   es: {
     gpath: 'partido', rd: 'Jornada {n}', final: 'final', est: 'marcador estimado', fav: 'Favorito: <b>{t}</b> ({p}%)', total: 'Total ~{n} puntos',
@@ -114,6 +116,7 @@ const UI = {
     wNone: 'Todos los jugadores clave han jugado todos los partidos desde su primera aparición.',
     pd: { title: 'Defensa por posición', sub: 'PIR que recibe cada equipo por partido de bases/escoltas, aleros y pívots (y los puntos). Verde: concede mucho, bueno para el Fantasy. Rojo: defensa sólida. Haz clic en una columna para ordenar.', team: 'Equipo', Guard: 'Bases', Forward: 'Aleros', Center: 'Pívots', ptsS: 'pts', cellT: 'PIR por partido (puntos)', gives: 'concede', note: 'Las estimaciones de PIR de «A quién fichar» también tienen en cuenta lo que concede el rival en la posición del jugador.' },
     po: { title: 'Probabilidades de la clasificación final', sub: '{n} simulaciones de los {g} partidos que quedan, con el modelo de los pronósticos. Haz clic en una columna para ordenar.', team: 'Equipo', rec: 'Balance prev.', recT: 'Balance final medio en las simulaciones', top4: 'Top 4', top4T: 'Factor cancha en los playoffs', top6: 'Playoffs', pin: 'Play-in', out: 'Fuera', best: 'Puesto más probable', note: 'Playoffs: puestos 1-6 · Play-in: 7-10 · Fuera: 11-20. Cada partido se decide con los ratings de los equipos por 100 posesiones y el factor cancha, con aleatoriedad en el nivel de cada equipo. Los empates se resuelven por diferencia de puntos, no con los criterios oficiales. Una estimación estadística, no un pronóstico.', teamT: 'Probabilidades', teamSub: 'Balance previsto {r} · puesto más probable: {b}', dist: 'Probabilidad de cada puesto del 1 al 20', all: 'Todos los equipos →' },
+    vid: { title: 'Vídeos', hl: 'Highlights de los partidos (EuroLeague)', team: 'Del canal del equipo', yt: 'Todos los vídeos en YouTube →', play: 'Reproducir', note: 'Los vídeos se cargan desde YouTube solo cuando pulsas reproducir.' },
   },
   sr: {
     gpath: 'utakmica', rd: '{n}. kolo', final: 'konačno', est: 'procenjeni rezultat', fav: 'Favorit: <b>{t}</b> ({p}%)', total: 'Ukupno ~{n} poena',
@@ -135,6 +138,7 @@ const UI = {
     wNone: 'Svi ključni igrači su igrali na svakoj utakmici od svog prvog nastupa.',
     pd: { title: 'Odbrana po pozicijama', sub: 'PIR koji svaki tim prima po utakmici od bekova, krila i centara (i poeni). Zeleno: prima mnogo, dobro za Fantasy. Crveno: čvrsta odbrana. Klikni na kolonu za sortiranje.', team: 'Tim', Guard: 'Bekovi', Forward: 'Krila', Center: 'Centri', ptsS: 'p.', cellT: 'PIR po utakmici (poeni)', gives: 'prima', note: 'Procene PIR-a u „Koga izabrati” uzimaju u obzir i koliko protivnik prima na poziciji igrača.' },
     po: { title: 'Šanse za konačni plasman', sub: '{n} simulacija preostalih {g} utakmica, sa modelom prognoza. Klikni na kolonu za sortiranje.', team: 'Tim', rec: 'Proc. skor', recT: 'Prosečan konačni skor u simulacijama', top4: 'Top 4', top4T: 'Prednost domaćeg terena u plej-ofu', top6: 'Plej-of', pin: 'Plej-in', out: 'Ispadanje', best: 'Najverovatnije mesto', note: 'Plej-of: mesta 1-6 · Plej-in: 7-10 · Ispadanje: 11-20. Svaka utakmica se odlučuje prema rejtinzima timova na 100 poseda i domaćem terenu, uz slučajnost u nivou svakog tima. Nerešeni odnosi se rešavaju razlikom poena, a ne zvaničnim kriterijumima. Statistička procena, a ne prognoza.', teamT: 'Šanse', teamSub: 'Procenjeni skor {r} · najverovatnije mesto: {b}', dist: 'Šansa za svako mesto od 1 do 20', all: 'Svi timovi →' },
+    vid: { title: 'Video', hl: 'Hajlajti utakmica (Evroliga)', team: 'Sa kanala tima', yt: 'Svi video snimci na YouTube-u →', play: 'Pusti', note: 'Video se učitava sa YouTube-a tek kada pritisneš pusti.' },
   },
 };
 const ordEn = n => { const t = n % 100; return n + (t > 10 && t < 14 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] || 'th')); };
@@ -474,6 +478,84 @@ function teamModel(players, maxRound = Infinity) {
   return { TS, predict };
 }
 
+// ---------- βίντεο YouTube: επίσημα highlights της EuroLeague και βίντεο από τα κανάλια των ομάδων
+// Τα κανάλια των ομάδων: κωδικός ομάδας → channel id (άδειο = χωρίς κανάλι)
+const YT_EL = 'UCGr3nR_XH9r6E5b09ZJAT9w';
+const YT_TEAMS = {
+  OLY: 'UCbv8oofgvLZ1B24N6uJ9q6g', PAN: 'UCbGAOY8tnarNw6T0pHghleg', MAD: 'UC9V4YMznqy74Ve2cW0KCg6w', RED: 'UC6_AhH45NQbI_xrOja3tvTw',
+  ZAL: 'UCTonHhrZgVHg8HCMFcQvtEA', PAR: 'UCin-zbw5U0ctNtJCZ96XmFQ', DUB: 'UC5JolBYuLAhWVwL9S6Yen7A', HTA: 'UC_NezmJH4nzURv6TSvOarEA',
+  TEL: 'UCqxNoI856R_vgs7aQolQhlg', MIL: 'UC-74Lw-UoS1UG7MLsA5VcTQ', MUN: 'UCqxyVk5fkD0YAUegb9RM-8A', VIR: 'UClnH9ZiMMlFT87VJ-u6QnuQ',
+  ASV: 'UCI1Q8wU2aWLmy0yaPWwx48w', BAS: 'UCrkn0dyOSygXOzTwiOKBs8Q', BES: 'UC_8yYXxUvUC42NAsSmmAtjg', PAM: 'UCZ-tD6rRgBIzasAjC5tf9oA',
+  IST: 'UCNgZ4KBDtA7Z-Jgf-geLLVg', BAR: '', ULK: '', PRS: '',
+};
+const VIDEO_ALIAS = {
+  OLY: ['olympiacos', 'olympiakos', 'olimpijakos', 'ολυμπιακ'], PAN: ['panathinaikos', 'παναθηναικ'], MAD: ['real madrid', 'ρεαλ'], BAR: ['barcelona', 'barca', 'μπαρτσελον'],
+  ULK: ['fenerbahce', 'φενερ'], IST: ['anadolu efes', 'efes', 'εφες'], RED: ['crvena zvezda', 'zvezda', 'ερυθρ'], PAR: ['partizan', 'παρτιζαν'],
+  ZAL: ['zalgiris', 'ζαλγκιρ'], TEL: ['maccabi', 'makabi', 'μακαμπι', 'מכבי'], HTA: ['hapoel', 'χαποελ', 'הפועל'], DUB: ['dubai', 'ντουμπαι'],
+  MUN: ['bayern', 'μπαγερν'], MIL: ['olimpia milan', 'milano', 'milan', 'μιλανο'], VIR: ['virtus', 'bologna', 'μπολονι'], PAM: ['valencia', 'βαλενθια'],
+  BAS: ['baskonia', 'μπασκονι'], ASV: ['asvel', 'villeurbanne', 'βιλερμπαν'], PRS: ['paris basketball', 'paris', 'παρι'], BES: ['besiktas', 'μπεσικτα'],
+};
+const normTxt = x => String(x).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ς/g, 'σ').replace(/ş/g, 's').replace(/ç/g, 'c');
+const decXml = x => x.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const gameDate = w => new Date(Date.UTC(2020 + (+w[8]), +w.slice(0, 2) - 1, +w.slice(2, 4), +w.slice(4, 6), +w.slice(6, 8)));
+async function ytFetch(url) {
+  try {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), 15000);
+    const r = await fetch(url, { signal: c.signal, headers: { 'user-agent': 'Mozilla/5.0 (compatible; BasketballStatsBot/1.0)', 'accept-language': 'en' } });
+    clearTimeout(t); return r.ok ? await r.text() : null;
+  } catch { return null; }
+}
+const parseFeed = xml => [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map(m => ({ id: (m[1].match(/<yt:videoId>([^<]+)/) || [])[1], t: decXml((m[1].match(/<title>([^<]*)/) || [])[1] || ''), d: (m[1].match(/<published>([^<]+)/) || [])[1] || '' })).filter(v => v.id);
+function parseSearch(html) {
+  const m = html.match(/var ytInitialData = (\{.*?\});<\/script>/s); if (!m) return [];
+  let d; try { d = JSON.parse(m[1]); } catch { return []; }
+  const out = []; (function w(o) { if (!o || typeof o !== 'object') return; if (o.videoRenderer) { out.push({ id: o.videoRenderer.videoId, t: (o.videoRenderer.title.runs || []).map(x => x.text).join('') }); return; } for (const k in o) w(o[k]); })(d);
+  return out;
+}
+function teamOfText(part) { const n = normTxt(part); let best = null, bl = 0; for (const [c, al] of Object.entries(VIDEO_ALIAS)) for (const a of al) if (n.includes(a) && a.length > bl) { best = c; bl = a.length; } return best; }
+// «Olympiacos - Armani Olimpia Milan | R9 Basketball Highlights 2026-27» → «9|OLY|MIL»
+function matchHighlight(title, games) {
+  const p = title.split('|').map(x => x.trim()), i = p.findIndex(x => /^R\d+\b.*highlights/i.test(x) && x.includes(SEASON_LABEL));
+  if (i < 1) return null;
+  const r = +p[i].match(/^R(\d+)/)[1], [hp, ap] = p[i - 1].split(/\s[-–]\s/);
+  if (!ap) return null;
+  const h = teamOfText(hp), a = teamOfText(ap);
+  return games.some(g => g[0] === r && g[2] === h && g[3] === a) ? `${r}|${h}|${a}` : null;
+}
+async function updateVideos(V, games, online) {
+  V.hl = V.hl || {}; V.team = V.team || {};
+  try { const seed = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'videos.json'), 'utf8')); for (const [k, v] of Object.entries(seed.hl || {})) if (!V.hl[k]) V.hl[k] = v; } catch { }
+  if (!online) return;
+  const cand = [], feed = await ytFetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_EL}`);
+  if (feed) cand.push(...parseFeed(feed));
+  const last = Math.max(0, ...games.filter(g => g[6]).map(g => g[0]));
+  for (const r of [last, last - 1].filter(x => x > 0)) {
+    const html = await ytFetch(`https://www.youtube.com/@euroleague/search?query=${encodeURIComponent(`R${r} Basketball Highlights ${SEASON_LABEL}`)}`);
+    if (html) cand.push(...parseSearch(html));
+  }
+  let n = 0;
+  for (const v of cand) { const k = matchHighlight(v.t, games); if (k && !V.hl[k]) { V.hl[k] = { id: v.id, t: v.t }; n++; } }
+  let tn = 0;
+  for (const [c, id] of Object.entries(YT_TEAMS)) {
+    if (!id) continue;
+    const x = await ytFetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`); if (!x) continue;
+    const list = parseFeed(x), have = new Set(list.map(v => v.id));
+    V.team[c] = list.concat((V.team[c] || []).filter(v => !have.has(v.id))).sort((a, b) => b.d.localeCompare(a.d)).slice(0, 40); tn++;
+  }
+  console.log(`Βίντεο: ${Object.keys(V.hl).length} highlights (${n} νέα), κανάλια ομάδων: ${tn}`);
+}
+// βίντεο από τα κανάλια των δύο ομάδων για έναν αγώνα: δημοσιευμένα από την ώρα του αγώνα έως 3 μέρες μετά και με τον αντίπαλο στον τίτλο
+function teamVideosFor(V, g) {
+  const start = gameDate(g[1]).getTime(), out = [];
+  for (const [c, o] of [[g[2], g[3]], [g[3], g[2]]]) {
+    const al = VIDEO_ALIAS[o] || [];
+    const vs = (V.team[c] || []).filter(v => { const t = Date.parse(v.d); return t >= start - 3 * 3600e3 && t <= start + 72 * 3600e3 && al.some(a => normTxt(v.t).includes(a)); });
+    vs.sort((a, b) => (/highlight|στιγμιοτυπ|resumen|sintesi|tarifa|תקציר|snimak|najbolji/i.test(b.t) ? 1 : 0) - (/highlight|στιγμιοτυπ|resumen|sintesi|tarifa|תקציר|snimak|najbolji/i.test(a.t) ? 1 : 0));
+    out.push(...vs.slice(0, 2).map(v => ({ ...v, c })));
+  }
+  return out;
+}
+
 function playerSummary(p) {
   const g = p.g.filter(r => r[7] > 0); const G = g.length || 1;
   const sum = i => g.reduce((s, r) => s + r[i], 0);
@@ -486,13 +568,18 @@ async function main() {
     try { data = await fetchAll(); }
     catch (e) { console.error('Η λήψη απέτυχε, χρησιμοποιώ τα αποθηκευμένα δεδομένα.', e.message); }
   }
-  if (!data || !data.players.length) {
+  const fresh = !!(data && data.players.length);
+  let oldVideos = null;
+  try { oldVideos = JSON.parse(await fs.readFile(CACHE, 'utf8')).videos || null; } catch { }
+  if (!fresh) {
     data = JSON.parse(await fs.readFile(CACHE, 'utf8'));
     console.log('Χρήση αποθηκευμένων δεδομένων από', data.fetchedAt);
-  } else {
-    await fs.mkdir(path.dirname(CACHE), { recursive: true });
-    await fs.writeFile(CACHE, JSON.stringify(data));
   }
+  data.videos = data.videos || oldVideos || { hl: {}, team: {} };
+  await updateVideos(data.videos, data.league.games, !OFFLINE);
+  await fs.mkdir(path.dirname(CACHE), { recursive: true });
+  await fs.writeFile(CACHE, JSON.stringify(data));
+  const VIDS = data.videos;
   const { players, league } = data;
   const lastRound = data.lastRound || Math.max(0, ...league.games.filter(g => g[6]).map(g => g[0]));
 
@@ -519,6 +606,7 @@ async function main() {
   const pendingTips = lg => tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label[lg], u: p.url[lg] })));
   const artList = lg => articles.filter(a => a[lg]).map(a => ({ title: a[lg].title, desc: a[lg].desc, type: a.type, round: a.round, game: a.game, author: a.author, date: a.date, dateText: a[lg].dateText, slug: a[lg].slug, url: a[lg].url }));
   await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated: UPD.el, teams: TEAMS, players, league,
+    vid: { hl: Object.fromEntries(Object.entries(VIDS.hl).map(([k, v]) => [k, v.id])), team: Object.fromEntries(Object.entries(VIDS.team).map(([c, l]) => [c, l.slice(0, 6).map(v => ({ id: v.id, t: v.t }))])), ch: YT_TEAMS },
     articles: artList('el'), tips: pendingTips('el'), inj: INJ.el, injL: INJL.el, ui: UI.el,
     en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en'), inj: INJ.en, injL: INJL.en, ui: UI.en },
     es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: UI.es },
@@ -826,6 +914,7 @@ ${disclaimer}</article>` });
 <p>Usamos Google AdSense para mostrar anuncios. Google y sus socios pueden usar cookies para mostrar anuncios basados en tus visitas anteriores a esta y a otras webs. En tu primera visita te pedimos el consentimiento mediante el aviso de cookies, y puedes cambiarlo en cualquier momento. También puedes desactivar los anuncios personalizados en la <a href="https://adssettings.google.com">configuración de anuncios de Google</a>. Más información sobre <a href="https://policies.google.com/technologies/partner-sites">cómo usa Google los datos</a>.</p>
 <h2>Fuentes tipográficas</h2>
 <p>Las fuentes se cargan desde Google Fonts, por lo que tu dirección IP se envía a Google al cargar la página.</p>
+<p>Los vídeos de YouTube se muestran como imagen y solo se cargan desde YouTube (youtube-nocookie.com) cuando pulsas reproducir; a partir de ese momento se aplica la política de privacidad de Google.</p>
 <h2>Tus derechos</h2>
 <p>Según el Reglamento General de Protección de Datos (RGPD) tienes derecho a acceder a tus datos, rectificarlos, suprimirlos y oponerte a su tratamiento, así como a presentar una reclamación ante la Autoridad Helénica de Protección de Datos (www.dpa.gr) o ante la autoridad de tu país (en España, la AEPD).</p>
 <h2>Origen de las estadísticas</h2>
@@ -839,6 +928,7 @@ ${disclaimer}</article>` });
 <p>Za prikazivanje oglasa koristimo Google AdSense. Google i njegovi partneri mogu da koriste kolačiće kako bi prikazivali oglase na osnovu vaših prethodnih poseta ovom i drugim sajtovima. Pri prvoj poseti tražimo vašu saglasnost putem obaveštenja o kolačićima i možete je promeniti u bilo kom trenutku. Personalizovane oglase možete isključiti u <a href="https://adssettings.google.com">Google podešavanjima oglasa</a>. Više o tome <a href="https://policies.google.com/technologies/partner-sites">kako Google koristi podatke</a>.</p>
 <h2>Fontovi</h2>
 <p>Fontovi se učitavaju sa usluge Google Fonts, pa se vaša IP adresa prilikom učitavanja stranice šalje Googleu.</p>
+<p>YouTube video snimci se prikazuju kao slika i učitavaju se sa YouTube-a (youtube-nocookie.com) tek kada pritisnete pusti; od tog trenutka važi Google-ova politika privatnosti.</p>
 <h2>Vaša prava</h2>
 <p>Prema Opštoj uredbi o zaštiti podataka (GDPR) imate pravo na pristup, ispravku i brisanje svojih podataka i na prigovor na njihovu obradu, kao i pravo da podnesete pritužbu grčkom organu za zaštitu podataka (www.dpa.gr) ili nadležnom organu u svojoj zemlji (u Srbiji: Poverenik za informacije od javnog značaja i zaštitu podataka o ličnosti).</p>
 <h2>Izvor statistike</h2>
@@ -854,6 +944,7 @@ ${disclaimer}</article>` });
 <p>Χρησιμοποιούμε την υπηρεσία Google AdSense για την προβολή διαφημίσεων. Η Google και οι συνεργάτες της μπορεί να χρησιμοποιούν cookies για να προβάλλουν διαφημίσεις με βάση τις προηγούμενες επισκέψεις σας σε αυτόν και σε άλλους ιστότοπους. Στην πρώτη σας επίσκεψη σας ζητάμε συγκατάθεση μέσω του μηνύματος cookies και μπορείτε να την αλλάξετε ανά πάσα στιγμή. Μπορείτε επίσης να απενεργοποιήσετε τις εξατομικευμένες διαφημίσεις από τις <a href="https://adssettings.google.com">Ρυθμίσεις διαφημίσεων της Google</a>. Περισσότερα για το <a href="https://policies.google.com/technologies/partner-sites">πώς η Google χρησιμοποιεί τα δεδομένα</a>.</p>
 <h2>Γραμματοσειρές</h2>
 <p>Οι γραμματοσειρές φορτώνονται από την υπηρεσία Google Fonts, οπότε η διεύθυνση IP σας διαβιβάζεται στην Google κατά τη φόρτωση της σελίδας.</p>
+<p>Τα βίντεο του YouTube εμφανίζονται ως εικόνα και φορτώνουν από το YouTube (youtube-nocookie.com) μόνο όταν πατήσετε αναπαραγωγή· από εκείνη τη στιγμή ισχύει η πολιτική απορρήτου της Google.</p>
 <h2>Τα δικαιώματά σας</h2>
 <p>Σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (ΓΚΠΔ) έχετε δικαίωμα πρόσβασης, διόρθωσης, διαγραφής και εναντίωσης στην επεξεργασία των δεδομένων σας, καθώς και δικαίωμα καταγγελίας στην Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα (www.dpa.gr).</p>
 <h2>Πηγή στατιστικών</h2>
@@ -866,6 +957,7 @@ ${disclaimer}</article>` });
 <p>We use Google AdSense to show ads. Google and its partners may use cookies to show ads based on your previous visits to this and other websites. On your first visit we ask for your consent through the cookie message, and you can change it at any time. You can also turn off personalised ads in <a href="https://adssettings.google.com">Google Ad Settings</a>. Read more about <a href="https://policies.google.com/technologies/partner-sites">how Google uses data</a>.</p>
 <h2>Fonts</h2>
 <p>Fonts are loaded from Google Fonts, so your IP address is sent to Google when the page loads.</p>
+<p>YouTube videos are shown as an image and only load from YouTube (youtube-nocookie.com) when you press play; from then on Google’s privacy policy applies.</p>
 <h2>Your rights</h2>
 <p>Under the General Data Protection Regulation (GDPR) you have the right to access, correct and delete your data and to object to its processing, as well as the right to lodge a complaint with the Hellenic Data Protection Authority (www.dpa.gr) or your local data protection authority.</p>
 <h2>Source of the stats</h2>
@@ -909,12 +1001,15 @@ ${disclaimer}</article>` });
       const ld = { '@context': 'https://schema.org', '@type': 'SportsEvent', name: vs, sport: 'Basketball', startDate: d.toISOString(),
         eventStatus: 'https://schema.org/EventScheduled', homeTeam: { '@type': 'SportsTeam', name: H }, awayTeam: { '@type': 'SportsTeam', name: A },
         superEvent: { '@type': 'SportsEvent', name: S }, url: SITE_URL + urlFor(LG, `game:${r}|${h}|${a}`) };
+      const hlv = VIDS.hl[`${r}|${h}|${a}`], tvs = pl ? teamVideosFor(VIDS, g) : [];
+      const ytBox = (id, ttl, big) => `<div class="yt${big ? ' big' : ''}"><button type="button" class="ytb" data-yt="${esc(id)}" aria-label="${esc(T('Αναπαραγωγή', 'Play', 'Reproducir', 'Pusti') + ': ' + ttl)}"><img src="https://i.ytimg.com/vi/${esc(id)}/hqdefault.jpg" alt="" loading="lazy" width="480" height="360"><span class="ytp" aria-hidden="true"></span></button></div>`;
+      const vidSec = (hlv || tvs.length) ? `<section class="gvid"><h2>${T('Βίντεο', 'Video', 'Vídeo', 'Video')}</h2>${hlv ? `<p class="sub">${T('Τα επίσημα highlights της EuroLeague', 'Official EuroLeague highlights', 'Los highlights oficiales de la EuroLeague', 'Zvanični hajlajti Evrolige')}</p>${ytBox(hlv.id, hlv.t, 1)}` : ''}${tvs.length ? `<h3>${T('Από τα κανάλια των ομάδων', 'From the teams’ channels', 'De los canales de los equipos', 'Sa kanala timova')}</h3><div class="ytgrid">${tvs.map(v => `<figure>${ytBox(v.id, v.t)}<figcaption><span class="crest" style="background:${TEAMS[v.c][1]}">${v.c}</span> ${esc(v.t)}</figcaption></figure>`).join('')}</div>` : ''}<p class="note">${T('Τα βίντεο φορτώνουν από το YouTube μόνο όταν πατήσεις αναπαραγωγή.', 'Videos load from YouTube only when you press play.', 'Los vídeos se cargan desde YouTube solo cuando pulsas reproducir.', 'Video se učitava sa YouTube-a tek kada pritisneš pusti.')}</p></section>\n` : '';
       const main = `<article class="game">
 <p class="kicker">EuroLeague · ${esc(rdTxt(r))}</p>
 <h1>${esc(H)} – ${esc(A)}</h1>
 <p class="lede">${esc(dt)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)')}${pl ? ` · ${T('Τελικό', 'Final', 'Final', 'Konačan rezultat')} ${sc}` : ''}</p>
 <section class="gtop" id="gTop"></section>
-<div class="gcols2">
+${vidSec}<div class="gcols2">
 <section><h2>${T('Φόρμα', 'Form', 'Forma', 'Forma')}</h2><p class="sub">${T('Οι 5 τελευταίοι αγώνες κάθε ομάδας', 'Each team’s last 5 games', 'Los últimos 5 partidos de cada equipo', 'Poslednjih 5 utakmica svakog tima')}</p><div class="gcols" id="gForm"></div></section>
 <section><h2>${T('Απουσίες', 'Injuries and absences', 'Bajas', 'Odsutni igrači')}</h2><p class="sub">${T('✚ κόκκινο: τραυματίας · ✚ πορτοκαλί: έχει χάσει τους τελευταίους αγώνες', '✚ red: injured · ✚ orange: has missed the latest games', '✚ rojo: lesionado · ✚ naranja: se ha perdido los últimos partidos', '✚ crveno: povređen · ✚ narandžasto: propustio je poslednje utakmice')}</p><div class="gcols" id="gInj"></div></section>
 </div>
@@ -960,7 +1055,7 @@ ${doneRounds.includes(r) ? `<p><a class="pread" href="${urlFor(LG, 'recap:' + r)
         + (mvp ? ' ' + T(`Ο κορυφαίος σε PIR ήταν ο ${plink(mvp)} με ${mvp.row[25]}.`, `The top performer by PIR was ${plink(mvp)} with ${mvp.row[25]}.`, `El mejor por PIR fue ${plink(mvp)}, con ${mvp.row[25]}.`, `Najbolji po PIR-u bio je ${plink(mvp)} sa ${mvp.row[25]}.`) : '')
         + (picks.length ? ' ' + T(`Το μοντέλο μας βρήκε τον νικητή σε ${hits} από τους ${picks.length} αγώνες.`, `Our model picked the winner in ${hits} of ${picks.length} games.`, `Nuestro modelo acertó el ganador en ${hits} de ${picks.length} partidos.`, `Naš model je pogodio pobednika na ${hits} od ${picks.length} utakmica.`) : '');
       const resRows = gs.map(g => { const o = picks.find(z => z.g === g); const fav = o ? (o.x.prob >= 0.5 ? g[2] : g[3]) : null, ok = o ? fav === (g[4] > g[5] ? g[2] : g[3]) : null;
-        return `<a href="${gUrlB(g)}"><span class="res ${ok === null ? 'q' : ok ? 'w' : 'l'}" title="${esc(T('Πρόβλεψη μοντέλου', 'Model pick', 'Pronóstico del modelo', 'Prognoza modela'))}">${ok === null ? '–' : ok ? '✓' : '✗'}</span>${gname(g)}<small>${sc(g)}</small></a>`; }).join('');
+        return `<a href="${gUrlB(g)}"><span class="res ${ok === null ? 'q' : ok ? 'w' : 'l'}" title="${esc(T('Πρόβλεψη μοντέλου', 'Model pick', 'Pronóstico del modelo', 'Prognoza modela'))}">${ok === null ? '–' : ok ? '✓' : '✗'}</span>${gname(g)}${VIDS.hl[`${g[0]}|${g[2]}|${g[3]}`] ? `<span class="vmark" title="${esc(T('Με βίντεο', 'With video', 'Con vídeo', 'Sa videom'))}">▶</span>` : ''}<small>${sc(g)}</small></a>`; }).join('');
       const topRows = perf.slice(0, 10).map(o => `<tr><td class="l"><a class="tlink" href="${pUrlB(o.p)}"><span>${nm(o.p)}</span></a></td><td class="l">${esc(o.team ? tName(o.team) : '')}</td><td>${o.row[8]}</td><td>${o.row[15] + o.row[16]}</td><td>${o.row[17]}</td><td><b>${o.row[25]}</b></td></tr>`).join('');
       const upsHtml = ups.length ? `<ul>${ups.map(o => { const w = o.g[4] > o.g[5] ? o.g[2] : o.g[3], l = w === o.g[2] ? o.g[3] : o.g[2];
           const gl = `<a href="${gUrlB(o.g)}">${gname(o.g)} ${sc(o.g)}</a>`, pc = Math.round(o.wp * 100);
