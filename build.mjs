@@ -21,6 +21,7 @@ const SEASON = process.env.SEASON || CONF.season || 'E2026';
 const SITE_NAME = CONF.siteName || 'BasketballStats';
 const AD_CLIENT = (process.env.ADSENSE_CLIENT || CONF.adsenseClient || '').trim();
 const AD_SLOT = (process.env.ADSENSE_SLOT || CONF.adsenseSlot || '').trim();
+const GA_ID = (process.env.GA_ID || CONF.gaId || '').trim();
 const SEASON_LABEL = `${+SEASON.slice(1)}-${String(+SEASON.slice(1) + 1).slice(2)}`;
 const OFFLINE = process.argv.includes('--offline');
 const OUT = path.join(ROOT, 'dist');
@@ -661,6 +662,30 @@ async function main() {
     : '';
   const adHead = AD_CLIENT ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(AD_CLIENT)}" crossorigin="anonymous"></script>\n` : '';
 
+  // ---- Google Analytics with Consent Mode: nothing is stored until the visitor accepts
+  const CC = {
+    el: ['Χρησιμοποιούμε cookies του Google Analytics για να μετράμε την επισκεψιμότητα, μόνο αν το δεχτείς.', 'Αποδοχή', 'Όχι, ευχαριστώ', 'Περισσότερα', 'Cookies'],
+    en: ['We use Google Analytics cookies to measure traffic, only if you accept.', 'Accept', 'No, thanks', 'Learn more', 'Cookies'],
+    es: ['Usamos cookies de Google Analytics para medir las visitas, solo si las aceptas.', 'Aceptar', 'No, gracias', 'Más información', 'Cookies'],
+    sr: ['Koristimo Google Analytics kolačiće za merenje poseta, samo ako ih prihvatite.', 'Prihvatam', 'Ne, hvala', 'Više', 'Kolačići'],
+  };
+  const gaHead = (lg, legalUrl) => GA_ID ? `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+(function(){var c=null;try{c=localStorage.getItem('bsConsent');}catch(e){}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:c==='y'?'granted':'denied',wait_for_update:500});
+gtag('js',new Date());gtag('config','${GA_ID}');
+var T=${JSON.stringify(CC[lg])};
+function set(v){try{localStorage.setItem('bsConsent',v);}catch(e){}gtag('consent','update',{analytics_storage:v==='y'?'granted':'denied'});var b=document.getElementById('ccb');if(b)b.remove();}
+function show(){if(document.getElementById('ccb'))return;var d=document.createElement('div');d.id='ccb';d.setAttribute('role','dialog');d.setAttribute('aria-label',T[4]);
+d.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:560px;margin:0 auto;background:#1d2330;color:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.35);font:14px/1.45 Fira Sans,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:10px;align-items:center';
+d.innerHTML='<span style="flex:1 1 260px">'+T[0]+' <a href="${legalUrl}" style="color:#9fc3ff">'+T[3]+'</a></span><span style="display:flex;gap:8px"><button type="button" data-v="n" style="background:transparent;color:#fff;border:1px solid #8a93a6;border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer">'+T[2]+'</button><button type="button" data-v="y" style="background:#e8562a;color:#fff;border:0;border-radius:8px;padding:7px 14px;font:inherit;font-weight:600;cursor:pointer">'+T[1]+'</button></span>';
+d.addEventListener('click',function(e){var v=e.target.getAttribute&&e.target.getAttribute('data-v');if(v)set(v);});document.body.appendChild(d);}
+window.bsCookies=show;
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-cc]');if(a){e.preventDefault();show();}});
+if(c!=='y'&&c!=='n')document.addEventListener('DOMContentLoaded',show);})();
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script>
+` : '';
+
   // ---- εφαρμογή (PWA): εικονίδια, manifest ανά γλώσσα, service worker
   for (const f of await fs.readdir(path.join(ROOT, 'src'))) if (/\.(png|svg)$/.test(f) || /^google[0-9a-f]+\.html$/.test(f)) await fs.copyFile(path.join(ROOT, 'src', f), path.join(OUT, f));
   for (const lg of LANGS) {
@@ -728,7 +753,7 @@ ${pwaStyle}`;
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>');
-    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
+    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
@@ -770,7 +795,7 @@ ${alts}<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@600;800&family=Fira+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="${BASE}assets/app.css?v=${ver}">
-${adHead}${pwaHead(LG)}</head>`;
+${gaHead(LG, urlFor(LG, 'legal'))}${adHead}${pwaHead(LG)}</head>`;
     }
     async function write(url, html) {
       const file = path.join(OUT, url.slice(BASE.length), 'index.html');
@@ -928,6 +953,8 @@ ${disclaimer}</article>` });
 <p>No pedimos registro y no recogemos nombres ni datos de contacto. El servidor registra datos técnicos (como la dirección IP y el tipo de dispositivo) por motivos de seguridad y funcionamiento.</p>
 <h2>Cookies y publicidad</h2>
 <p>Usamos Google AdSense para mostrar anuncios. Google y sus socios pueden usar cookies para mostrar anuncios basados en tus visitas anteriores a esta y a otras webs. En tu primera visita te pedimos el consentimiento mediante el aviso de cookies, y puedes cambiarlo en cualquier momento. También puedes desactivar los anuncios personalizados en la <a href="https://adssettings.google.com">configuración de anuncios de Google</a>. Más información sobre <a href="https://policies.google.com/technologies/partner-sites">cómo usa Google los datos</a>.</p>
+<h2>Estadísticas de visitas</h2>
+<p>Si lo aceptas en el aviso de cookies, usamos Google Analytics para contar visitas y ver qué páginas se leen más. Sin tu consentimiento no se guarda ninguna cookie de Analytics. Puedes cambiar tu elección en cualquier momento desde «Configurar cookies» al pie de la página.</p>
 <h2>Fuentes tipográficas</h2>
 <p>Las fuentes se cargan desde Google Fonts, por lo que tu dirección IP se envía a Google al cargar la página.</p>
 <p>Los vídeos de YouTube se muestran como imagen y solo se cargan desde YouTube (youtube-nocookie.com) cuando pulsas reproducir; a partir de ese momento se aplica la política de privacidad de Google.</p>
@@ -942,6 +969,8 @@ ${disclaimer}</article>` });
 <p>Ne tražimo registraciju i ne prikupljamo imena ni kontakt podatke. Server beleži tehničke podatke (kao što su IP adresa i tip uređaja) radi bezbednosti i rada sajta.</p>
 <h2>Kolačići i oglasi</h2>
 <p>Za prikazivanje oglasa koristimo Google AdSense. Google i njegovi partneri mogu da koriste kolačiće kako bi prikazivali oglase na osnovu vaših prethodnih poseta ovom i drugim sajtovima. Pri prvoj poseti tražimo vašu saglasnost putem obaveštenja o kolačićima i možete je promeniti u bilo kom trenutku. Personalizovane oglase možete isključiti u <a href="https://adssettings.google.com">Google podešavanjima oglasa</a>. Više o tome <a href="https://policies.google.com/technologies/partner-sites">kako Google koristi podatke</a>.</p>
+<h2>Statistika poseta</h2>
+<p>Ako to prihvatite u obaveštenju o kolačićima, koristimo Google Analytics da brojimo posete i vidimo koje se stranice najviše čitaju. Bez vaše saglasnosti ne čuva se nijedan Analytics kolačić. Izbor možete promeniti u bilo kom trenutku preko „Podešavanja kolačića” na dnu stranice.</p>
 <h2>Fontovi</h2>
 <p>Fontovi se učitavaju sa usluge Google Fonts, pa se vaša IP adresa prilikom učitavanja stranice šalje Googleu.</p>
 <p>YouTube video snimci se prikazuju kao slika i učitavaju se sa YouTube-a (youtube-nocookie.com) tek kada pritisnete pusti; od tog trenutka važi Google-ova politika privatnosti.</p>
@@ -958,6 +987,8 @@ ${disclaimer}</article>` });
 <p>Δεν ζητάμε εγγραφή και δεν συλλέγουμε ονόματα ή στοιχεία επικοινωνίας. Ο διακομιστής καταγράφει τεχνικά στοιχεία (όπως διεύθυνση IP και τύπο συσκευής) για λόγους ασφάλειας και λειτουργίας.</p>
 <h2>Cookies και διαφημίσεις</h2>
 <p>Χρησιμοποιούμε την υπηρεσία Google AdSense για την προβολή διαφημίσεων. Η Google και οι συνεργάτες της μπορεί να χρησιμοποιούν cookies για να προβάλλουν διαφημίσεις με βάση τις προηγούμενες επισκέψεις σας σε αυτόν και σε άλλους ιστότοπους. Στην πρώτη σας επίσκεψη σας ζητάμε συγκατάθεση μέσω του μηνύματος cookies και μπορείτε να την αλλάξετε ανά πάσα στιγμή. Μπορείτε επίσης να απενεργοποιήσετε τις εξατομικευμένες διαφημίσεις από τις <a href="https://adssettings.google.com">Ρυθμίσεις διαφημίσεων της Google</a>. Περισσότερα για το <a href="https://policies.google.com/technologies/partner-sites">πώς η Google χρησιμοποιεί τα δεδομένα</a>.</p>
+<h2>Μέτρηση επισκεψιμότητας</h2>
+<p>Αν το αποδεχτείτε στο μήνυμα για τα cookies, χρησιμοποιούμε το Google Analytics για να μετράμε τις επισκέψεις και ποιες σελίδες διαβάζονται περισσότερο. Χωρίς τη συγκατάθεσή σας δεν αποθηκεύεται κανένα cookie του Analytics. Μπορείτε να αλλάξετε την επιλογή σας οποιαδήποτε στιγμή από τις «Ρυθμίσεις cookies» στο κάτω μέρος της σελίδας.</p>
 <h2>Γραμματοσειρές</h2>
 <p>Οι γραμματοσειρές φορτώνονται από την υπηρεσία Google Fonts, οπότε η διεύθυνση IP σας διαβιβάζεται στην Google κατά τη φόρτωση της σελίδας.</p>
 <p>Τα βίντεο του YouTube εμφανίζονται ως εικόνα και φορτώνουν από το YouTube (youtube-nocookie.com) μόνο όταν πατήσετε αναπαραγωγή· από εκείνη τη στιγμή ισχύει η πολιτική απορρήτου της Google.</p>
@@ -971,6 +1002,8 @@ ${disclaimer}</article>` });
 <p>We do not ask you to register and we do not collect names or contact details. The server logs technical data (such as IP address and device type) for security and operation.</p>
 <h2>Cookies and advertising</h2>
 <p>We use Google AdSense to show ads. Google and its partners may use cookies to show ads based on your previous visits to this and other websites. On your first visit we ask for your consent through the cookie message, and you can change it at any time. You can also turn off personalised ads in <a href="https://adssettings.google.com">Google Ad Settings</a>. Read more about <a href="https://policies.google.com/technologies/partner-sites">how Google uses data</a>.</p>
+<h2>Visitor statistics</h2>
+<p>If you accept it in the cookie message, we use Google Analytics to count visits and see which pages are read most. Without your consent no Analytics cookie is stored. You can change your choice at any time from “Cookie settings” at the bottom of the page.</p>
 <h2>Fonts</h2>
 <p>Fonts are loaded from Google Fonts, so your IP address is sent to Google when the page loads.</p>
 <p>YouTube videos are shown as an image and only load from YouTube (youtube-nocookie.com) when you press play; from then on Google’s privacy policy applies.</p>
