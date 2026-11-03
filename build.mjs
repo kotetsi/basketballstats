@@ -466,6 +466,34 @@ async function fetchAll() {
   return { players, league: { stand, games }, lastRound, fetchedAt: new Date().toISOString() };
 }
 
+// ---------- EuroCup: ίδια επίσημη πηγή, μόνο βαθμολογία ομίλων, αγώνες και μέσοι όροι παικτών
+const EC_SEASON = 'U' + SEASON.slice(1);
+async function fetchEurocup() {
+  const q = `seasonMode=Single&seasonCode=${EC_SEASON}&limit=500`;
+  const [gr, tr] = await Promise.all([
+    get(`${FEED}/v2/competitions/U/seasons/${EC_SEASON}/games?limit=500`),
+    get(`${FEED}/v3/competitions/U/statistics/players/traditional?${q}&statisticMode=PerGame`),
+  ]);
+  const teams = {};
+  const games = (gr?.data || []).map(x => {
+    for (const t of [x.home, x.away]) teams[t.code] = [t.name, (t.editorialName || t.name).trim(), t.tla || t.code, (x.group?.name || '').replace(/^Group\s*/i, '')];
+    return [x.round.round, x.date, x.home.code, x.away.code, x.home.score, x.away.score, x.status === 'result' ? 1 : 0];
+  }).sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
+  if (!games.length) throw new Error('EuroCup: χωρίς αγώνες');
+  const played = games.filter(g => g[6]).map(g => g[0]);
+  const lastRound = played.length ? Math.max(...played) : 0;
+  let stand = [];
+  if (lastRound) {
+    const st = await get(`${FEED}/v3/competitions/U/seasons/${EC_SEASON}/rounds/${lastRound}/basicstandings`);
+    stand = (st?.teams || []).map(t => [t.groupName || '', t.position, t.club.code, t.gamesWon, t.gamesLost, t.pointsFor, t.pointsAgainst, t.homeRecord, t.awayRecord, (t.last5Form || []).join('')]);
+  }
+  const r1 = x => Math.round((x || 0) * 10) / 10;
+  const players = (tr?.players || []).map(p => ({ c: p.player.code, n: niceName(p.player.name), t: p.player.team.code, gp: p.gamesPlayed || 0,
+    min: r1(p.minutesPlayed), pts: r1(p.pointsScored), reb: r1(p.totalRebounds), ast: r1(p.assists), stl: r1(p.steals), blk: r1(p.blocks), tov: r1(p.turnovers), pir: r1(p.pir),
+    m3: r1(p.threePointersMade), a3: r1(p.threePointersAttempted), m2: r1(p.twoPointersMade), a2: r1(p.twoPointersAttempted), ftm: r1(p.freeThrowsMade), fta: r1(p.freeThrowsAttempted) }));
+  return { teams, games, stand, players, lastRound, fetchedAt: new Date().toISOString() };
+}
+
 // ---------- σελίδες
 // μοντέλο ομάδων (ίδιο με του app): αποδόσεις ανά 100 κατοχές από τα ατομικά στατιστικά, μόνο αγώνες πριν από την αγωνιστική maxRound
 function teamModel(players, maxRound = Infinity) {
@@ -593,6 +621,10 @@ async function main() {
     console.log('Χρήση αποθηκευμένων δεδομένων από', data.fetchedAt);
   }
   data.videos = data.videos || oldVideos || { hl: {}, team: {} };
+  let oldEc = null;
+  try { oldEc = JSON.parse(await fs.readFile(CACHE, 'utf8')).ec || null; } catch { }
+  if (!OFFLINE) { try { data.ec = await fetchEurocup(); console.log(`EuroCup: ${Object.keys(data.ec.teams).length} ομάδες, ${data.ec.players.length} παίκτες, έως την ${data.ec.lastRound}η αγωνιστική`); } catch (e) { console.error('EuroCup: η λήψη απέτυχε, κρατάω τα αποθηκευμένα.', e.message); } }
+  data.ec = data.ec || oldEc;
   await updateVideos(data.videos, data.league.games, !OFFLINE);
   await fs.mkdir(path.dirname(CACHE), { recursive: true });
   await fs.writeFile(CACHE, JSON.stringify(data));
@@ -653,6 +685,7 @@ async function main() {
     if (k === 'widget') return B(lg) + 'widget/' + ({ el: { st: 'vathmologia', rd: 'agonistiki' }, en: { st: 'standings', rd: 'round' }, es: { st: 'clasificacion', rd: 'jornada' }, sr: { st: 'tabela', rd: 'kolo' } })[lg][v] + '/';
     if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
+    if (k === 'ec') return B(lg) + 'eurocup/' + (v ? v + '/' : '');
     return B(lg) + P[k] + '/';
   }
 
@@ -1183,6 +1216,67 @@ ${miss.length ? `<h2>${T('Οι μεγαλύτερες αστοχίες', 'The bi
 </article>`;
       await simplePage('model', { view: 'model', title: T(`Πόσο πέφτει μέσα το μοντέλο προβλέψεων EuroLeague | ${SITE_NAME}`, `EuroLeague prediction model accuracy | ${SITE_NAME}`, `Acierto del modelo de pronósticos de la EuroLeague | ${SITE_NAME}`, `Tačnost modela prognoza Evrolige | ${SITE_NAME}`),
         desc: T(`Το μοντέλο μας βρήκε τον νικητή σε ${hits} από τους ${rows.length} αγώνες της ${S}. Ανά αγωνιστική, ανά βαθμό σιγουριάς και οι μεγαλύτερες αστοχίες.`, `Our model picked the winner in ${hits} of ${rows.length} games of the ${S}. By round, by confidence and the biggest misses.`, `Nuestro modelo acertó el ganador en ${hits} de ${rows.length} partidos de la ${S}. Por jornada, por confianza y los mayores fallos.`, `Naš model je pogodio pobednika na ${hits} od ${rows.length} utakmica ${S}. Po kolu, po sigurnosti i najveći promašaji.`), main });
+    }
+
+    // ---- EuroCup: όμιλοι, αγωνιστικές, κορυφαίοι παίκτες και σελίδα για κάθε ομάδα
+    if (data.ec && data.ec.games.length) {
+      const EC = data.ec, ET = EC.teams;
+      const EC_GR = { ARI: 'Άρης', PAO: 'ΠΑΟΚ' };
+      const ecName = c => (LG === 'el' && EC_GR[c]) || (ET[c] ? ET[c][1] : c);
+      const ecFull = c => (LG === 'el' && EC_GR[c]) || (ET[c] ? ET[c][0] : c);
+      const ecSlug = c => slugify(ET[c] ? ET[c][0] : c);
+      const PAL = ['#c8102e', '#00529b', '#007a3d', '#f28c00', '#5b2c83', '#00838f', '#8d6e63', '#d81b60', '#3949ab', '#2e7d32', '#6d4c41', '#ad1457'];
+      const ecCol = c => PAL[[...c].reduce((s, ch) => s + ch.charCodeAt(0), 0) % PAL.length];
+      const crest = (c, big) => `<span class="${big ? 'bigcrest' : 'crest'}" style="background:${ecCol(c)}">${esc(ET[c] ? ET[c][2] : c)}</span>`;
+      const tlink = c => `<a href="${urlFor(LG, 'ec:' + ecSlug(c))}">${esc(ecName(c))}</a>`;
+      const loc = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG];
+      const when = iso => new Date(iso).toLocaleString(loc, { timeZone: 'Europe/Athens', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+      const sc = g => LG === 'sr' ? `${g[4]}:${g[5]}` : `${g[4]}-${g[5]}`;
+      const rd = r => T(`${r}η αγωνιστική`, `Round ${r}`, `Jornada ${r}`, `${r}. kolo`);
+      const pct = (m, a) => a ? Math.round(100 * m / a) + '%' : '–';
+      const lr = EC.lastRound;
+      const nextR = (EC.games.find(g => !g[6]) || [0])[0];
+      const groups = [...new Set(Object.values(ET).map(t => t[3]))].filter(Boolean).sort();
+      const standOf = gname => EC.stand.filter(s => s[0] === gname).sort((a, b) => a[1] - b[1]);
+      const form = f => [...f].map(x => `<i class="ecf ${x === 'W' ? 'w' : 'l'}">${x === 'W' ? T('Ν', 'W', 'V', 'P') : T('Η', 'L', 'D', 'I')}</i>`).join('');
+      const standTbl = gname => `<div class="tbl"><table><thead><tr><th>#</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Ν', 'W', 'V', 'P')}</th><th>${T('Η', 'L', 'D', 'I')}</th><th>+/−</th><th class="ecform">${T('Φόρμα', 'Form', 'Racha', 'Forma')}</th></tr></thead><tbody>${standOf(gname).map(s => `<tr${s[1] <= 2 ? ' class="ecq"' : ''}><td>${s[1]}</td><td class="l"><span class="ectn">${crest(s[2])}${tlink(s[2])}</span></td><td>${s[3]}</td><td>${s[4]}</td><td>${s[5] - s[6] > 0 ? '+' : ''}${s[5] - s[6]}</td><td class="ecform">${form(s[9])}</td></tr>`).join('')}</tbody></table></div>`;
+      const fxCard = g => `<div class="fx"><span class="when">${esc(T('Όμιλος', 'Group', 'Grupo', 'Grupa'))} ${esc(ET[g[2]]?.[3] || '')} · ${g[6] ? rd(g[0]) : esc(when(g[1]))}</span><div class="row"><span class="ectn">${crest(g[2])}${tlink(g[2])}</span><b>${g[6] ? g[4] : ''}</b></div><div class="row"><span class="ectn">${crest(g[3])}${tlink(g[3])}</span><b>${g[6] ? g[5] : ''}</b></div></div>`;
+      const minG = Math.max(1, Math.ceil(lr / 2));
+      const qual = EC.players.filter(p => p.gp >= minG && p.min >= 10);
+      const LEAD = [['pir', 'PIR'], ['pts', T('Πόντοι', 'Points', 'Puntos', 'Poeni')], ['reb', T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi')], ['ast', T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije')]];
+      const leadTbl = ([k, lab]) => `<div><h3>${lab}</h3><div class="tbl"><table><tbody>${qual.slice().sort((a, b) => b[k] - a[k]).slice(0, 10).map((p, i) => `<tr><td>${i + 1}</td><td class="l">${esc(p.n)} <small class="muted">${tlink(p.t)}</small></td><td><b>${f1(p[k])}</b></td></tr>`).join('')}</tbody></table></div></div>`;
+      const src = `<p class="note">${T('Πηγή: επίσημα στατιστικά της EuroCup. Μέσοι όροι ανά αγώνα· στους κορυφαίους μετράνε όσοι έχουν τουλάχιστον', 'Source: official EuroCup stats. Per-game averages; leaders include players with at least', 'Fuente: estadísticas oficiales de la EuroCup. Promedios por partido; en los líderes cuentan quienes tienen al menos', 'Izvor: zvanična statistika Evrokupa. Proseci po utakmici; među najboljima su igrači sa najmanje')} ${minG} ${T('αγώνες και 10 λεπτά.', 'games and 10 minutes.', 'partidos y 10 minutos.', 'utakmica i 10 minuta.')}</p>`;
+      const ECL = `EuroCup ${SEASON_LABEL}`;
+      const main = `<section class="article ec">
+<h1>${ECL}</h1>
+<p class="lede2">${T('Βαθμολογία των τεσσάρων ομίλων, αποτελέσματα, πρόγραμμα και οι κορυφαίοι παίκτες της EuroCup, με τον Άρη και τον ΠΑΟΚ.', 'Standings of all four groups, results, schedule and the top players of the EuroCup.', 'Clasificación de los cuatro grupos, resultados, calendario y los mejores jugadores de la EuroCup.', 'Tabele sve četiri grupe, rezultati, raspored i najbolji igrači Evrokupa.')} ${lr ? T(`Έως και την ${lr}η αγωνιστική.`, `Through Round ${lr}.`, `Hasta la jornada ${lr}.`, `Zaključno sa ${lr}. kolom.`) : ''}</p>
+<p class="sub">${T('Οι δύο πρώτοι κάθε ομίλου (με χρώμα) πάνε κατευθείαν στους «16», οι 3οι έως 6οι παίζουν νοκ άουτ για τις υπόλοιπες θέσεις.', 'The top two of each group (highlighted) go straight to the Round of 16; 3rd to 6th play an eighth-final playoff.', 'Los dos primeros de cada grupo (resaltados) pasan directamente a octavos; del 3.º al 6.º juegan una eliminatoria previa.', 'Prve dve ekipe iz svake grupe (označene) idu direktno u osminu finala; 3. do 6. igraju doigravanje.')}</p>
+<div class="ecgrid">${groups.map(gn => `<div><h2>${T('Όμιλος', 'Group', 'Grupo', 'Grupa')} ${esc(gn)}</h2>${standTbl(gn)}</div>`).join('')}</div>
+${lr ? `<h2>${T('Αποτελέσματα', 'Results', 'Resultados', 'Rezultati')}: ${rd(lr)}</h2><div class="ecfx">${EC.games.filter(g => g[0] === lr && g[6]).map(fxCard).join('')}</div>` : ''}
+${nextR ? `<h2>${T('Επόμενοι αγώνες', 'Next games', 'Próximos partidos', 'Naredne utakmice')}: ${rd(nextR)}</h2><div class="ecfx">${EC.games.filter(g => g[0] === nextR && !g[6]).map(fxCard).join('')}</div>` : ''}
+${qual.length ? `<h2>${T('Κορυφαίοι παίκτες', 'Top players', 'Mejores jugadores', 'Najbolji igrači')}</h2><div class="ecgrid">${LEAD.map(leadTbl).join('')}</div>` : ''}
+${src}
+</section>`;
+      await simplePage('ec', { view: 'eurocup', title: T(`EuroCup ${SEASON_LABEL}: βαθμολογία, αποτελέσματα, πρόγραμμα | ${SITE_NAME}`, `EuroCup ${SEASON_LABEL}: standings, results, schedule | ${SITE_NAME}`, `EuroCup ${SEASON_LABEL}: clasificación, resultados, calendario | ${SITE_NAME}`, `Evrokup ${SEASON_LABEL}: tabela, rezultati, raspored | ${SITE_NAME}`),
+        desc: T(`Η βαθμολογία των ομίλων της EuroCup ${SEASON_LABEL}, αποτελέσματα, πρόγραμμα και κορυφαίοι παίκτες, με τον Άρη και τον ΠΑΟΚ.`, `EuroCup ${SEASON_LABEL} group standings, results, schedule and top players.`, `Clasificación de los grupos de la EuroCup ${SEASON_LABEL}, resultados, calendario y mejores jugadores.`, `Tabele grupa Evrokupa ${SEASON_LABEL}, rezultati, raspored i najbolji igrači.`), main });
+
+      for (const c of Object.keys(ET)) {
+        const gs = EC.games.filter(g => g[2] === c || g[3] === c);
+        const st = EC.stand.find(s => s[2] === c);
+        const ros = EC.players.filter(p => p.t === c).sort((a, b) => b.min - a.min);
+        const res = g => { const home = g[2] === c, my = home ? g[4] : g[5], op = home ? g[5] : g[4]; return `<b class="${my > op ? 'ecw' : 'ecl'}">${my > op ? T('Ν', 'W', 'V', 'P') : T('Η', 'L', 'D', 'I')} ${LG === 'sr' ? `${my}:${op}` : `${my}-${op}`}</b>`; };
+        const tmain = `<section class="article ec">
+<p class="crumbs"><a href="${urlFor(LG, 'ec')}">${ECL}</a></p>
+<div class="echead">${crest(c, 1)}<div><h1>${esc(ecFull(c))}</h1><p class="sub">${T('Όμιλος', 'Group', 'Grupo', 'Grupa')} ${esc(ET[c][3])}${st ? ` · ${st[1]}${T('η θέση', LG === 'en' ? ({ 1: 'st', 2: 'nd', 3: 'rd' }[st[1]] || 'th') + ' place' : '', '.º puesto', '. mesto')} · ${st[3]}-${st[4]}` : ''}${st ? ` · ${T('Έδρα', 'Home', 'Casa', 'Kod kuće')} ${st[7]} · ${T('Εκτός', 'Away', 'Fuera', 'U gostima')} ${st[8]}` : ''}</p></div></div>
+<h2>${T('Πρόγραμμα και αποτελέσματα', 'Schedule and results', 'Calendario y resultados', 'Raspored i rezultati')}</h2>
+<div class="tbl"><table><thead><tr><th class="l">${T('Αγ.', 'Rd', 'J.', 'Kolo')}</th><th class="l">${T('Αντίπαλος', 'Opponent', 'Rival', 'Protivnik')}</th><th>${T('Αποτέλεσμα / ώρα', 'Result / time', 'Resultado / hora', 'Rezultat / vreme')}</th></tr></thead><tbody>${gs.map(g => { const home = g[2] === c, o = home ? g[3] : g[2]; return `<tr><td class="l">${g[0]}</td><td class="l">${home ? '' : '@ '}${tlink(o)}</td><td>${g[6] ? res(g) : esc(when(g[1]))}</td></tr>`; }).join('')}</tbody></table></div>
+${ros.length ? `<h2>${T('Ρόστερ και μέσοι όροι', 'Roster and averages', 'Plantilla y promedios', 'Roster i proseci')}</h2>
+<div class="tbl"><table><thead><tr><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>3${T('Π', 'P', 'P', 'P')}%</th><th>PIR</th></tr></thead><tbody>${ros.map(p => `<tr><td class="l">${esc(p.n)}</td><td>${p.gp}</td><td>${f1(p.min)}</td><td>${f1(p.pts)}</td><td>${f1(p.reb)}</td><td>${f1(p.ast)}</td><td>${pct(p.m3, p.a3)}</td><td><b>${f1(p.pir)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
+<p class="note">${T('Πηγή: επίσημα στατιστικά της EuroCup. Ώρες Ελλάδας.', 'Source: official EuroCup stats. Times are Greek time (EET).', 'Fuente: estadísticas oficiales de la EuroCup. Horario de Grecia.', 'Izvor: zvanična statistika Evrokupa. Vreme je grčko.')}</p>
+</section>`;
+        await simplePage('ec:' + ecSlug(c), { view: 'eurocup', title: T(`${ecFull(c)}: EuroCup ${SEASON_LABEL}, πρόγραμμα, ρόστερ, στατιστικά | ${SITE_NAME}`, `${ecFull(c)}: EuroCup ${SEASON_LABEL} schedule, roster and stats | ${SITE_NAME}`, `${ecFull(c)}: EuroCup ${SEASON_LABEL}, calendario, plantilla y estadísticas | ${SITE_NAME}`, `${ecFull(c)}: Evrokup ${SEASON_LABEL}, raspored, roster i statistika | ${SITE_NAME}`),
+          desc: T(`Το πρόγραμμα, τα αποτελέσματα και οι μέσοι όροι των παικτών της ${ecFull(c)} στην EuroCup ${SEASON_LABEL}.`, `${ecFull(c)} in the EuroCup ${SEASON_LABEL}: schedule, results and player averages.`, `${ecFull(c)} en la EuroCup ${SEASON_LABEL}: calendario, resultados y promedios de los jugadores.`, `${ecFull(c)} u Evrokupu ${SEASON_LABEL}: raspored, rezultati i proseci igrača.`), main: tmain });
+      }
     }
 
     // ---- ημερολόγιο (.ics) για κάθε ομάδα
