@@ -317,7 +317,7 @@ function renderTeam(c){
   const LB=document.getElementById('tLeaders');
   LB.innerHTML=lead('Πόντοι',p=>p.A.pts/g1(p),f1)+lead('Ριμπάουντ',p=>p.A.reb/g1(p),f1)+lead('Ασίστ',p=>p.A.ast/g1(p),f1)+lead('PIR',p=>p.A.pir/g1(p),f1);
   LB.querySelectorAll('.ld').forEach(b=>{b.querySelector('em').textContent=byCode[b.dataset.c].name;b.onclick=()=>{location.href=pUrl(b.dataset.c);};});
-  renderTeamHeat(c); renderTWith(c);
+  renderTeamHeat(c); renderTWith(c); renderTOdds(c);
   // fixtures
   const nx=GAMES.filter(g=>!g[6]&&(g[2]===c||g[3]===c)).slice(0,5);
   document.getElementById('tNext').innerHTML=nx.length?nx.map(g=>{const home=g[2]===c,o=home?g[3]:g[2];return '<div class="fx"><span class="when">'+g[0]+'η αγ. · '+when(g[1])+'</span><div class="row"><a href="'+tUrl(o)+'\">'+(home?'vs ':'@ ')+crest(o)+' '+tName(o)+'</a><span class="rk">'+recOf(o)+' · '+ord(SROW[o]?SROW[o][0]:0)+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>';}).join(''):'<p class="sub">Δεν υπάρχουν προγραμματισμένοι αγώνες.</p>';
@@ -381,7 +381,7 @@ function proj(p){
   const h=heatOf(p), A=p.A, base=A.pir/A.G, rec=h?h.l3:base, c=p.t.split(';').pop();
   const ng=nextGames(c,1)[0]; if(!ng)return null;
   const home=ng[2]===c, opp=home?ng[3]:ng[2];
-  const v=(0.5*base+0.5*rec)*(allowed(opp)/lgAllowed)*(home?1.03:0.97);
+  const v=(0.5*base+0.5*rec)*posF(opp,p.pos)*(home?1.03:0.97);
   return{v,base,rec,opp,home,h,g:ng};
 }
 function renderFantasy(){
@@ -395,7 +395,7 @@ function renderFantasy(){
   document.getElementById('fanPicksSub').textContent='Οι 15 πρώτοι ανά θέση με βάση '+FSORT[fsort][0]+' · πατήστε μια στήλη για άλλη ταξινόμηση';
   const tb=document.getElementById('fanPicks');
   tb.innerHTML='<thead><tr><th>#</th><th>Παίκτης</th><th>Αντίπαλος</th>'+[['base','PIR','Μέσο PIR σεζόν'],['rec','Τελ. 3','Μέσο PIR 3 τελευταίων'],['heat','Θερμόμετρο','Φόρμα: τελευταίοι 3 σε σχέση με τους προηγούμενους'],['v','Εκτίμηση','Εκτίμηση PIR για τον επόμενο αγώνα']].map(([k,l,ti])=>'<th class="sth'+(fsort===k?' sorted':'')+'" data-s="'+k+'" title="'+ti+'" tabindex="0" role="button">'+l+(fsort===k?' ▼':'')+'</th>').join('')+'</tr></thead><tbody>'+
-   pool.map((o,i)=>{const x=o.x,rk=allowedRank(x.opp),lab=x.h?heatLab(x.h.d):null;
+   pool.map((o,i)=>{const x=o.x,rk=pdRank(x.opp,o.p.pos)||allowedRank(x.opp),lab=x.h?heatLab(x.h.d):null;
     return '<tr class="click" data-c="'+o.p.c+'"><td>'+(i+1)+'</td><td class="l"><a class="tlink" href="'+pUrl(o.p.c)+'\">'+crest(o.p.t)+'<span class="pn"></span></a></td><td class="l">'+(x.home?'vs ':'@ ')+tName(x.opp)+' <span class="ease" style="background:'+easeCol(rk)+'" title="'+ord(rk)+' σε PIR που δέχεται">'+ord(rk)+'</span></td><td>'+f1(x.base)+'</td><td>'+f1(x.rec)+'</td><td>'+(lab?'<span class="deg sm" style="background:'+lab[1]+'">'+deg(x.h.d)+'</span>':'–')+'</td><td class="hi">'+f1(x.v)+'</td></tr>';}).join('')+'</tbody>';
   tb.querySelectorAll('.pn').forEach((s,i)=>s.textContent=pool[i].p.name);
   const fo=document.getElementById('fanOut');
@@ -564,6 +564,9 @@ function renderGame(id){
   set('gFactors','<thead><tr><th></th><th>'+crest(h)+'</th><th>'+crest(a)+'</th></tr></thead><tbody>'+FR.map(([k,hi,f])=>{const vh=H[k],va=A[k],bh=hi===null||!isFinite(vh)||!isFinite(va)?0:(hi?vh>va:vh<va),ba=hi===null||!isFinite(vh)||!isFinite(va)?0:(hi?va>vh:va<vh);
     const cell=(v,c,b)=>'<td>'+(b?'<b>':'')+f(v)+(b?'</b>':'')+(hi!==null&&rank(c,k,hi)?' <span class="rk">('+ord(rank(c,k,hi))+')</span>':'')+'</td>';
     return '<tr><td class="l">'+U.ff[k]+'</td>'+cell(vh,h,bh)+cell(va,a,ba)+'</tr>';}).join('')+'</tbody>');
+  // defense by position
+  if(U.pd){const pr=(c,k)=>{const rk=pdRank(c,k);return '<td><span class="pdc" style="--e:'+easeCol(rk)+'">'+f1(PD[c][k][0])+'</span> <span class="rk">('+ord(rk)+')</span></td>';};
+    set('gPos','<thead><tr><th></th><th>'+crest(h)+' '+U.pd.gives+'</th><th>'+crest(a)+' '+U.pd.gives+'</th></tr></thead><tbody>'+POSK.map(k=>'<tr><td class="l">'+U.pd[k]+'</td>'+(PD[h]?pr(h,k):'<td>–</td>')+(PD[a]?pr(a,k):'<td>–</td>')+'</tr>').join('')+'</tbody>');}
   // head-to-head
   const hh=GAMES.filter(z=>((z[2]===h&&z[3]===a)||(z[2]===a&&z[3]===h))&&!(z[0]===r&&z[2]===h));
   set('gH2H',hh.length?'<div class="glist">'+hh.map(z=>'<a href="'+gUrl(z[0],z[2],z[3])+'">'+fm(U.rd,{n:z[0]})+' · '+hx(tName(z[2]))+' – '+hx(tName(z[3]))+'<small>'+(z[6]?z[4]+'-'+z[5]:U.soon)+'</small></a>').join('')+'</div>':'<p class="sub" style="margin:0">'+U.h2hNone+'</p>');
@@ -571,6 +574,69 @@ function renderGame(id){
   const tips=(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r),art=(D.articles||[]).find(z=>z.type==='prognostiko'&&z.game===h+'-'+a&&(!z.round||+z.round===r));
   if(tips.length||art){const sec=document.getElementById('gTipsSec');if(sec)sec.hidden=false;
     set('gTips',(art?'<p><a class="pread" href="'+art.url+'">'+U.readPred+'</a></p>':'')+(tips.length?'<div class="glist">'+tips.map(t=>'<a href="'+(t.u||BASE+'tipsters/')+'"><b>'+hx(t.n)+'</b> '+hx(t.l)+'</a>').join('')+'</div>':''));}
+}
+
+// ---- 4. Defense by position: PIR and points each team allows per game to guards, forwards, centers
+const POSK=['Guard','Forward','Center'];
+const PD={};Object.keys(TS).forEach(c=>{PD[c]={Guard:[0,0],Forward:[0,0],Center:[0,0]};});
+P.forEach(p=>{if(!POSK.includes(p.pos))return;p.games.forEach(r=>{const t=PD[r[2]];if(t){t[p.pos][0]+=r[25];t[p.pos][1]+=r[8];}});});
+Object.keys(PD).forEach(c=>{const G=TS[c].G||1;POSK.forEach(k=>{PD[c][k]=[PD[c][k][0]/G,PD[c][k][1]/G];});});
+const lgPos=Object.fromEntries(POSK.map(k=>{const v=Object.values(PD).map(t=>t[k][0]);return [k,v.reduce((a,b)=>a+b,0)/(v.length||1)];}));
+const pdRank=(c,k,i)=>{if(!PD[c])return null;const v=PD[c][k][i||0];return 1+Object.values(PD).filter(t=>t[k][i||0]>v).length;};
+const posF=(c,k)=>{const team=allowed(c)/lgAllowed;if(!PD[c]||!lgPos[k])return team;return 0.5*(PD[c][k][0]/lgPos[k])+0.5*team;};
+function renderPosDef(){
+  const el=document.getElementById('fanPos');if(!el||!U.pd)return;
+  const codes=Object.keys(PD).filter(c=>TEAMS[c]);
+  el.innerHTML='<h2>'+U.pd.title+'</h2><p class="sub">'+U.pd.sub+'</p><div class="tbl"><table id="fanPosT" class="sortable"></table></div><p class="note">'+U.pd.note+'</p>';
+  const cell=(c,k)=>{const rk=pdRank(c,k);return '<span class="pdc" style="--e:'+easeCol(rk)+'" title="'+hx(ord(rk))+'">'+f1(PD[c][k][0])+'</span><small class="rk"> '+f1(PD[c][k][1])+' '+U.pd.ptsS+'</small>';};
+  sortable(document.getElementById('fanPosT'),[{k:'team',h:U.pd.team,l:1,v:c=>tName(c),f:c=>tlink(c),d:1}].concat(POSK.map(k=>({k,h:U.pd[k],t:U.pd.cellT,v:c=>PD[c][k][0],f:c=>cell(c,k),d:-1}))),codes,'Center',-1,c=>{location.href=tUrl(c);});
+}
+
+// ---- 5. Season simulation: chances of top 4, playoffs (1-6), play-in (7-10)
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let SIMC=null;
+function simulate(){
+  if(SIMC)return SIMC;
+  const teams=STAND.map(s=>s[1]).filter(c=>TS[c]),idx=Object.fromEntries(teams.map((c,i)=>[c,i])),n=teams.length,N=5000;
+  const R=rng(20262027+GAMES.filter(g=>g[6]).length),gs=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R());};
+  const bW=teams.map(c=>SROW[c][2]),bD=teams.map(c=>SROW[c][4]-SROW[c][5]);
+  const rem=GAMES.filter(g=>!g[6]&&g[2] in idx&&g[3] in idx).map(g=>{const x=predict(g[2],g[3]);return [idx[g[2]],idx[g[3]],x?x.ph-x.pa:HCA];});
+  const cnt=teams.map(()=>new Array(n).fill(0)),ws=new Array(n).fill(0);
+  for(let s=0;s<N;s++){const W=bW.slice(),Dd=bD.slice(),off=teams.map(()=>3*gs());
+    for(const [h,a,m] of rem){const d=m+off[h]-off[a]+11*gs();if(d>0)W[h]++;else W[a]++;Dd[h]+=d;Dd[a]-=d;}
+    teams.map((_,i)=>i).sort((x,y)=>W[y]-W[x]||Dd[y]-Dd[x]).forEach((t,p)=>{cnt[t][p]++;});
+    for(let i=0;i<n;i++)ws[i]+=W[i];}
+  const tot=teams.map(c=>SROW[c][2]+SROW[c][3]+rem.filter(g=>teams[g[0]]===c||teams[g[1]]===c).length);
+  SIMC={N,rem:rem.length,by:Object.fromEntries(teams.map((c,i)=>{const p=cnt[i].map(x=>x/N),sum=(a,b)=>p.slice(a,b).reduce((x,y)=>x+y,0);
+    let best=0;p.forEach((x,j)=>{if(x>p[best])best=j;});
+    return [c,{p,top4:sum(0,4),top6:sum(0,6),pin:sum(6,10),out:sum(10,n),w:ws[i]/N,g:tot[i],best:best+1}];}))};
+  return SIMC;
+}
+const pc0=v=>v>=.995?'>99%':v<=0?'–':v<.01?'<1%':Math.round(v*100)+'%';
+const pcell=v=>'<span class="pcl" style="--a:'+Math.round(v*100)+'%">'+pc0(v)+'</span>';
+function renderOdds(){
+  const el=document.getElementById('standOdds');if(!el||!U.po)return;const S=simulate();
+  if(!S.rem){el.hidden=true;return;}
+  const codes=Object.keys(S.by);
+  el.innerHTML='<h2>'+U.po.title+'</h2><p class="sub">'+fm(U.po.sub,{n:S.N.toLocaleString(),g:S.rem})+'</p><div class="tbl"><table id="oddsT" class="sortable"></table></div><p class="note">'+U.po.note+'</p>';
+  const x=c=>S.by[c];
+  sortable(document.getElementById('oddsT'),[
+    {k:'pos',h:'#',v:c=>-SROW[c][0],f:c=>SROW[c][0],d:-1},
+    {k:'team',h:U.po.team,l:1,v:c=>tName(c),f:c=>tlink(c),d:1},
+    {k:'w',h:U.po.rec,t:U.po.recT,v:c=>x(c).w,f:c=>Math.round(x(c).w)+'–'+(x(c).g-Math.round(x(c).w))},
+    {k:'top4',h:U.po.top4,t:U.po.top4T,v:c=>x(c).top4,f:c=>pcell(x(c).top4)},
+    {k:'top6',h:U.po.top6,v:c=>x(c).top6,f:c=>pcell(x(c).top6)},
+    {k:'pin',h:U.po.pin,v:c=>x(c).pin,f:c=>pcell(x(c).pin)},
+    {k:'out',h:U.po.out,v:c=>x(c).out,f:c=>pcell(x(c).out)},
+    {k:'best',h:U.po.best,v:c=>-x(c).best,f:c=>ord(x(c).best)}],codes,'top6',-1,c=>{location.href=tUrl(c);});
+}
+function renderTOdds(c){
+  const el=document.getElementById('tOdds');if(!el||!U.po)return;const S=simulate(),x=S.by[c];
+  if(!x||!S.rem){el.hidden=true;return;}
+  const bars=x.p.map((v,i)=>'<i title="'+hx(ord(i+1)+': '+pc0(v))+'" style="height:'+Math.max(2,Math.round(v/Math.max(...x.p)*100))+'%" class="'+(i<6?'z1':i<10?'z2':'z0')+'"></i>').join('');
+  el.innerHTML='<h2>'+U.po.teamT+'</h2><p class="sub">'+fm(U.po.teamSub,{r:Math.round(x.w)+'–'+(x.g-Math.round(x.w)),b:ord(x.best)})+'</p>'+
+    '<div class="otiles"><div><b>'+pc0(x.top4)+'</b><span>'+U.po.top4+'</span></div><div><b>'+pc0(x.top6)+'</b><span>'+U.po.top6+'</span></div><div><b>'+pc0(x.pin)+'</b><span>'+U.po.pin+'</span></div><div><b>'+pc0(x.out)+'</b><span>'+U.po.out+'</span></div></div>'+
+    '<div class="odist" role="img" aria-label="'+hx(U.po.dist)+'">'+bars+'</div><div class="odistl"><span>1</span><span>'+x.p.length+'</span></div><p class="note">'+U.po.dist+' · <a href="'+BASE+'#standOdds">'+U.po.all+'</a></p>';
 }
 // ---- router (each page says which view it is)
 const VIEW=document.body.dataset.view, VID=document.body.dataset.id;
@@ -581,9 +647,9 @@ function show(v){
 if(VIEW==='player'&&byCode[VID]){show('player');render(VID);}
 else if(VIEW==='team'&&TEAMS[VID]){show('team');renderTeam(VID);}
 else if(VIEW==='form'){show('form');renderForm();}
-else if(VIEW==='fantasy'){show('fantasy');renderFantasy();}
+else if(VIEW==='fantasy'){show('fantasy');renderFantasy();renderPosDef();}
 else if(VIEW==='preds'){show('preds');renderPreds();}
-else if(VIEW==='stand'){show('stand');renderStand();}
+else if(VIEW==='stand'){show('stand');renderStand();renderOdds();}
 else if(VIEW==='game'){renderGame(VID);document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v==='preds'));}
 else{document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v===VIEW));}
 {const n=document.querySelector('.nav'),a=n&&n.querySelector('a.on');if(a&&a.offsetLeft+a.offsetWidth>n.clientWidth)n.scrollLeft=a.offsetLeft-16;}
