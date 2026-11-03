@@ -261,3 +261,52 @@ a.pklink:hover{color:var(--accent)}
 .pickbox.W{border-color:var(--good)} .pickbox.L{border-color:var(--low)}
 @media (max-width:640px){.pickbox{grid-template-columns:1fr}}
 .inj{display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-left:.35em;border-radius:50%;background:#d93025;color:#fff;font-size:11px;font-weight:800;line-height:1;vertical-align:.1em;cursor:help;flex:none}.inj.out{background:#e8710a}#pname .inj{font-size:.42em;vertical-align:.45em}.tlink .inj{margin-left:-2px}.injnote{color:#d93025;font-weight:600}.injnote.out{color:#e8710a}#fanOut a{white-space:nowrap}
+/* γραμμές παίκτη, με/χωρίς, σελίδες αγώνων */
+.propbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.propbar .seg{margin:0;flex-wrap:wrap}
+.step{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.step button{width:32px;height:32px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font:inherit;font-size:18px;line-height:1;cursor:pointer}
+.step button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.step b{font-family:var(--display);font-size:24px;color:var(--ink);min-width:3ch;text-align:center;font-variant-numeric:tabular-nums}
+.ptiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-bottom:12px}
+.ptile{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:8px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:0 8px}
+.ptile b{font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
+.ptile small{color:var(--c);font-weight:600;text-align:right}
+.ptile span{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.ptile>i{grid-column:1/-1;display:block;height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.ptile>i>i{display:block;height:100%;background:var(--c)}
+.wwgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wwb{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.wwb>span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.wwb>b{display:block;font-family:var(--display);font-size:30px;line-height:1.1}
+.wwb>small{color:var(--muted);font-size:12px}
+.wwb div{display:grid;gap:2px;margin-top:8px;font-size:13px}
+.wwb div span{display:flex;justify-content:space-between;gap:8px}
+#pWith h3,.gside h3{font-size:15px;margin:16px 0 4px;display:flex;align-items:center;gap:8px}
+.gside h3{margin-top:0}
+.fxl{font-size:12px;font-weight:600;color:var(--accent)!important;justify-self:start}
+.game{display:grid;gap:18px;grid-template-columns:minmax(0,1fr);min-width:0}
+.gside{min-width:0}
+.game h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1.05;margin:0;text-transform:uppercase;text-wrap:balance}
+.game .lede{margin:6px 0 0;opacity:1;color:var(--muted)}
+.game h2{margin:0 0 4px}
+.kicker{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--accent)}
+.gtop .when{font-size:12px;color:var(--muted);margin-bottom:10px;text-align:center}
+.ggrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;align-items:center}
+.gteam{display:grid;justify-items:center;gap:6px;text-align:center;color:inherit;text-decoration:none}
+.gteam b{font-family:var(--display);font-size:20px;text-transform:uppercase;line-height:1.05}
+.gteam .bigcrest{border-color:var(--line)}
+.gmid{display:grid;gap:8px;text-align:center}
+.gmid .pscore b{font-size:40px}
+.gcols,.gcols2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.gcols2>section{min-width:0}
+.glist{display:grid;gap:4px;margin:8px 0}
+.glist a{display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-size:14px;padding:4px 0;border-bottom:1px solid var(--line)}
+.glist a:hover{color:var(--accent)}
+.glist small{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums}
+.ginj{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ginj a{font-weight:600;color:inherit}
+.ginj small{display:block;color:var(--muted);font-size:12px}
+.hitp{display:inline-block;white-space:nowrap;font-size:12px;font-weight:600;padding:1px 6px;border-radius:5px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--ink);border-left:3px solid var(--c)}
+@media (max-width:760px){.gcols,.gcols2{grid-template-columns:minmax(0,1fr)}.game h1{font-size:30px}.gteam b{font-size:16px}.gmid .pscore b{font-size:30px}.ggrid .bigcrest{width:48px;height:48px;font-size:16px}}
+@media (max-width:440px){.wwgrid{grid-template-columns:1fr}.ptiles{grid-template-columns:1fr 1fr}}

@@ -77,7 +77,7 @@ function render(code){
   const G=A.G||1;
   document.getElementById('board').innerHTML=[['Πόντοι',A.pts/G],['Ριμπ.',A.reb/G],['Ασίστ',A.ast/G],['PIR',A.pir/G],['Λεπτά',null],['+/−',A.pm/G]]
    .map(([l,v])=>'<div><b>'+(l==='Λεπτά'?mmss(A.min*60/G):(l==='+/−'&&v>0?'+':'')+f1(v))+'</b><span>'+l+'</span></div>').join('');
-  renderAvg(); renderShoot(); renderChart(); renderLog(); renderPct(); renderSplits(); renderMates(); renderPHeat();
+  renderAvg(); renderShoot(); renderChart(); renderLog(); renderPct(); renderSplits(); renderMates(); renderPHeat(); renderProps(); renderPWith();
   
 }
 
@@ -251,7 +251,7 @@ function renderStand(){
   const nr=Math.min(...GAMES.filter(g=>!g[6]).map(g=>g[0]));
   const ng=GAMES.filter(g=>g[0]===nr);
   document.getElementById('nextSub').textContent=nr+'η αγωνιστική · ώρα Ελλάδας';
-  document.getElementById('nextRound').innerHTML=ng.map(g=>'<div class="fx"><span class="when">'+when(g[1])+(g[6]?' · τελικό':'')+'</span><div class="row"><a href="'+tUrl(g[2])+'\">'+crest(g[2])+' '+tName(g[2])+'</a><span class="rk">'+(g[6]?g[4]:recOf(g[2]))+'</span></div><div class="row"><a href="'+tUrl(g[3])+'\">'+crest(g[3])+' '+tName(g[3])+'</a><span class="rk">'+(g[6]?g[5]:recOf(g[3]))+'</span></div></div>').join('');
+  document.getElementById('nextRound').innerHTML=ng.map(g=>'<div class="fx"><span class="when">'+when(g[1])+(g[6]?' · τελικό':'')+'</span><div class="row"><a href="'+tUrl(g[2])+'\">'+crest(g[2])+' '+tName(g[2])+'</a><span class="rk">'+(g[6]?g[4]:recOf(g[2]))+'</span></div><div class="row"><a href="'+tUrl(g[3])+'\">'+crest(g[3])+' '+tName(g[3])+'</a><span class="rk">'+(g[6]?g[5]:recOf(g[3]))+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>').join('');
   const codes=STAND.map(s=>s[1]).filter(c=>TS[c]);
   const cols=[
     {k:'team',h:'Ομάδα',l:1,v:c=>tName(c),f:c=>tlink(c),d:1},
@@ -291,7 +291,7 @@ function renderTeam(c){
     [-top,-top/2,0,top/2,top].forEach(v=>{sv+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width="'+(v===0?1.4:.6)+'"/><text x="'+(pl-6)+'" y="'+(y(v)+4)+'" text-anchor="end">'+(v>0?'+':'')+v+'</text>';});
     res.forEach((r,i)=>{const m=r.us-r.them,x=pl+i*bw+bw*.2,w=bw*.6;sv+='<rect x="'+x.toFixed(1)+'" y="'+y(Math.max(m,0)).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+Math.abs(y(m)-y(0)).toFixed(1)+'" rx="2" fill="'+(m>0?'var(--good)':'var(--low)')+'"><title>'+r.r+'η αγ. '+(r.home?'vs ':'@ ')+tName(r.opp)+': '+r.us+'-'+r.them+'</title></rect><text x="'+(pl+i*bw+bw/2)+'" y="'+(H-pb+15)+'" text-anchor="middle">'+r.r+'</text><text x="'+(pl+i*bw+bw/2)+'" y="'+(H-pb+28)+'" text-anchor="middle" style="font-size:9px">'+r.opp+'</text>';});
     el.innerHTML=sv+'</svg>';}else el.innerHTML='<p class="sub">Δεν έχει παίξει ακόμη.</p>';
-  document.getElementById('tResults').innerHTML=res.slice().reverse().map(r=>'<div class="rs"><span class="res '+(r.us>r.them?'w':'l')+'">'+(r.us>r.them?'Ν':'Η')+'</span><a href="'+tUrl(r.opp)+'\">'+(r.home?'vs ':'@ ')+tName(r.opp)+'</a><small>'+r.us+'-'+r.them+'</small></div>').join('');
+  document.getElementById('tResults').innerHTML=res.slice().reverse().map(r=>'<div class="rs"><span class="res '+(r.us>r.them?'w':'l')+'">'+(r.us>r.them?'Ν':'Η')+'</span><a href="'+gUrl(r.r,r.home?c:r.opp,r.home?r.opp:c)+'\">'+(r.home?'vs ':'@ ')+tName(r.opp)+'</a><small>'+r.us+'-'+r.them+'</small></div>').join('');
   // roster
   const ros=P.filter(p=>p.t===c||p.t.split(';').pop()===c);
   const g1=p=>p.A.G||1;
@@ -317,10 +317,10 @@ function renderTeam(c){
   const LB=document.getElementById('tLeaders');
   LB.innerHTML=lead('Πόντοι',p=>p.A.pts/g1(p),f1)+lead('Ριμπάουντ',p=>p.A.reb/g1(p),f1)+lead('Ασίστ',p=>p.A.ast/g1(p),f1)+lead('PIR',p=>p.A.pir/g1(p),f1);
   LB.querySelectorAll('.ld').forEach(b=>{b.querySelector('em').textContent=byCode[b.dataset.c].name;b.onclick=()=>{location.href=pUrl(b.dataset.c);};});
-  renderTeamHeat(c);
+  renderTeamHeat(c); renderTWith(c);
   // fixtures
   const nx=GAMES.filter(g=>!g[6]&&(g[2]===c||g[3]===c)).slice(0,5);
-  document.getElementById('tNext').innerHTML=nx.length?nx.map(g=>{const home=g[2]===c,o=home?g[3]:g[2];return '<div class="fx"><span class="when">'+g[0]+'η αγ. · '+when(g[1])+'</span><div class="row"><a href="'+tUrl(o)+'\">'+(home?'vs ':'@ ')+crest(o)+' '+tName(o)+'</a><span class="rk">'+recOf(o)+' · '+ord(SROW[o]?SROW[o][0]:0)+'</span></div></div>';}).join(''):'<p class="sub">Δεν υπάρχουν προγραμματισμένοι αγώνες.</p>';
+  document.getElementById('tNext').innerHTML=nx.length?nx.map(g=>{const home=g[2]===c,o=home?g[3]:g[2];return '<div class="fx"><span class="when">'+g[0]+'η αγ. · '+when(g[1])+'</span><div class="row"><a href="'+tUrl(o)+'\">'+(home?'vs ':'@ ')+crest(o)+' '+tName(o)+'</a><span class="rk">'+recOf(o)+' · '+ord(SROW[o]?SROW[o][0]:0)+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>';}).join(''):'<p class="sub">Δεν υπάρχουν προγραμματισμένοι αγώνες.</p>';
 }
 
 // ---- Θερμόμετρο: last 3 games vs all earlier games
@@ -455,12 +455,122 @@ function renderPreds(){
       '<div class="pbar" title="Πιθανότητα νίκης"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div>'+
       '<div class="rk pfacts">Φαβορί: <b>'+tName(fav)+'</b> ('+pp+'%) · Σύνολο ~'+Math.round(x.total)+' πόντοι'+(h2h.length?' · Φέτος: '+h2h.map(z=>z[2]+' '+z[4]+'-'+z[5]+' '+z[3]).join(', '):'')+'</div>';}
     return '<article class="pcard"><div class="when">'+when(w)+'</div><div class="pgrid">'+side(h,1)+'<div class="pmid">'+mid+'</div>'+side(a,0)+'</div>'+
-      (art?'<a class="pread" href="'+art.url+'">Διάβασε το προγνωστικό μας →</a>':'')+((D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).length?'<div class="ptips"><a href="'+BASE+'tipsters/">Tipsters</a>: '+(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).map(t=>'<a class="tipa" href="'+(t.u||BASE+'tipsters/')+'"><b>'+t.n.replace(/</g,'')+'</b> '+t.l.replace(/</g,'')+'</a>').join(' · ')+'</div>':'')+'</article>';}).join('');
+      '<a class="pread" href="'+gUrl(r,h,a)+'">'+U.gameLink+'</a>'+(art?'<a class="pread" href="'+art.url+'">Διάβασε το προγνωστικό μας →</a>':'')+((D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).length?'<div class="ptips"><a href="'+BASE+'tipsters/">Tipsters</a>: '+(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).map(t=>'<a class="tipa" href="'+(t.u||BASE+'tipsters/')+'"><b>'+t.n.replace(/</g,'')+'</b> '+t.l.replace(/</g,'')+'</a>').join(' · ')+'</div>':'')+'</article>';}).join('');
   box.querySelectorAll('.hotp').forEach(el=>el.textContent=byCode[el.dataset.c].name);
   const L=document.getElementById('predArts');
   if(arts.length){L.innerHTML=arts.slice(0,8).map(z=>'<a class="acard" href="'+z.url+'"><time>'+z.dateText+'</time><h2></h2><p></p></a>').join('');
     L.querySelectorAll('.acard').forEach((el,i)=>{el.querySelector('h2').textContent=arts[i].title;el.querySelector('p').textContent=arts[i].desc||'';});}
   else document.getElementById('predArtSec').hidden=true;
+}
+
+// ---- shared helpers for player lines, with/without and game pages (texts come from the build, per language)
+const U=DL.ui||{};
+const fm=(t,o)=>String(t||'').replace(/\{(\w+)\}/g,(m,k)=>o&&k in o?o[k]:m);
+const hx=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const gUrl=(r,h,a)=>BASE+U.gpath+'/'+(TEAMS[h]?TEAMS[h][2]:h.toLowerCase())+'-'+(TEAMS[a]?TEAMS[a][2]:a.toLowerCase())+'-'+r+'/';
+const hitCol=p=>p>=70?'var(--good)':p>=55?'var(--ok)':p>=40?'var(--mid)':'var(--low)';
+function teamGamesOf(c){return GAMES.filter(g=>g[6]&&(g[2]===c||g[3]===c)).map(g=>{const home=g[2]===c;return{r:g[0],w:g[1],us:home?g[4]:g[5],them:home?g[5]:g[4],home,opp:home?g[3]:g[2],h:g[2],a:g[3]};}).sort((a,b)=>a.r-b.r);}
+const recS=gs=>{const W=gs.filter(g=>g.us>g.them).length;return W+'–'+(gs.length-W);};
+const avgOf=(gs,f)=>gs.length?gs.reduce((s,g)=>s+f(g),0)/gs.length:NaN;
+
+// ---- 1. Player lines: how often he went over a line
+const PROPS=[['pts',r=>r[8]],['reb',r=>r[15]+r[16]],['ast',r=>r[17]],['pra',r=>r[8]+r[15]+r[16]+r[17]],['m3',r=>r[11]],['pir',r=>r[25]]];
+let pk='pts', pline=null;
+const lineOf=(gs,fn)=>{const v=avgOf(gs,fn);return isFinite(v)?Math.max(0.5,Math.floor(v)+0.5):0.5;};
+function hitTxt(rs,fn,l){const n=rs.filter(r=>fn(r)>l).length;return{n,m:rs.length,p:rs.length?Math.round(100*n/rs.length):0};}
+function renderProps(){
+  const el=document.getElementById('pProps');if(!el)return;const g=cur.games;
+  if(g.length<3||!U.pTitle){el.hidden=true;return;}el.hidden=false;
+  const fn=PROPS.find(x=>x[0]===pk)[1];
+  if(pline===null)pline=lineOf(g,fn);
+  const vals=g.map(fn).slice().sort((a,b)=>a-b),med=vals.length%2?vals[(vals.length-1)/2]:(vals[vals.length/2-1]+vals[vals.length/2])/2;
+  const c=cur.t.split(';').pop(),ng=nextGames(c,1)[0],opp=ng?(ng[2]===c?ng[3]:ng[2]):null;
+  const tiles=[[U.pAll,g],[fm(U.pLast,{n:5}),g.slice(-5)],[U.pHome,g.filter(r=>r[3])],[U.pAway,g.filter(r=>!r[3])]];
+  if(opp){const vo=g.filter(r=>r[2]===opp);if(vo.length)tiles.push([fm(U.pVs,{t:tName(opp)}),vo]);}
+  const W=640,H=190,pl=30,pr=10,pt=12,pb=28,mx=Math.max(pline+1,...g.map(fn)),top=Math.ceil(mx/5)*5||5,y=v=>pt+(top-v)/top*(H-pt-pb),bw=(W-pl-pr)/g.length;
+  let sv='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+hx(U.pk[pk])+'">';
+  [0,top/2,top].forEach(v=>{sv+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width=".6"/><text x="'+(pl-6)+'" y="'+(y(v)+4)+'" text-anchor="end">'+v+'</text>';});
+  g.forEach((r,i)=>{const v=fn(r),ov=v>pline,x=pl+i*bw+bw*.18,w=bw*.64;sv+='<rect x="'+x.toFixed(1)+'" y="'+y(v).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+(y(0)-y(v)).toFixed(1)+'" rx="2" fill="'+(ov?'var(--good)':'var(--low)')+'"><title>'+hx(fm(U.rd,{n:r[0]})+' '+(r[3]?'vs ':'@ ')+tName(r[2])+': '+v)+'</title></rect><text x="'+(pl+i*bw+bw/2)+'" y="'+(y(v)-4)+'" text-anchor="middle">'+v+'</text><text x="'+(pl+i*bw+bw/2)+'" y="'+(H-pb+15)+'" text-anchor="middle">'+r[2]+'</text>';});
+  sv+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(pline)+'" y2="'+y(pline)+'" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 4"/><text x="'+(W-pr)+'" y="'+(y(pline)-5)+'" text-anchor="end" style="fill:var(--accent);font-weight:600">'+pline+'</text></svg>';
+  el.innerHTML='<h2>'+U.pTitle+'</h2><p class="sub">'+U.pSub+'</p>'+
+    '<div class="propbar"><div class="seg" role="group">'+PROPS.map(([k])=>'<button data-k="'+k+'"'+(k===pk?' class="on"':'')+'>'+U.pk[k]+'</button>').join('')+'</div>'+
+    '<div class="step" role="group" aria-label="'+hx(U.pLine)+'"><span>'+U.pLine+'</span><button data-d="-1" aria-label="−1">−</button><b>'+pline+'</b><button data-d="1" aria-label="+1">+</button></div></div>'+
+    '<div class="ptiles">'+tiles.map(([l,rs])=>{const h=hitTxt(rs,fn,pline);return '<div class="ptile" style="--c:'+hitCol(h.p)+'"><b>'+h.n+'/'+h.m+'</b><small>'+h.p+'%</small><span>'+hx(l)+'</span><i><i style="width:'+h.p+'%"></i></i></div>';}).join('')+'</div>'+
+    '<div class="chart">'+sv+'</div>'+
+    '<p class="note">'+fm(U.pAvg,{a:f1(avgOf(g,fn)),m:f1(med)})+(ng?' · '+fm(U.pNext,{g:'<a href="'+gUrl(ng[0],ng[2],ng[3])+'">'+(ng[2]===c?'vs ':'@ ')+hx(tName(opp))+'</a>'}):'')+'</p><p class="note">'+U.pNote+'</p>';
+  el.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.k){pk=b.dataset.k;pline=null;}else if(b.dataset.d)pline=Math.max(0.5,pline+(+b.dataset.d));renderProps();};
+}
+
+// ---- 2. Team with and without a player
+function withWithout(p){
+  if(p.t.includes(';')||!p.games.length)return null;
+  const have=new Set(p.games.map(r=>r[0])),first=Math.min(...have);
+  const rel=teamGamesOf(p.t).filter(g=>g.r>=first);
+  return{c:p.t,w:rel.filter(g=>have.has(g.r)),wo:rel.filter(g=>!have.has(g.r))};
+}
+const wwBox=(l,gs)=>'<div class="wwb"><span>'+l+'</span><b>'+recS(gs)+'</b><small>'+fm(U.wGames,{n:gs.length})+'</small><div><span>'+U.wMar+' <b>'+sgn(avgOf(gs,g=>g.us-g.them))+'</b></span><span>'+U.wPF+' <b>'+f1(avgOf(gs,g=>g.us))+'</b></span><span>'+U.wPA+' <b>'+f1(avgOf(gs,g=>g.them))+'</b></span></div></div>';
+function renderPWith(){
+  const el=document.getElementById('pWith');if(!el)return;const x=withWithout(cur);
+  if(!x||!x.wo.length||cur.games.length<3||!U.wTitle){el.hidden=true;return;}el.hidden=false;
+  const roundsW=new Set(x.w.map(g=>g.r)),roundsWo=new Set(x.wo.map(g=>g.r));
+  const mates=P.filter(q=>q.t===x.c&&q.c!==cur.c).map(q=>{const by=Object.fromEntries(q.games.map(r=>[r[0],r]));
+    const av=(set,i)=>{let s=0;set.forEach(r=>{s+=by[r]?by[r][i]:0;});return set.size?s/set.size:0;};
+    return{q,mW:av(roundsW,7)/60,mWo:av(roundsWo,7)/60,pW:av(roundsW,25),pWo:av(roundsWo,25)};}).filter(o=>o.mWo-o.mW>1).sort((a,b)=>(b.mWo-b.mW)-(a.mWo-a.mW)).slice(0,5);
+  el.innerHTML='<h2>'+U.wTitle+'</h2><p class="sub">'+U.wSub+'</p><div class="wwgrid">'+wwBox(U.wWith,x.w)+wwBox(U.wWithout,x.wo)+'</div>'+
+    (x.wo.length<3?'<p class="note">'+fm(U.wSmall,{n:x.wo.length})+'</p>':'')+
+    (mates.length?'<h3>'+U.wMinT+'</h3><p class="sub">'+U.wMinSub+'</p><div class="tbl"><table><thead><tr><th>'+U.player+'</th><th>'+U.wMinW+'</th><th>'+U.wMinWo+'</th><th>'+U.wPirW+'</th><th>'+U.wPirWo+'</th></tr></thead><tbody>'+
+      mates.map(o=>'<tr><td class="l"><a class="tlink" href="'+pUrl(o.q.c)+'"><span>'+hx(o.q.name)+'</span>'+injB(o.q.c)+'</a></td><td>'+f1(o.mW)+'</td><td><b>'+f1(o.mWo)+'</b></td><td>'+f1(o.pW)+'</td><td><b>'+f1(o.pWo)+'</b></td></tr>').join('')+'</tbody></table></div>':'');
+}
+function renderTWith(c){
+  const el=document.getElementById('tWith');if(!el||!U.wTeamT)return;
+  const rows=P.filter(p=>p.t===c&&p.A.G>=3&&p.A.min/p.A.G>=10).map(p=>({p,x:withWithout(p)})).filter(o=>o.x&&o.x.wo.length).sort((a,b)=>b.x.wo.length-a.x.wo.length||b.p.A.pir/b.p.A.G-a.p.A.pir/a.p.A.G);
+  el.innerHTML='<h2>'+U.wTeamT+'</h2><p class="sub">'+U.wTeamSub+'</p>'+(rows.length?'<div class="tbl"><table><thead><tr><th>'+U.player+'</th><th>'+U.wMissed+'</th><th>'+U.wWith+'</th><th>'+U.wWithout+'</th></tr></thead><tbody>'+
+    rows.map(({p,x})=>{const mw=avgOf(x.w,g=>g.us-g.them),mo=avgOf(x.wo,g=>g.us-g.them);return '<tr><td class="l"><a class="tlink" href="'+pUrl(p.c)+'"><span>'+hx(p.name)+'</span>'+injB(p.c)+'</a></td><td>'+x.wo.length+'</td><td>'+recS(x.w)+' <span class="rk">('+sgn(mw)+')</span></td><td><b>'+recS(x.wo)+'</b> <span class="rk">('+sgn(mo)+')</span></td></tr>';}).join('')+'</tbody></table></div>':'<p class="sub" style="margin:0">'+U.wNone+'</p>');
+}
+
+// ---- 3. Game page
+function renderGame(id){
+  const [rs,h,a]=String(id).split('|'),r=+rs,g=GAMES.find(x=>x[0]===r&&x[2]===h&&x[3]===a);if(!g||!TEAMS[h]||!TEAMS[a])return;
+  const set=(i,v)=>{const e=document.getElementById(i);if(e)e.innerHTML=v;};
+  const x=predict(h,a);
+  const side=c=>'<a class="gteam" href="'+tUrl(c)+'">'+crest(c,'bigcrest')+'<b>'+hx(tName(c))+'</b><span class="rk">'+(SROW[c]?ord(SROW[c][0])+' · '+recOf(c):'')+'</span></a>';
+  let mid='';
+  if(g[6])mid='<div class="pscore"><b>'+g[4]+' – '+g[5]+'</b><span class="rk">'+U.final+'</span></div>';
+  else if(x){const fav=x.prob>=.5?h:a,pp=Math.round(100*Math.max(x.prob,1-x.prob));
+    mid='<div class="pscore"><b>'+Math.round(x.ph)+' – '+Math.round(x.pa)+'</b><span class="rk">'+U.est+'</span></div><div class="pbar"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div><div class="rk pfacts">'+fm(U.fav,{t:hx(tName(fav)),p:pp})+' · '+fm(U.total,{n:Math.round(x.total)})+'</div>';}
+  set('gTop','<div class="when">'+fm(U.rd,{n:r})+' · '+when(g[1])+'</div><div class="ggrid">'+side(h)+'<div class="gmid">'+mid+'</div>'+side(a)+'</div>');
+  // form
+  const form=c=>{const tg=teamGamesOf(c),s=SROW[c],th=teamHeat(c);
+    return '<div class="gside"><h3>'+crest(c)+' '+hx(tName(c))+'</h3>'+(s?'<div class="rk">'+U.recHome+' '+s[6]+' · '+U.recAway+' '+s[7]+'</div>':'')+
+      '<div class="glist">'+tg.slice(-5).reverse().map(t=>'<a href="'+gUrl(t.r,t.h,t.a)+'"><span class="res '+(t.us>t.them?'w':'l')+'">'+(t.us>t.them?U.W:U.L)+'</span>'+(t.home?'vs ':'@ ')+hx(tName(t.opp))+'<small>'+t.us+'-'+t.them+'</small></a>').join('')+'</div>'+
+      (th?'<div class="rk">'+U.heat+': <b>'+sgn(th.d)+'</b> · '+U.wMar+' '+sgn(th.m3)+' ('+fm(U.pLast,{n:3})+')</div>':'')+'</div>';};
+  set('gForm',form(h)+form(a));
+  // absences
+  const inj=c=>{const l=P.filter(p=>p.t===c&&INJ[p.c]).sort((x,y)=>y.A.pir/y.A.G-x.A.pir/x.A.G);
+    return '<div class="gside"><h3>'+crest(c)+' '+hx(tName(c))+'</h3>'+(l.length?'<ul class="ginj">'+l.map(p=>'<li><a href="'+pUrl(p.c)+'">'+hx(p.name)+'</a>'+injB(p.c)+'<small>'+hx(INJ[p.c].t)+'</small></li>').join('')+'</ul>':'<p class="sub" style="margin:0">'+U.noInj+'</p>')+'</div>';};
+  set('gInj',inj(h)+inj(a));
+  // key players / top performers
+  const key=c=>{let rows;
+    if(g[6]){rows=P.filter(p=>p.t.split(';').pop()===c||p.t.split(';').includes(c)).map(p=>({p,r:p.games.find(z=>z[0]===r&&z[2]===(c===h?a:h))})).filter(o=>o.r).sort((x,y)=>y.r[25]-x.r[25]).slice(0,6);
+      return '<div class="gside"><h3>'+crest(c)+' '+hx(tName(c))+'</h3><div class="tbl"><table><thead><tr><th>'+U.player+'</th><th>'+U.min+'</th><th>'+U.pts+'</th><th>'+U.reb+'</th><th>'+U.ast+'</th><th>PIR</th></tr></thead><tbody>'+
+        rows.map(o=>'<tr><td class="l"><a class="tlink" href="'+pUrl(o.p.c)+'"><span>'+hx(o.p.name)+'</span></a></td><td>'+mmss(o.r[7])+'</td><td>'+o.r[8]+'</td><td>'+(o.r[15]+o.r[16])+'</td><td>'+o.r[17]+'</td><td><b>'+o.r[25]+'</b></td></tr>').join('')+'</tbody></table></div></div>';}
+    rows=P.filter(p=>p.t===c&&p.A.G>=2&&!INJ[p.c]).sort((x,y)=>y.A.pir/y.A.G-x.A.pir/x.A.G).slice(0,5);
+    return '<div class="gside"><h3>'+crest(c)+' '+hx(tName(c))+'</h3><div class="tbl"><table><thead><tr><th>'+U.player+'</th><th>'+U.pts+'</th><th>'+U.reb+'</th><th>'+U.ast+'</th><th>PIR</th><th title="'+hx(U.ovrT)+'">'+U.ovr+'</th></tr></thead><tbody>'+
+      rows.map(p=>{const G=p.A.G,fn=PROPS[0][1],l=lineOf(p.games,fn),ht=hitTxt(p.games,fn,l);return '<tr><td class="l"><a class="tlink" href="'+pUrl(p.c)+'"><span>'+hx(p.name)+'</span></a></td><td>'+f1(p.A.pts/G)+'</td><td>'+f1(p.A.reb/G)+'</td><td>'+f1(p.A.ast/G)+'</td><td><b>'+f1(p.A.pir/G)+'</b></td><td><span class="hitp" style="--c:'+hitCol(ht.p)+'">'+l+': '+ht.n+'/'+ht.m+'</span></td></tr>';}).join('')+'</tbody></table></div></div>';};
+  set('gKey',key(h)+key(a));
+  // team comparison
+  const H=TS[h]||{},A=TS[a]||{};
+  const FR=[['ppg',1,f1],['oppg',0,f1],['ortg',1,f1],['drtg',0,f1],['net',1,sgn],['pace',null,f1],['efg',1,pct1],['tovp',0,pct1],['orbp',1,pct1],['ftr',1,pct1],['p3',1,pct1]];
+  set('gFactors','<thead><tr><th></th><th>'+crest(h)+'</th><th>'+crest(a)+'</th></tr></thead><tbody>'+FR.map(([k,hi,f])=>{const vh=H[k],va=A[k],bh=hi===null||!isFinite(vh)||!isFinite(va)?0:(hi?vh>va:vh<va),ba=hi===null||!isFinite(vh)||!isFinite(va)?0:(hi?va>vh:va<vh);
+    const cell=(v,c,b)=>'<td>'+(b?'<b>':'')+f(v)+(b?'</b>':'')+(hi!==null&&rank(c,k,hi)?' <span class="rk">('+ord(rank(c,k,hi))+')</span>':'')+'</td>';
+    return '<tr><td class="l">'+U.ff[k]+'</td>'+cell(vh,h,bh)+cell(va,a,ba)+'</tr>';}).join('')+'</tbody>');
+  // head-to-head
+  const hh=GAMES.filter(z=>((z[2]===h&&z[3]===a)||(z[2]===a&&z[3]===h))&&!(z[0]===r&&z[2]===h));
+  set('gH2H',hh.length?'<div class="glist">'+hh.map(z=>'<a href="'+gUrl(z[0],z[2],z[3])+'">'+fm(U.rd,{n:z[0]})+' · '+hx(tName(z[2]))+' – '+hx(tName(z[3]))+'<small>'+(z[6]?z[4]+'-'+z[5]:U.soon)+'</small></a>').join('')+'</div>':'<p class="sub" style="margin:0">'+U.h2hNone+'</p>');
+  // tipsters and our prediction
+  const tips=(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r),art=(D.articles||[]).find(z=>z.type==='prognostiko'&&z.game===h+'-'+a&&(!z.round||+z.round===r));
+  if(tips.length||art){const sec=document.getElementById('gTipsSec');if(sec)sec.hidden=false;
+    set('gTips',(art?'<p><a class="pread" href="'+art.url+'">'+U.readPred+'</a></p>':'')+(tips.length?'<div class="glist">'+tips.map(t=>'<a href="'+(t.u||BASE+'tipsters/')+'"><b>'+hx(t.n)+'</b> '+hx(t.l)+'</a>').join('')+'</div>':''));}
 }
 // ---- router (each page says which view it is)
 const VIEW=document.body.dataset.view, VID=document.body.dataset.id;
@@ -474,6 +584,7 @@ else if(VIEW==='form'){show('form');renderForm();}
 else if(VIEW==='fantasy'){show('fantasy');renderFantasy();}
 else if(VIEW==='preds'){show('preds');renderPreds();}
 else if(VIEW==='stand'){show('stand');renderStand();}
+else if(VIEW==='game'){renderGame(VID);document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v==='preds'));}
 else{document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v===VIEW));}
 {const n=document.querySelector('.nav'),a=n&&n.querySelector('a.on');if(a&&a.offsetLeft+a.offsetWidth>n.clientWidth)n.scrollLeft=a.offsetLeft-16;}
 })();
