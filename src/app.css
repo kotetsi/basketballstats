@@ -451,3 +451,4 @@ article.fx,section.fxdash{min-width:0}
 .paroli .parsel{margin:0}.paroli .parres{margin:6px 0 0;font-weight:600}
 .paroli .partot{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;border:2px solid var(--accent);border-radius:10px;padding:10px 14px;margin:14px 0}.paroli .partot>b{font-family:var(--display);font-size:26px}
 .paroli b.ok{color:#2e7d32}.paroli b.ko{color:#c62828}
+.lead .award{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}.lead .award h3{margin:0 0 4px}.lead .award ul.five{list-style:none;margin:6px 0 0;padding:0}.lead .award ul.five li{padding:3px 0}.lead .award a{color:inherit}.careersum{line-height:1.6}
