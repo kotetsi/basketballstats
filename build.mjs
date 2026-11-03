@@ -11,6 +11,8 @@ import { fileURLToPath } from 'node:url';
 import { translate, APP_CODE, SHELL_CODE } from './src/en.mjs';
 import * as ES from './src/es.mjs';
 import * as SR from './src/sr.mjs';
+import * as OPT from './src/fantasy/optimizer.mjs';
+import * as OPTR from './src/fantasy/render.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), 'utf8').catch(() => '{}'));
@@ -680,6 +682,8 @@ async function main() {
   const { players, league } = data;
   const VENUE = data.venue || {};
   const lastRound = data.lastRound || Math.max(0, ...league.games.filter(g => g[6]).map(g => g[0]));
+  let FXD = null;
+  try { FXD = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'latest.json'), 'utf8')); if (FXD.round <= lastRound) FXD = null; } catch { FXD = null; }
 
   // slugs παικτών (μοναδικά, ίδια και στις δύο γλώσσες)
   const used = new Set();
@@ -715,6 +719,8 @@ async function main() {
   await fs.writeFile(path.join(OUT, 'assets', 'app.es.js'), translate(appSrc, ES.APP_CODE, 'app.js (es)', ES.PHRASES));
   await fs.writeFile(path.join(OUT, 'assets', 'app.sr.js'), translate(appSrc, SR.APP_CODE, 'app.js (sr)', SR.PHRASES));
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
+  await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
+  for (const f of ['optimizer.mjs', 'render.mjs', 'fx.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
   const shellSrc = await fs.readFile(path.join(ROOT, 'src', 'shell.html'), 'utf8');
   const SHELL = { el: shellSrc, en: translate(shellSrc, SHELL_CODE, 'shell.html (en)'), es: translate(shellSrc, ES.SHELL_CODE, 'shell.html (es)', ES.PHRASES), sr: translate(shellSrc, SR.SHELL_CODE, 'shell.html (sr)', SR.PHRASES) };
   const ver = Date.now().toString(36);
@@ -735,6 +741,7 @@ async function main() {
     if (k === 'widget') return B(lg) + 'widget/' + ({ el: { st: 'vathmologia', rd: 'agonistiki' }, en: { st: 'standings', rd: 'round' }, es: { st: 'clasificacion', rd: 'jornada' }, sr: { st: 'tabela', rd: 'kolo' } })[lg][v] + '/';
     if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
+    if (k === 'fx') return B(lg) + P.fantasy + '/' + v + '/';
     if (k === 'hist') return B(lg) + P.hist + '/' + (v ? v + '/' : '');
     if (k === 'lead') return B(lg) + P.lead + '/' + (v ? LEAD_SUB[lg][v] + '/' : '');
     if (k === 'ec') return B(lg) + 'eurocup/' + (v ? v + '/' : '');
@@ -838,7 +845,7 @@ ${pwaStyle}`;
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>');
-    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija')}</a><a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
+    const shellB = SHELL[LG].replace(PRIV, `${PRIV}${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija')}</a>` : ''}<a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
@@ -907,7 +914,8 @@ ${ldTag(ld)}${script}
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
         .replace('{{PLAYER_H1}}', esc(h1p)).replace('{{PLAYER_LEDE}}', ledep ? `<p class="lede">${esc(ledep)}</p>` : '')
         .replace('{{TEAM_H1}}', esc(h1t)).replace('{{TEAM_LEDE}}', ledet ? `<p class="lede">${esc(ledet)}</p>` : '');
-      if (extra) { const vp = body.indexOf('<div id="vPlayer"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
+      if (extra && view === 'player') { const vp = body.indexOf('<div id="vPlayer"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
+      if (extra && view === 'fantasy') { const vp = body.indexOf('<div id="vFantasy"'), ms = body.indexOf('<main class="wrap one">', vp); if (vp > -1 && ms > -1) { const k = ms + '<main class="wrap one">'.length; body = body.slice(0, k) + extra + body.slice(k); } }
       const map = { stand: 'vStand', team: 'vTeam', player: 'vPlayer', form: 'vForm', fantasy: 'vFantasy', preds: 'vPreds' };
       for (const [v, el] of Object.entries(map)) body = body.replace(`{{HIDDEN_${el}}}`, v === view ? '' : ' hidden');
       // μία διαφήμιση στην ορατή ενότητα + μία πριν από το υποσέλιδο
@@ -937,7 +945,154 @@ ${ldTag(ld)}${script}
       title: T(`Θερμόμετρο φόρμας ${S}: ποιος ανεβαίνει, ποιος πέφτει | ${SITE_NAME}`, `${S} form guide: who is heating up, who is cooling down | ${SITE_NAME}`, `Estado de forma ${S}: quién se calienta y quién se enfría | ${SITE_NAME}`, `Forma u ${S}: ko je u usponu, a ko u padu | ${SITE_NAME}`),
       desc: T(`Οι παίκτες και οι ομάδες της EuroLeague σε φόρμα: οι 3 τελευταίοι αγώνες σε σύγκριση με τους προηγούμενους.`,
         `EuroLeague players and teams in form: the last 3 games compared with the earlier ones.`, `Jugadores y equipos de la EuroLeague en forma: los últimos 3 partidos frente a los anteriores.`, `Igrači i timovi Evrolige u formi: poslednje 3 utakmice u poređenju sa prethodnima.`) });
-    await page('fantasy', { view: 'fantasy',
+    // ---- Fantasy PIR Projections: dashboard, projections, optimizer, round planner, player pages
+    let FXDASH = '';
+    if (FXD && FXD.players?.length) {
+      const pBy = Object.fromEntries(players.map(p => [p.c, p]));
+      const FXP = FXD.players.filter(x => pBy[x.c]);
+      const dn = c => niceName(pBy[c]?.n || c);
+      const LOCF = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG];
+      const dayLbl = i => (i == null ? '–' : new Date(FXD.days[i] + 'T12:00:00Z').toLocaleDateString(LOCF, { weekday: 'long', day: 'numeric', month: 'numeric' }));
+      const POSL = { Guard: T('Γκαρντ', 'Guard', 'Base/escolta', 'Bek'), Forward: T('Φόργουορντ', 'Forward', 'Alero', 'Krilo'), Center: T('Σέντερ', 'Center', 'Pívot', 'Centar') };
+      const STL = { playing: T('Παίζει', 'Playing', 'Juega', 'Igra'), doubtful: T('Αμφίβολος', 'Doubtful', 'Duda', 'Neizvestan'), injured: T('Τραυματίας', 'Injured', 'Lesionado', 'Povređen'), rest: T('Ξεκούραση', 'Rest', 'Descanso', 'Odmor') };
+      const FACT = { opponent: T('Αντίπαλος', 'Opponent', 'Rival', 'Protivnik'), home: T('Έδρα', 'Home court', 'Cancha', 'Domaći teren'), rest: T('Ξεκούραση / πρόγραμμα', 'Rest / schedule', 'Descanso / calendario', 'Odmor / raspored'), form: T('Φόρμα', 'Form', 'Forma', 'Forma'), role: T('Ρόλος (βασικός, usage)', 'Role (starter, usage)', 'Rol (titular, uso)', 'Uloga (starter, upotreba)') };
+      const DISC = T('Οι προβλέψεις είναι στατιστικές εκτιμήσεις και δεν αποτελούν εγγύηση απόδοσης.', 'Projections are statistical estimates and do not guarantee performance.', 'Las proyecciones son estimaciones estadísticas y no garantizan el rendimiento.', 'Projekcije su statističke procene i ne garantuju učinak.');
+      const PRICE_NOTE = T('Οι τιμές είναι δικές μας εκτιμήσεις (από το PIR) και όχι οι επίσημες του EuroLeague Fantasy· στο optimizer μπορείς να αλλάξεις τον προϋπολογισμό.', 'Prices are our own estimates (based on PIR), not the official EuroLeague Fantasy prices; you can change the budget in the optimizer.', 'Los precios son estimaciones propias (según el PIR), no los oficiales del EuroLeague Fantasy; puedes cambiar el presupuesto en el optimizador.', 'Cene su naše procene (na osnovu PIR-a), a ne zvanične cene Evroliga Fantasy igre; budžet možeš da promeniš u optimizatoru.');
+      const fxu = sub => urlFor(LG, 'fx:' + sub), fxp = c => (pBy[c] ? fxu('player/' + pBy[c].s) : '#');
+      const U = {
+        round: T('Αγωνιστική', 'Round', 'Jornada', 'Kolo'), noRes: T('Δεν βρέθηκε σύνθεση με αυτούς τους περιορισμούς.', 'No lineup fits these constraints.', 'Ninguna alineación cumple estas condiciones.', 'Nijedna postava ne odgovara ovim uslovima.'),
+        slot: { start: T('Πεντάδα', 'Starter', 'Titular', 'Starter'), sixth: T('6ος', '6th man', 'Sexto', '6. igrač'), bench: T('Πάγκος', 'Bench', 'Banquillo', 'Klupa'), coach: T('Προπονητής', 'Coach', 'Entrenador', 'Trener') },
+        slotH: T('Θέση', 'Slot', 'Puesto', 'Mesto'), player: T('Παίκτης', 'Player', 'Jugador', 'Igrač'), teamH: T('Ομάδα', 'Team', 'Equipo', 'Tim'), posH: T('Ρόλος', 'Position', 'Posición', 'Pozicija'), price: T('Τιμή', 'Price', 'Precio', 'Cena'), proj: T('Εκτ. PIR', 'Proj. PIR', 'PIR est.', 'Proc. PIR'), dayH: T('Ημέρα', 'Day', 'Día', 'Dan'),
+        coachOf: T('Προπονητής:', 'Coach:', 'Entrenador:', 'Trener:'), tExp: T('Αναμενόμενοι πόντοι', 'Expected points', 'Puntos esperados', 'Očekivani poeni'), tFloor: T('Κάτω όριο (P10)', 'Floor (P10)', 'Suelo (P10)', 'Donja granica (P10)'), tMed: T('Διάμεσος (P50)', 'Median (P50)', 'Mediana (P50)', 'Medijana (P50)'), tCeil: T('Ταβάνι (P90)', 'Ceiling (P90)', 'Techo (P90)', 'Plafon (P90)'), credits: 'Credits', formation: T('Σχηματισμός', 'Formation', 'Formación', 'Formacija'),
+        noneDay: T('Κανείς από τη σύνθεση δεν παίζει αυτή τη μέρα.', 'Nobody in the lineup plays that day.', 'Nadie de la alineación juega ese día.', 'Niko iz postave ne igra tog dana.'), steps: T('Τι να κάνεις σε κάθε turn', 'What to do in each turn', 'Qué hacer en cada turno', 'Šta raditi u svakom krugu'),
+        stCaptain: T('Αρχηγός: ο {p}, που παίζει {d}.', 'Captain: {p}, who plays on {d}.', 'Capitán: {p}, que juega el {d}.', 'Kapiten: {p}, koji igra {d}.'),
+        stSwitch: T('Αν ο {p} φέρει λιγότερο από {x} PIR ({d}), μετάφερε την αρχηγία στον {q} πριν παίξει.', 'If {p} scores less than {x} PIR ({d}), move the captaincy to {q} before he plays.', 'Si {p} hace menos de {x} de PIR ({d}), pasa la capitanía a {q} antes de que juegue.', 'Ako {p} ostvari manje od {x} PIR-a ({d}), prebaci kapitensku traku na {q} pre nego što zaigra.'),
+        stBackup: T('Αν ο {p} δεν είναι στη 12άδα ({d}), βάλε στη θέση του τον {q} από τον πάγκο.', 'If {p} is not in the 12-man squad ({d}), put {q} in his place from the bench.', 'Si {p} no entra en la convocatoria ({d}), pon a {q} en su lugar desde el banquillo.', 'Ako {p} nije u sastavu ({d}), stavi {q} umesto njega sa klupe.'),
+        stDoubt: T('Ο {p} είναι αμφίβολος: κράτα έτοιμο τον {q}.', '{p} is doubtful: keep {q} ready.', '{p} es duda: ten preparado a {q}.', '{p} je neizvestan: drži spremnog {q}.'),
+        stLocked: T('Όποιος έχει ήδη παίξει δεν μπορεί να ξαναμπεί σε ενεργή θέση στην ίδια αγωνιστική.', 'A player who has already played cannot be moved into an active slot again in the same round.', 'Un jugador que ya ha jugado no puede volver a un puesto activo en la misma jornada.', 'Igrač koji je već igrao ne može ponovo u aktivni deo postave u istom kolu.'),
+        planMine: T('Το πλάνο είναι για τη σύνθεση που έβγαλες τελευταία στο optimizer.', 'This plan is for the lineup you last built in the optimizer.', 'El plan es para la última alineación que creaste en el optimizador.', 'Plan je za poslednju postavu koju si napravio u optimizatoru.'),
+        copy: T('Αντιγραφή', 'Copy', 'Copiar', 'Kopiraj'), copied: T('Αντιγράφηκε', 'Copied', 'Copiado', 'Kopirano'),
+      };
+      const teamsJ = Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)]));
+      const ctxJ = sub => `<script type="application/json" id="fxctx">${JSON.stringify({ U, base: urlFor(LG, 'fx:player'), teams: teamsJ, pos: POSL, days: FXD.days.map((d, i) => dayLbl(i)), api: BASE + 'api/fantasy/projections/latest.json', page: sub }).replace(/</g, '\\u003c')}</script><script type="module" src="${BASE}assets/fantasy/fx.js?v=${ver}"></script>`;
+      const ctxS = { U, name: dn, team: tName, purl: fxp, pos: p => POSL[p] || p, day: dayLbl };
+      const nav = cur => `<p class="leadnav fxnav">${[['', T('Fantasy', 'Fantasy', 'Fantasy', 'Fantasy')], ['projections', T('Προβλέψεις PIR', 'PIR projections', 'Proyecciones PIR', 'PIR projekcije')], ['optimizer', T('Βέλτιστη σύνθεση', 'Lineup optimizer', 'Optimizador', 'Optimizator')], ['round-planner', T('Πλάνο αγωνιστικής', 'Round planner', 'Planificador', 'Plan kola')]].map(([k, l]) => `<a href="${k ? fxu(k) : urlFor(LG, 'fantasy')}"${k === cur ? ' aria-current="page"' : ''}>${esc(l)}</a>`).join('')}</p>`;
+      const bt = FXD.backtest || {};
+      const btTxt = bt.mae ? T(`Έλεγχος σε ${bt.n} αγώνες παικτών των προηγούμενων αγωνιστικών: μέσο λάθος ${f1(bt.mae)} PIR (απλός μέσος όρος 10 αγώνων: ${f1(bt.mae_base)}), και το εύρος P10–P90 περιείχε το ${Math.round(bt.coverage_80 * 100)}% των αποτελεσμάτων.`, `Backtest on ${bt.n} player-games of past rounds: mean error ${f1(bt.mae)} PIR (simple 10-game average: ${f1(bt.mae_base)}); the P10–P90 range contained ${Math.round(bt.coverage_80 * 100)}% of outcomes.`, `Prueba sobre ${bt.n} actuaciones de jornadas anteriores: error medio de ${f1(bt.mae)} de PIR (media simple de 10 partidos: ${f1(bt.mae_base)}); el rango P10–P90 contuvo el ${Math.round(bt.coverage_80 * 100)}% de los resultados.`, `Provera na ${bt.n} učinaka iz prethodnih kola: prosečna greška ${f1(bt.mae)} PIR-a (prosek 10 utakmica: ${f1(bt.mae_base)}); opseg P10–P90 obuhvatio je ${Math.round(bt.coverage_80 * 100)}% ishoda.`) : '';
+      const notes = `<p class="note">${esc(DISC)} ${esc(PRICE_NOTE)}</p>${btTxt ? `<p class="note">${esc(btTxt)}</p>` : ''}`;
+      const stB = s => `<span class="fxst fxst-${s}">${esc(STL[s] || s)}</span>`;
+      const vsTxt = x => x.opp ? `${x.home ? 'vs' : '@'} ${esc(tName(x.opp))}` : '–';
+      // dashboard block on top of the existing Fantasy page
+      const top10 = FXP.filter(x => x.status === 'playing').slice(0, 10);
+      FXDASH = `<section class="fxdash"><h2>EuroLeague Fantasy PIR Projections · ${esc(rdTxt0(FXD.round))}</h2>${nav('')}<div class="tbl"><table><thead><tr><th class="l">${esc(U.player)}</th><th class="l">${esc(U.teamH)}</th><th>${esc(U.price)}</th><th>${T('Λεπτά', 'Min', 'Min', 'Min')}</th><th>${esc(U.proj)}</th><th>P10–P90</th></tr></thead><tbody>${top10.map(x => `<tr><td class="l"><a href="${fxp(x.c)}">${esc(dn(x.c))}</a></td><td class="l">${esc(tName(x.t))} <small>${vsTxt(x)}</small></td><td>${f1(x.price)}</td><td>${f1(x.pm)}</td><td><b>${f1(x.pp)}</b></td><td>${f1(x.p10)}–${f1(x.p90)}</td></tr>`).join('')}</tbody></table></div><p><a class="pread" href="${fxu('projections')}">${T('Όλες οι προβλέψεις →', 'All projections →', 'Todas las proyecciones →', 'Sve projekcije →')}</a> <a class="pread" href="${fxu('optimizer')}">${T('Βγάλε τη σύνθεσή σου →', 'Build your lineup →', 'Crea tu alineación →', 'Napravi postavu →')}</a></p></section>`;
+
+      // projections
+      const tms = [...new Set(FXP.map(x => x.t))].sort((a, b) => tName(a).localeCompare(tName(b)));
+      const th = (k, l, cls = '') => `<th data-k="${k}" class="sth ${cls}">${esc(l)}</th>`;
+      const projMain = `<article class="article lead wide fx">
+<h1>EuroLeague Fantasy PIR Projections</h1>
+<p class="lede2">${esc(T(`Η εκτίμηση PIR κάθε παίκτη για την ${rdTxt0(FXD.round)}: λεπτά × PIR ανά λεπτό, με εύρος P10–P90 και βαθμό σιγουριάς.`, `Every player's projected PIR for ${rdTxt0(FXD.round)}: minutes × PIR per minute, with a P10–P90 range and a confidence score.`, `El PIR estimado de cada jugador para la ${rdTxt0(FXD.round).toLowerCase()}: minutos × PIR por minuto, con rango P10–P90 y nivel de confianza.`, `Procenjeni PIR svakog igrača za ${rdTxt0(FXD.round)}: minuti × PIR po minutu, sa opsegom P10–P90 i stepenom pouzdanosti.`))}</p>
+${nav('projections')}
+<form id="fxFilters" class="fxfilters" onsubmit="return false">
+<label>${esc(U.posH)} <select name="pos"><option value="">–</option>${Object.entries(POSL).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}</select></label>
+<label>${esc(U.teamH)} <select name="team"><option value="">–</option>${tms.map(t => `<option value="${t}">${esc(tName(t))}</option>`).join('')}</select></label>
+<label>${esc(U.price)} ≥ <input name="pmin" type="number" step="0.5" min="0" inputmode="decimal"></label>
+<label>${esc(U.price)} ≤ <input name="pmax" type="number" step="0.5" min="0" inputmode="decimal"></label>
+<label>${esc(U.proj)} ≥ <input name="ppmin" type="number" step="1" min="0" inputmode="decimal"></label>
+<label>PIR/${T('λεπτό', 'min', 'min', 'min')} ≥ <input name="pmmin" type="number" step="0.05" min="0" inputmode="decimal"></label>
+<label class="chk"><input name="onlyPlaying" type="checkbox"> ${esc(T('Μόνο όσοι παίζουν', 'Only available players', 'Solo disponibles', 'Samo dostupni'))}</label>
+<span class="sub"><b id="fxCount">${FXP.length}</b> ${esc(T('παίκτες', 'players', 'jugadores', 'igrača'))}</span>
+</form>
+<div class="tbl"><table id="fxProj" class="fxproj"><thead><tr>${th('n', U.player, 'l')}<th class="l">${esc(U.teamH)}</th><th class="l">${esc(U.posH)}</th>${th('price', U.price)}${th('l5', 'L5')}${th('l10', 'L10')}${th('pm', 'PIR/' + T('λεπ.', 'min', 'min', 'min'))}${th('min', T('Εκτ. λεπτά', 'Proj. min', 'Min est.', 'Proc. min'))}${th('pp', U.proj)}${th('p10', 'P10')}${th('p50', 'P50')}${th('p90', 'P90')}${th('conf', T('Σιγουριά', 'Confidence', 'Confianza', 'Pouzdanost'))}<th class="l">Status</th></tr></thead><tbody>
+${FXP.map(x => `<tr data-n="${esc(dn(x.c))}" data-pos="${x.pos}" data-team="${x.t}" data-price="${x.price}" data-l5="${x.l5}" data-l10="${x.l10}" data-pm="${x.pirpm}" data-min="${x.pm}" data-pp="${x.pp}" data-p10="${x.p10}" data-p50="${x.p50}" data-p90="${x.p90}" data-conf="${x.conf}" data-status="${x.status}"><td class="l"><a href="${fxp(x.c)}">${esc(dn(x.c))}</a></td><td class="l">${esc(tName(x.t))} <small>${vsTxt(x)}</small></td><td class="l">${esc(POSL[x.pos] || x.pos)}</td><td>${f1(x.price)}</td><td>${f1(x.l5)}</td><td>${f1(x.l10)}</td><td>${x.pirpm.toFixed(2)}</td><td>${f1(x.pm)}</td><td><b>${f1(x.pp)}</b></td><td>${f1(x.p10)}</td><td>${f1(x.p50)}</td><td>${f1(x.p90)}</td><td>${x.conf}</td><td class="l">${stB(x.status)}</td></tr>`).join('')}
+</tbody></table></div>
+<p class="note">${esc(T('Το ownership των παικτών δεν είναι διαθέσιμο ανοιχτά, οπότε δεν υπάρχει αυτό το φίλτρο.', 'Player ownership is not publicly available, so there is no filter for it.', 'La propiedad (ownership) de los jugadores no es pública, así que no hay filtro.', 'Procenat posedovanja igrača nije javno dostupan, pa ne postoji taj filter.'))}</p>
+${notes}</article>${ctxJ('projections')}`;
+      await simplePage('fx:projections', { view: 'fx', title: T(`EuroLeague Fantasy PIR Projections ${rdTxt0(FXD.round)}: εκτιμήσεις PIR όλων των παικτών | ${SITE_NAME}`, `EuroLeague Fantasy PIR Projections ${rdTxt0(FXD.round)} | ${SITE_NAME}`, `Proyecciones PIR EuroLeague Fantasy, ${rdTxt0(FXD.round).toLowerCase()} | ${SITE_NAME}`, `EuroLeague Fantasy PIR projekcije, ${rdTxt0(FXD.round)} | ${SITE_NAME}`),
+        desc: T(`Εκτιμήσεις PIR, λεπτών και εύρος P10–P90 για κάθε παίκτη της EuroLeague στην ${rdTxt0(FXD.round)}, με φίλτρα ανά θέση, ομάδα και τιμή.`, `Projected PIR, minutes and P10–P90 range for every EuroLeague player in ${rdTxt0(FXD.round)}, with filters by position, team and price.`, `PIR estimado, minutos y rango P10–P90 de cada jugador de la EuroLeague en la ${rdTxt0(FXD.round).toLowerCase()}, con filtros por posición, equipo y precio.`, `Procenjeni PIR, minuti i opseg P10–P90 za svakog igrača Evrolige u ${rdTxt0(FXD.round)}, sa filterima po poziciji, timu i ceni.`), main: projMain });
+
+      // optimizer (default result pre-computed, the form runs it again in the browser)
+      const defRes = OPT.optimize(FXP, FXD.coaches, { risk: 'ceiling' });
+      const optMain = `<article class="article lead wide fx">
+<h1>${esc(T('Βέλτιστη σύνθεση Fantasy', 'Fantasy lineup optimizer', 'Optimizador de alineación Fantasy', 'Optimizator Fantasy postave'))}</h1>
+<p class="lede2">${esc(T('10 παίκτες (4 γκαρντ, 4 φόργουορντ, 2 σέντερ) και προπονητής με 100 credits, έως 6 παίκτες από κάθε ομάδα. Πεντάδα και 6ος μετράνε 100%, ο πάγκος 50%, ο αρχηγός διπλά και κάθε νίκη της ομάδας δίνει +10%.', '10 players (4 guards, 4 forwards, 2 centers) and a coach for 100 credits, at most 6 players per team. Starters and the 6th man count 100%, the bench 50%, the captain double and every team win adds 10%.', '10 jugadores (4 bases/escoltas, 4 aleros, 2 pívots) y un entrenador por 100 créditos, máximo 6 por equipo. Titulares y sexto cuentan al 100%, el banquillo al 50%, el capitán doble y cada victoria suma un 10%.', '10 igrača (4 beka, 4 krila, 2 centra) i trener za 100 kredita, najviše 6 iz jednog tima. Starteri i 6. igrač se računaju 100%, klupa 50%, kapiten duplo, a svaka pobeda tima donosi +10%.'))}</p>
+${nav('optimizer')}
+<form id="fxOpt" class="fxfilters">
+<label>${esc(T('Προϋπολογισμός', 'Budget', 'Presupuesto', 'Budžet'))} <input name="budget" type="number" value="100" min="40" max="200" step="0.5" inputmode="decimal"></label>
+<label>${esc(T('Έως ανά ομάδα', 'Max per team', 'Máx. por equipo', 'Najviše po timu'))} <input name="maxPerTeam" type="number" value="6" min="1" max="10"></label>
+<label>${esc(T('Στρατηγική', 'Mode', 'Modo', 'Režim'))} <select name="risk"><option value="ceiling">Ceiling — ${esc(T('μέγιστοι αναμενόμενοι πόντοι', 'most expected points', 'máximos puntos esperados', 'najviše očekivanih poena'))}</option><option value="safe">Safe — ${esc(T('σταθερή διάμεσος, μικρό ρίσκο', 'steady median, low variance', 'mediana estable, poco riesgo', 'stabilna medijana, mali rizik'))}</option></select></label>
+<input type="hidden" name="formation" value="auto">
+<span class="fxforms">${['auto', ...Object.keys(OPT.FORMATIONS)].map(f => `<button type="button" data-form="${f}"${f === 'auto' ? ' class="on"' : ''}>${f === 'auto' ? esc(T('Καλύτερος', 'Best', 'Mejor', 'Najbolja')) : f}</button>`).join('')}</span>
+<button type="submit" class="fxrun">${esc(T('Υπολογισμός', 'Optimize', 'Calcular', 'Izračunaj'))}</button>
+</form>
+<div id="fxOptOut">${OPT.bestLineup && defRes ? OPTR.renderLineup(defRes, ctxS) : ''}</div>
+<p class="fxbtns"><button type="button" id="fxCsv">CSV</button> <button type="button" id="fxCopy">${esc(U.copy)}</button> <a class="pread" href="${fxu('round-planner')}">${esc(T('Πλάνο αγωνιστικής για αυτή τη σύνθεση →', 'Round plan for this lineup →', 'Plan de jornada para esta alineación →', 'Plan kola za ovu postavu →'))}</a></p>
+<p class="note">${esc(T('Coach: νίκη 1-10 ή παράταση +10, 11-20 +20, 21+ +25· ήττα 1-10 ή παράταση -5, 11-20 -10, 21+ -20. Ο σχηματισμός είναι γκαρντ-φόργουορντ-σέντερ στην πεντάδα.', 'Coach: win by 1-10 or in overtime +10, 11-20 +20, 21+ +25; loss by 1-10 or in overtime -5, 11-20 -10, 21+ -20. Formations are guards-forwards-centers in the starting five.', 'Entrenador: victoria por 1-10 o en prórroga +10, 11-20 +20, 21+ +25; derrota por 1-10 o en prórroga -5, 11-20 -10, 21+ -20. Las formaciones son bases-aleros-pívots en el quinteto.', 'Trener: pobeda 1-10 ili u produžetku +10, 11-20 +20, 21+ +25; poraz 1-10 ili u produžetku -5, 11-20 -10, 21+ -20. Formacije su bekovi-krila-centri u startnoj petorci.'))}</p>
+${notes}</article>${ctxJ('optimizer')}`;
+      await simplePage('fx:optimizer', { view: 'fx', title: T(`EuroLeague Fantasy optimizer: η καλύτερη σύνθεση για την ${rdTxt0(FXD.round)} | ${SITE_NAME}`, `EuroLeague Fantasy optimizer: best lineup for ${rdTxt0(FXD.round)} | ${SITE_NAME}`, `Optimizador EuroLeague Fantasy: la mejor alineación de la ${rdTxt0(FXD.round).toLowerCase()} | ${SITE_NAME}`, `EuroLeague Fantasy optimizator: najbolja postava za ${rdTxt0(FXD.round)} | ${SITE_NAME}`),
+        desc: T('Βγάλε αυτόματα την καλύτερη σύνθεση EuroLeague Fantasy με 100 credits: πεντάδα, 6ος, πάγκος, αρχηγός και προπονητής, σε Ceiling ή Safe mode.', 'Build the best EuroLeague Fantasy lineup with 100 credits automatically: starting five, sixth man, bench, captain and coach, in Ceiling or Safe mode.', 'Crea automáticamente la mejor alineación del EuroLeague Fantasy con 100 créditos: quinteto, sexto, banquillo, capitán y entrenador, en modo Ceiling o Safe.', 'Automatski napravi najbolju EuroLeague Fantasy postavu sa 100 kredita: petorka, 6. igrač, klupa, kapiten i trener, u Ceiling ili Safe režimu.'), main: optMain });
+
+      // round planner
+      const plan = OPT.roundPlan(defRes, FXD.days);
+      const planMain = `<article class="article lead wide fx">
+<h1>${esc(T('Πλάνο αγωνιστικής', 'Round planner', 'Planificador de jornada', 'Plan kola'))} · ${esc(rdTxt0(FXD.round))}</h1>
+<p class="lede2">${esc(T(`Η αγωνιστική παίζεται σε ${FXD.days.length} μέρες. Ποιος ξεκινά, ποιος περιμένει στον πάγκο, ποιος είναι αρχηγός και πότε να μεταφέρεις την αρχηγία σε παίκτη που δεν έχει παίξει ακόμη.`, `The round is played over ${FXD.days.length} days. Who starts, who waits on the bench, who is captain and when to move the captaincy to a player who has not played yet.`, `La jornada se juega en ${FXD.days.length} días. Quién empieza, quién espera en el banquillo, quién es capitán y cuándo pasar la capitanía a un jugador que aún no ha jugado.`, `Kolo se igra u ${FXD.days.length} dana. Ko počinje, ko čeka na klupi, ko je kapiten i kada prebaciti kapitensku traku na igrača koji još nije igrao.`))}</p>
+${nav('round-planner')}
+<p class="sub" id="fxPlanNote">${esc(T('Το πλάνο είναι για την προτεινόμενη σύνθεση (Ceiling). Αν βγάλεις δική σου στο optimizer, εμφανίζεται εδώ.', 'This plan is for the suggested lineup (Ceiling). If you build your own in the optimizer, it shows up here.', 'El plan es para la alineación sugerida (Ceiling). Si creas la tuya en el optimizador, aparece aquí.', 'Plan je za predloženu postavu (Ceiling). Ako napraviš svoju u optimizatoru, pojaviće se ovde.'))}</p>
+<div id="fxPlan">${OPTR.renderPlan(plan, defRes, ctxS)}</div>
+${notes}</article>${ctxJ('planner')}`;
+      await simplePage('fx:round-planner', { view: 'fx', title: T(`EuroLeague Fantasy: πλάνο ${rdTxt0(FXD.round)}ς, αρχηγός και αλλαγές | ${SITE_NAME}`.replace('ής', 'ής'), `EuroLeague Fantasy round planner: ${rdTxt0(FXD.round)}, captain and swaps | ${SITE_NAME}`, `Planificador EuroLeague Fantasy: ${rdTxt0(FXD.round).toLowerCase()}, capitán y cambios | ${SITE_NAME}`, `EuroLeague Fantasy plan: ${rdTxt0(FXD.round)}, kapiten i izmene | ${SITE_NAME}`),
+        desc: T('Πλάνο ανά ημέρα για το EuroLeague Fantasy: ποιοι παίζουν πρώτοι, ποιοι μένουν στον πάγκο, ποιος αρχηγός και πότε να αλλάξεις αρχηγό.', 'Day-by-day EuroLeague Fantasy plan: who plays first, who waits on the bench, who is captain and when to switch captain.', 'Plan día a día para el EuroLeague Fantasy: quién juega primero, quién espera en el banquillo, quién es capitán y cuándo cambiarlo.', 'Plan po danima za EuroLeague Fantasy: ko igra prvi, ko čeka na klupi, ko je kapiten i kada ga promeniti.'), main: planMain });
+
+      // one page per player
+      for (const x of FXP) {
+        const p = pBy[x.c], n = dn(x.c), tc = x.t;
+        const med = FXD.pos_median[x.pos] || 0;
+        const h = x.h || [];
+        const mx = Math.max(10, ...h.map(r => r[2]), x.p90 || 0), W = 640, H = 180, bw = W / Math.max(h.length + 1, 6);
+        const yy = v => H - 20 - Math.max(0, v) / mx * (H - 40);
+        const svg = `<svg class="fxchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(T('PIR ανά αγώνα', 'PIR per game', 'PIR por partido', 'PIR po utakmici'))}">${h.map((r, i) => `<rect x="${(i * bw + 4).toFixed(1)}" y="${yy(r[2]).toFixed(1)}" width="${(bw - 8).toFixed(1)}" height="${(H - 20 - yy(r[2])).toFixed(1)}" rx="3" class="b"><title>${esc(rdTxt0(r[0]))}: ${r[2]} PIR, ${f1(r[1])}'</title></rect><text x="${(i * bw + bw / 2).toFixed(1)}" y="${H - 5}" text-anchor="middle">${r[0]}</text>`).join('')}<rect x="${(h.length * bw + 4).toFixed(1)}" y="${yy(x.p90).toFixed(1)}" width="${(bw - 8).toFixed(1)}" height="${(yy(x.p10) - yy(x.p90)).toFixed(1)}" rx="3" class="r"/><line x1="${(h.length * bw + 2).toFixed(1)}" x2="${(h.length * bw + bw - 2).toFixed(1)}" y1="${yy(x.pp).toFixed(1)}" y2="${yy(x.pp).toFixed(1)}" class="p"/><text x="${(h.length * bw + bw / 2).toFixed(1)}" y="${H - 5}" text-anchor="middle">${FXD.round}</text><line x1="0" x2="${W}" y1="${yy(med).toFixed(1)}" y2="${yy(med).toFixed(1)}" class="m"/></svg>`;
+        const fl = (x.f || []).filter(f => Math.abs(f[1]) >= 0.1);
+        const pmain = `<article class="article lead fx fxplayer">
+<p class="crumbs"><a href="${fxu('projections')}">EuroLeague Fantasy PIR Projections</a></p>
+<h1>${esc(n)}</h1>
+<p class="lede2">${esc(T(`${n} (${tName(tc)}, ${POSL[x.pos] || x.pos}) στην ${rdTxt0(FXD.round)}: εκτίμηση ${f1(x.pp)} PIR σε ${f1(x.pm)} λεπτά, με εύρος ${f1(x.p10)}–${f1(x.p90)}.`, `${n} (${tName(tc)}, ${POSL[x.pos] || x.pos}) in ${rdTxt0(FXD.round)}: projected ${f1(x.pp)} PIR in ${f1(x.pm)} minutes, range ${f1(x.p10)}–${f1(x.p90)}.`, `${n} (${tName(tc)}, ${POSL[x.pos] || x.pos}) en la ${rdTxt0(FXD.round).toLowerCase()}: ${f1(x.pp)} de PIR estimado en ${f1(x.pm)} minutos, rango ${f1(x.p10)}–${f1(x.p90)}.`, `${n} (${tName(tc)}, ${POSL[x.pos] || x.pos}) u ${rdTxt0(FXD.round)}: procena ${f1(x.pp)} PIR-a za ${f1(x.pm)} minuta, opseg ${f1(x.p10)}–${f1(x.p90)}.`))}</p>
+<div class="otiles ectiles fxtiles"><div><b>${f1(x.pp)}</b><span>${esc(U.proj)}</span></div><div><b>${f1(x.p10)} / ${f1(x.p50)} / ${f1(x.p90)}</b><span>P10 / P50 / P90</span></div><div><b>${f1(x.pm)}</b><span>${T('Εκτ. λεπτά', 'Proj. minutes', 'Min estimados', 'Proc. minuti')}</span></div><div><b>${x.ppm.toFixed(2)}</b><span>${T('Εκτ. PIR/λεπτό', 'Proj. PIR/min', 'PIR/min est.', 'Proc. PIR/min')}</span></div><div><b>${x.conf}</b><span>${T('Σιγουριά', 'Confidence', 'Confianza', 'Pouzdanost')}</span></div><div><b>${f1(x.price)}</b><span>${esc(U.price)}</span></div></div>
+<p>${stB(x.status)} · ${esc(T('Επόμενος αγώνας', 'Next game', 'Próximo partido', 'Sledeća utakmica'))}: <b>${vsTxt(x)}</b>, ${esc(dayLbl(x.day))}${x.pwin != null ? ` · ${esc(T('Πιθανότητα νίκης ομάδας', 'Team win probability', 'Probabilidad de victoria del equipo', 'Šansa za pobedu tima'))} ${Math.round(x.pwin * 100)}%` : ''}</p>
+<h2>${esc(T('Τι επηρεάζει την πρόβλεψη', 'What drives the projection', 'Qué influye en la proyección', 'Šta utiče na projekciju'))}</h2>
+<ul class="fxfac"><li>${esc(T('Βάση', 'Baseline', 'Base', 'Osnova'))}: ${f1(x.pm)} ${esc(T('λεπτά', 'minutes', 'minutos', 'minuta'))} × ${x.ppm.toFixed(2)} PIR/${esc(T('λεπτό', 'min', 'min', 'min'))} (${esc(T('τελευταίοι 10', 'last 10', 'últimos 10', 'poslednjih 10'))}: ${x.pirpm.toFixed(2)})</li>${fl.map(f => `<li>${esc(FACT[f[0]] || f[0])}: <b class="${f[1] >= 0 ? 'pos' : 'neg'}">${f[1] >= 0 ? '+' : ''}${f1(f[1])} PIR</b></li>`).join('')}</ul>
+<p>${esc(T('Σύγκριση με τη διάμεσο της θέσης', 'Compared with the position median', 'Comparado con la mediana de su posición', 'Poređenje sa medijanom pozicije'))} (${esc(POSL[x.pos] || x.pos)}: ${f1(med)} PIR): <b class="${x.pp >= med ? 'pos' : 'neg'}">${x.pp >= med ? '+' : ''}${f1(x.pp - med)}</b></p>
+<h2>${esc(T('Ιστορικό PIR', 'PIR history', 'Historial de PIR', 'Istorija PIR-a'))}</h2>
+${svg}
+<p class="sub">${esc(T('Στήλες: PIR ανά αγωνιστική · τελευταία στήλη: εύρος P10–P90 και εκτίμηση · γραμμή: διάμεσος της θέσης.', 'Bars: PIR by round · last bar: P10–P90 range and projection · line: position median.', 'Barras: PIR por jornada · última barra: rango P10–P90 y proyección · línea: mediana de la posición.', 'Stubići: PIR po kolu · poslednji: opseg P10–P90 i projekcija · linija: medijana pozicije.'))} L5 ${f1(x.l5)} · L10 ${f1(x.l10)}</p>
+<p><a class="pread" href="${urlFor(LG, 'player:' + p.s)}">${esc(T('Όλα τα στατιστικά του παίκτη →', 'All player stats →', 'Todas las estadísticas del jugador →', 'Sva statistika igrača →'))}</a></p>
+${notes}</article>`;
+        await simplePage('fx:player/' + p.s, { view: 'fx', title: T(`${n} Fantasy: εκτίμηση PIR ${rdTxt0(FXD.round)}ς | ${SITE_NAME}`.replace('ήςς', 'ής').replace('κής', 'κής'), `${n} Fantasy PIR projection, ${rdTxt0(FXD.round)} | ${SITE_NAME}`, `${n} Fantasy: PIR estimado, ${rdTxt0(FXD.round).toLowerCase()} | ${SITE_NAME}`, `${n} Fantasy PIR projekcija, ${rdTxt0(FXD.round)} | ${SITE_NAME}`),
+          desc: T(`Εκτίμηση PIR, λεπτών και εύρος P10–P90 του ${n} για το EuroLeague Fantasy στην ${rdTxt0(FXD.round)}, με τους παράγοντες της πρόβλεψης.`, `${n}'s projected PIR, minutes and P10–P90 range for EuroLeague Fantasy in ${rdTxt0(FXD.round)}, with the factors behind it.`, `PIR estimado, minutos y rango P10–P90 de ${n} para el EuroLeague Fantasy en la ${rdTxt0(FXD.round).toLowerCase()}, con los factores de la proyección.`, `Procenjeni PIR, minuti i opseg P10–P90 za ${n} u EuroLeague Fantasy, ${rdTxt0(FXD.round)}, sa faktorima projekcije.`), main: pmain });
+      }
+
+      // static "API" (same for every language, written once)
+      if (LG === 'el') {
+        const api = path.join(OUT, 'api', 'fantasy');
+        for (const d of ['players', 'projections', 'optimizer', 'round-planner', 'player']) await fs.mkdir(path.join(api, d), { recursive: true });
+        const pub = FXP.map(x => ({ ...x, dn: dn(x.c), s: pBy[x.c].s }));
+        const meta = { round: FXD.round, generated: FXD.generated, model: FXD.model, days: FXD.days, disclaimer: 'Projections are statistical estimates and do not guarantee performance.' };
+        const wj = (f, o) => fs.writeFile(path.join(api, f), JSON.stringify(o));
+        await wj(`players/r${FXD.round}.json`, { ...meta, players: pub.map(x => ({ c: x.c, dn: x.dn, s: x.s, t: x.t, pos: x.pos, price: x.price, status: x.status, l5: x.l5, l10: x.l10, pirpm: x.pirpm })) });
+        await wj('players/latest.json', { ...meta, players: pub.map(x => ({ c: x.c, dn: x.dn, s: x.s, t: x.t, pos: x.pos, price: x.price, status: x.status, l5: x.l5, l10: x.l10, pirpm: x.pirpm })) });
+        const proj = { ...meta, pos_median: FXD.pos_median, backtest: FXD.backtest, players: pub.map(({ h, ...r }) => r), coaches: FXD.coaches };
+        await wj(`projections/r${FXD.round}.json`, proj); await wj('projections/latest.json', proj);
+        for (const risk of ['ceiling', 'safe']) {
+          const r = OPT.optimize(FXP, FXD.coaches, { risk });
+          const slim = r && { formation: r.formation, cost: r.cost, budget: r.budget, risk, totals: r.totals, captain: r.captain.c, start: r.start.map(p => p.c), sixth: r.sixth?.c, bench: r.bench.map(p => p.c), coach: r.coach?.t };
+          await wj(`optimizer/r${FXD.round}-${risk}.json`, { ...meta, ...slim }); await wj(`optimizer/latest-${risk}.json`, { ...meta, ...slim });
+          if (risk === 'ceiling') { const pl = OPT.roundPlan(r, FXD.days); await wj(`round-planner/r${FXD.round}.json`, { ...meta, ...pl }); await wj('round-planner/latest.json', { ...meta, ...pl }); }
+        }
+        for (const x of pub) await wj(`player/${x.c}.json`, { ...meta, ...x });
+      }
+    }
+
+    await page('fantasy', { view: 'fantasy', extra: FXDASH,
       title: T(`EuroLeague Fantasy: ποιους να βάλεις στην ${lastRound + 1}η αγωνιστική | ${SITE_NAME}`, `EuroLeague Fantasy picks for Round ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy: a quién fichar en la jornada ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy: koga izabrati za ${lastRound + 1}. kolo | ${SITE_NAME}`),
       desc: T(`Εκτιμήσεις PIR ανά θέση, δυσκολία προγράμματος, διπλές εβδομάδες και η πεντάδα της αγωνιστικής για το EuroLeague Fantasy.`,
         `Projected PIR by position, schedule difficulty, double weeks and the team of the round for EuroLeague Fantasy.`, `PIR estimado por posición, dificultad del calendario, semanas dobles y el quinteto de la jornada para el EuroLeague Fantasy.`, `Procena PIR-a po poziciji, težina rasporeda, duple nedelje i idealna petorka kola za EuroLeague Fantasy.`) });
@@ -1602,6 +1757,43 @@ ${mates.length ? `<h2>${T('Συμπαίκτες', 'Teammates', 'Compañeros', 'S
         await simplePage('ec:' + pSlug[p.c], { view: 'eurocup', title: T(`${p.n} στατιστικά EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} EuroCup ${SEASON_LABEL} stats (${tn}) | ${SITE_NAME}`, `Estadísticas de ${p.n} en la EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} statistika Evrokup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`), desc: lede, main,
           ld: [pld, crumbs([[SITE_NAME, B(LG)], [ECL, urlFor(LG, 'ec')], [tn, tu], [p.n, u]])] });
       }
+    }
+
+    // ---- κάρτες για social (μόνο ελληνικά, noindex): εικόνες που κατεβαίνουν από τον browser
+    if (LG === 'el') {
+      const lrC = lastRound, nrC = (league.games.find(g => !g[6]) || [0])[0];
+      const MC = teamModel(players);
+      const mvpOf = g => players.flatMap(p => p.g.filter(x => x[0] === g[0] && (x[2] === g[2] || x[2] === g[3]) && p.t.split(';').some(t => t === g[2] || t === g[3])).map(x => ({ n: niceName(p.n), t: x[2] === g[2] ? g[3] : g[2], pts: x[8], reb: x[15] + x[16], ast: x[17], pir: x[25] }))).sort((a, b) => b.pir - a.pir)[0] || null;
+      const CD = {
+        site: 'basketballstats.eu', season: SEASON_LABEL,
+        teams: Object.fromEntries(Object.entries(TEAMS).map(([c, v]) => [c, [v[0], v[1]]])),
+        res: league.games.filter(g => g[0] === lrC && g[6]).map(g => ({ r: g[0], h: g[2], a: g[3], hs: g[4], as: g[5], m: mvpOf(g) })),
+        next: league.games.filter(g => g[0] === nrC && !g[6]).map(g => { const x = MC.predict(g[2], g[3]); const d = gameDate(g[1]); return { h: g[2], a: g[3], d: d.toLocaleString('el-GR', { timeZone: 'Europe/Athens', weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }), p: x ? Math.round(x.prob * 100) : null }; }),
+        stand: league.stand.map(s => [s[0], s[1], s[2], s[3]]), lr: lrC, nr: nrC,
+      };
+      const cardsHtml = `<!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Κάρτες για social | ${SITE_NAME}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@600;800&family=Fira+Sans:wght@400;600&display=swap">
+<style>body{margin:0;background:#f3f1ec;font:15px/1.5 'Fira Sans',system-ui,sans-serif;color:#1d2330}main{max-width:1100px;margin:0 auto;padding:16px}h1{font-family:'Fira Sans Extra Condensed';font-size:34px;margin:8px 0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}figure{margin:0;background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}canvas{width:100%;height:auto;display:block;border-radius:6px}figcaption{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:14px}button{background:#e8562a;color:#fff;border:0;border-radius:8px;padding:7px 12px;font:inherit;font-weight:600;cursor:pointer}.sub{color:#6b7280}</style></head>
+<body><main><h1>Κάρτες για social</h1><p class="sub">Έτοιμες εικόνες για Facebook, Instagram και X. Ενημερώνονται μόνες τους μετά από κάθε αγωνιστική. Πάτα «Λήψη» και ανέβασέ τες με link στο ${SITE_NAME}.</p><div class="grid" id="g"></div></main>
+<script>const D=${JSON.stringify(CD).replace(/</g, '\\u003c')};
+const W=1080;const tn=c=>(D.teams[c]||[c])[0], tc=c=>(D.teams[c]||[0,'#444'])[1];
+function base(h,kick){const cv=document.createElement('canvas');cv.width=W;cv.height=h;const x=cv.getContext('2d');x.fillStyle='#1d2330';x.fillRect(0,0,W,h);x.fillStyle='#e8562a';x.fillRect(0,0,W,12);
+x.font='800 54px "Fira Sans Extra Condensed",sans-serif';x.fillStyle='#fff';x.textBaseline='alphabetic';x.fillText('BASKETBALL',60,100);const w=x.measureText('BASKETBALL').width;x.fillStyle='#e8562a';x.fillText('STATS',60+w,100);
+x.font='600 30px "Fira Sans",sans-serif';x.fillStyle='#aab2c0';x.fillText(kick,60,150);x.font='600 30px "Fira Sans",sans-serif';x.fillStyle='#e8562a';x.textAlign='right';x.fillText(D.site,W-60,h-50);x.textAlign='left';x.fillStyle='#8a93a6';x.fillText('EuroLeague '+D.season,60,h-50);return [cv,x];}
+function fit(x,t,max,size,weight){let s=size;do{x.font=weight+' '+s+'px "Fira Sans Extra Condensed",sans-serif';s-=2;}while(x.measureText(t).width>max&&s>20);}
+function crest(x,c,cx,cy,r){x.beginPath();x.arc(cx,cy,r,0,7);x.fillStyle=tc(c);x.fill();x.lineWidth=6;x.strokeStyle='rgba(255,255,255,.25)';x.stroke();x.fillStyle='#fff';x.font='800 '+Math.round(r*.62)+'px "Fira Sans Extra Condensed",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(c,cx,cy+2);x.textAlign='left';x.textBaseline='alphabetic';}
+function result(g){const [cv,x]=base(1080,g.r+'η αγωνιστική · Τελικό');const win=g.hs>g.as;
+[[g.h,g.hs,330,win],[g.a,g.as,640,!win]].forEach(([c,s,y,w])=>{crest(x,c,150,y,80);x.font='800 150px "Fira Sans Extra Condensed",sans-serif';const sw=x.measureText(String(s)).width;const U=tn(c).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();fit(x,U,W-60-sw-40-270,72,'800');x.fillStyle=w?'#fff':'#9aa3b5';x.fillText(U,270,y+26);x.font='800 150px "Fira Sans Extra Condensed",sans-serif';x.textAlign='right';x.fillText(String(s),W-60,y+52);x.textAlign='left';});
+x.fillStyle='rgba(255,255,255,.08)';x.fillRect(60,790,W-120,150);if(g.m){x.fillStyle='#e8562a';x.font='600 28px "Fira Sans",sans-serif';x.fillText('MVP ΑΓΩΝΑ',90,835);fit(x,g.m.n,600,54,'800');x.fillStyle='#fff';x.fillText(g.m.n,90,900);x.font='600 32px "Fira Sans",sans-serif';x.fillStyle='#d5dae3';x.textAlign='right';x.fillText(g.m.pts+' π · '+g.m.reb+' ρ · '+g.m.ast+' α · '+g.m.pir+' PIR',W-90,900);x.textAlign='left';}return cv;}
+function next(){const n=D.next.length,h=Math.max(1080,260+n*92+120);const [cv,x]=base(h,D.nr+'η αγωνιστική · Πρόγραμμα και εκτιμήσεις');D.next.forEach((g,i)=>{const y=250+i*92;x.fillStyle=i%2?'rgba(255,255,255,.04)':'rgba(255,255,255,.09)';x.fillRect(60,y-58,W-120,84);x.font='600 24px "Fira Sans",sans-serif';x.fillStyle='#aab2c0';x.fillText(g.d,80,y-22);x.font='800 40px "Fira Sans Extra Condensed",sans-serif';x.fillStyle='#fff';const t=tn(g.h)+' – '+tn(g.a);fit(x,t,620,40,'800');x.fillText(t,80,y+16);if(g.p!=null){const f=g.p>=50?g.h:g.a,p=Math.max(g.p,100-g.p);x.textAlign='right';x.font='800 38px "Fira Sans Extra Condensed",sans-serif';x.fillStyle='#e8562a';x.fillText(p+'%',W-80,y+16);x.font='600 22px "Fira Sans",sans-serif';x.fillStyle='#aab2c0';x.fillText(tn(f),W-80,y-22);x.textAlign='left';}});return cv;}
+function stand(){const n=D.stand.length,h=Math.max(1080,230+n*56+110);const [cv,x]=base(h,'Βαθμολογία μετά την '+D.lr+'η αγωνιστική');D.stand.forEach((s,i)=>{const y=240+i*56;x.fillStyle=s[0]<=6?'rgba(46,125,50,.35)':s[0]<=10?'rgba(240,180,0,.22)':'rgba(255,255,255,.05)';x.fillRect(60,y-40,W-120,50);x.font='800 34px "Fira Sans Extra Condensed",sans-serif';x.fillStyle='#fff';x.fillText(String(s[0]),80,y);x.fillStyle=tc(s[1]);x.fillRect(140,y-30,10,32);x.fillStyle='#fff';x.fillText(tn(s[1]),170,y);x.textAlign='right';x.fillText(s[2]+'-'+s[3],W-80,y);x.textAlign='left';});x.font='600 24px "Fira Sans",sans-serif';x.fillStyle='#aab2c0';x.fillText('Πράσινο: playoffs · Κίτρινο: play-in',60,h-95);return cv;}
+function add(cv,name,cap){const f=document.createElement('figure');f.appendChild(cv);const fc=document.createElement('figcaption');fc.innerHTML='<span>'+cap+'</span>';const b=document.createElement('button');b.textContent='Λήψη';b.onclick=()=>cv.toBlob(bl=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=name+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);},'image/png');fc.appendChild(b);f.appendChild(fc);document.getElementById('g').appendChild(f);}
+document.fonts.load('800 40px "Fira Sans Extra Condensed",sans-serif').then(()=>document.fonts.load('600 20px "Fira Sans",sans-serif')).catch(()=>0).then(()=>{
+if(D.next.length)add(next(),'agonistiki-'+D.nr+'-programma','Πρόγραμμα '+D.nr+'ης αγωνιστικής');
+if(D.stand.length)add(stand(),'vathmologia-'+D.lr,'Βαθμολογία');
+D.res.forEach(g=>add(result(g),'apotelesma-'+g.r+'-'+g.h+'-'+g.a,tn(g.h)+' – '+tn(g.a)+' '+g.hs+'-'+g.as));});
+</script></body></html>`;
+      await write(BASE + 'kartes/', cardsHtml);
     }
 
     // ---- ημερολόγιο (.ics) για κάθε ομάδα
