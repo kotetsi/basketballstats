@@ -330,3 +330,17 @@ a.pklink:hover{color:var(--accent)}
 .wprev{border:1px dashed var(--line);border-radius:10px;padding:8px;background:var(--bg)}.wprev iframe{width:100%;max-width:460px;border:0;display:block}
 .wbox textarea{width:100%;font:12px/1.4 ui-monospace,Consolas,monospace;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);resize:vertical}
 .wcopy{justify-self:start;border:0;border-radius:7px;background:var(--accent);color:#fff;font:inherit;font-weight:600;padding:8px 14px;cursor:pointer}
+/* βίντεο YouTube (πρώτα εικόνα, το βίντεο φορτώνει με το πάτημα) */
+.yt{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+.yt iframe,.ytb{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ytb{padding:0;cursor:pointer;background:#000;display:block}
+.ytb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92;transition:opacity .15s}
+.ytb:hover img{opacity:1}.ytb:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.ytp{position:absolute;left:50%;top:50%;width:68px;height:48px;margin:-24px 0 0 -34px;border-radius:12px;background:rgba(220,0,0,.92)}
+.ytp::after{content:"";position:absolute;left:27px;top:14px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}
+.yt.big{max-width:860px}
+.ytgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:8px}
+.ytgrid figure{margin:0;display:grid;gap:6px;min-width:0}.ytgrid figcaption{font-size:13px;line-height:1.35;display:flex;gap:6px;align-items:flex-start}
+.ytgrid figcaption a{color:inherit}.ytgrid .crest{width:20px;height:20px;font-size:8px;flex:none}
+.gvid h3,#tVideos h3{font-size:15px;margin:14px 0 4px}
+.vmark{color:#d00;font-size:11px;margin-left:6px}

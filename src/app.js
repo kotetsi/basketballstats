@@ -317,7 +317,7 @@ function renderTeam(c){
   const LB=document.getElementById('tLeaders');
   LB.innerHTML=lead('Πόντοι',p=>p.A.pts/g1(p),f1)+lead('Ριμπάουντ',p=>p.A.reb/g1(p),f1)+lead('Ασίστ',p=>p.A.ast/g1(p),f1)+lead('PIR',p=>p.A.pir/g1(p),f1);
   LB.querySelectorAll('.ld').forEach(b=>{b.querySelector('em').textContent=byCode[b.dataset.c].name;b.onclick=()=>{location.href=pUrl(b.dataset.c);};});
-  renderTeamHeat(c); renderTWith(c); renderTOdds(c);
+  renderTeamHeat(c); renderTWith(c); renderTOdds(c); renderTVideos(c);
   // fixtures
   const nx=GAMES.filter(g=>!g[6]&&(g[2]===c||g[3]===c)).slice(0,5);
   document.getElementById('tNext').innerHTML=nx.length?nx.map(g=>{const home=g[2]===c,o=home?g[3]:g[2];return '<div class="fx"><span class="when">'+g[0]+'η αγ. · '+when(g[1])+'</span><div class="row"><a href="'+tUrl(o)+'\">'+(home?'vs ':'@ ')+crest(o)+' '+tName(o)+'</a><span class="rk">'+recOf(o)+' · '+ord(SROW[o]?SROW[o][0]:0)+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>';}).join(''):'<p class="sub">Δεν υπάρχουν προγραμματισμένοι αγώνες.</p>';
@@ -637,6 +637,23 @@ function renderTOdds(c){
   el.innerHTML='<h2>'+U.po.teamT+'</h2><p class="sub">'+fm(U.po.teamSub,{r:Math.round(x.w)+'–'+(x.g-Math.round(x.w)),b:ord(x.best)})+'</p>'+
     '<div class="otiles"><div><b>'+pc0(x.top4)+'</b><span>'+U.po.top4+'</span></div><div><b>'+pc0(x.top6)+'</b><span>'+U.po.top6+'</span></div><div><b>'+pc0(x.pin)+'</b><span>'+U.po.pin+'</span></div><div><b>'+pc0(x.out)+'</b><span>'+U.po.out+'</span></div></div>'+
     '<div class="odist" role="img" aria-label="'+hx(U.po.dist)+'">'+bars+'</div><div class="odistl"><span>1</span><span>'+x.p.length+'</span></div><p class="note">'+U.po.dist+' · <a href="'+BASE+'#standOdds">'+U.po.all+'</a></p>';
+}
+
+// ---- 6. YouTube videos: click-to-play (nothing loads from YouTube before the click)
+document.addEventListener('click',e=>{const b=e.target.closest('[data-yt]');if(!b)return;const f=document.createElement('iframe');
+  f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(b.dataset.yt)+'?autoplay=1&rel=0';f.title=b.getAttribute('aria-label')||'';
+  f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
+  b.parentNode.replaceChild(f,b);});
+function ytBox(id,title){return '<div class="yt"><button type="button" class="ytb" data-yt="'+hx(id)+'" aria-label="'+hx(U.vid.play+': '+title)+'"><img src="https://i.ytimg.com/vi/'+hx(id)+'/hqdefault.jpg" alt="" loading="lazy" width="480" height="360"><span class="ytp" aria-hidden="true"></span></button></div>';}
+function renderTVideos(c){
+  const el=document.getElementById('tVideos'),V=D.vid;if(!el||!V||!U.vid)return;
+  const hl=Object.entries(V.hl||{}).filter(([k])=>{const p=k.split('|');return p[1]===c||p[2]===c;}).sort((a,b)=>+b[0].split('|')[0]-+a[0].split('|')[0]).slice(0,3);
+  const tv=((V.team||{})[c]||[]).slice(0,4);
+  if(!hl.length&&!tv.length){el.hidden=true;return;}el.hidden=false;
+  el.innerHTML='<h2>'+U.vid.title+'</h2>'+
+    (hl.length?'<h3>'+U.vid.hl+'</h3><div class="ytgrid">'+hl.map(([k,id])=>{const [r,h,a]=k.split('|');const nm=tName(h)+' – '+tName(a);return '<figure>'+ytBox(id,nm)+'<figcaption><a href="'+gUrl(r,h,a)+'">'+fm(U.rd,{n:r})+' · '+hx(nm)+'</a></figcaption></figure>';}).join('')+'</div>':'')+
+    (tv.length?'<h3>'+U.vid.team+'</h3><div class="ytgrid">'+tv.map(v=>'<figure>'+ytBox(v.id,v.t)+'<figcaption>'+hx(v.t)+'</figcaption></figure>').join('')+'</div>'+(V.ch&&V.ch[c]?'<p><a class="pread" href="https://www.youtube.com/channel/'+hx(V.ch[c])+'" target="_blank" rel="noopener">'+U.vid.yt+'</a></p>':''):'')+
+    '<p class="note">'+U.vid.note+'</p>';
 }
 // ---- router (each page says which view it is)
 const VIEW=document.body.dataset.view, VID=document.body.dataset.id;
