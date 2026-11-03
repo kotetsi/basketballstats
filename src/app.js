@@ -357,7 +357,7 @@ function teamHeat(c){const r=GAMES.filter(g=>g[6]&&(g[2]===c||g[3]===c)).map(g=>
 
 function renderForm(){
   
-  const all=heatElig().sort((a,b)=>b.h.d-a.h.d);
+  const all=heatElig().filter(x=>!INJ[x.p.c]).sort((a,b)=>b.h.d-a.h.d);
   const hot=all.filter(x=>x.h.d>0).slice(0,10), cold=all.filter(x=>x.h.d<0).slice(-10).reverse();
   const H=document.getElementById('fHot'),C=document.getElementById('fCold');
   H.innerHTML=hot.map(x=>hrow(x.p,x.h)).join('')||'<p class="sub">Κανείς ακόμη.</p>';fillNames(H,hot);
@@ -441,7 +441,7 @@ function renderPreds(){
   document.getElementById('predSub').textContent=nr+'η αγωνιστική · ώρα Ελλάδας';
   const arts=(D.articles||[]).filter(x=>x.type==='prognostiko');
   const gs=GAMES.filter(g=>g[0]===nr);
-  const side=(c,home)=>{const s=SROW[c];const hh=teamHeat(c);const hot=P.filter(p=>p.t===c).map(p=>({p,h:heatOf(p)})).filter(x=>x.h&&x.p.A.min/x.p.A.G>=10).sort((a,b)=>b.h.d-a.h.d)[0];
+  const side=(c,home)=>{const s=SROW[c];const hh=teamHeat(c);const hot=P.filter(p=>p.t===c).map(p=>({p,h:heatOf(p)})).filter(x=>x.h&&x.p.A.min/x.p.A.G>=10&&!INJ[x.p.c]).sort((a,b)=>b.h.d-a.h.d)[0];
     return '<div class="pside"><a class="tlink" href="'+tUrl(c)+'">'+crest(c)+'<span>'+tName(c)+'</span></a><div class="rk">'+(s?ord(s[0])+' · '+s[2]+'-'+s[3]+' · '+(home?'έδρα '+s[6]:'εκτός '+s[7]):'')+'</div>'+
       (s?'<span class="form">'+s[8].split('').map(x=>'<b class="'+x+'">'+(x==='W'?'Ν':'Η')+'</b>').join('')+'</span>':'')+
       (hot?'<div class="rk">Σε φόρμα: <a href="'+pUrl(hot.p.c)+'" class="hotp" data-c="'+hot.p.c+'"></a> '+deg(hot.h.d)+'</div>':'')+'</div>';};
