@@ -38,7 +38,7 @@ jobs:
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
-        run: python fantasy/run.py || echo "Fantasy: παραλείφθηκε"
+        run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
         run: node build.mjs --offline
       - name: Αποθήκευση των νέων δεδομένων στο repo
