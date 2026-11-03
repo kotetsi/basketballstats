@@ -30,3 +30,4 @@
 2026-10-30 | Reuvers | PAM | - | Πόδι | Foot | Pie | Stopalo
 2026-10-30 | Maledon | MAD | - | Διάστρεμμα στο δεξί γόνατο, χρόνος απουσίας άγνωστος | Right knee sprain, no timetable for his return | Esguince en la rodilla derecha, sin plazo de regreso | Uganuće desnog kolena, rok povratka nepoznat
 2026-10-30 | Jantunen | MAD | 2027-01 | Πλήρης ρήξη της πελματιαίας περιτονίας στο αριστερό πόδι, εκτός 2-3 μήνες | Complete plantar fascia tear in the left foot, out 2-3 months | Rotura completa de la fascia plantar del pie izquierdo, 2-3 meses de baja | Potpuno pucanje plantarne fascije levog stopala, van terena 2-3 meseca
+2026-11-02 | Campazzo | MAD | - | Μυϊκός τραυματισμός, αναμένονται εξετάσεις για τη σοβαρότητα | Muscle injury, awaiting tests on its severity | Lesión muscular, pendiente de pruebas | Povreda mišića, čekaju se snimanja
