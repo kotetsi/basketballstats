@@ -646,7 +646,7 @@ async function main() {
   const adHead = AD_CLIENT ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(AD_CLIENT)}" crossorigin="anonymous"></script>\n` : '';
 
   // ---- εφαρμογή (PWA): εικονίδια, manifest ανά γλώσσα, service worker
-  for (const f of await fs.readdir(path.join(ROOT, 'src'))) if (/\.(png|svg)$/.test(f)) await fs.copyFile(path.join(ROOT, 'src', f), path.join(OUT, f));
+  for (const f of await fs.readdir(path.join(ROOT, 'src'))) if (/\.(png|svg)$/.test(f) || /^google[0-9a-f]+\.html$/.test(f)) await fs.copyFile(path.join(ROOT, 'src', f), path.join(OUT, f));
   for (const lg of LANGS) {
     const T = (el, en, es, sr) => ({ el, en, es, sr })[lg];
     await fs.mkdir(path.join(OUT, lg === 'el' ? '' : lg), { recursive: true });
