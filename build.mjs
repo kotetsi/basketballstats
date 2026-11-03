@@ -45,10 +45,10 @@ const TEAMS = {
 const LANGS = ['el', 'en', 'es', 'sr'];
 const TEAM_IDX = { el: [0, 2], en: [3, 4], es: [5, 6], sr: [7, 8] }; // θέση ονόματος και slug στο TEAMS
 const PATHS = {
-  el: { team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas', widgets: 'widget' },
-  en: { team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game', widgets: 'widget' },
-  es: { team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido', widgets: 'widget' },
-  sr: { team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica', widgets: 'widget' },
+  el: { team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas', widgets: 'widget', compare: 'sygkrisi', model: 'montelo' },
+  en: { team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game', widgets: 'widget', compare: 'compare', model: 'model' },
+  es: { team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido', widgets: 'widget', compare: 'comparar', model: 'modelo' },
+  sr: { team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica', widgets: 'widget', compare: 'poredjenje', model: 'model' },
 };
 // κείμενα των νέων ενοτήτων του app (γραμμές, με/χωρίς, σελίδες αγώνων) ανά γλώσσα
 const UI = {
@@ -73,6 +73,10 @@ const UI = {
     pd: { title: 'Άμυνα ανά θέση', sub: 'PIR που δέχεται κάθε ομάδα ανά αγώνα από γκαρντ, φόργουορντ και σέντερ (και οι πόντοι). Πράσινο: δίνει πολλά, καλό για Fantasy. Κόκκινο: σφιχτή άμυνα. Πατήστε μια στήλη για ταξινόμηση.', team: 'Ομάδα', Guard: 'Γκαρντ', Forward: 'Φόργουορντ', Center: 'Σέντερ', ptsS: 'π.', cellT: 'PIR ανά αγώνα (πόντοι)', gives: 'δίνει', note: 'Οι εκτιμήσεις PIR στο «Ποιους να βάλεις» λαμβάνουν υπόψη και πόσο δίνει ο αντίπαλος στη θέση του παίκτη.' },
     po: { title: 'Πιθανότητες τελικής θέσης', sub: '{n} προσομοιώσεις των {g} αγώνων που απομένουν, με το μοντέλο των προγνωστικών. Πατήστε μια στήλη για ταξινόμηση.', team: 'Ομάδα', rec: 'Αναμ. ρεκόρ', recT: 'Μέσο τελικό ρεκόρ στις προσομοιώσεις', top4: 'Top 4', top4T: 'Πλεονέκτημα έδρας στα playoffs', top6: 'Playoffs', pin: 'Play-in', out: 'Εκτός', best: 'Πιθανότερη θέση', note: 'Playoffs: θέσεις 1-6 · Play-in: 7-10 · Εκτός: 11-20. Κάθε αγώνας κρίνεται με βάση τις αποδόσεις των ομάδων ανά 100 κατοχές και την έδρα, με τυχαιότητα στην απόδοση κάθε ομάδας. Οι ισοβαθμίες λύνονται με τη διαφορά πόντων και όχι με τα επίσημα κριτήρια. Στατιστική εκτίμηση, όχι πρόβλεψη.', teamT: 'Πιθανότητες', teamSub: 'Αναμενόμενο ρεκόρ {r} · πιθανότερη θέση: {b}', dist: 'Πιθανότητα για κάθε θέση από 1 έως 20', all: 'Όλες οι ομάδες →' },
     vid: { title: 'Βίντεο', hl: 'Highlights αγώνων (EuroLeague)', team: 'Από το κανάλι της ομάδας', yt: 'Όλα τα βίντεο στο YouTube →', play: 'Αναπαραγωγή', note: 'Τα βίντεο φορτώνουν από το YouTube μόνο όταν πατήσεις αναπαραγωγή.' },
+    live: { live: 'LIVE', final: 'Τελικό', q: '{n}ο δεκάλεπτο', ot: 'Παράταση', ht: 'Ημίχρονο', soon: 'Ξεκινά σύντομα', leaders: 'Πρωταγωνιστές', auto: 'Ζωντανή ενημέρωση κάθε 30 δευτερόλεπτα από τα επίσημα στοιχεία της EuroLeague', pts: 'π.', reb: 'ρ.', ast: 'ασ.' },
+    my: { title: 'Η ομάδα μου', set: '☆ Κάνε την «ομάδα μου»', unset: '★ Η ομάδα μου', pick: 'Διάλεξε την ομάδα σου για να βλέπεις πρώτα τον επόμενο αγώνα της', choose: 'Επίλεξε ομάδα…', next: 'Επόμενος αγώνας', last: 'Τελευταίος αγώνας', odds: 'Playoffs', inj: 'Απουσίες', none: 'καμία', change: 'αλλαγή', cal: '📅 Πρόγραμμα στο ημερολόγιο', calI: 'iPhone / Mac / Outlook', calG: 'Google Calendar', calF: 'Αρχείο .ics', calHelp: 'Οι αγώνες μπαίνουν στο ημερολόγιό σου και ενημερώνονται μόνοι τους (ώρα, αποτέλεσμα).' },
+    cmp: { link: 'Σύγκρινε με άλλον παίκτη →', a: 'Πρώτος παίκτης', b: 'Δεύτερος παίκτης', ph: 'Γράψε όνομα παίκτη…', swap: '⇄', per: 'Ανά αγώνα', shoot: 'Ευστοχία', form: 'Φόρμα', rank: 'Κατάταξη στη λίγκα (εκατοστημόριο)', pick: 'Διάλεξε δύο παίκτες για σύγκριση.', games: 'Αγώνες', min: 'Λεπτά', pts: 'Πόντοι', reb: 'Ριμπάουντ', ast: 'Ασίστ', stl: 'Κλεψίματα', blk: 'Κοψίματα', tov: 'Λάθη', pir: 'PIR', pm: '+/−', p2: '2π%', p3: '3π%', ft: 'Βολές %', ts: 'True Shooting', l5: 'PIR τελευταίων 5', heat: 'Θερμόμετρο', share: 'Το link της σύγκρισης μπορείς να το μοιραστείς.' },
+    modelLink: 'Πόσο πέφτει μέσα το μοντέλο μας →',
   },
   en: {
     gpath: 'game', rd: 'Round {n}', final: 'final', est: 'projected score', fav: 'Favourite: <b>{t}</b> ({p}%)', total: 'Total ~{n} points',
@@ -95,6 +99,10 @@ const UI = {
     pd: { title: 'Defense by position', sub: 'PIR each team allows per game to guards, forwards and centers (and points). Green: gives up a lot, good for Fantasy. Red: tight defense. Click a column to sort.', team: 'Team', Guard: 'Guards', Forward: 'Forwards', Center: 'Centers', ptsS: 'pts', cellT: 'PIR per game (points)', gives: 'allows', note: 'The PIR projections in “Who to pick” also take into account what the opponent allows at the player’s position.' },
     po: { title: 'Final standings odds', sub: '{n} simulations of the {g} remaining games, using the predictions model. Click a column to sort.', team: 'Team', rec: 'Proj. record', recT: 'Average final record in the simulations', top4: 'Top 4', top4T: 'Home-court advantage in the playoffs', top6: 'Playoffs', pin: 'Play-in', out: 'Out', best: 'Most likely place', note: 'Playoffs: places 1-6 · Play-in: 7-10 · Out: 11-20. Each game is decided from the teams’ ratings per 100 possessions and home court, with randomness in each team’s level. Ties are broken by point difference, not the official criteria. A statistical estimate, not a prediction.', teamT: 'Odds', teamSub: 'Projected record {r} · most likely place: {b}', dist: 'Chance of each place from 1 to 20', all: 'All teams →' },
     vid: { title: 'Videos', hl: 'Game highlights (EuroLeague)', team: 'From the team’s channel', yt: 'All videos on YouTube →', play: 'Play', note: 'Videos load from YouTube only when you press play.' },
+    live: { live: 'LIVE', final: 'Final', q: 'Q{n}', ot: 'Overtime', ht: 'Half-time', soon: 'Starting soon', leaders: 'Leaders', auto: 'Live updates every 30 seconds from official EuroLeague data', pts: 'pts', reb: 'reb', ast: 'ast' },
+    my: { title: 'My team', set: '☆ Make it “my team”', unset: '★ My team', pick: 'Pick your team to see its next game first', choose: 'Choose a team…', next: 'Next game', last: 'Last game', odds: 'Playoffs', inj: 'Absences', none: 'none', change: 'change', cal: '📅 Schedule in your calendar', calI: 'iPhone / Mac / Outlook', calG: 'Google Calendar', calF: '.ics file', calHelp: 'The games go into your calendar and update by themselves (time, result).' },
+    cmp: { link: 'Compare with another player →', a: 'First player', b: 'Second player', ph: 'Type a player’s name…', swap: '⇄', per: 'Per game', shoot: 'Shooting', form: 'Form', rank: 'League rank (percentile)', pick: 'Pick two players to compare.', games: 'Games', min: 'Minutes', pts: 'Points', reb: 'Rebounds', ast: 'Assists', stl: 'Steals', blk: 'Blocks', tov: 'Turnovers', pir: 'PIR', pm: '+/−', p2: '2P%', p3: '3P%', ft: 'FT%', ts: 'True Shooting', l5: 'PIR last 5', heat: 'Thermometer', share: 'You can share the link of this comparison.' },
+    modelLink: 'How accurate is our model →',
   },
   es: {
     gpath: 'partido', rd: 'Jornada {n}', final: 'final', est: 'marcador estimado', fav: 'Favorito: <b>{t}</b> ({p}%)', total: 'Total ~{n} puntos',
@@ -117,6 +125,10 @@ const UI = {
     pd: { title: 'Defensa por posición', sub: 'PIR que recibe cada equipo por partido de bases/escoltas, aleros y pívots (y los puntos). Verde: concede mucho, bueno para el Fantasy. Rojo: defensa sólida. Haz clic en una columna para ordenar.', team: 'Equipo', Guard: 'Bases', Forward: 'Aleros', Center: 'Pívots', ptsS: 'pts', cellT: 'PIR por partido (puntos)', gives: 'concede', note: 'Las estimaciones de PIR de «A quién fichar» también tienen en cuenta lo que concede el rival en la posición del jugador.' },
     po: { title: 'Probabilidades de la clasificación final', sub: '{n} simulaciones de los {g} partidos que quedan, con el modelo de los pronósticos. Haz clic en una columna para ordenar.', team: 'Equipo', rec: 'Balance prev.', recT: 'Balance final medio en las simulaciones', top4: 'Top 4', top4T: 'Factor cancha en los playoffs', top6: 'Playoffs', pin: 'Play-in', out: 'Fuera', best: 'Puesto más probable', note: 'Playoffs: puestos 1-6 · Play-in: 7-10 · Fuera: 11-20. Cada partido se decide con los ratings de los equipos por 100 posesiones y el factor cancha, con aleatoriedad en el nivel de cada equipo. Los empates se resuelven por diferencia de puntos, no con los criterios oficiales. Una estimación estadística, no un pronóstico.', teamT: 'Probabilidades', teamSub: 'Balance previsto {r} · puesto más probable: {b}', dist: 'Probabilidad de cada puesto del 1 al 20', all: 'Todos los equipos →' },
     vid: { title: 'Vídeos', hl: 'Highlights de los partidos (EuroLeague)', team: 'Del canal del equipo', yt: 'Todos los vídeos en YouTube →', play: 'Reproducir', note: 'Los vídeos se cargan desde YouTube solo cuando pulsas reproducir.' },
+    live: { live: 'EN VIVO', final: 'Final', q: '{n}.º cuarto', ot: 'Prórroga', ht: 'Descanso', soon: 'Empieza pronto', leaders: 'Destacados', auto: 'Actualización en vivo cada 30 segundos con los datos oficiales de la EuroLeague', pts: 'pts', reb: 'reb', ast: 'asis' },
+    my: { title: 'Mi equipo', set: '☆ Hacerlo «mi equipo»', unset: '★ Mi equipo', pick: 'Elige tu equipo para ver primero su próximo partido', choose: 'Elige un equipo…', next: 'Próximo partido', last: 'Último partido', odds: 'Playoffs', inj: 'Bajas', none: 'ninguna', change: 'cambiar', cal: '📅 Calendario en tu agenda', calI: 'iPhone / Mac / Outlook', calG: 'Google Calendar', calF: 'Archivo .ics', calHelp: 'Los partidos se añaden a tu calendario y se actualizan solos (hora, resultado).' },
+    cmp: { link: 'Comparar con otro jugador →', a: 'Primer jugador', b: 'Segundo jugador', ph: 'Escribe el nombre de un jugador…', swap: '⇄', per: 'Por partido', shoot: 'Acierto', form: 'Forma', rank: 'Puesto en la liga (percentil)', pick: 'Elige dos jugadores para compararlos.', games: 'Partidos', min: 'Minutos', pts: 'Puntos', reb: 'Rebotes', ast: 'Asistencias', stl: 'Robos', blk: 'Tapones', tov: 'Pérdidas', pir: 'PIR', pm: '+/−', p2: 'T2%', p3: 'T3%', ft: 'TL%', ts: 'True Shooting', l5: 'PIR últimos 5', heat: 'Termómetro', share: 'Puedes compartir el enlace de esta comparación.' },
+    modelLink: '¿Cuánto acierta nuestro modelo? →',
   },
   sr: {
     gpath: 'utakmica', rd: '{n}. kolo', final: 'konačno', est: 'procenjeni rezultat', fav: 'Favorit: <b>{t}</b> ({p}%)', total: 'Ukupno ~{n} poena',
@@ -139,6 +151,10 @@ const UI = {
     pd: { title: 'Odbrana po pozicijama', sub: 'PIR koji svaki tim prima po utakmici od bekova, krila i centara (i poeni). Zeleno: prima mnogo, dobro za Fantasy. Crveno: čvrsta odbrana. Klikni na kolonu za sortiranje.', team: 'Tim', Guard: 'Bekovi', Forward: 'Krila', Center: 'Centri', ptsS: 'p.', cellT: 'PIR po utakmici (poeni)', gives: 'prima', note: 'Procene PIR-a u „Koga izabrati” uzimaju u obzir i koliko protivnik prima na poziciji igrača.' },
     po: { title: 'Šanse za konačni plasman', sub: '{n} simulacija preostalih {g} utakmica, sa modelom prognoza. Klikni na kolonu za sortiranje.', team: 'Tim', rec: 'Proc. skor', recT: 'Prosečan konačni skor u simulacijama', top4: 'Top 4', top4T: 'Prednost domaćeg terena u plej-ofu', top6: 'Plej-of', pin: 'Plej-in', out: 'Ispadanje', best: 'Najverovatnije mesto', note: 'Plej-of: mesta 1-6 · Plej-in: 7-10 · Ispadanje: 11-20. Svaka utakmica se odlučuje prema rejtinzima timova na 100 poseda i domaćem terenu, uz slučajnost u nivou svakog tima. Nerešeni odnosi se rešavaju razlikom poena, a ne zvaničnim kriterijumima. Statistička procena, a ne prognoza.', teamT: 'Šanse', teamSub: 'Procenjeni skor {r} · najverovatnije mesto: {b}', dist: 'Šansa za svako mesto od 1 do 20', all: 'Svi timovi →' },
     vid: { title: 'Video', hl: 'Hajlajti utakmica (Evroliga)', team: 'Sa kanala tima', yt: 'Svi video snimci na YouTube-u →', play: 'Pusti', note: 'Video se učitava sa YouTube-a tek kada pritisneš pusti.' },
+    live: { live: 'UŽIVO', final: 'Kraj', q: '{n}. četvrtina', ot: 'Produžetak', ht: 'Poluvreme', soon: 'Uskoro počinje', leaders: 'Najbolji', auto: 'Ažuriranje uživo na svakih 30 sekundi iz zvaničnih podataka Evrolige', pts: 'p.', reb: 'sk.', ast: 'as.' },
+    my: { title: 'Moj tim', set: '☆ Postavi kao „moj tim”', unset: '★ Moj tim', pick: 'Izaberi svoj tim da prvo vidiš njegovu sledeću utakmicu', choose: 'Izaberi tim…', next: 'Sledeća utakmica', last: 'Poslednja utakmica', odds: 'Plej-of', inj: 'Odsutni', none: 'nema', change: 'promeni', cal: '📅 Raspored u kalendaru', calI: 'iPhone / Mac / Outlook', calG: 'Google Calendar', calF: '.ics fajl', calHelp: 'Utakmice ulaze u tvoj kalendar i same se ažuriraju (vreme, rezultat).' },
+    cmp: { link: 'Uporedi sa drugim igračem →', a: 'Prvi igrač', b: 'Drugi igrač', ph: 'Upiši ime igrača…', swap: '⇄', per: 'Po utakmici', shoot: 'Šut', form: 'Forma', rank: 'Mesto u ligi (percentil)', pick: 'Izaberi dva igrača za poređenje.', games: 'Utakmice', min: 'Minuti', pts: 'Poeni', reb: 'Skokovi', ast: 'Asistencije', stl: 'Ukradene', blk: 'Blokade', tov: 'Izgubljene', pir: 'PIR', pm: '+/−', p2: '2P%', p3: '3P%', ft: 'SB%', ts: 'True Shooting', l5: 'PIR poslednjih 5', heat: 'Termometar', share: 'Link ovog poređenja možeš da podeliš.' },
+    modelLink: 'Koliko je tačan naš model →',
   },
 };
 const ordEn = n => { const t = n % 100; return n + (t > 10 && t < 14 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] || 'th')); };
@@ -605,12 +621,12 @@ async function main() {
   const INJL = { el: 'Εκτός (τραυματίες ή απόντες):', en: 'Out (injured or absent):', es: 'Bajas (lesionados o ausentes):', sr: 'Van terena (povređeni ili odsutni):' };
   const pendingTips = lg => tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label[lg], u: p.url[lg] })));
   const artList = lg => articles.filter(a => a[lg]).map(a => ({ title: a[lg].title, desc: a[lg].desc, type: a.type, round: a.round, game: a.game, author: a.author, date: a.date, dateText: a[lg].dateText, slug: a[lg].slug, url: a[lg].url }));
-  await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated: UPD.el, teams: TEAMS, players, league,
+  await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ updated: UPD.el, teams: TEAMS, players, league, season: SEASON,
     vid: { hl: Object.fromEntries(Object.entries(VIDS.hl).map(([k, v]) => [k, v.id])), team: Object.fromEntries(Object.entries(VIDS.team).map(([c, l]) => [c, l.slice(0, 6).map(v => ({ id: v.id, t: v.t }))])), ch: YT_TEAMS },
-    articles: artList('el'), tips: pendingTips('el'), inj: INJ.el, injL: INJL.el, ui: UI.el,
-    en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en'), inj: INJ.en, injL: INJL.en, ui: UI.en },
-    es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: UI.es },
-    sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr, ui: UI.sr } }));
+    articles: artList('el'), tips: pendingTips('el'), inj: INJ.el, injL: INJL.el, ui: { ...UI.el, calBase: BASE + 'cal/', cmpUrl: BASE + PATHS.el.compare + '/', modelUrl: BASE + PATHS.el.model + '/' },
+    en: { updated: UPD.en, articles: artList('en'), tips: pendingTips('en'), inj: INJ.en, injL: INJL.en, ui: { ...UI.en, calBase: BASE + 'en/' + 'cal/', cmpUrl: BASE + 'en/' + PATHS.en.compare + '/', modelUrl: BASE + 'en/' + PATHS.en.model + '/' } },
+    es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: { ...UI.es, calBase: BASE + 'es/' + 'cal/', cmpUrl: BASE + 'es/' + PATHS.es.compare + '/', modelUrl: BASE + 'es/' + PATHS.es.model + '/' } },
+    sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr, ui: { ...UI.sr, calBase: BASE + 'sr/' + 'cal/', cmpUrl: BASE + 'sr/' + PATHS.sr.compare + '/', modelUrl: BASE + 'sr/' + PATHS.sr.model + '/' } } }));
   const appSrc = await fs.readFile(path.join(ROOT, 'src', 'app.js'), 'utf8');
   await fs.writeFile(path.join(OUT, 'assets', 'app.js'), appSrc);
   await fs.writeFile(path.join(OUT, 'assets', 'app.en.js'), translate(appSrc, APP_CODE, 'app.js (en)'));
@@ -712,7 +728,7 @@ ${pwaStyle}`;
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>');
-    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
+    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
@@ -1009,7 +1025,7 @@ ${disclaimer}</article>` });
 <h1>${esc(H)} – ${esc(A)}</h1>
 <p class="lede">${esc(dt)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)')}${pl ? ` · ${T('Τελικό', 'Final', 'Final', 'Konačan rezultat')} ${sc}` : ''}</p>
 <section class="gtop" id="gTop"></section>
-${vidSec}<div class="gcols2">
+${pl ? '' : `<section class="glive" id="gLive" hidden><div class="lq tbl"></div><div class="ll"></div><p class="note">${T('Ζωντανή ενημέρωση κάθε 30 δευτερόλεπτα από τα επίσημα στοιχεία της EuroLeague', 'Live updates every 30 seconds from official EuroLeague data', 'Actualización en vivo cada 30 segundos con los datos oficiales de la EuroLeague', 'Ažuriranje uživo na svakih 30 sekundi iz zvaničnih podataka Evrolige')}</p></section>\n`}${vidSec}<div class="gcols2">
 <section><h2>${T('Φόρμα', 'Form', 'Forma', 'Forma')}</h2><p class="sub">${T('Οι 5 τελευταίοι αγώνες κάθε ομάδας', 'Each team’s last 5 games', 'Los últimos 5 partidos de cada equipo', 'Poslednjih 5 utakmica svakog tima')}</p><div class="gcols" id="gForm"></div></section>
 <section><h2>${T('Απουσίες', 'Injuries and absences', 'Bajas', 'Odsutni igrači')}</h2><p class="sub">${T('✚ κόκκινο: τραυματίας · ✚ πορτοκαλί: έχει χάσει τους τελευταίους αγώνες', '✚ red: injured · ✚ orange: has missed the latest games', '✚ rojo: lesionado · ✚ naranja: se ha perdido los últimos partidos', '✚ crveno: povređen · ✚ narandžasto: propustio je poslednje utakmice')}</p><div class="gcols" id="gInj"></div></section>
 </div>
@@ -1092,6 +1108,66 @@ ${nx ? `<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Τα προγνω
 </article>`;
       const desc = T(`Αποτελέσματα, κορυφαίοι παίκτες, εκπλήξεις και ρεκόρ της ${r}ης αγωνιστικής της ${S}.`, `Results, top performers, upsets and records from Round ${r} of the ${S}.`, `Resultados, mejores jugadores, sorpresas y récords de la jornada ${r} de la ${S}.`, `Rezultati, najbolji igrači, iznenađenja i rekordi ${r}. kola ${S}.`);
       await simplePage('recap:' + r, { view: 'articles', title: `${recapTitle(r)} | ${SITE_NAME}`, desc, main });
+    }
+
+
+    // ---- σύγκριση παικτών (τη γεμίζει το app)
+    await simplePage('compare', { view: 'compare', title: T(`Σύγκριση παικτών EuroLeague ${SEASON_LABEL} | ${SITE_NAME}`, `Compare EuroLeague players ${SEASON_LABEL} | ${SITE_NAME}`, `Comparar jugadores de la EuroLeague ${SEASON_LABEL} | ${SITE_NAME}`, `Poređenje igrača Evrolige ${SEASON_LABEL} | ${SITE_NAME}`),
+      desc: T('Σύγκρινε δύο παίκτες της EuroLeague δίπλα-δίπλα: μέσοι όροι, ευστοχία, PIR, φόρμα και κατάταξη στη λίγκα.', 'Compare two EuroLeague players side by side: averages, shooting, PIR, form and league rank.', 'Compara dos jugadores de la EuroLeague: promedios, acierto, PIR, forma y puesto en la liga.', 'Uporedi dva igrača Evrolige: proseci, šut, PIR, forma i mesto u ligi.'),
+      main: `<section class="article cmpwrap"><h1>${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</h1><p class="lede2">${T('Διάλεξε δύο παίκτες της', 'Pick two players from the', 'Elige dos jugadores de la', 'Izaberi dva igrača iz')} ${esc(S)}.</p><div id="cmp"></div></section>` });
+
+    // ---- πόσο πέφτει μέσα το μοντέλο: προβλέψεις με τα δεδομένα πριν από κάθε αγωνιστική
+    {
+      const rows = [];
+      for (const r of doneRounds.slice().sort((a, b) => a - b)) {
+        const M = teamModel(players, r);
+        for (const g of league.games.filter(x => x[0] === r && x[6] && TEAMS[x[2]] && TEAMS[x[3]])) {
+          const x = M.predict(g[2], g[3]); if (!x) continue;
+          const fav = x.prob >= 0.5 ? g[2] : g[3], won = g[4] > g[5] ? g[2] : g[3];
+          rows.push({ r, g, x, ok: fav === won, conf: Math.max(x.prob, 1 - x.prob), em: Math.abs((x.ph - x.pa) - (g[4] - g[5])), et: Math.abs((x.ph + x.pa) - (g[4] + g[5])) });
+        }
+      }
+      const pc = (a, b) => b ? Math.round(100 * a / b) + '%' : '–';
+      const avg = (a, f) => a.length ? f1(a.reduce((s, o) => s + f(o), 0) / a.length) : '–';
+      const hits = rows.filter(o => o.ok).length;
+      const byR = [...new Set(rows.map(o => o.r))].sort((a, b) => b - a).map(r => { const x = rows.filter(o => o.r === r); return { r, n: x.length, h: x.filter(o => o.ok).length, em: avg(x, o => o.em), et: avg(x, o => o.et) }; });
+      const B2 = [[0.5, 0.6], [0.6, 0.7], [0.7, 0.8], [0.8, 1.01]].map(([a, b]) => { const x = rows.filter(o => o.conf >= a && o.conf < b); return { a, b, n: x.length, h: x.filter(o => o.ok).length }; });
+      const miss = rows.filter(o => !o.ok).sort((a, b) => b.conf - a.conf).slice(0, 6);
+      const sc = g => LG === 'sr' ? `${g[4]}:${g[5]}` : `${g[4]}-${g[5]}`;
+      const gl = g => `<a href="${urlFor(LG, `game:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(g[2]))} – ${esc(tName(g[3]))} ${sc(g)}</a>`;
+      const main = `<article class="article model">
+<h1>${T('Πόσο πέφτει μέσα το μοντέλο μας', 'How accurate is our model', '¿Cuánto acierta nuestro modelo?', 'Koliko je tačan naš model')}</h1>
+<p class="lede2">${T('Για κάθε αγώνα ξαναφτιάχνουμε την πρόβλεψη μόνο με όσα ήξερε το μοντέλο πριν από την αγωνιστική, και τη συγκρίνουμε με το αποτέλεσμα. Μετράνε οι αγώνες από την 3η αγωνιστική, όταν υπάρχουν αρκετά δεδομένα.', 'For each game we rebuild the prediction using only what the model knew before the round, and compare it with the result. Games count from Round 3, once there is enough data.', 'Para cada partido rehacemos el pronóstico solo con lo que el modelo sabía antes de la jornada y lo comparamos con el resultado. Cuentan los partidos desde la jornada 3, cuando ya hay datos suficientes.', 'Za svaku utakmicu pravimo prognozu samo sa onim što je model znao pre kola i poredimo je sa rezultatom. Računaju se utakmice od 3. kola, kada ima dovoljno podataka.')}</p>
+<div class="otiles mtiles"><div><b>${pc(hits, rows.length)}</b><span>${T('Σωστός νικητής', 'Right winner', 'Ganador acertado', 'Pogođen pobednik')}</span></div><div><b>${hits}/${rows.length}</b><span>${T('Αγώνες', 'Games', 'Partidos', 'Utakmice')}</span></div><div><b>${avg(rows, o => o.em)}</b><span>${T('Μέση απόκλιση στη διαφορά', 'Average miss on margin', 'Error medio en la diferencia', 'Prosečna greška u razlici')}</span></div><div><b>${avg(rows, o => o.et)}</b><span>${T('Μέση απόκλιση στο σύνολο πόντων', 'Average miss on total points', 'Error medio en el total de puntos', 'Prosečna greška u ukupnim poenima')}</span></div></div>
+<h2>${T('Ανά αγωνιστική', 'By round', 'Por jornada', 'Po kolu')}</h2>
+<div class="tbl"><table><thead><tr><th>${T('Αγωνιστική', 'Round', 'Jornada', 'Kolo')}</th><th>${T('Σωστοί νικητές', 'Right winners', 'Ganadores acertados', 'Pogođeni pobednici')}</th><th>%</th><th>${T('Απόκλ. διαφοράς', 'Margin miss', 'Error dif.', 'Greška razl.')}</th><th>${T('Απόκλ. συνόλου', 'Total miss', 'Error total', 'Greška ukupno')}</th></tr></thead><tbody>${byR.map(o => `<tr><td class="l"><a href="${urlFor(LG, 'recap:' + o.r)}">${esc(rdTxt0(o.r))}</a></td><td>${o.h}/${o.n}</td><td><b>${pc(o.h, o.n)}</b></td><td>${o.em}</td><td>${o.et}</td></tr>`).join('')}</tbody></table></div>
+<h2>${T('Όσο πιο σίγουρο, τόσο πιο σωστό;', 'Does more confidence mean more accuracy?', '¿Más confianza significa más acierto?', 'Da li veća sigurnost znači veću tačnost?')}</h2>
+<p class="sub">${T('Οι προβλέψεις χωρισμένες με βάση την πιθανότητα που έδινε το μοντέλο στο φαβορί', 'Predictions grouped by the probability the model gave the favourite', 'Pronósticos agrupados según la probabilidad que el modelo daba al favorito', 'Prognoze grupisane po verovatnoći koju je model davao favoritu')}</p>
+<div class="tbl"><table><thead><tr><th>${T('Πιθανότητα φαβορί', 'Favourite’s probability', 'Probabilidad del favorito', 'Verovatnoća favorita')}</th><th>${T('Αγώνες', 'Games', 'Partidos', 'Utakmice')}</th><th>${T('Κέρδισε το φαβορί', 'Favourite won', 'Ganó el favorito', 'Favorit pobedio')}</th></tr></thead><tbody>${B2.map(o => `<tr><td class="l">${Math.round(o.a * 100)}–${o.b > 1 ? 100 : Math.round(o.b * 100)}%</td><td>${o.n}</td><td><b>${pc(o.h, o.n)}</b></td></tr>`).join('')}</tbody></table></div>
+${miss.length ? `<h2>${T('Οι μεγαλύτερες αστοχίες', 'The biggest misses', 'Los mayores fallos', 'Najveći promašaji')}</h2><ul>${miss.map(o => `<li>${gl(o.g)}: ${T('φαβορί', 'favourite', 'favorito', 'favorit')} ${esc(tName(o.x.prob >= 0.5 ? o.g[2] : o.g[3]))} ${T('με', 'at', 'con un', 'sa')} ${Math.round(o.conf * 100)}%</li>`).join('')}</ul>` : ''}
+<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Οι προβλέψεις της επόμενης αγωνιστικής →', 'Next round’s predictions →', 'Pronósticos de la próxima jornada →', 'Prognoze za sledeće kolo →')}</a></p>
+<p class="note">${T('Το μοντέλο εκτιμά το σκορ από την επιθετική και αμυντική απόδοση ανά 100 κατοχές, τον ρυθμό και την έδρα. Δεν λαμβάνει υπόψη τραυματισμούς. Στατιστική εκτίμηση, όχι συμβουλή στοιχήματος.', 'The model estimates the score from offensive and defensive ratings per 100 possessions, pace and home court. It does not account for injuries. A statistical estimate, not betting advice.', 'El modelo estima el marcador con los ratings ofensivo y defensivo por 100 posesiones, el ritmo y el factor cancha. No tiene en cuenta las lesiones. Una estimación estadística, no un consejo de apuestas.', 'Model procenjuje rezultat iz napadačkog i odbrambenog rejtinga na 100 poseda, ritma i domaćeg terena. Ne uzima u obzir povrede. Statistička procena, a ne savet za klađenje.')}</p>
+</article>`;
+      await simplePage('model', { view: 'model', title: T(`Πόσο πέφτει μέσα το μοντέλο προβλέψεων EuroLeague | ${SITE_NAME}`, `EuroLeague prediction model accuracy | ${SITE_NAME}`, `Acierto del modelo de pronósticos de la EuroLeague | ${SITE_NAME}`, `Tačnost modela prognoza Evrolige | ${SITE_NAME}`),
+        desc: T(`Το μοντέλο μας βρήκε τον νικητή σε ${hits} από τους ${rows.length} αγώνες της ${S}. Ανά αγωνιστική, ανά βαθμό σιγουριάς και οι μεγαλύτερες αστοχίες.`, `Our model picked the winner in ${hits} of ${rows.length} games of the ${S}. By round, by confidence and the biggest misses.`, `Nuestro modelo acertó el ganador en ${hits} de ${rows.length} partidos de la ${S}. Por jornada, por confianza y los mayores fallos.`, `Naš model je pogodio pobednika na ${hits} od ${rows.length} utakmica ${S}. Po kolu, po sigurnosti i najveći promašaji.`), main });
+    }
+
+    // ---- ημερολόγιο (.ics) για κάθε ομάδα
+    {
+      const icsEsc = x => String(x).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+      const fold = l => { const out = []; let x = l; while (Buffer.byteLength(x) > 74) { let n = 74; while (Buffer.byteLength(x.slice(0, n)) > 74) n--; out.push(x.slice(0, n)); x = ' ' + x.slice(n); } out.push(x); return out.join('\r\n'); };
+      const dt = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      const stamp = dt(new Date());
+      await fs.mkdir(path.join(OUT, (LG === 'el' ? '' : LG + '/') + 'cal'), { recursive: true });
+      for (const c of Object.keys(TEAMS)) {
+        const ev = league.games.filter(g => g[2] === c || g[3] === c).map(g => {
+          const d = gameDate(g[1]), e = new Date(d.getTime() + 2 * 3600e3), u = SITE_URL + urlFor(LG, `game:${g[0]}|${g[2]}|${g[3]}`);
+          const sum = `${tName(g[2])} - ${tName(g[3])}${g[6] ? ` ${g[4]}-${g[5]}` : ''} (EuroLeague, ${rdTxt0(g[0])})`;
+          return ['BEGIN:VEVENT', `UID:${SEASON}-${g[0]}-${g[2]}-${g[3]}@basketballstats.eu`, `DTSTAMP:${stamp}`, `DTSTART:${dt(d)}`, `DTEND:${dt(e)}`, `SUMMARY:${icsEsc(sum)}`, `URL:${u}`, `DESCRIPTION:${icsEsc(T('Ανάλυση, στατιστικά και απουσίες: ', 'Preview, stats and injuries: ', 'Previa, estadísticas y bajas: ', 'Najava, statistika i povrede: ') + u)}`, 'END:VEVENT'].map(fold).join('\r\n');
+        });
+        const cal = ['BEGIN:VCALENDAR', 'VERSION:2.0', `PRODID:-//${SITE_NAME}//EuroLeague//${LG.toUpperCase()}`, 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', fold(`X-WR-CALNAME:${icsEsc(tName(c) + ' · EuroLeague ' + SEASON_LABEL)}`), 'X-WR-TIMEZONE:Europe/Athens', 'REFRESH-INTERVAL;VALUE=DURATION:PT12H', 'X-PUBLISHED-TTL:PT12H', ...ev, 'END:VCALENDAR'].join('\r\n') + '\r\n';
+        await fs.writeFile(path.join(OUT, (LG === 'el' ? '' : LG + '/') + 'cal', c + '.ics'), cal);
+      }
     }
 
     // ---- widgets για άλλα sites (δεν μπαίνουν στη Google) και σελίδα με τον κώδικα
