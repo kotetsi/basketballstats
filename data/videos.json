@@ -1,0 +1,365 @@
+{
+ "note": "Επίσημα highlights EuroLeague: αγωνιστική|γηπεδούχος|φιλοξενούμενος → βίντεο YouTube. Τα νέα προστίθενται αυτόματα.",
+ "hl": {
+  "1|PAR|MIL": {
+   "id": "7UwzhRjy-I0",
+   "t": "Partizan Mozzart Bet - Armani Olimpia Milan | R1 Highlights"
+  },
+  "1|PAN|PRS": {
+   "id": "ivfqmHWwP5I",
+   "t": "Panathinaikos AKTOR - Paris Basketball | R1 Highlights"
+  },
+  "1|ULK|VIR": {
+   "id": "0jJmBL968E8",
+   "t": "Fenerbahce Tarfin - Virtus Bologna | R1 Highlights"
+  },
+  "1|ASV|TEL": {
+   "id": "gjNKdSmeMl0",
+   "t": "LDLC ASVEL - Maccabi Rapyd Tel Aviv | R1 Highlights"
+  },
+  "1|BAR|IST": {
+   "id": "VbV7iE-zYHs",
+   "t": "FC Barcelona - Anadolu Efes | R1 Highlights"
+  },
+  "1|BES|PAM": {
+   "id": "IXKbdfM4T-k",
+   "t": "Besiktas - Valencia Basket | R1 Highlights"
+  },
+  "1|BAS|OLY": {
+   "id": "Hgl-oZ5xS0k",
+   "t": "Kosner Baskonia - Olympiacos | R1 Highlights"
+  },
+  "1|DUB|MAD": {
+   "id": "LB1eZNm9pCU",
+   "t": "Dubai Basketball - Real Madrid | R1 Highlights"
+  },
+  "1|HTA|MUN": {
+   "id": "ckf_K5H_rcs",
+   "t": "Hapoel IBI Tel Aviv - FC Bayern Munich | R1 Highlights"
+  },
+  "1|RED|ZAL": {
+   "id": "1IlUWLBi4W0",
+   "t": "Crvena Zvezda Meridianbet - Zalgiris Kaunas | R1 Highlights"
+  },
+  "4|MUN|VIR": {
+   "id": "6uL3DTk-Mrk",
+   "t": "FC Bayern Munich - Virtus Bologna | R4 Highlights"
+  },
+  "3|VIR|OLY": {
+   "id": "FuAIJcwKDxg",
+   "t": "Virtus Bologna - Olympiacos | R3 Highlights"
+  },
+  "2|DUB|BAR": {
+   "id": "6cG_QQUpt7M",
+   "t": "Dubai Basketball - FC Barcelona | R2 Highlights"
+  },
+  "2|IST|MAD": {
+   "id": "bOfgn9MKUpI",
+   "t": "Anadolu Efes - Real Madrid | R2 Highlights"
+  },
+  "4|PAN|ULK": {
+   "id": "PtdYeWFvq7o",
+   "t": "Panathinaikos AKTOR - Fenerbahce Tarfin | R4 Highlights"
+  },
+  "3|ULK|DUB": {
+   "id": "a1d6KyiKiww",
+   "t": "Fenerbahce Tarfin - Dubai Basketball | R3 Highlights"
+  },
+  "2|ULK|MUN": {
+   "id": "MgfrJpNfinQ",
+   "t": "Fenerbahce Tarfin - FC Bayern Munich | R2 Highlights"
+  },
+  "3|MUN|PAR": {
+   "id": "N3ARsLF2pu8",
+   "t": "FC Bayern Munich - Partizan Mozzart Bet | R3 Highlights"
+  },
+  "3|RED|IST": {
+   "id": "iubZHgx7Qfs",
+   "t": "Crvena Zvezda Meridianbet - Anadolu Efes | R3 Highlights"
+  },
+  "4|BAR|ZAL": {
+   "id": "-3F35ggXzHI",
+   "t": "FC Barcelona - Zalgiris Kaunas | R4 Highlights"
+  },
+  "5|IST|MUN": {
+   "id": "S4aOZlmm9sI",
+   "t": "Anadolu Efes - FC Bayern Munich | R5 Highlights"
+  },
+  "4|DUB|RED": {
+   "id": "2kMCaWkCCK8",
+   "t": "Dubai Basketball - Crvena Zvezda Meridianbet | R4 Highlights"
+  },
+  "3|BES|BAR": {
+   "id": "Z9Z1U9BIw28",
+   "t": "Besiktas - FC Barcelona | R3 Highlights"
+  },
+  "2|PAM|BAS": {
+   "id": "-ltHDRzPrNA",
+   "t": "Valencia Basket - Kosner Baskonia | R2 Highlights"
+  },
+  "3|PAN|TEL": {
+   "id": "hFLoXv2kxCM",
+   "t": "Panathinaikos AKTOR - Maccabi Rapyd Tel Aviv | R3 Highlights"
+  },
+  "4|PAM|HTA": {
+   "id": "0Jf1UfVWYUQ",
+   "t": "Valencia Basket - Hapoel IBI Tel Aviv | R4 Highlights"
+  },
+  "3|HTA|MAD": {
+   "id": "HplQ4XIxJu4",
+   "t": "Hapoel IBI Tel Aviv - Real Madrid | R3 Highlights"
+  },
+  "4|MAD|PAR": {
+   "id": "n6ugkuGRXD0",
+   "t": "Real Madrid - Partizan Mozzart Bet | R4 Highlights"
+  },
+  "2|PAN|ASV": {
+   "id": "By9PIoMvH7A",
+   "t": "Panathinaikos AKTOR - LDLC ASVEL | R2 Highlights"
+  },
+  "2|ZAL|OLY": {
+   "id": "WESwMx-qn0Q",
+   "t": "Zalgiris Kaunas - Olympiacos | R2 Highlights"
+  },
+  "2|PRS|PAR": {
+   "id": "coLuCzee0tI",
+   "t": "Paris Basketball - Partizan Mozzart Bet | R2 Highlights"
+  },
+  "2|TEL|BES": {
+   "id": "NtE1j3Rdr0k",
+   "t": "Maccabi Rapyd Tel Aviv - Besiktas | R2 Highlights"
+  },
+  "2|RED|HTA": {
+   "id": "bsbfDaRgd0M",
+   "t": "Crvena Zvezda Meridianbet - Hapoel IBI Tel Aviv | R2 Highlights"
+  },
+  "6|BAR|OLY": {
+   "id": "rb0RqzmR-4I",
+   "t": "FC Barcelona - Olympiacos | R6 Highlights"
+  },
+  "2|MIL|VIR": {
+   "id": "In4Gf7pohPM",
+   "t": "Armani Olimpia Milan - Virtus Bologna | R2 Highlights"
+  },
+  "5|BAS|DUB": {
+   "id": "x9rhfuvQbJI",
+   "t": "Kosner Baskonia - Dubai Basketball | R5 Highlights"
+  },
+  "3|ASV|PAM": {
+   "id": "PMRv3-3SPhQ",
+   "t": "LDLC ASVEL - Valencia Basket | R3 Highlights"
+  },
+  "6|VIR|BAS": {
+   "id": "1t8iSmCKAqk",
+   "t": "Virtus Bologna - Kosner Baskonia | R6 Highlights"
+  },
+  "3|BAS|MIL": {
+   "id": "w7SdHKNFihs",
+   "t": "Kosner Baskonia - Armani Olimpia Milan | R3 Highlights"
+  },
+  "3|PRS|ZAL": {
+   "id": "lx9hkHyHzuI",
+   "t": "Paris Basketball - Zalgiris Kaunas | R3 Highlights"
+  },
+  "5|PRS|VIR": {
+   "id": "sxZX_DUU62k",
+   "t": "Paris Basketball - Virtus Bologna | R5 Highlights"
+  },
+  "6|PAN|HTA": {
+   "id": "n9O-4UzQOzA",
+   "t": "Panathinaikos AKTOR - Hapoel IBI Tel Aviv | R6 Highlights"
+  },
+  "6|PAM|TEL": {
+   "id": "O8Ln4AS1Yws",
+   "t": "Valencia Basket - Maccabi Rapyd Tel Aviv | R6 Highlights"
+  },
+  "4|OLY|IST": {
+   "id": "JyRGLVO_EXY",
+   "t": "Olympiacos - Anadolu Efes | R4 Highlights"
+  },
+  "5|HTA|BES": {
+   "id": "zdP9bx4Uz30",
+   "t": "Hapoel IBI Tel Aviv - Besiktas | R5 Highlights"
+  },
+  "4|TEL|MIL": {
+   "id": "Sms2JqO1FH0",
+   "t": "Maccabi Rapyd Tel Aviv - Armani Olimpia Milan | R4 Highlights"
+  },
+  "4|BAS|BES": {
+   "id": "T2HMK28eMC8",
+   "t": "Kosner Baskonia - Besiktas | R4 Highlights"
+  },
+  "4|PRS|ASV": {
+   "id": "L-K73HNYGtw",
+   "t": "Paris Basketball - LDLC ASVEL | R4 Highlights"
+  },
+  "5|MIL|MAD": {
+   "id": "w9zVnSvs5i4",
+   "t": "Armani Olimpia Milan - Real Madrid | R5 Highlights"
+  },
+  "6|MIL|DUB": {
+   "id": "lrllnrA921I",
+   "t": "Armani Olimpia Milan - Dubai Basketball | R6 Highlights"
+  },
+  "5|ASV|RED": {
+   "id": "p8fzJTT8QKI",
+   "t": "LDLC ASVEL - Crvena Zvezda Meridianbet | R5 Highlights"
+  },
+  "5|PAM|OLY": {
+   "id": "HwInDQJLM-4",
+   "t": "Valencia Basket - Olympiacos | R5 Highlights"
+  },
+  "6|RED|PRS": {
+   "id": "qEfWxrFNO7k",
+   "t": "Crvena Zvezda - Paris Basketball | R6 Highlights"
+  },
+  "5|PAR|PAN": {
+   "id": "xraAsxREUj8",
+   "t": "Partizan Mozzart Bet - Panathinaikos AKTOR | R5 Highlights"
+  },
+  "6|BES|MUN": {
+   "id": "tgv285w8K7g",
+   "t": "Besiktas - FC Bayern Munich | R6 Highlights"
+  },
+  "5|ULK|ZAL": {
+   "id": "1Qqb3ezM65g",
+   "t": "Fenerbahce Tarfin - Zalgiris Kaunas | R5 Highlights"
+  },
+  "6|ZAL|IST": {
+   "id": "Xt8G1r0ywS8",
+   "t": "Zalgiris Kaunas - Anadolu Efes | R6 Highlights"
+  },
+  "5|BAR|TEL": {
+   "id": "iyLbQ73WEDU",
+   "t": "FC Barcelona - Maccabi Rapyd Tel Aviv | R5 Highlights"
+  },
+  "6|ULK|PAR": {
+   "id": "O95D4GwdV9Q",
+   "t": "Fenerbahce Tarfin - Partizan Mozzart Bet | R6 Highlights"
+  },
+  "6|MAD|ASV": {
+   "id": "xjdQ7lofffw",
+   "t": "Real Madrid - LDLC ASVEL | R6 Highlights"
+  },
+  "7|HTA|VIR": {
+   "id": "OLsqMzh1BlU",
+   "t": "Hapoel IBI Tel Aviv - Virtus Bologna | R7 Highlights"
+  },
+  "7|MUN|DUB": {
+   "id": "BOd3SypMfeU",
+   "t": "FC Bayern Munich - Dubai Basketball | R7 Highlights"
+  },
+  "7|PRS|PAM": {
+   "id": "gtfEW_f1-b8",
+   "t": "Paris Basketball - Valencia Basket | R7 Highlights"
+  },
+  "7|OLY|ULK": {
+   "id": "5-6BOJDvHTg",
+   "t": "Olympiacos - Fenerbahce Tarfin | R7 Highlights"
+  },
+  "7|MIL|BAR": {
+   "id": "BCjXbmR1TZY",
+   "t": "Armani Olimpia Milan - FC Barcelona | R7 Highlights"
+  },
+  "7|PAN|BAS": {
+   "id": "QVx9pfhWnPA",
+   "t": "Panathinaikos AKTOR - Kosner Baskonia | R7 Highlights"
+  },
+  "7|PAR|RED": {
+   "id": "RcoGEVAKO44",
+   "t": "Partizan Mozzart Bet - Crvena Zvezda Meridianbet | R7 Highlights"
+  },
+  "7|TEL|MAD": {
+   "id": "WuG_wZRewUo",
+   "t": "Maccabi Rapyd Tel Aviv - Real Madrid | R7 Highlights"
+  },
+  "7|ZAL|ASV": {
+   "id": "rm8q0YHdVfg",
+   "t": "Zalgiris Kaunas - LDLC ASVEL | R7 Highlights"
+  },
+  "7|IST|BES": {
+   "id": "651sb1eHg6k",
+   "t": "Anadolu Efes - Besiktas | R7 Highlights"
+  },
+  "8|MUN|BAR": {
+   "id": "uEjq6mz_7ac",
+   "t": "FC Bayern Munich - FC Barcelona | R8 Highlights"
+  },
+  "8|BAS|MAD": {
+   "id": "CQJlWh3HiJs",
+   "t": "Kosner Baskonia - Real Madrid | R8 Highlights"
+  },
+  "8|PAM|ULK": {
+   "id": "LLiWetbvr_4",
+   "t": "Valencia Basket - Fenerbahce Tarfin | R8 Highlights"
+  },
+  "8|VIR|ZAL": {
+   "id": "weuH5O_MXDY",
+   "t": "Virtus Bologna - Zalgiris Kaunas | R8 Highlights"
+  },
+  "8|BES|OLY": {
+   "id": "ZRpjQfylDoE",
+   "t": "Besiktas - Olympiacos | R8 Highlights"
+  },
+  "8|DUB|PRS": {
+   "id": "9QQpYAtJjfs",
+   "t": "Dubai Basketball - Paris Basketball | R8 Highlights"
+  },
+  "8|RED|TEL": {
+   "id": "9jKTftcRNHk",
+   "t": "Crvena Zvezda Meridianbet - Maccabi Rapyd Tel Aviv | R8 Highlights"
+  },
+  "8|HTA|IST": {
+   "id": "Cw-1ZRYPa9o",
+   "t": "Hapoel IBI Tel Aviv - Anadolu Efes | R8 Highlights"
+  },
+  "8|ASV|PAR": {
+   "id": "UOwYOZXU4MA",
+   "t": "LDLC ASVEL - Partizan Mozzart Bet | R8 Highlights"
+  },
+  "8|PAN|MIL": {
+   "id": "JnbabD8eSns",
+   "t": "Panathinaikos AKTOR - Armani Olimpia Milan | R8 Highlights"
+  },
+  "9|BAR|PAM": {
+   "id": "3SlKyMtqVgM",
+   "t": "FC Barcelona - Valencia Basket | R9 Highlights"
+  },
+  "9|OLY|MIL": {
+   "id": "Kf2XKXL9DbM",
+   "t": "Olympiacos - Armani Olimpia Milan | R9 Highlights"
+  },
+  "9|MAD|ULK": {
+   "id": "HDS82nOs7HQ",
+   "t": "Real Madrid - Fenerbahce Tarfin | R9 Highlights"
+  },
+  "9|IST|PAN": {
+   "id": "JpLPtSm6EIo",
+   "t": "Anadolu Efes - Panathinaikos AKTOR | R9 Highlights"
+  },
+  "9|RED|MUN": {
+   "id": "aSWtSJYqQa8",
+   "t": "Crvena Zvezda Meridianbet - FC Bayern Munich | R9 Highlights"
+  },
+  "9|DUB|HTA": {
+   "id": "bzuGgHZ3e3o",
+   "t": "Dubai Basketball - Hapoel IBI Tel Aviv | R9 Highlights"
+  },
+  "9|ASV|BAS": {
+   "id": "Ltq7f6DtYkw",
+   "t": "LDLC ASVEL - Kosner Baskonia | R9 Highlights"
+  },
+  "9|ZAL|PAR": {
+   "id": "77e2Ww6NMag",
+   "t": "Zalgiris Kaunas - Partizan Mozzart Bet | R9 Highlights"
+  },
+  "9|VIR|BES": {
+   "id": "iswApvzZhcI",
+   "t": "Virtus Bologna - Besiktas | R9 Highlights"
+  },
+  "9|TEL|PRS": {
+   "id": "6g-irqObt0w",
+   "t": "Maccabi Rapyd Tel Aviv - Paris Basketball | R9 Highlights"
+  }
+ }
+}
