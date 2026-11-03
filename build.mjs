@@ -46,10 +46,10 @@ const TEAMS = {
 const LANGS = ['el', 'en', 'es', 'sr'];
 const TEAM_IDX = { el: [0, 2], en: [3, 4], es: [5, 6], sr: [7, 8] }; // θέση ονόματος και slug στο TEAMS
 const PATHS = {
-  el: { lead: 'koryfaioi', team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas', widgets: 'widget', compare: 'sygkrisi', model: 'montelo' },
-  en: { lead: 'leaders', team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game', widgets: 'widget', compare: 'compare', model: 'model' },
-  es: { lead: 'lideres', team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido', widgets: 'widget', compare: 'comparar', model: 'modelo' },
-  sr: { lead: 'lideri', team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica', widgets: 'widget', compare: 'poredjenje', model: 'model' },
+  el: { hist: 'istoriko', lead: 'koryfaioi', team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas', widgets: 'widget', compare: 'sygkrisi', model: 'montelo' },
+  en: { hist: 'history', lead: 'leaders', team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game', widgets: 'widget', compare: 'compare', model: 'model' },
+  es: { hist: 'historico', lead: 'lideres', team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido', widgets: 'widget', compare: 'comparar', model: 'modelo' },
+  sr: { hist: 'istorija', lead: 'lideri', team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica', widgets: 'widget', compare: 'poredjenje', model: 'model' },
 };
 const LEAD_SUB = {
   el: { pts: 'pontoi', reb: 'ribaount', ast: 'asist', pir: 'pir', tpm: 'triponta', stl: 'klepsimata', blk: 'kopsimata', rec: 'rekor-agona', gr: 'ellines-paiktes', yg: 'neoteroi-paiktes' },
@@ -473,6 +473,44 @@ async function fetchAll() {
   return { players, league: { stand, games }, venue, lastRound, fetchedAt: new Date().toISOString() };
 }
 
+// ---------- ιστορικό: προηγούμενες σεζόν της EuroLeague (κατεβαίνουν μία φορά και μένουν στο cache)
+const HIST_FROM = 2016;
+async function fetchSeasonHist(code) {
+  const q = `seasonMode=Single&seasonCode=${code}&limit=1000`;
+  const [tr, gr] = await Promise.all([
+    get(`${FEED}/v3/competitions/E/statistics/players/traditional?${q}&statisticMode=PerGame`),
+    get(`${FEED}/v2/competitions/E/seasons/${code}/games?limit=500`),
+  ]);
+  const games = gr?.data || [];
+  if (!games.length || !(tr?.players || []).length) return null;
+  const rs = games.filter(x => x.phaseType?.code === 'RS');
+  const rsMax = rs.length ? Math.max(...rs.map(x => x.round.round)) : 0;
+  let stand = [];
+  if (rsMax) { const st = await get(`${FEED}/v3/competitions/E/seasons/${code}/rounds/${rsMax}/basicstandings`); stand = (st?.teams || []).map(t => [t.position, t.club.code, t.club.name, t.gamesWon, t.gamesLost, t.pointsFor, t.pointsAgainst]); }
+  const ff = games.filter(x => x.phaseType?.code === 'FF' && x.status === 'result');
+  let final = null;
+  if (ff.length) {
+    const mx = Math.max(...ff.map(x => x.round.round));
+    const sfW = new Set(ff.filter(x => x.round.round < mx).map(x => (x.home.score > x.away.score ? x.home.code : x.away.code)));
+    const f = ff.filter(x => x.round.round === mx).find(x => sfW.has(x.home.code) && sfW.has(x.away.code)) || ff.filter(x => x.round.round === mx).pop();
+    if (f) final = [f.home.code, f.home.name, f.home.score, f.away.code, f.away.name, f.away.score, f.date.slice(0, 10)];
+  }
+  const r1 = x => Math.round((x || 0) * 10) / 10;
+  const rows = tr.players.map(p => [p.player.code, p.player.name, p.player.team.code, p.player.team.name, p.gamesPlayed || 0, r1(p.minutesPlayed), r1(p.pointsScored), r1(p.totalRebounds), r1(p.assists), r1(p.pir)]);
+  return { code, rsMax, stand, final, rows };
+}
+async function fetchHistory(old) {
+  const H = { ...(old || {}) };
+  const cur = +SEASON.slice(1);
+  for (let y = HIST_FROM; y < cur; y++) {
+    const code = 'E' + y;
+    if (H[code] && H[code].rows?.length) continue;
+    try { const s = await fetchSeasonHist(code); if (s) { H[code] = s; console.log(`Ιστορικό ${code}: ${s.rows.length} παίκτες, ${s.stand.length} ομάδες`); } }
+    catch (e) { console.error('Ιστορικό: αποτυχία', code, e.message); }
+  }
+  return H;
+}
+
 // ---------- EuroCup: ίδια επίσημη πηγή, μόνο βαθμολογία ομίλων, αγώνες και μέσοι όροι παικτών
 const EC_SEASON = 'U' + SEASON.slice(1);
 async function fetchEurocup() {
@@ -495,7 +533,7 @@ async function fetchEurocup() {
     stand = (st?.teams || []).map(t => [t.groupName || '', t.position, t.club.code, t.gamesWon, t.gamesLost, t.pointsFor, t.pointsAgainst, t.homeRecord, t.awayRecord, (t.last5Form || []).join('')]);
   }
   const r1 = x => Math.round((x || 0) * 10) / 10;
-  const players = (tr?.players || []).map(p => ({ c: p.player.code, n: niceName(p.player.name), t: p.player.team.code, gp: p.gamesPlayed || 0,
+  const players = (tr?.players || []).map(p => ({ c: p.player.code, n: niceName(p.player.name), t: p.player.team.code, age: p.player.age || null, gp: p.gamesPlayed || 0,
     min: r1(p.minutesPlayed), pts: r1(p.pointsScored), reb: r1(p.totalRebounds), ast: r1(p.assists), stl: r1(p.steals), blk: r1(p.blocks), tov: r1(p.turnovers), pir: r1(p.pir),
     m3: r1(p.threePointersMade), a3: r1(p.threePointersAttempted), m2: r1(p.twoPointersMade), a2: r1(p.twoPointersAttempted), ftm: r1(p.freeThrowsMade), fta: r1(p.freeThrowsAttempted) }));
   return { teams, games, stand, players, lastRound, fetchedAt: new Date().toISOString() };
@@ -632,6 +670,9 @@ async function main() {
   try { oldEc = JSON.parse(await fs.readFile(CACHE, 'utf8')).ec || null; } catch { }
   if (!OFFLINE) { try { data.ec = await fetchEurocup(); console.log(`EuroCup: ${Object.keys(data.ec.teams).length} ομάδες, ${data.ec.players.length} παίκτες, έως την ${data.ec.lastRound}η αγωνιστική`); } catch (e) { console.error('EuroCup: η λήψη απέτυχε, κρατάω τα αποθηκευμένα.', e.message); } }
   data.ec = data.ec || oldEc;
+  let oldHist = null;
+  try { oldHist = JSON.parse(await fs.readFile(CACHE, 'utf8')).hist || null; } catch { }
+  data.hist = OFFLINE ? (data.hist || oldHist || {}) : await fetchHistory(data.hist || oldHist);
   await updateVideos(data.videos, data.league.games, !OFFLINE);
   await fs.mkdir(path.dirname(CACHE), { recursive: true });
   await fs.writeFile(CACHE, JSON.stringify(data));
@@ -689,10 +730,12 @@ async function main() {
     if (k === 'player') return B(lg) + P.player + '/' + v + '/';
     if (k === 'article') { const a = artBySlug[v]; return a && a[lg] ? a[lg].url : null; }
     if (k === 'tipster') return B(lg) + 'tipsters/' + v + '/';
+    if (k === 'fpick') return B(lg) + P.articles + '/' + ({ el: `fantasy-agonistiki-${v}`, en: `fantasy-picks-round-${v}`, es: `fantasy-jornada-${v}`, sr: `fantasy-${v}-kolo` })[lg] + '/';
     if (k === 'recap') return B(lg) + P.articles + '/' + ({ el: `agonistiki-${v}-se-arithmous`, en: `round-${v}-in-numbers`, es: `jornada-${v}-en-cifras`, sr: `${v}-kolo-u-brojkama` })[lg] + '/';
     if (k === 'widget') return B(lg) + 'widget/' + ({ el: { st: 'vathmologia', rd: 'agonistiki' }, en: { st: 'standings', rd: 'round' }, es: { st: 'clasificacion', rd: 'jornada' }, sr: { st: 'tabela', rd: 'kolo' } })[lg][v] + '/';
     if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
+    if (k === 'hist') return B(lg) + P.hist + '/' + (v ? v + '/' : '');
     if (k === 'lead') return B(lg) + P.lead + '/' + (v ? LEAD_SUB[lg][v] + '/' : '');
     if (k === 'ec') return B(lg) + 'eurocup/' + (v ? v + '/' : '');
     return B(lg) + P[k] + '/';
@@ -795,7 +838,7 @@ ${pwaStyle}`;
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>');
-    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
+    const shellB = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija')}</a><a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
@@ -859,11 +902,12 @@ ${ldTag(ld)}${script}
 </html>
 `);
     }
-    async function page(key, { title, desc, view, id = '', h1p = '', ledep = '', h1t = '', ledet = '', ld = null }) {
+    async function page(key, { title, desc, view, id = '', h1p = '', ledep = '', h1t = '', ledet = '', ld = null, extra = '' }) {
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
         .replace('{{PLAYER_H1}}', esc(h1p)).replace('{{PLAYER_LEDE}}', ledep ? `<p class="lede">${esc(ledep)}</p>` : '')
         .replace('{{TEAM_H1}}', esc(h1t)).replace('{{TEAM_LEDE}}', ledet ? `<p class="lede">${esc(ledet)}</p>` : '');
+      if (extra) { const vp = body.indexOf('<div id="vPlayer"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
       const map = { stand: 'vStand', team: 'vTeam', player: 'vPlayer', form: 'vForm', fantasy: 'vFantasy', preds: 'vPreds' };
       for (const [v, el] of Object.entries(map)) body = body.replace(`{{HIDDEN_${el}}}`, v === view ? '' : ' hidden');
       // μία διαφήμιση στην ορατή ενότητα + μία πριν από το υποσέλιδο
@@ -902,12 +946,73 @@ ${ldTag(ld)}${script}
       desc: T(`Προγνωστικά για την ${lastRound + 1}η αγωνιστική της ${S}: εκτίμηση σκορ, πιθανότητα νίκης, σύνολο πόντων, φόρμα και η ανάλυσή μας.`,
         `Predictions for Round ${lastRound + 1} of the ${S}: projected score, win probability, total points, form and our analysis.`, `Pronósticos para la jornada ${lastRound + 1} de la ${S}: marcador estimado, probabilidad de victoria, puntos totales, forma y nuestro análisis.`, `Prognoze za ${lastRound + 1}. kolo ${S}: procenjeni rezultat, verovatnoća pobede, ukupno poena, forma i naša analiza.`) });
 
+    // ---- «Fantasy: ποιους να πάρεις» για κάθε αγωνιστική (με τα δεδομένα πριν από αυτήν) και απολογισμός μετά
+    const nextRoundF = (league.games.find(g => !g[6]) || [0])[0];
+    let fRounds = [...new Set(league.games.map(g => g[0]))].filter(r => r >= 3 && r <= nextRoundF).sort((a, b) => b - a);
+    const POSF = { Guard: T('Γκαρντ', 'Guards', 'Bases y escoltas', 'Bekovi'), Forward: T('Φόργουορντ', 'Forwards', 'Aleros', 'Krila'), Center: T('Σέντερ', 'Centers', 'Pívots', 'Centri') };
+    const fantasyFor = r => {
+      const tc = p => p.t.split(';').pop();
+      const opp = {}; for (const g of league.games.filter(g => g[0] === r)) { opp[g[2]] = [g[3], 1, g]; opp[g[3]] = [g[2], 0, g]; }
+      const allow = {}, gp = {};
+      for (const p of players) for (const x of p.g) if (x[0] < r && x[7] > 0) { const o = x[2]; allow[o] = allow[o] || { Guard: 0, Forward: 0, Center: 0 }; allow[o][p.pos] = (allow[o][p.pos] || 0) + x[25]; }
+      for (const g of league.games.filter(g => g[6] && g[0] < r)) { gp[g[2]] = (gp[g[2]] || 0) + 1; gp[g[3]] = (gp[g[3]] || 0) + 1; }
+      const lavg = {}; for (const ps of Object.keys(POSF)) { const v = Object.keys(allow).filter(c => gp[c]).map(c => allow[c][ps] / gp[c]); lavg[ps] = v.reduce((a, b) => a + b, 0) / (v.length || 1); }
+      const list = [];
+      for (const p of players) {
+        const c = tc(p), o = opp[c]; if (!o || !POSF[p.pos]) continue;
+        const g = p.g.filter(x => x[0] < r && x[7] > 0); if (g.length < 3) continue;
+        const avg = g.reduce((s, x) => s + x[25], 0) / g.length, min = g.reduce((s, x) => s + x[7], 0) / g.length / 60; if (min < 15) continue;
+        const l3 = g.slice(-3).reduce((s, x) => s + x[25], 0) / Math.min(3, g.length);
+        if (r === nextRoundF && INJ[LG][p.c]) continue;
+        const ratio = gp[o[0]] && lavg[p.pos] ? (allow[o[0]][p.pos] / gp[o[0]]) / lavg[p.pos] : 1;
+        const proj = (0.6 * avg + 0.4 * l3) * Math.sqrt(ratio) * (o[1] ? 1.03 : 0.97);
+        const act = p.g.find(x => x[0] === r);
+        list.push({ p, c, o: o[0], home: o[1], g: o[2], avg, l3, ratio, proj, act: act ? (act[7] > 0 ? act[25] : null) : undefined });
+      }
+      return list;
+    };
+    const fTitle = r => T(`Fantasy EuroLeague ${r}η αγωνιστική: ποιους να πάρεις`, `EuroLeague Fantasy Round ${r}: who to pick`, `Fantasy de la EuroLeague, jornada ${r}: a quién fichar`, `Evroliga Fantasy ${r}. kolo: koga izabrati`);
+    const FCACHE = Object.fromEntries(fRounds.map(r => [r, fantasyFor(r)]));
+    fRounds = fRounds.filter(r => FCACHE[r].length >= 20);
+    for (const r of fRounds) {
+      const L = FCACHE[r];
+      const past = league.games.filter(g => g[0] === r).every(g => g[6]);
+      const pL = x => `<a href="${urlFor(LG, 'player:' + x.p.s)}">${esc(niceName(x.p.n))}</a>`;
+      const mt = x => `${x.home ? 'vs' : '@'} <a href="${urlFor(LG, `game:${x.g[0]}|${x.g[2]}|${x.g[3]}`)}">${esc(tName(x.o))}</a>`;
+      const picks = {}; for (const ps of Object.keys(POSF)) picks[ps] = L.filter(x => x.p.pos === ps).sort((a, b) => b.proj - a.proj).slice(0, 5);
+      const all = Object.values(picks).flat();
+      const gems = L.filter(x => x.avg < 13 && x.ratio > 1.08 && !all.includes(x)).sort((a, b) => b.proj - a.proj).slice(0, 5);
+      const avoid = L.filter(x => x.avg >= 15 && x.ratio < 0.92).sort((a, b) => a.ratio - b.ratio).slice(0, 4);
+      const actCell = x => past ? `<td><b>${x.act == null ? '–' : x.act}</b></td>` : '';
+      const head = `<tr><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač')}</th><th class="l">${T('Αγώνας', 'Game', 'Partido', 'Utakmica')}</th><th>${T('Μ.Ο. PIR', 'Avg PIR', 'PIR medio', 'Prosek PIR')}</th><th>${T('Τελ. 3', 'Last 3', 'Últ. 3', 'Posl. 3')}</th><th>${T('Εκτίμηση', 'Projection', 'Estimación', 'Procena')}</th>${past ? `<th>${T('Έφερε', 'Scored', 'Hizo', 'Ostvario')}</th>` : ''}</tr>`;
+      const tbl = arr => `<div class="tbl"><table><thead>${head}</thead><tbody>${arr.map(x => `<tr><td class="l">${pL(x)} <small>${esc(tName(x.c))}</small></td><td class="l">${mt(x)}</td><td>${f1(x.avg)}</td><td>${f1(x.l3)}</td><td><b>${f1(x.proj)}</b></td>${actCell(x)}</tr>`).join('')}</tbody></table></div>`;
+      const got = all.filter(x => x.act != null && x.act !== undefined), gotAvg = got.length ? got.reduce((s, x) => s + x.act, 0) / got.length : null;
+      const top1 = all.slice().sort((a, b) => b.proj - a.proj)[0];
+      const intro = past
+        ? T(`Οι προτάσεις μας για το Fantasy της ${r}ης αγωνιστικής, όπως βγήκαν από τα στατιστικά πριν από την αγωνιστική, και πόσο PIR έφερε τελικά ο καθένας.${gotAvg != null ? ` Οι ${got.length} προτάσεις μας έφεραν κατά μέσο όρο ${f1(gotAvg)} PIR.` : ''}`, `Our Fantasy picks for Round ${r}, based on the stats before the round, and how much PIR each one actually scored.${gotAvg != null ? ` Our ${got.length} picks averaged ${f1(gotAvg)} PIR.` : ''}`, `Nuestras recomendaciones de Fantasy para la jornada ${r}, según las estadísticas previas, y cuánto PIR hizo finalmente cada uno.${gotAvg != null ? ` Nuestras ${got.length} recomendaciones promediaron ${f1(gotAvg)} de PIR.` : ''}`, `Naši Fantasy predlozi za ${r}. kolo, na osnovu statistike pre kola, i koliko je PIR-a svaki od njih ostvario.${gotAvg != null ? ` Naših ${got.length} predloga imalo je prosečno ${f1(gotAvg)} PIR-a.` : ''}`)
+        : T(`Ποιους να πάρεις στο Fantasy της ${r}ης αγωνιστικής της EuroLeague: οι καλύτερες επιλογές ανά θέση με βάση τη φόρμα, το PIR και το πόσο εύκολο είναι το ματς. Πρώτη επιλογή: ${niceName(top1.p.n)} (${f1(top1.proj)} εκτιμώμενο PIR).`, `Who to pick in EuroLeague Fantasy for Round ${r}: the best options by position based on form, PIR and how easy the matchup is. Top pick: ${niceName(top1.p.n)} (${f1(top1.proj)} projected PIR).`, `A quién fichar en el Fantasy de la EuroLeague en la jornada ${r}: las mejores opciones por posición según la forma, el PIR y la dificultad del rival. Primera opción: ${niceName(top1.p.n)} (${f1(top1.proj)} de PIR estimado).`, `Koga izabrati u Evroliga Fantasy za ${r}. kolo: najbolje opcije po pozicijama na osnovu forme, PIR-a i težine meča. Prvi izbor: ${niceName(top1.p.n)} (${f1(top1.proj)} procenjenog PIR-a).`);
+      const prevNext = [fRounds.find(x => x === r + 1), fRounds.find(x => x === r - 1)];
+      const main = `<article class="article fpick">
+<p class="kicker">Fantasy · ${esc(rdTxt0(r))}</p>
+<h1>${esc(fTitle(r))}</h1>
+<p class="lede2">${esc(intro)}</p>
+${Object.keys(POSF).map(ps => `<h2>${esc(POSF[ps])}</h2>${tbl(picks[ps])}`).join('')}
+${gems.length ? `<h2>${T('Κρυφά διαμάντια', 'Hidden gems', 'Joyas ocultas', 'Skriveni biseri')}</h2><p class="sub">${T('Παίκτες με χαμηλότερο μέσο όρο αλλά με ματς απέναντι σε άμυνα που δίνει πολλά στη θέση τους', 'Players with lower averages but a matchup against a defense that gives up a lot at their position', 'Jugadores con menos promedio pero ante una defensa que concede mucho en su posición', 'Igrači sa nižim prosekom, ali protiv odbrane koja mnogo prima na njihovoj poziciji')}</p>${tbl(gems)}` : ''}
+${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: tough matchup', 'Cuidado: rival difícil', 'Oprez: težak meč')}</h2><p class="sub">${T('Μεγάλα ονόματα που παίζουν με άμυνα που δίνει λίγα στη θέση τους', 'Big names facing a defense that gives up little at their position', 'Grandes nombres ante una defensa que concede poco en su posición', 'Velika imena protiv odbrane koja malo prima na njihovoj poziciji')}</p>${tbl(avoid)}` : ''}
+<p class="note">${T('Η εκτίμηση συνδυάζει τον μέσο όρο PIR της σεζόν, τη φόρμα των 3 τελευταίων αγώνων, το PIR που δίνει ο αντίπαλος στη θέση του παίκτη και την έδρα. Μετράνε όσοι έχουν τουλάχιστον 3 αγώνες και 15 λεπτά μέσο όρο· οι τραυματίες δεν προτείνονται.', 'The projection combines season PIR average, form over the last 3 games, the PIR the opponent allows at the player’s position and home court. Players with at least 3 games and 15 minutes per game; injured players are excluded.', 'La estimación combina el PIR medio de la temporada, la forma de los 3 últimos partidos, el PIR que concede el rival en la posición del jugador y el factor cancha. Cuentan los jugadores con al menos 3 partidos y 15 minutos de media; los lesionados no se recomiendan.', 'Procena kombinuje prosečan PIR sezone, formu u poslednje 3 utakmice, PIR koji protivnik prima na poziciji igrača i domaći teren. Računaju se igrači sa najmanje 3 utakmice i 15 minuta u proseku; povređeni se ne predlažu.')}</p>
+<p class="leadnav">${prevNext[1] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[1])}">← ${esc(rdTxt0(prevNext[1]))}</a>` : ''}<a href="${urlFor(LG, 'fantasy')}">Fantasy</a>${prevNext[0] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[0])}">${esc(rdTxt0(prevNext[0]))} →</a>` : ''}</p>
+</article>`;
+      await simplePage('fpick:' + r, { view: 'articles', title: `${fTitle(r)} | ${SITE_NAME}`, desc: intro.slice(0, 300), main,
+        ld: [{ '@context': 'https://schema.org', '@type': 'Article', headline: fTitle(r), inLanguage: LG, datePublished: data.fetchedAt.slice(0, 10), dateModified: data.fetchedAt.slice(0, 10), author: { '@type': 'Organization', name: SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME } }, crumbs([[SITE_NAME, B(LG)], [T('Άρθρα', 'Articles', 'Artículos', 'Članci'), urlFor(LG, 'articles')], [fTitle(r), urlFor(LG, 'fpick:' + r)]])] });
+    }
+
     // άρθρα
     const typeLabel = t => (t === 'prognostiko' ? T('Προγνωστικό', 'Prediction', 'Pronóstico', 'Prognoza') : T('Άρθρο', 'Article', 'Artículo', 'Članak'));
     const arts = articles.filter(a => a[LG]);
     await simplePage('articles', { view: 'articles', title: T(`Άρθρα και προγνωστικά EuroLeague | ${SITE_NAME}`, `EuroLeague articles and predictions | ${SITE_NAME}`, `Artículos y pronósticos de la EuroLeague | ${SITE_NAME}`, `Članci i prognoze Evrolige | ${SITE_NAME}`),
       desc: T(`Αναλύσεις, προεπισκοπήσεις αγωνιστικών και προγνωστικά για την ${S}.`, `Analysis, round previews and predictions for the ${S}.`, `Análisis, previas de cada jornada y pronósticos de la ${S}.`, `Analize, najave kola i prognoze za ${S}.`),
       main: `<section class="article"><h1>${T('Άρθρα', 'Articles', 'Artículos', 'Članci')}</h1><p class="sub">${T('Αναλύσεις, προεπισκοπήσεις και προγνωστικά για την', 'Analysis, previews and predictions for the', 'Análisis, previas y pronósticos de la', 'Analize, najave i prognoze za')} ${esc(S)}</p>` +
+        (fRounds.length ? `<h2>Fantasy: ${T('ποιους να πάρεις', 'who to pick', 'a quién fichar', 'koga izabrati')}</h2><div class="alist recaps">${fRounds.map(r => `<a class="acard" href="${urlFor(LG, 'fpick:' + r)}"><time>${esc(rdTxt0(r))}</time><h2>${esc(fTitle(r))}</h2></a>`).join('')}</div>` : '') +
         (doneRounds.length ? `<h2>${T('Η αγωνιστική σε αριθμούς', 'The round in numbers', 'La jornada en cifras', 'Kolo u brojkama')}</h2><div class="alist recaps">${doneRounds.map(r => `<a class="acard" href="${urlFor(LG, 'recap:' + r)}"><time>${esc(rdTxt0(r))}</time><h2>${esc(recapTitle(r))}</h2></a>`).join('')}</div><h2>${T('Αναλύσεις και προγνωστικά', 'Analysis and predictions', 'Análisis y pronósticos', 'Analize i prognoze')}</h2>` : '') +
         (arts.length ? `<div class="alist">${arts.map(a => `<a class="acard" href="${a[LG].url}"><time>${esc(typeLabel(a.type))} · ${esc(a[LG].dateText)}</time><h2>${esc(a[LG].title)}</h2><p>${esc(a[LG].desc)}</p></a>`).join('')}</div>`
           : `<p class="sub">${T('Τα πρώτα άρθρα έρχονται σύντομα.', 'The first articles are coming soon.', 'Los primeros artículos llegarán pronto.', 'Prvi članci stižu uskoro.')}</p>`) + `</section>` });
@@ -1076,7 +1181,9 @@ ${disclaimer}</article>` });
       const tc = p.t.split(';').pop();
       const pld = { '@context': 'https://schema.org', '@type': 'Person', name: n, url: SITE_URL + urlFor(LG, 'player:' + p.s), jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tName(tc), url: SITE_URL + urlFor(LG, 'team:' + tc) } };
       if (p.bd) pld.birthDate = p.bd; if (p.ct) pld.nationality = p.ct; if (p.h) pld.height = { '@type': 'QuantitativeValue', value: p.h > 3 ? p.h : Math.round(p.h * 100), unitCode: 'CMT' };
-      await page('player:' + p.s, { view: 'player', id: p.c, h1p: n, ledep: lede,
+      const car = Object.values(data.hist || {}).filter(h => h.rows?.length).sort((a, b) => a.code.localeCompare(b.code)).map(h => [h.code, h.rows.find(r => r[0] === p.c)]).filter(x => x[1]);
+      const extra = car.length ? `<section class="career"><h2>${T('Καριέρα στην EuroLeague', 'EuroLeague career', 'Trayectoria en la EuroLeague', 'Karijera u Evroligi')}</h2><p class="sub">${car.length + 1} ${T('σεζόν · μέσοι όροι ανά αγώνα', 'seasons · per-game averages', 'temporadas · promedios por partido', 'sezona · proseci po utakmici')}</p><div class="tbl"><table><thead><tr><th class="l">${T('Σεζόν', 'Season', 'Temporada', 'Sezona')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>PIR</th></tr></thead><tbody>${car.map(([code, r]) => { const L = `${+code.slice(1)}-${String(+code.slice(1) + 1).slice(2)}`; return `<tr><td class="l"><a href="${urlFor(LG, 'hist:' + L)}">${L}</a></td><td class="l">${esc(TEAMS[r[2]] ? tName(r[2]) : r[3])}</td><td>${r[4]}</td><td>${f1(r[5])}</td><td>${f1(r[6])}</td><td>${f1(r[7])}</td><td>${f1(r[8])}</td><td>${f1(r[9])}</td></tr>`; }).join('')}<tr class="cur"><td class="l">${SEASON_LABEL}</td><td class="l">${esc(tn)}</td><td>${s.G}</td><td>–</td><td>${f1(s.pts)}</td><td>${f1(s.reb)}</td><td>${f1(s.ast)}</td><td>${f1(s.pir)}</td></tr></tbody></table></div></section>` : '';
+      await page('player:' + p.s, { view: 'player', id: p.c, h1p: n, ledep: lede, extra,
         ld: [pld, crumbs([[SITE_NAME, B(LG)], [tName(tc), urlFor(LG, 'team:' + tc)], [n, urlFor(LG, 'player:' + p.s)]])],
         title: T(`${n} στατιστικά ${S} (${tn}) | ${SITE_NAME}`, `${n} stats ${S} (${tn}) | ${SITE_NAME}`, `Estadísticas de ${n} en la ${S} (${tn}) | ${SITE_NAME}`, `${n} statistika ${S} (${tn}) | ${SITE_NAME}`), desc: lede });
     }
@@ -1277,6 +1384,53 @@ ${miss.length ? `<h2>${T('Οι μεγαλύτερες αστοχίες', 'The bi
         desc: T(`Το μοντέλο μας βρήκε τον νικητή σε ${hits} από τους ${rows.length} αγώνες της ${S}. Ανά αγωνιστική, ανά βαθμό σιγουριάς και οι μεγαλύτερες αστοχίες.`, `Our model picked the winner in ${hits} of ${rows.length} games of the ${S}. By round, by confidence and the biggest misses.`, `Nuestro modelo acertó el ganador en ${hits} de ${rows.length} partidos de la ${S}. Por jornada, por confianza y los mayores fallos.`, `Naš model je pogodio pobednika na ${hits} od ${rows.length} utakmica ${S}. Po kolu, po sigurnosti i najveći promašaji.`), main });
     }
 
+    // ---- ιστορικό: σελίδα για κάθε προηγούμενη σεζόν + κεντρική
+    const HS = Object.values(data.hist || {}).filter(h => h.rows?.length).sort((a, b) => b.code.localeCompare(a.code));
+    const hLabel = code => `${+code.slice(1)}-${String(+code.slice(1) + 1).slice(2)}`;
+    const hName = (c, n) => (TEAMS[c] ? tName(c) : String(n || c).replace(/\s+(Istanbul|Moscow|Athens|Piraeus|Kaunas|Belgrade|Milan|Tel Aviv|Munich|Valencia|Vitoria-Gasteiz)$/i, ''));
+    const LOC0 = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG];
+    if (HS.length) {
+      const hLead = (h, k, i) => { const minG = Math.max(8, Math.round(h.rsMax * 0.5)); return h.rows.filter(r => r[4] >= minG).sort((a, b) => b[i] - a[i]).slice(0, 10); };
+      const champ = h => h.final ? (h.final[2] > h.final[5] ? [h.final[0], h.final[1]] : [h.final[3], h.final[4]]) : null;
+      const runner = h => h.final ? (h.final[2] > h.final[5] ? [h.final[3], h.final[4]] : [h.final[0], h.final[1]]) : null;
+      const curPlayer = Object.fromEntries(players.map(p => [p.c, p]));
+      const pName = r => curPlayer[r[0]] ? `<a href="${urlFor(LG, 'player:' + curPlayer[r[0]].s)}">${esc(niceName(r[1]))}</a>` : esc(niceName(r[1]));
+      const cancelled = T('Ακυρώθηκε (COVID-19)', 'Cancelled (COVID-19)', 'Cancelada (COVID-19)', 'Otkazano (COVID-19)');
+      for (const h of HS) {
+        const L = hLabel(h.code), ch = champ(h), ru = runner(h);
+        const LEADS = [[6, T('Πόντοι', 'Points', 'Puntos', 'Poeni')], [7, T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi')], [8, T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije')], [9, 'PIR']];
+        const ts = hLead(h, 'pts', 6)[0];
+        const fsc = `${Math.max(h.final?.[2] || 0, h.final?.[5] || 0)}-${Math.min(h.final?.[2] || 0, h.final?.[5] || 0)}`;
+        const intro = ch ? T(`Πρωταθλήτρια της EuroLeague ${L}: ${hName(ch[0], ch[1])}. Τελικός: ${hName(ch[0], ch[1])} – ${hName(ru[0], ru[1])} ${fsc}.`, `EuroLeague ${L} champion: ${hName(ch[0], ch[1])}, winning the final ${Math.max(h.final[2], h.final[5])}-${Math.min(h.final[2], h.final[5])} against ${hName(ru[0], ru[1])}.`, `Campeón de la EuroLeague ${L}: ${hName(ch[0], ch[1])}, que ganó la final ${Math.max(h.final[2], h.final[5])}-${Math.min(h.final[2], h.final[5])} ante ${hName(ru[0], ru[1])}.`, `Šampion Evrolige ${L}: ${hName(ch[0], ch[1])}. Finale: ${hName(ch[0], ch[1])} - ${hName(ru[0], ru[1])} ${fsc.replace('-', ':')}.`)
+          : T(`Η σεζόν ${L} της EuroLeague δεν ολοκληρώθηκε (COVID-19).`, `The EuroLeague ${L} season was not completed (COVID-19).`, `La temporada ${L} de la EuroLeague no se completó (COVID-19).`, `Sezona ${L} Evrolige nije završena (COVID-19).`);
+        const intro2 = (h.stand[0] ? T(` Πρώτη στην κανονική περίοδο: ${hName(h.stand[0][1], h.stand[0][2])} (${h.stand[0][3]}-${h.stand[0][4]}).`, ` Regular season leader: ${hName(h.stand[0][1], h.stand[0][2])} (${h.stand[0][3]}-${h.stand[0][4]}).`, ` Líder de la fase regular: ${hName(h.stand[0][1], h.stand[0][2])} (${h.stand[0][3]}-${h.stand[0][4]}).`, ` Prvi u regularnom delu: ${hName(h.stand[0][1], h.stand[0][2])} (${h.stand[0][3]}-${h.stand[0][4]}).`) : '') + (ts ? T(` Πρώτος σκόρερ: ${niceName(ts[1])} (${f1(ts[6])} πόντοι).`, ` Top scorer: ${niceName(ts[1])} (${f1(ts[6])} points).`, ` Máximo anotador: ${niceName(ts[1])} (${f1(ts[6])} puntos).`, ` Najbolji strelac: ${niceName(ts[1])} (${f1(ts[6])} poena).`) : '');
+        const main = `<article class="article lead wide hist">
+<p class="crumbs"><a href="${urlFor(LG, 'hist')}">${T('Ιστορικό EuroLeague', 'EuroLeague history', 'Historia de la EuroLeague', 'Istorija Evrolige')}</a></p>
+<h1>EuroLeague ${L}</h1>
+<p class="lede2">${esc(intro + intro2)}</p>
+<p class="leadnav">${HS.map(x => `<a href="${urlFor(LG, 'hist:' + hLabel(x.code))}"${x === h ? ' aria-current="page"' : ''}>${hLabel(x.code)}</a>`).join('')}</p>
+${h.final ? `<h2>${T('Τελικός', 'Final', 'Final', 'Finale')}</h2><p class="hfinal"><b>${esc(hName(h.final[0], h.final[1]))}</b> ${LG === 'sr' ? `${h.final[2]}:${h.final[5]}` : `${h.final[2]}-${h.final[5]}`} <b>${esc(hName(h.final[3], h.final[4]))}</b> <small>(${esc(new Date(h.final[6]).toLocaleDateString(LOC0, { day: 'numeric', month: 'long', year: 'numeric' }))})</small></p>` : `<p class="hfinal">${esc(cancelled)}</p>`}
+<div class="ecgrid hgrid"><div><h2>${T('Κανονική περίοδος', 'Regular season', 'Fase regular', 'Regularni deo')}</h2><div class="tbl"><table><thead><tr><th>#</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Ν', 'W', 'V', 'P')}</th><th>${T('Η', 'L', 'D', 'I')}</th><th>+/−</th></tr></thead><tbody>${h.stand.map(x => `<tr><td>${x[0]}</td><td class="l">${TEAMS[x[1]] ? `<a href="${urlFor(LG, 'team:' + x[1])}">${esc(hName(x[1], x[2]))}</a>` : esc(hName(x[1], x[2]))}${ch && ch[0] === x[1] ? ' 🏆' : ''}</td><td>${x[3]}</td><td>${x[4]}</td><td>${x[5] - x[6] > 0 ? '+' : ''}${x[5] - x[6]}</td></tr>`).join('')}</tbody></table></div></div>
+<div><h2>${T('Κορυφαίοι παίκτες', 'Top players', 'Mejores jugadores', 'Najbolji igrači')}</h2>${LEADS.map(([i, lab]) => `<h3>${esc(lab)}</h3><ol class="leadol">${hLead(h, '', i).map(r => `<li>${pName(r)} <small>${esc(hName(r[2], r[3]))}</small><b>${f1(r[i])}</b></li>`).join('')}</ol>`).join('')}</div></div>
+<p class="note">${T('Πηγή: επίσημα στατιστικά της EuroLeague. Οι μέσοι όροι περιλαμβάνουν όλους τους αγώνες της σεζόν· στους κορυφαίους μετράνε όσοι έπαιξαν τουλάχιστον τους μισούς αγώνες της κανονικής περιόδου.', 'Source: official EuroLeague stats. Averages include all games of the season; leaders include players who played at least half of the regular-season games.', 'Fuente: estadísticas oficiales de la EuroLeague. Los promedios incluyen todos los partidos de la temporada; en los líderes cuentan quienes jugaron al menos la mitad de la fase regular.', 'Izvor: zvanična statistika Evrolige. Proseci uključuju sve utakmice sezone; među najboljima su igrači koji su odigrali bar polovinu regularnog dela.')}</p>
+</article>`;
+        await simplePage('hist:' + L, { view: 'hist', title: T(`EuroLeague ${L}: πρωταθλήτρια, τελικός, βαθμολογία, κορυφαίοι παίκτες | ${SITE_NAME}`, `EuroLeague ${L}: champion, final, standings and top players | ${SITE_NAME}`, `EuroLeague ${L}: campeón, final, clasificación y mejores jugadores | ${SITE_NAME}`, `Evroliga ${L}: šampion, finale, tabela i najbolji igrači | ${SITE_NAME}`), desc: (intro + intro2).slice(0, 300), main,
+          ld: crumbs([[SITE_NAME, B(LG)], [T('Ιστορικό', 'History', 'Historia', 'Istorija'), urlFor(LG, 'hist')], [`EuroLeague ${L}`, urlFor(LG, 'hist:' + L)]]) });
+      }
+      const titles = {}; for (const h of HS) { const c = champ(h); if (c) { const k = hName(c[0], c[1]); titles[k] = (titles[k] || 0) + 1; } }
+      const tl = Object.entries(titles).sort((a, b) => b[1] - a[1]);
+      const hmain = `<article class="article lead wide hist">
+<h1>${T('Ιστορικό EuroLeague', 'EuroLeague history', 'Historia de la EuroLeague', 'Istorija Evrolige')}</h1>
+<p class="lede2">${T(`Όλες οι σεζόν της EuroLeague από το ${HIST_FROM}-${String(HIST_FROM + 1).slice(2)}: πρωταθλητές, τελικοί, πρώτοι της κανονικής περιόδου και πρώτοι σκόρερ.`, `Every EuroLeague season since ${HIST_FROM}-${String(HIST_FROM + 1).slice(2)}: champions, finals, regular season leaders and top scorers.`, `Todas las temporadas de la EuroLeague desde la ${HIST_FROM}-${String(HIST_FROM + 1).slice(2)}: campeones, finales, líderes de la fase regular y máximos anotadores.`, `Sve sezone Evrolige od ${HIST_FROM}-${String(HIST_FROM + 1).slice(2)}: šampioni, finala, prvi u regularnom delu i najbolji strelci.`)}</p>
+<div class="tbl"><table><thead><tr><th class="l">${T('Σεζόν', 'Season', 'Temporada', 'Sezona')}</th><th class="l">${T('Πρωταθλήτρια', 'Champion', 'Campeón', 'Šampion')}</th><th>${T('Τελικός', 'Final', 'Final', 'Finale')}</th><th class="l">${T('Φιναλίστ', 'Runner-up', 'Subcampeón', 'Finalista')}</th><th class="l">${T('1η κανονικής', 'RS leader', 'Líder fase regular', 'Prvi u RD')}</th><th class="l">${T('Πρώτος σκόρερ', 'Top scorer', 'Máximo anotador', 'Najbolji strelac')}</th></tr></thead><tbody>${HS.map(h => { const c = champ(h), r = runner(h), t = hLead(h, '', 6)[0]; return `<tr><td class="l"><a href="${urlFor(LG, 'hist:' + hLabel(h.code))}">${hLabel(h.code)}</a></td><td class="l">${c ? `<b>${esc(hName(c[0], c[1]))}</b>` : esc(cancelled)}</td><td>${h.final ? `${Math.max(h.final[2], h.final[5])}-${Math.min(h.final[2], h.final[5])}` : '–'}</td><td class="l">${r ? esc(hName(r[0], r[1])) : '–'}</td><td class="l">${h.stand[0] ? esc(hName(h.stand[0][1], h.stand[0][2])) : '–'}</td><td class="l">${t ? `${pName(t)} <small>${f1(t[6])}</small>` : '–'}</td></tr>`; }).join('')}</tbody></table></div>
+${tl.length ? `<h2>${T('Τίτλοι ανά ομάδα', 'Titles by team', 'Títulos por equipo', 'Titule po timovima')} (${HS.length ? hLabel(HS[HS.length - 1].code) : ''} – ${HS.length ? hLabel(HS[0].code) : ''})</h2><ol class="leadol">${tl.map(([n, k]) => `<li>${esc(n)}<b>${k}</b></li>`).join('')}</ol>` : ''}
+<p class="note">${T('Πηγή: επίσημα στατιστικά της EuroLeague.', 'Source: official EuroLeague stats.', 'Fuente: estadísticas oficiales de la EuroLeague.', 'Izvor: zvanična statistika Evrolige.')}</p>
+</article>`;
+      await simplePage('hist', { view: 'hist', title: T(`Ιστορικό EuroLeague: πρωταθλητές, τελικοί και πρώτοι σκόρερ ανά σεζόν | ${SITE_NAME}`, `EuroLeague history: champions, finals and top scorers by season | ${SITE_NAME}`, `Historia de la EuroLeague: campeones, finales y máximos anotadores por temporada | ${SITE_NAME}`, `Istorija Evrolige: šampioni, finala i najbolji strelci po sezonama | ${SITE_NAME}`),
+        desc: T('Όλοι οι πρωταθλητές της EuroLeague, οι τελικοί, οι πρώτοι της κανονικής περιόδου και οι πρώτοι σκόρερ κάθε σεζόν.', 'All EuroLeague champions, finals, regular season leaders and top scorers of every season.', 'Todos los campeones de la EuroLeague, las finales, los líderes de la fase regular y los máximos anotadores de cada temporada.', 'Svi šampioni Evrolige, finala, prvi u regularnom delu i najbolji strelci svake sezone.'), main: hmain,
+        ld: crumbs([[SITE_NAME, B(LG)], [T('Ιστορικό', 'History', 'Historia', 'Istorija'), urlFor(LG, 'hist')]]) });
+    }
+
     // ---- κορυφαίοι και ρεκόρ: σελίδες-λίστες που ψάχνει ο κόσμος
     {
       const pU = p => urlFor(LG, 'player:' + p.s), tcOf = p => p.t.split(';').pop();
@@ -1374,10 +1528,12 @@ ${qNote}</article>`;
       const form = f => [...f].map(x => `<i class="ecf ${x === 'W' ? 'w' : 'l'}">${x === 'W' ? T('Ν', 'W', 'V', 'P') : T('Η', 'L', 'D', 'I')}</i>`).join('');
       const standTbl = gname => `<div class="tbl"><table><thead><tr><th>#</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Ν', 'W', 'V', 'P')}</th><th>${T('Η', 'L', 'D', 'I')}</th><th>+/−</th><th class="ecform">${T('Φόρμα', 'Form', 'Racha', 'Forma')}</th></tr></thead><tbody>${standOf(gname).map(s => `<tr${s[1] <= 2 ? ' class="ecq"' : ''}><td>${s[1]}</td><td class="l"><span class="ectn">${crest(s[2])}${tlink(s[2])}</span></td><td>${s[3]}</td><td>${s[4]}</td><td>${s[5] - s[6] > 0 ? '+' : ''}${s[5] - s[6]}</td><td class="ecform">${form(s[9])}</td></tr>`).join('')}</tbody></table></div>`;
       const fxCard = g => `<div class="fx"><span class="when">${esc(T('Όμιλος', 'Group', 'Grupo', 'Grupa'))} ${esc(ET[g[2]]?.[3] || '')} · ${g[6] ? rd(g[0]) : esc(when(g[1]))}</span><div class="row"><span class="ectn">${crest(g[2])}${tlink(g[2])}</span><b>${g[6] ? g[4] : ''}</b></div><div class="row"><span class="ectn">${crest(g[3])}${tlink(g[3])}</span><b>${g[6] ? g[5] : ''}</b></div></div>`;
+      const pSlug = {}; { const used = new Set(); for (const p of EC.players) { let sl = slugify(p.n) || p.c; if (used.has(p.t + '/' + sl)) sl += '-' + p.c; used.add(p.t + '/' + sl); pSlug[p.c] = ecSlug(p.t) + '/' + sl; } }
+      const plink = p => `<a href="${urlFor(LG, 'ec:' + pSlug[p.c])}">${esc(p.n)}</a>`;
       const minG = Math.max(1, Math.ceil(lr / 2));
       const qual = EC.players.filter(p => p.gp >= minG && p.min >= 10);
       const LEAD = [['pir', 'PIR'], ['pts', T('Πόντοι', 'Points', 'Puntos', 'Poeni')], ['reb', T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi')], ['ast', T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije')]];
-      const leadTbl = ([k, lab]) => `<div><h3>${lab}</h3><div class="tbl"><table><tbody>${qual.slice().sort((a, b) => b[k] - a[k]).slice(0, 10).map((p, i) => `<tr><td>${i + 1}</td><td class="l">${esc(p.n)} <small class="muted">${tlink(p.t)}</small></td><td><b>${f1(p[k])}</b></td></tr>`).join('')}</tbody></table></div></div>`;
+      const leadTbl = ([k, lab]) => `<div><h3>${lab}</h3><div class="tbl"><table><tbody>${qual.slice().sort((a, b) => b[k] - a[k]).slice(0, 10).map((p, i) => `<tr><td>${i + 1}</td><td class="l">${plink(p)} <small class="muted">${tlink(p.t)}</small></td><td><b>${f1(p[k])}</b></td></tr>`).join('')}</tbody></table></div></div>`;
       const src = `<p class="note">${T('Πηγή: επίσημα στατιστικά της EuroCup. Μέσοι όροι ανά αγώνα· στους κορυφαίους μετράνε όσοι έχουν τουλάχιστον', 'Source: official EuroCup stats. Per-game averages; leaders include players with at least', 'Fuente: estadísticas oficiales de la EuroCup. Promedios por partido; en los líderes cuentan quienes tienen al menos', 'Izvor: zvanična statistika Evrokupa. Proseci po utakmici; među najboljima su igrači sa najmanje')} ${minG} ${T('αγώνες και 10 λεπτά.', 'games and 10 minutes.', 'partidos y 10 minutos.', 'utakmica i 10 minuta.')}</p>`;
       const ECL = `EuroCup ${SEASON_LABEL}`;
       const main = `<section class="article ec">
@@ -1404,11 +1560,47 @@ ${src}
 <h2>${T('Πρόγραμμα και αποτελέσματα', 'Schedule and results', 'Calendario y resultados', 'Raspored i rezultati')}</h2>
 <div class="tbl"><table><thead><tr><th class="l">${T('Αγ.', 'Rd', 'J.', 'Kolo')}</th><th class="l">${T('Αντίπαλος', 'Opponent', 'Rival', 'Protivnik')}</th><th>${T('Αποτέλεσμα / ώρα', 'Result / time', 'Resultado / hora', 'Rezultat / vreme')}</th></tr></thead><tbody>${gs.map(g => { const home = g[2] === c, o = home ? g[3] : g[2]; return `<tr><td class="l">${g[0]}</td><td class="l">${home ? '' : '@ '}${tlink(o)}</td><td>${g[6] ? res(g) : esc(when(g[1]))}</td></tr>`; }).join('')}</tbody></table></div>
 ${ros.length ? `<h2>${T('Ρόστερ και μέσοι όροι', 'Roster and averages', 'Plantilla y promedios', 'Roster i proseci')}</h2>
-<div class="tbl"><table><thead><tr><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>3${T('Π', 'P', 'P', 'P')}%</th><th>PIR</th></tr></thead><tbody>${ros.map(p => `<tr><td class="l">${esc(p.n)}</td><td>${p.gp}</td><td>${f1(p.min)}</td><td>${f1(p.pts)}</td><td>${f1(p.reb)}</td><td>${f1(p.ast)}</td><td>${pct(p.m3, p.a3)}</td><td><b>${f1(p.pir)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
+<div class="tbl"><table><thead><tr><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>3${T('Π', 'P', 'P', 'P')}%</th><th>PIR</th></tr></thead><tbody>${ros.map(p => `<tr><td class="l">${plink(p)}</td><td>${p.gp}</td><td>${f1(p.min)}</td><td>${f1(p.pts)}</td><td>${f1(p.reb)}</td><td>${f1(p.ast)}</td><td>${pct(p.m3, p.a3)}</td><td><b>${f1(p.pir)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
 <p class="note">${T('Πηγή: επίσημα στατιστικά της EuroCup. Ώρες Ελλάδας.', 'Source: official EuroCup stats. Times are Greek time (EET).', 'Fuente: estadísticas oficiales de la EuroCup. Horario de Grecia.', 'Izvor: zvanična statistika Evrokupa. Vreme je grčko.')}</p>
 </section>`;
         await simplePage('ec:' + ecSlug(c), { view: 'eurocup', title: T(`${ecFull(c)}: EuroCup ${SEASON_LABEL}, πρόγραμμα, ρόστερ, στατιστικά | ${SITE_NAME}`, `${ecFull(c)}: EuroCup ${SEASON_LABEL} schedule, roster and stats | ${SITE_NAME}`, `${ecFull(c)}: EuroCup ${SEASON_LABEL}, calendario, plantilla y estadísticas | ${SITE_NAME}`, `${ecFull(c)}: Evrokup ${SEASON_LABEL}, raspored, roster i statistika | ${SITE_NAME}`),
+          ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name: ecFull(c), sport: 'Basketball', url: SITE_URL + urlFor(LG, 'ec:' + ecSlug(c)), memberOf: { '@type': 'SportsOrganization', name: 'EuroCup' }, athlete: ros.map(p => ({ '@type': 'Person', name: p.n, url: SITE_URL + urlFor(LG, 'ec:' + pSlug[p.c]) })) }, crumbs([[SITE_NAME, B(LG)], [ECL, urlFor(LG, 'ec')], [ecFull(c), urlFor(LG, 'ec:' + ecSlug(c))]])],
           desc: T(`Το πρόγραμμα, τα αποτελέσματα και οι μέσοι όροι των παικτών της ${ecFull(c)} στην EuroCup ${SEASON_LABEL}.`, `${ecFull(c)} in the EuroCup ${SEASON_LABEL}: schedule, results and player averages.`, `${ecFull(c)} en la EuroCup ${SEASON_LABEL}: calendario, resultados y promedios de los jugadores.`, `${ecFull(c)} u Evrokupu ${SEASON_LABEL}: raspored, rezultati i proseci igrača.`), main: tmain });
+      }
+    }
+
+    // ---- EuroCup: σελίδα για κάθε παίκτη
+    if (data.ec && data.ec.players.length) {
+      const EC = data.ec, ET = EC.teams;
+      const EC_GR = { ARI: 'Άρης', PAO: 'ΠΑΟΚ' };
+      const ecFull = c => (LG === 'el' && EC_GR[c]) || (ET[c] ? ET[c][0] : c);
+      const ecSlug = c => slugify(ET[c] ? ET[c][0] : c);
+      const ECL = `EuroCup ${SEASON_LABEL}`;
+      const used = new Set(), pSlug = {};
+      for (const p of EC.players) { let sl = slugify(p.n) || p.c; if (used.has(p.t + '/' + sl)) sl += '-' + p.c; used.add(p.t + '/' + sl); pSlug[p.c] = ecSlug(p.t) + '/' + sl; }
+      const lr = EC.lastRound, minG = Math.max(1, Math.ceil(lr / 2));
+      const qual = EC.players.filter(p => p.gp >= minG && p.min >= 10);
+      const rankOf = (p, k) => { if (!qual.includes(p)) return null; return 1 + qual.filter(q => q[k] > p[k]).length; };
+      const pct = (m, a) => a ? Math.round(100 * m / a) + '%' : '–';
+      for (const p of EC.players) {
+        if (!ET[p.t]) continue;
+        const tn = ecFull(p.t), tu = urlFor(LG, 'ec:' + ecSlug(p.t)), u = urlFor(LG, 'ec:' + pSlug[p.c]);
+        const lede = T(`${p.n} (${tn}) στην ${ECL}: ${p.gp} αγώνες, ${f1(p.pts)} πόντοι, ${f1(p.reb)} ριμπάουντ, ${f1(p.ast)} ασίστ και ${f1(p.pir)} PIR ανά αγώνα.`, `${p.n} (${tn}) in the ${ECL}: ${p.gp} games, ${f1(p.pts)} points, ${f1(p.reb)} rebounds, ${f1(p.ast)} assists and ${f1(p.pir)} PIR per game.`, `${p.n} (${tn}) en la ${ECL}: ${p.gp} partidos, ${f1(p.pts)} puntos, ${f1(p.reb)} rebotes, ${f1(p.ast)} asistencias y ${f1(p.pir)} de PIR por partido.`, `${p.n} (${tn}) u ${ECL}: ${p.gp} utakmica, ${f1(p.pts)} poena, ${f1(p.reb)} skokova, ${f1(p.ast)} asistencija i ${f1(p.pir)} PIR-a po utakmici.`);
+        const RK = [['pts', T('Πόντοι', 'Points', 'Puntos', 'Poeni')], ['reb', T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi')], ['ast', T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije')], ['pir', 'PIR']].map(([k, l]) => [l, rankOf(p, k)]).filter(x => x[1]);
+        const cells = [[T('Αγώνες', 'Games', 'Partidos', 'Utakmice'), p.gp], [T('Λεπτά', 'Minutes', 'Minutos', 'Minuti'), f1(p.min)], [T('Πόντοι', 'Points', 'Puntos', 'Poeni'), f1(p.pts)], [T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi'), f1(p.reb)], [T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije'), f1(p.ast)], [T('Κλεψίματα', 'Steals', 'Robos', 'Ukradene'), f1(p.stl)], [T('Κοψίματα', 'Blocks', 'Tapones', 'Blokade'), f1(p.blk)], [T('Λάθη', 'Turnovers', 'Pérdidas', 'Izgubljene'), f1(p.tov)], ['2' + T('Π', 'P', 'P', 'P') + '%', pct(p.m2, p.a2)], ['3' + T('Π', 'P', 'P', 'P') + '%', pct(p.m3, p.a3)], [T('Βολές', 'FT', 'TL', 'Slob. bac.') + ' %', pct(p.ftm, p.fta)], ['PIR', f1(p.pir)]];
+        const mates = EC.players.filter(q => q.t === p.t && q !== p).sort((a, b) => b.min - a.min).slice(0, 8);
+        const main = `<section class="article ec">
+<p class="crumbs"><a href="${urlFor(LG, 'ec')}">${ECL}</a> › <a href="${tu}">${esc(tn)}</a></p>
+<h1>${esc(p.n)}</h1>
+<p class="lede2">${esc(lede)}</p>
+<div class="otiles ectiles">${cells.map(([l, v]) => `<div><b>${v}</b><span>${esc(l)}</span></div>`).join('')}</div>
+${RK.length ? `<h2>${T('Θέση στην EuroCup', 'EuroCup rank', 'Puesto en la EuroCup', 'Mesto u Evrokupu')}</h2><p>${RK.map(([l, r]) => `${esc(l)}: <b>${r}${T('ος', LG === 'en' ? ({ 1: 'st', 2: 'nd', 3: 'rd' }[r % 10 > 3 || [11, 12, 13].includes(r % 100) ? 0 : r % 10] || 'th') : '', '.º', '.')}</b>`).join(' · ')} <small class="muted">(${T('ανάμεσα σε', 'among', 'entre', 'među')} ${qual.length})</small></p>` : ''}
+${mates.length ? `<h2>${T('Συμπαίκτες', 'Teammates', 'Compañeros', 'Saigrači')}</h2><p class="leadnav">${mates.map(q => `<a href="${urlFor(LG, 'ec:' + pSlug[q.c])}">${esc(q.n)}</a>`).join('')}</p>` : ''}
+<p class="note">${T('Πηγή: επίσημα στατιστικά της EuroCup. Μέσοι όροι ανά αγώνα.', 'Source: official EuroCup stats. Per-game averages.', 'Fuente: estadísticas oficiales de la EuroCup. Promedios por partido.', 'Izvor: zvanična statistika Evrokupa. Proseci po utakmici.')}</p>
+</section>`;
+        const pld = { '@context': 'https://schema.org', '@type': 'Person', name: p.n, url: SITE_URL + u, jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tn, url: SITE_URL + tu } };
+        await simplePage('ec:' + pSlug[p.c], { view: 'eurocup', title: T(`${p.n} στατιστικά EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} EuroCup ${SEASON_LABEL} stats (${tn}) | ${SITE_NAME}`, `Estadísticas de ${p.n} en la EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} statistika Evrokup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`), desc: lede, main,
+          ld: [pld, crumbs([[SITE_NAME, B(LG)], [ECL, urlFor(LG, 'ec')], [tn, tu], [p.n, u]])] });
       }
     }
 
