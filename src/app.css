@@ -409,3 +409,12 @@ a.pklink:hover{color:var(--accent)}
 .ec .crumbs{font-size:13px;margin:0 0 6px}
 @media (max-width:640px){.ec .ecgrid{grid-template-columns:minmax(0,1fr)}.ec .ecfx{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ec .ecfx .fx{padding:7px 8px;font-size:13px}.ec .ecfx .crest{display:none}.ec .ecform{display:none}.ec .echead .bigcrest{width:52px;height:52px;font-size:16px}}
 .article.ec{max-width:1060px}.ec th.l{text-align:left}
+.gprev p{margin:0 0 8px;line-height:1.55}.gprev{margin-top:14px}
+/* leaders */
+.lead .leadnav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}.lead .leadnav a{font-size:13px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:inherit;text-decoration:none}.lead .leadnav a:hover{border-color:var(--accent);color:var(--accent)}
+.article.wide{max-width:1060px}
+.leadgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 22px}
+.leadgrid h2{font-size:19px}.leadgrid h2 a{color:inherit;text-decoration:none}
+.leadol{margin:0;padding-left:20px}.leadol li{padding:5px 0;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:baseline}.leadol li a{color:inherit}.leadol small{color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.leadol b{margin-left:auto}
+.lead td small{color:var(--muted)}
+th.l{text-align:left}@media (max-width:640px){.lead td:nth-child(5),.lead th:nth-child(5){display:none}}
