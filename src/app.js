@@ -78,6 +78,7 @@ function render(code){
   document.getElementById('board').innerHTML=[['Πόντοι',A.pts/G],['Ριμπ.',A.reb/G],['Ασίστ',A.ast/G],['PIR',A.pir/G],['Λεπτά',null],['+/−',A.pm/G]]
    .map(([l,v])=>'<div><b>'+(l==='Λεπτά'?mmss(A.min*60/G):(l==='+/−'&&v>0?'+':'')+f1(v))+'</b><span>'+l+'</span></div>').join('');
   renderAvg(); renderShoot(); renderChart(); renderLog(); renderPct(); renderSplits(); renderMates(); renderPHeat(); renderProps(); renderPWith();
+  if(U.cmp&&U.cmpUrl&&!document.getElementById('cmpLink'))document.getElementById('prec').insertAdjacentHTML('afterend','<a id="cmpLink" class="cmpl" href="'+U.cmpUrl+'?a='+encodeURIComponent(p.s)+'">'+U.cmp.link+'</a>');
   
 }
 
@@ -251,7 +252,7 @@ function renderStand(){
   const nr=Math.min(...GAMES.filter(g=>!g[6]).map(g=>g[0]));
   const ng=GAMES.filter(g=>g[0]===nr);
   document.getElementById('nextSub').textContent=nr+'η αγωνιστική · ώρα Ελλάδας';
-  document.getElementById('nextRound').innerHTML=ng.map(g=>'<div class="fx"><span class="when">'+when(g[1])+(g[6]?' · τελικό':'')+'</span><div class="row"><a href="'+tUrl(g[2])+'\">'+crest(g[2])+' '+tName(g[2])+'</a><span class="rk">'+(g[6]?g[4]:recOf(g[2]))+'</span></div><div class="row"><a href="'+tUrl(g[3])+'\">'+crest(g[3])+' '+tName(g[3])+'</a><span class="rk">'+(g[6]?g[5]:recOf(g[3]))+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>').join('');
+  document.getElementById('nextRound').innerHTML=ng.map(g=>'<div class="fx" data-g="'+g[0]+'|'+g[2]+'|'+g[3]+'"><span class="when">'+when(g[1])+(g[6]?' · τελικό':'')+'</span><div class="row"><a href="'+tUrl(g[2])+'\">'+crest(g[2])+' '+tName(g[2])+'</a><span class="rk">'+(g[6]?g[4]:recOf(g[2]))+'</span></div><div class="row"><a href="'+tUrl(g[3])+'\">'+crest(g[3])+' '+tName(g[3])+'</a><span class="rk">'+(g[6]?g[5]:recOf(g[3]))+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>').join('');
   const codes=STAND.map(s=>s[1]).filter(c=>TS[c]);
   const cols=[
     {k:'team',h:'Ομάδα',l:1,v:c=>tName(c),f:c=>tlink(c),d:1},
@@ -317,10 +318,10 @@ function renderTeam(c){
   const LB=document.getElementById('tLeaders');
   LB.innerHTML=lead('Πόντοι',p=>p.A.pts/g1(p),f1)+lead('Ριμπάουντ',p=>p.A.reb/g1(p),f1)+lead('Ασίστ',p=>p.A.ast/g1(p),f1)+lead('PIR',p=>p.A.pir/g1(p),f1);
   LB.querySelectorAll('.ld').forEach(b=>{b.querySelector('em').textContent=byCode[b.dataset.c].name;b.onclick=()=>{location.href=pUrl(b.dataset.c);};});
-  renderTeamHeat(c); renderTWith(c); renderTOdds(c); renderTVideos(c);
+  renderTeamHeat(c); renderTWith(c); renderTOdds(c); renderTVideos(c); renderMyBtn(c);
   // fixtures
   const nx=GAMES.filter(g=>!g[6]&&(g[2]===c||g[3]===c)).slice(0,5);
-  document.getElementById('tNext').innerHTML=nx.length?nx.map(g=>{const home=g[2]===c,o=home?g[3]:g[2];return '<div class="fx"><span class="when">'+g[0]+'η αγ. · '+when(g[1])+'</span><div class="row"><a href="'+tUrl(o)+'\">'+(home?'vs ':'@ ')+crest(o)+' '+tName(o)+'</a><span class="rk">'+recOf(o)+' · '+ord(SROW[o]?SROW[o][0]:0)+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>';}).join(''):'<p class="sub">Δεν υπάρχουν προγραμματισμένοι αγώνες.</p>';
+  document.getElementById('tNext').innerHTML=nx.length?nx.map(g=>{const home=g[2]===c,o=home?g[3]:g[2];return '<div class="fx" data-g="'+g[0]+'|'+g[2]+'|'+g[3]+'"><span class="when">'+g[0]+'η αγ. · '+when(g[1])+'</span><div class="row"><a href="'+tUrl(o)+'\">'+(home?'vs ':'@ ')+crest(o)+' '+tName(o)+'</a><span class="rk">'+recOf(o)+' · '+ord(SROW[o]?SROW[o][0]:0)+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>';}).join(''):'<p class="sub">Δεν υπάρχουν προγραμματισμένοι αγώνες.</p>';
 }
 
 // ---- Θερμόμετρο: last 3 games vs all earlier games
@@ -454,9 +455,10 @@ function renderPreds(){
       mid='<div class="pscore"><b>'+Math.round(x.ph)+' – '+Math.round(x.pa)+'</b><span class="rk">εκτίμηση σκορ</span></div>'+
       '<div class="pbar" title="Πιθανότητα νίκης"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div>'+
       '<div class="rk pfacts">Φαβορί: <b>'+tName(fav)+'</b> ('+pp+'%) · Σύνολο ~'+Math.round(x.total)+' πόντοι'+(h2h.length?' · Φέτος: '+h2h.map(z=>z[2]+' '+z[4]+'-'+z[5]+' '+z[3]).join(', '):'')+'</div>';}
-    return '<article class="pcard"><div class="when">'+when(w)+'</div><div class="pgrid">'+side(h,1)+'<div class="pmid">'+mid+'</div>'+side(a,0)+'</div>'+
+    return '<article class="pcard" data-g="'+r+'|'+h+'|'+a+'"><div class="when">'+when(w)+'</div><div class="pgrid">'+side(h,1)+'<div class="pmid">'+mid+'</div>'+side(a,0)+'</div>'+
       '<a class="pread" href="'+gUrl(r,h,a)+'">'+U.gameLink+'</a>'+(art?'<a class="pread" href="'+art.url+'">Διάβασε το προγνωστικό μας →</a>':'')+((D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).length?'<div class="ptips"><a href="'+BASE+'tipsters/">Tipsters</a>: '+(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).map(t=>'<a class="tipa" href="'+(t.u||BASE+'tipsters/')+'"><b>'+t.n.replace(/</g,'')+'</b> '+t.l.replace(/</g,'')+'</a>').join(' · ')+'</div>':'')+'</article>';}).join('');
   box.querySelectorAll('.hotp').forEach(el=>el.textContent=byCode[el.dataset.c].name);
+  if(U.modelUrl&&!document.getElementById('modelLink'))box.insertAdjacentHTML('afterend','<p id="modelLink"><a class="pread" href="'+U.modelUrl+'">'+U.modelLink+'</a></p>');
   const L=document.getElementById('predArts');
   if(arts.length){L.innerHTML=arts.slice(0,8).map(z=>'<a class="acard" href="'+z.url+'"><time>'+z.dateText+'</time><h2></h2><p></p></a>').join('');
     L.querySelectorAll('.acard').forEach((el,i)=>{el.querySelector('h2').textContent=arts[i].title;el.querySelector('p').textContent=arts[i].desc||'';});}
@@ -538,6 +540,7 @@ function renderGame(id){
   if(g[6])mid='<div class="pscore"><b>'+g[4]+' – '+g[5]+'</b><span class="rk">'+U.final+'</span></div>';
   else if(x){const fav=x.prob>=.5?h:a,pp=Math.round(100*Math.max(x.prob,1-x.prob));
     mid='<div class="pscore"><b>'+Math.round(x.ph)+' – '+Math.round(x.pa)+'</b><span class="rk">'+U.est+'</span></div><div class="pbar"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div><div class="rk pfacts">'+fm(U.fav,{t:hx(tName(fav)),p:pp})+' · '+fm(U.total,{n:Math.round(x.total)})+'</div>';}
+  const gt=document.getElementById('gTop');if(gt)gt.dataset.g=r+'|'+h+'|'+a;
   set('gTop','<div class="when">'+fm(U.rd,{n:r})+' · '+when(g[1])+'</div><div class="ggrid">'+side(h)+'<div class="gmid">'+mid+'</div>'+side(a)+'</div>');
   // form
   const form=c=>{const tg=teamGamesOf(c),s=SROW[c],th=teamHeat(c);
@@ -655,6 +658,101 @@ function renderTVideos(c){
     (tv.length?'<h3>'+U.vid.team+'</h3><div class="ytgrid">'+tv.map(v=>'<figure>'+ytBox(v.id,v.t)+'<figcaption>'+hx(v.t)+'</figcaption></figure>').join('')+'</div>'+(V.ch&&V.ch[c]?'<p><a class="pread" href="https://www.youtube.com/channel/'+hx(V.ch[c])+'" target="_blank" rel="noopener">'+U.vid.yt+'</a></p>':''):'')+
     '<p class="note">'+U.vid.note+'</p>';
 }
+
+// ---- 7. My team (saved only in this browser) and team calendar
+const MYK='bsMyTeam';
+const getMy=()=>{try{const v=localStorage.getItem(MYK);return v&&TEAMS[v]?v:null;}catch(e){return null;}};
+const setMy=c=>{try{c?localStorage.setItem(MYK,c):localStorage.removeItem(MYK);}catch(e){}};
+function calBox(c){if(!U.my||!U.calBase)return '';const path=U.calBase+c+'.ics',web='webcal://'+location.host+path;
+  return '<details class="calb"><summary>'+U.my.cal+'</summary><div><a href="'+hx(web)+'">'+U.my.calI+'</a><a href="https://calendar.google.com/calendar/render?cid='+encodeURIComponent(web)+'" target="_blank" rel="noopener">'+U.my.calG+'</a><a href="'+hx(path)+'" download>'+U.my.calF+'</a><small>'+U.my.calHelp+'</small></div></details>';}
+function renderMyBtn(c){
+  const m=document.getElementById('tMeta');if(!m||!U.my)return;
+  let box=document.getElementById('myBox');if(!box){box=document.createElement('div');box.id='myBox';box.className='mybox';m.insertAdjacentElement('afterend',box);}
+  const on=getMy()===c;
+  box.innerHTML='<button type="button" class="mybtn'+(on?' on':'')+'" aria-pressed="'+on+'">'+(on?U.my.unset:U.my.set)+'</button>'+calBox(c);
+  box.querySelector('.mybtn').onclick=()=>{setMy(on?null:c);renderMyBtn(c);};
+}
+function renderMyTeam(){
+  const el=document.getElementById('myTeam');if(!el||!U.my)return;const c=getMy();el.hidden=false;
+  const opts=Object.keys(TEAMS).filter(k=>SROW[k]).sort((a,b)=>tName(a).localeCompare(tName(b))).map(k=>'<option value="'+k+'"'+(k===c?' selected':'')+'>'+hx(tName(k))+'</option>').join('');
+  const sel='<select class="mysel" aria-label="'+hx(U.my.choose)+'"><option value="">'+hx(U.my.choose)+'</option>'+opts+'</select>';
+  if(!c){el.className='mycard empty';el.innerHTML='<div><b>'+U.my.title+'</b><span>'+U.my.pick+'</span></div>'+sel;}
+  else{
+    const ng=GAMES.find(g=>!g[6]&&(g[2]===c||g[3]===c)),lg=GAMES.filter(g=>g[6]&&(g[2]===c||g[3]===c)).sort((a,b)=>b[0]-a[0])[0],s=SROW[c];
+    const inj=P.filter(p=>p.t===c&&INJ[p.c]);let od='';try{const S=simulate();if(S.rem&&S.by[c])od=pc0(S.by[c].top6);}catch(e){}
+    const gl=g=>{const h=g[2]===c,o=h?g[3]:g[2];return '<a href="'+gUrl(g[0],g[2],g[3])+'">'+(h?'vs ':'@ ')+crest(o)+' '+hx(tName(o))+'</a>';};
+    el.className='mycard';
+    el.innerHTML='<div class="myh"><a class="tlink" href="'+tUrl(c)+'">'+crest(c)+'<b>'+hx(tName(c))+'</b></a><span class="rk">'+(s?ord(s[0])+' · '+s[2]+'-'+s[3]:'')+'</span><button type="button" class="mych">'+U.my.change+'</button></div>'+
+      '<div class="myg">'+(ng?'<div'+' data-g="'+ng[0]+'|'+ng[2]+'|'+ng[3]+'"><span>'+U.my.next+'</span>'+gl(ng)+'<small>'+fm(U.rd,{n:ng[0]})+' · '+when(ng[1])+'</small></div>':'')+
+      (lg?'<div><span>'+U.my.last+'</span>'+gl(lg)+'<small>'+(lg[2]===c?lg[4]+'-'+lg[5]:lg[5]+'-'+lg[4])+' '+((lg[2]===c?lg[4]>lg[5]:lg[5]>lg[4])?U.W:U.L)+'</small></div>':'')+
+      (od?'<div><span>'+U.my.odds+'</span><b>'+od+'</b></div>':'')+
+      '<div><span>'+U.my.inj+'</span><span class="myinj">'+(inj.length?inj.slice(0,4).map(p=>'<a href="'+pUrl(p.c)+'">'+hx(p.name)+'</a>'+injB(p.c)).join(', '):'<small>'+U.my.none+'</small>')+'</span></div></div>'+calBox(c)+'<div class="mysw" hidden>'+sel+'</div>';
+    el.querySelector('.mych').onclick=()=>{el.querySelector('.mysw').hidden=false;};
+  }
+  el.querySelectorAll('.mysel').forEach(x=>x.onchange=()=>{setMy(x.value||null);renderMyTeam();applyLive&&applyLive();});
+}
+
+// ---- 8. Player comparison
+function renderCompare(){
+  const el=document.getElementById('cmp');if(!el||!U.cmp)return;
+  const elig=P.filter(p=>p.A.G>=1).sort((a,b)=>a.name.localeCompare(b.name));
+  const bySlug=Object.fromEntries(P.map(p=>[p.s,p])),byName=Object.fromEntries(elig.map(p=>[p.name.toLowerCase(),p]));
+  const qs=new URLSearchParams(location.search);let A=bySlug[qs.get('a')]||null,B=bySlug[qs.get('b')]||null;
+  const lab=p=>p.name+' ('+tName(p.t)+')';
+  const dl='<datalist id="cmpList">'+elig.map(p=>'<option value="'+hx(lab(p))+'">').join('')+'</datalist>';
+  el.innerHTML='<div class="cmpsel"><label><span>'+U.cmp.a+'</span><input id="cmpA" list="cmpList" placeholder="'+hx(U.cmp.ph)+'" value="'+(A?hx(lab(A)):'')+'"></label><button type="button" id="cmpSwap" aria-label="swap">'+U.cmp.swap+'</button><label><span>'+U.cmp.b+'</span><input id="cmpB" list="cmpList" placeholder="'+hx(U.cmp.ph)+'" value="'+(B?hx(lab(B)):'')+'"></label></div>'+dl+'<div id="cmpOut"></div>';
+  const find=v=>{v=v.trim().toLowerCase();const n=v.replace(/\s*\(.*\)\s*$/,'');return elig.find(p=>lab(p).toLowerCase()===v)||byName[n]||null;};
+  const draw=()=>{
+    const u=new URL(location.href);A?u.searchParams.set('a',A.s):u.searchParams.delete('a');B?u.searchParams.set('b',B.s):u.searchParams.delete('b');try{history.replaceState(null,'',u);}catch(e){}
+    const o=document.getElementById('cmpOut');if(!A||!B){o.innerHTML='<p class="sub">'+U.cmp.pick+'</p>';return;}
+    const g=p=>p.A.G||1,l5=p=>avgOf(p.games.slice(-5),r=>r[25]),ht=p=>{const h=heatOf(p);return h?h.d:NaN;};
+    const rows=[['games',p=>p.A.G,v=>v,1],['min',p=>p.A.min/g(p),v=>mmss(v*60),1],['pts',p=>p.A.pts/g(p),f1,1],['reb',p=>p.A.reb/g(p),f1,1],['ast',p=>p.A.ast/g(p),f1,1],['stl',p=>p.A.stl/g(p),f1,1],['blk',p=>p.A.blk/g(p),f1,1],['tov',p=>p.A.tov/g(p),f1,0],['pir',p=>p.A.pir/g(p),f1,1],['pm',p=>p.A.pm/g(p),sgn,1],
+      ['p2',p=>p.A.a2?p.A.m2/p.A.a2:NaN,pct1,1],['p3',p=>p.A.a3?p.A.m3/p.A.a3:NaN,pct1,1],['ft',p=>p.A.fta?p.A.ftm/p.A.fta:NaN,pct1,1],['ts',p=>p.A.ts,pct1,1],['l5',l5,f1,1],['heat',ht,v=>isFinite(v)?deg(v):'–',1]];
+    const head=p=>'<div class="cmph"><span class="bigcrest" style="background:'+tColor(p.t)+'">'+p.t.split(';').pop()+'</span><div><a href="'+pUrl(p.c)+'"><b>'+hx(p.name)+'</b></a>'+injB(p.c)+'<small>'+hx(tName(p.t))+' · '+hx(POS[p.pos]||p.pos)+(p.age?' · '+p.age:'')+(p.h?' · '+(p.h/100).toFixed(2):'')+'</small></div></div>';
+    const pctOf=(p,fn)=>percentile(fn(p.A),qualified.map(q=>fn(q.A)).filter(isFinite));
+    const PR=[['pts',a=>a.pts/a.G],['reb',a=>a.reb/a.G],['ast',a=>a.ast/a.G],['pir',a=>a.pir/a.G],['ts',a=>a.ts]];
+    o.innerHTML='<div class="cmpgrid">'+head(A)+head(B)+'</div><div class="tbl"><table class="cmpt"><thead><tr><th>'+hx(A.name.split(' ').slice(-1)[0])+'</th><th></th><th>'+hx(B.name.split(' ').slice(-1)[0])+'</th></tr></thead><tbody>'+
+      rows.map(([k,fn,f,hi])=>{const a=fn(A),b=fn(B),ba=isFinite(a)&&isFinite(b)&&a!==b&&(hi?a>b:a<b),bb=isFinite(a)&&isFinite(b)&&a!==b&&!ba;return '<tr><td class="'+(ba?'win':'')+'">'+(isFinite(a)?f(a):'–')+'</td><th scope="row">'+U.cmp[k]+'</th><td class="'+(bb?'win':'')+'">'+(isFinite(b)?f(b):'–')+'</td></tr>';}).join('')+'</tbody></table></div>'+
+      '<h2>'+U.cmp.rank+'</h2><div class="cmpbars">'+PR.map(([k,fn])=>{const a=pctOf(A,fn),b=pctOf(B,fn);return '<div class="cb"><span>'+U.cmp[k]+'</span><div class="cbl"><i style="width:'+(a||0)+'%;background:'+tColor(A.t)+'"></i><b>'+(a==null?'–':a)+'</b></div><div class="cbr"><i style="width:'+(b||0)+'%;background:'+tColor(B.t)+'"></i><b>'+(b==null?'–':b)+'</b></div></div>';}).join('')+'</div><p class="note">'+U.cmp.share+'</p>';
+  };
+  const ia=document.getElementById('cmpA'),ib=document.getElementById('cmpB');
+  ia.onchange=()=>{A=find(ia.value);draw();};ib.onchange=()=>{B=find(ib.value);draw();};
+  document.getElementById('cmpSwap').onclick=()=>{[A,B]=[B,A];ia.value=A?lab(A):'';ib.value=B?lab(B):'';draw();};
+  draw();
+}
+
+// ---- 9. Live scores: straight from the official EuroLeague feed, only while games are on
+const LFEED='https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/'+(D.season||'E2026')+'/games';
+const LIVE={};let liveCodes=null,liveT=null;
+const liveCands=()=>GAMES.filter(g=>{const t=gDate(g[1]).getTime(),n=Date.now();return !g[6]&&n>t-20*60e3&&n<t+5*3600e3;});
+async function liveCodeMap(){if(liveCodes)return liveCodes;try{const c=sessionStorage.getItem('bsLiveCodes');if(c){liveCodes=JSON.parse(c);return liveCodes;}}catch(e){}
+  const j=await fetch(LFEED+'?limit=500',{cache:'no-store'}).then(r=>r.json());liveCodes={};(j.data||[]).forEach(x=>{liveCodes[x.round.round+'|'+x.home.code+'|'+x.away.code]=x.code;});
+  try{sessionStorage.setItem('bsLiveCodes',JSON.stringify(liveCodes));}catch(e){}return liveCodes;}
+async function pollLive(){
+  clearTimeout(liveT);const cands=liveCands();
+  if(!cands.length||!U.live||!document.querySelector('[data-g]')){liveT=setTimeout(pollLive,5*60e3);return;}
+  try{const map=await liveCodeMap();
+    await Promise.all(cands.map(async g=>{const k=g[0]+'|'+g[2]+'|'+g[3],code=map[k];if(code==null)return;
+      const x=(await fetch(LFEED+'/'+code,{cache:'no-store'}).then(r=>r.json())).data;if(!x)return;
+      LIVE[k]={st:x.status,min:x.minute,rem:x.remainingTime,q:x.quarter,hs:x.home.score,as:x.away.score,hq:x.home.quarters,aq:x.away.quarters,code,t:gDate(g[1]).getTime()};
+      if(document.getElementById('gLive')&&document.getElementById('gTop')?.dataset.g===k)await liveLeaders(k);}));
+    applyLive();}catch(e){}
+  liveT=setTimeout(pollLive,Object.values(LIVE).some(v=>v.st!=='result')?30e3:5*60e3);
+}
+function liveState(v){if(!v)return null;if(v.st==='result')return 'final';if(Date.now()>=v.t&&((v.hs||0)+(v.as||0)>0||!/confirm|schedul/i.test(v.st||'')))return 'live';return 'soon';}
+function liveLabel(v){const s=liveState(v);if(s==='final')return U.live.final;if(s==='soon')return U.live.soon;
+  const q=+v.q;return U.live.live+(q?' · '+(q>4?U.live.ot:fm(U.live.q,{n:q})):'')+(v.rem&&v.rem!=='00:00'?' '+v.rem:'');}
+function applyLive(){document.querySelectorAll('[data-g]').forEach(el=>{const v=LIVE[el.dataset.g];let b=el.querySelector(':scope > .lv');if(!v){if(b)b.remove();return;}
+  if(!b){b=document.createElement('div');b.className='lv';el.appendChild(b);}const s=liveState(v);b.className='lv '+s;
+  b.innerHTML=(s==='live'?'<i></i>':'')+'<span>'+hx(liveLabel(v))+'</span>'+(s!=='soon'?'<b>'+(v.hs||0)+' – '+(v.as||0)+'</b>':'');});
+  const gl=document.getElementById('gLive'),gt=document.getElementById('gTop');if(gl&&gt){const v=LIVE[gt.dataset.g];if(v&&liveState(v)!=='soon'){gl.hidden=false;
+    const qn=['q1','q2','q3','q4','ot1','ot2','ot3'].filter(k=>v.hq&&(v.hq[k]!=null||v.aq[k]!=null));const [,h,a]=gt.dataset.g.split('|');
+    gl.querySelector('.lq').innerHTML=qn.length?'<table><thead><tr><th></th>'+qn.map(k=>'<th>'+k.toUpperCase()+'</th>').join('')+'<th></th></tr></thead><tbody><tr><td class="l">'+crest(h)+'</td>'+qn.map(k=>'<td>'+(v.hq[k]??'')+'</td>').join('')+'<td><b>'+(v.hs||0)+'</b></td></tr><tr><td class="l">'+crest(a)+'</td>'+qn.map(k=>'<td>'+(v.aq[k]??'')+'</td>').join('')+'<td><b>'+(v.as||0)+'</b></td></tr></tbody></table>':'';}}}
+async function liveLeaders(k){const v=LIVE[k],gl=document.getElementById('gLive');if(!v||!gl)return;
+  try{const j=await fetch(LFEED+'/'+v.code+'/stats',{cache:'no-store'}).then(r=>r.json());
+    const side=t=>(t&&t.players||[]).map(p=>({c:p.player.person.code,n:nice(p.player.person.name),s:p.stats})).filter(o=>o.s&&o.s.timePlayed>0).sort((a,b)=>b.s.valuation-a.s.valuation).slice(0,3);
+    const [,h,a]=k.split('|');const li=(c,arr)=>'<div><h3>'+crest(c)+' '+hx(tName(c))+'</h3>'+arr.map(o=>'<div class="lr"><a href="'+pUrl(o.c)+'">'+hx(o.n)+'</a><span>'+o.s.points+' '+U.live.pts+' · '+o.s.totalRebounds+' '+U.live.reb+' · '+o.s.assistances+' '+U.live.ast+' · <b>'+o.s.valuation+'</b> PIR</span></div>').join('')+'</div>';
+    gl.querySelector('.ll').innerHTML='<h3 class="llh">'+U.live.leaders+'</h3><div class="gcols">'+li(h,side(j.local))+li(a,side(j.road))+'</div>';}catch(e){}}
 // ---- router (each page says which view it is)
 const VIEW=document.body.dataset.view, VID=document.body.dataset.id;
 function show(v){
@@ -666,8 +764,10 @@ else if(VIEW==='team'&&TEAMS[VID]){show('team');renderTeam(VID);}
 else if(VIEW==='form'){show('form');renderForm();}
 else if(VIEW==='fantasy'){show('fantasy');renderFantasy();renderPosDef();}
 else if(VIEW==='preds'){show('preds');renderPreds();}
-else if(VIEW==='stand'){show('stand');renderStand();renderOdds();}
+else if(VIEW==='stand'){show('stand');renderMyTeam();renderStand();renderOdds();}
+else if(VIEW==='compare'){renderCompare();}
 else if(VIEW==='game'){renderGame(VID);document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v==='preds'));}
 else{document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v===VIEW));}
+pollLive();
 {const n=document.querySelector('.nav'),a=n&&n.querySelector('a.on');if(a&&a.offsetLeft+a.offsetWidth>n.clientWidth)n.scrollLeft=a.offsetLeft-16;}
 })();
