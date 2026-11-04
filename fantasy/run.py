@@ -135,6 +135,127 @@ def main():
             "f": facts[i][:4], "h": [[x[0], round(x[SECS] / 60, 1), x[PIR]] for x in p["g"][-12:]],
         })
     players.sort(key=lambda x: -x["pp"])
+
+    # ---- Transfer Market Analyzer: προβολή για τις επόμενες 3 αγωνιστικές, εκτιμώμενη τιμή ανά αγωνιστική, σήματα
+    team_dates = {}
+    for g in games:
+        for tm in (g[2], g[3]):
+            team_dates.setdefault(tm, {})[g[0]] = game_date(g[1])
+    def diff_scale(df):
+        # δυσκολία 1 (εύκολο) .. 5 (δύσκολο) από το PIR που δίνει ο αντίπαλος στη θέση και την άμυνά του
+        s = (-df["opp_pos_allow"].rank(pct=True) + df["opp_drtg"].rank(pct=True)) / 2
+        r = s.rank(pct=True)
+        return np.clip(np.ceil(r * 5), 1, 5).astype(int)
+    fut = {0: (tgt, pred)}
+    for k in (1, 2):
+        rr = target + k
+        if not any(g[0] == rr for g in games):
+            break
+        rows_k = build_rows(cache, rr)
+        tk = rows_k[rows_k["is_target"]].reset_index(drop=True)
+        if not len(tk):
+            break
+        # σωστές μέρες ξεκούρασης: από τον αγώνα της προηγούμενης αγωνιστικής
+        rest = []
+        for _, x in tk.iterrows():
+            d = team_dates.get(x["team"], {})
+            a_, b_ = d.get(rr - 1), d.get(rr)
+            rest.append((b_ - a_).days if a_ and b_ else 7)
+        tk["rest"] = rest
+        tk["b2b"] = (tk["rest"] <= 2).astype(int)
+        fut[k] = (tk, model.predict(tk))
+    dif = {k: dict(zip(df["c"], diff_scale(df))) for k, (df, _) in fut.items()}
+    proj_k = {k: dict(zip(pr["c"], pr["proj_pir"])) for k, (_, pr) in fut.items()}
+    feat0 = {x["c"]: x for _, x in tgt.iterrows()}
+    opp_k = {k: {x["c"]: (x["opp"], int(x["home"]), int(x["rest"]), int(x["b2b"])) for _, x in df.iterrows()} for k, (df, _) in fut.items()}
+    # εκτιμώμενη τιμή ανά αγωνιστική (backfill με τον ίδιο τύπο, από τον μέσο όρο PIR των 10 προηγούμενων αγώνων)
+    ph_file = OUT / "price_hist.json"
+    try:
+        ph = json.loads(ph_file.read_text(encoding="utf-8"))
+    except Exception:
+        ph = {}
+    for p in players:
+        c = p["c"]
+        hist_c = ph.setdefault(c, {})
+        g_ = [x for x in pl_by[c]["g"] if x[SECS] > 0]
+        for rnd in sorted({x[0] for x in pl_by[c]["g"]}) + [target]:
+            if str(rnd) in hist_c:
+                continue
+            prev = [x[PIR] for x in g_ if x[0] < rnd][-10:]
+            if len(prev) >= 3:
+                hist_c[str(rnd)] = round(min(24, max(4, 4 + 0.75 * float(np.mean(prev)))), 1)
+        hist_c[str(target)] = p["price"]
+    ph_file.write_text(json.dumps(ph), encoding="utf-8")
+    mult_f = {"playing": (1, 1, 1), "doubtful": (0.4, 0.85, 1), "injured": (0, 0.35, 0.7), "rest": (0, 1, 1)}
+    for p in players:
+        c = p["c"]
+        m3 = mult_f.get(p["status"], (1, 1, 1))
+        nx = []
+        for k in sorted(fut):
+            if c not in proj_k[k]:
+                continue
+            o = opp_k[k][c]
+            val = p["pp"] if k == 0 else max(float(proj_k[k][c]), 0) * m3[k]
+            nx.append([target + k, o[0], o[1], round(val, 1), int(dif[k][c]), o[3]])
+        p["nx"] = nx
+        p["p3"] = round(sum(x[3] for x in nx), 1)
+        f0 = feat0.get(c)
+        p["start"] = round(float(f0["start_rate5"]), 2) if f0 is not None else None
+        p["rest"] = int(f0["rest"]) if f0 is not None else None
+        p["b2b"] = int(any(x[5] for x in nx))
+        pr = ph.get(c, {})
+        rs = sorted(int(k) for k in pr)
+        p["ph"] = [[r_, pr[str(r_)]] for r_ in rs][-12:]
+        played = [x for x in pl_by[c]["g"] if x[SECS] > 0]
+        p["l3"] = round(float(np.mean([x[PIR] for x in played[-3:]])), 1) if played else 0
+        m3_ = [x[SECS] / 60 for x in played[-3:]]; m10_ = [x[SECS] / 60 for x in played[-10:]]
+        p["m3"] = round(float(np.mean(m3_)), 1) if m3_ else 0
+        p["m10"] = round(float(np.mean(m10_)), 1) if m10_ else 0
+        p["gp"] = len(played)
+        # σήμα: buy-low / sell-high / hold
+        avg3 = p["p3"] / max(len(nx), 1)
+        val = avg3 / p["price"] if p["price"] else 0
+        p["vpc"] = round(val, 2)
+    vals = sorted(x["vpc"] for x in players if x["status"] == "playing" and x["m10"] >= 12)
+    q75 = vals[int(0.75 * (len(vals) - 1))] if vals else 9
+    q25 = vals[int(0.25 * (len(vals) - 1))] if vals else 0
+    for p in players:
+        avg3 = p["p3"] / max(len(p["nx"]), 1)
+        ph_ = p["ph"]
+        dprice = ph_[-1][1] - ph_[-4][1] if len(ph_) >= 4 else 0
+        hard = sum(1 for x in p["nx"] if x[4] >= 4)
+        easy = sum(1 for x in p["nx"] if x[4] <= 2)
+        why = []
+        sig = "hold"
+        if p["status"] in ("injured", "rest"):
+            sig = "sell"; why.append("status")
+        elif p["vpc"] >= q75 and (p["l3"] < p["l10"] - 1 or dprice < 0 or easy >= 2) and p["m10"] >= 12:
+            sig = "buy"
+            if p["l3"] < p["l10"] - 1: why.append("dip")
+            if dprice < 0: why.append("price_down")
+            if easy >= 2: why.append("easy")
+            why.append("value")
+        elif (p["l3"] > avg3 + 4 and dprice > 0) or (p["vpc"] <= q25 and p["price"] >= 12) or (hard >= 2 and p["l3"] > avg3 + 2) or p["status"] == "doubtful":
+            sig = "sell"
+            if p["l3"] > avg3 + 4: why.append("overperf")
+            if dprice > 0: why.append("price_up")
+            if hard >= 2: why.append("hard")
+            if p["vpc"] <= q25: why.append("low_value")
+            if p["status"] == "doubtful": why.append("doubtful")
+        p["sig"], p["why"] = sig, why
+    # value grade από το εκατοστημόριο του PIR ανά credit (μόνο παίκτες με επαρκές δείγμα)
+    elig = sorted((x["vpc"] for x in players if x["gp"] >= 3), reverse=True)
+    def grade(v):
+        if not elig:
+            return "C"
+        r = sum(1 for e in elig if e > v) / len(elig)
+        for cut, g in ((0.05, "A+"), (0.15, "A"), (0.30, "B+"), (0.50, "B"), (0.70, "C+"), (0.85, "C")):
+            if r < cut:
+                return g
+        return "D"
+    for p in players:
+        p["grade"] = grade(p["vpc"]) if p["gp"] >= 3 else None
+        p["small"] = 1 if p["gp"] < 3 else 0
     # coach: one per team, price from team strength
     strength = sorted(rat, key=lambda t: -(rat[t]["ortg"] - rat[t]["drtg"]))
     coaches = []

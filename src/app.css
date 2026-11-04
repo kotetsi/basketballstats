@@ -606,3 +606,19 @@ svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}sv
 /* Επόμενος αγώνας (σελίδες ομάδων) */
 .nextbox{border:1px solid var(--line,#ddd);border-left:4px solid var(--accent,#e4572e);border-radius:12px;padding:12px 16px;background:var(--card,#fff);margin:0 0 14px}
 .nextbox .kicker{margin:0 0 2px}.nextbox h2{font-size:20px;margin:0 0 6px}.nextbox h2 a{color:inherit;text-decoration:none}.nextbox p{margin:4px 0}
+/* Transfer Market Analyzer */
+.tmsum{display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 12px;font-size:14px}.tmsum b{font-size:16px}
+.tmtbl td,.tmtbl th{white-space:nowrap}.tmsub{display:block;font-size:11px;color:var(--muted)}
+.tmtbl .up{color:#2e7d32;font-weight:600}.tmtbl .dn{color:#c62828;font-weight:600}
+.tmf{display:inline-block;min-width:34px;text-align:center;font-size:11px;font-weight:700;border-radius:4px;padding:2px 4px;margin-right:3px}
+.tmf.d1{background:#1b8a4c;color:#fff}.tmf.d2{background:#7cc58f;color:#123}.tmf.d3{background:#e0e0e0;color:#222}.tmf.d4{background:#f2a07b;color:#222}.tmf.d5{background:#c8442b;color:#fff}
+.tmsig{font-weight:700}.tmsig.buy{color:#2e7d32}.tmsig.sell{color:#c62828}.tmsig.hold{color:var(--muted)}
+.tmb2b{color:#ef6c00}.tmx{background:none;border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:2px 8px;color:var(--ink)}
+.tmdet{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;padding:8px 4px;white-space:normal}.tmdet small{display:block;color:var(--muted);font-size:11px}
+.tmsp{width:100%;max-width:260px;height:52px;display:block;margin:4px 0}.tmsp text{font-size:9px;fill:var(--muted)}
+.tmdet ul{margin:6px 0;padding-left:16px}
+.tmg{display:inline-block;min-width:26px;text-align:center;font-weight:800;border-radius:5px;padding:1px 5px;font-size:12px}
+.tmg.gAp{background:#0b6b3a;color:#fff}.tmg.gA{background:#1b8a4c;color:#fff}.tmg.gBp{background:#7cc58f;color:#123}.tmg.gB{background:#cfe9d4;color:#123}.tmg.gCp{background:#f3e0a6;color:#222}.tmg.gC{background:#f2b48f;color:#222}.tmg.gD{background:#d9534f;color:#fff}
+.tmsmall{color:#ef6c00}
+.tmpage #tmFilters{position:sticky;top:0;z-index:5;background:var(--bg,#f4f2ee);padding:8px 0;border-bottom:1px solid var(--line)}
+.tmtbl td:first-child,.tmtbl th:first-child{position:sticky;left:0;background:var(--surface,#fff);z-index:1}
