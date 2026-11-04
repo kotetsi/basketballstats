@@ -205,4 +205,5 @@ cd dist && python3 -m http.server 8080   # μετά άνοιξε http://localhos
 - `scripts/odds.mjs`: snapshot σε κάθε εκτέλεση (rate limit 90′, μόνο όταν υπάρχει αγώνας τις επόμενες 4 μέρες), idempotent ιστορικό στο `data/odds/history.jsonl`, `latest.json`, `status.json`. Αν το feed «παγώσει» >30 ώρες ανοίγει issue «Odds feed stale».
 - `src/odds/core.mjs`: implied probability, vig, model edge, κατηγορίες/confidence, line movement/steam, CLV, PIR props (P10/P50/P90). Tests: `test/odds.test.mjs`.
 - Σελίδες: `/apodoseis/` (hub), `/apodoseis/clv/`, `/apodoseis/pir/` (εσωτερικές γραμμές PIR χωρίς αποδόσεις), και ενότητα «Αποδόσεις και μοντέλο» στο Matchup Center κάθε αγώνα.
-- Affiliate: προαιρετικό `data/odds/affiliates.json` = `{ "<book>": { "name": "...", "licensed": true, "terms": "https://..." } }` — μόνο διαχειριστές αδειοδοτημένοι από την ΕΕΕΠ.
+- Μόνο αδειοδοτημένοι bookmakers ανά έκδοση: `data/odds/licensed.json` (el → ΕΕΕΠ, en → UK Gambling Commission, es → DGOJ, sr → Uprava za igre na sreću), με όριο ηλικίας και σύνδεσμο βοήθειας ανά χώρα.
+- Affiliate: προαιρετικό `data/odds/affiliates.json` = `{ "gr": { "<book>": { "name": "...", "licensed": true, "terms": "https://..." } }, "uk": {...} }`.
