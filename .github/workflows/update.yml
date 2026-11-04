@@ -37,7 +37,7 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py
+        run: node --test test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
@@ -45,7 +45,7 @@ jobs:
       - name: "Shot charts - συντεταγμένες σουτ (μόνο οι νέοι αγώνες)"
         run: timeout 900 node scripts/shots.mjs --secs 480 || echo "Shots - παραλείφθηκε"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
-        run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε"
+        run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill: σφάλμα")
       - name: "Αποδόσεις από αδειοδοτημένο πάροχο (μόνο αν υπάρχει ODDS_API_KEY)"
         id: odds
         env:

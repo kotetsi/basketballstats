@@ -129,7 +129,7 @@ def main():
             "c": c, "n": p["n"], "t": r["team"], "pos": pos_of[c], "price": price, "status": status,
             "l5": round(float(np.mean(l5)), 1) if l5 else 0, "l10": round(float(np.mean(l10)), 1) if l10 else 0,
             "pirpm": round(sum(x[PIR] for x in played[-10:]) / mins10, 3) if mins10 else 0,
-            "pm": round(float(r["proj_min"]) * mult, 1), "ppm": round(float(r["proj_pirpm"]), 3), "pp": round(proj, 1),
+            "pm": round(float(r["proj_min"]) * mult, 1), "pp0": round(max(float(r["proj_pir"]), 0.0), 1), "ppm": round(float(r["proj_pirpm"]), 3), "pp": round(proj, 1),
             "p10": round(float(r["p10"]) * mult, 1), "p50": round(float(r["p50"]) * mult, 1), "p90": round(float(r["p90"]) * mult, 1),
             "conf": int(r["confidence"]) if mult else 0, "opp": tg_.get("opp"), "home": tg_.get("home"), "day": tg_.get("day"), "pwin": tg_.get("pwin"),
             "f": facts[i][:4], "h": [[x[0], round(x[SECS] / 60, 1), x[PIR]] for x in p["g"][-12:]],
@@ -284,6 +284,7 @@ def main():
               "days": days, "players": players, "coaches": coaches, "pos_median": pos_median,
               "backtest": {k: bt.get(k) for k in ("mae", "mae_base", "coverage_80", "mae_min", "n", "upto")}}
     OUT.mkdir(parents=True, exist_ok=True)
+    update_news(latest)
     (OUT / "latest.json").write_text(json.dumps(latest, ensure_ascii=False), encoding="utf-8")
     hist = OUT / "history"
     hist.mkdir(exist_ok=True)
@@ -292,6 +293,58 @@ def main():
     (hist / f"r{target}_{now.date().isoformat()}_{MODEL_VERSION}.json").write_text(json.dumps(slim), encoding="utf-8")
     log(f"round {target}: {len(players)} players, {len(coaches)} coaches, trained on {model.n_train} rows, "
         f"backtest MAE {bt.get('mae')} (baseline {bt.get('mae_base')}), {time.time() - t0:.1f}s")
+
+
+def update_news(latest: dict) -> None:
+    """Fantasy news feed: τι άλλαξε από την προηγούμενη εκτέλεση (κατάσταση, προβολή, λεπτά, βασικός, ομάδα)."""
+    f = OUT / "news.json"
+    try:
+        feed = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        feed = {"items": []}
+    try:
+        prev = json.loads((OUT / "latest.json").read_text(encoding="utf-8"))
+    except Exception:
+        prev = None
+    if not prev:
+        return
+    ts = latest["generated"]
+    P0 = {p["c"]: p for p in prev.get("players", [])}
+    items = []
+    def add(p, kind, before=None, after=None, source="basketballstats model", detail=None):
+        items.append({"ts": ts, "c": p["c"], "n": p["n"], "t": p["t"], "kind": kind, "before": before, "after": after, "source": source, "detail": detail, "round": latest["round"]})
+    same_round = prev.get("round") == latest["round"]
+    if not feed.get("items"):   # πρώτη φορά: αφετηρία από την τρέχουσα εικόνα
+        P0 = {c: {**q, "status": "playing"} for c, q in P0.items()}
+        same_round = False
+    for p in latest["players"]:
+        q = P0.get(p["c"])
+        if not q:
+            continue
+        if q.get("status") != p["status"]:
+            if p["status"] in ("injured", "rest"):
+                add(p, "injury", q.get("pp"), p["pp"], "EuroLeague / injury report")
+            elif p["status"] == "doubtful":
+                add(p, "doubtful", q.get("pp"), p["pp"], "EuroLeague / injury report")
+            elif p["status"] == "playing" and q.get("status") in ("injured", "rest", "doubtful"):
+                add(p, "return", q.get("pp"), p["pp"], "EuroLeague / injury report")
+        if q.get("t") and q["t"] != p["t"]:
+            add(p, "transfer", None, p["pp"], "EuroLeague roster", detail={"from": q["t"], "to": p["t"]})
+        if same_round and q.get("pp") is not None and abs(p["pp"] - q["pp"]) >= 3 and q.get("status") == p["status"]:
+            add(p, "projection_change", q["pp"], p["pp"])
+        if not same_round:
+            if (q.get("start") or 0) < 0.4 and (p.get("start") or 0) >= 0.6:
+                add(p, "probable_starter", q.get("pp"), p["pp"])
+            if p.get("m10") and p.get("m3") is not None:
+                d = p["m3"] - p["m10"]
+                if d >= 5:
+                    add(p, "minutes_up", q.get("pp"), p["pp"], detail={"m3": p["m3"], "m10": p["m10"]})
+                elif d <= -5:
+                    add(p, "minutes_drop", q.get("pp"), p["pp"], detail={"m3": p["m3"], "m10": p["m10"]})
+    pri = {"injury": 0, "doubtful": 1, "return": 2, "transfer": 3, "probable_starter": 4, "projection_change": 5, "minutes_drop": 6, "minutes_up": 7}
+    items.sort(key=lambda x: pri.get(x["kind"], 9))
+    feed["items"] = (items + feed.get("items", []))[:400]
+    f.write_text(json.dumps(feed, ensure_ascii=False), encoding="utf-8")
 
 
 if __name__ == "__main__":
