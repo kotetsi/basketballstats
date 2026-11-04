@@ -208,3 +208,29 @@ CREATE TABLE whatif_scenarios (             -- σήμερα: localStorage 'fmt-v
 );
 CREATE UNIQUE INDEX ON whatif_scenarios (team_id, round_no, name);
 -- κανόνας εφαρμογής: έως 5 scenarios ανά (team_id, round_no)
+
+-- ============ Optimizer v2 (ακριβής βελτιστοποίηση) ============
+CREATE TABLE optimizer_runs (               -- σήμερα: /api/fantasy/optimizer/<mode>.json + localStorage για τα δικά σου runs
+  optimization_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), team_id UUID REFERENCES fantasy_teams,
+  round_no SMALLINT, mode TEXT CHECK (mode IN ('safe','balanced','ceiling')), solver TEXT,  -- 'dp-bnb-v1'
+  inputs JSONB NOT NULL,                    -- budget, formation, max_per_team, locks, excludes, sold, current_turn, fixed_slots
+  status TEXT CHECK (status IN ('optimal','feasible_timeout','infeasible','fallback')),
+  objective NUMERIC(7,2), expected NUMERIC(6,1), floor NUMERIC(6,1), median NUMERIC(6,1), ceiling NUMERIC(6,1),
+  risk_score SMALLINT, captain_risk SMALLINT, bench_risk SMALLINT, team_exposure JSONB, budget_left NUMERIC(5,1),
+  solution JSONB NOT NULL,                  -- formation, start[], sixth, bench[], captain, coach
+  runtime_ms INT, created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE TABLE optimizer_explanations (
+  optimization_id UUID REFERENCES optimizer_runs ON DELETE CASCADE, player_id TEXT REFERENCES players,
+  decision TEXT CHECK (decision IN ('start','sixth','bench','captain','coach','not_selected')),
+  reasons TEXT[] NOT NULL, PRIMARY KEY (optimization_id, player_id)
+);
+CREATE TABLE optimizer_alternatives (
+  optimization_id UUID REFERENCES optimizer_runs ON DELETE CASCADE, rank SMALLINT,
+  label TEXT, solution JSONB NOT NULL, objective NUMERIC(7,2), delta NUMERIC(6,2), PRIMARY KEY (optimization_id, rank)
+);
+CREATE TABLE optimizer_turn_plans (
+  optimization_id UUID REFERENCES optimizer_runs ON DELETE CASCADE, turn_no SMALLINT,
+  lineup JSONB, captain TEXT REFERENCES players, playing TEXT[], substitutions JSONB, expected_points NUMERIC(6,1),
+  PRIMARY KEY (optimization_id, turn_no)
+);

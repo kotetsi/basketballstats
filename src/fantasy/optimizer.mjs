@@ -1,23 +1,11 @@
 // EuroLeague Fantasy scoring, lineup optimizer and round planner.
 // Pure functions: used by build.mjs (to pre-compute the /api files) and by the browser pages.
 
-export const FORMATIONS = { '2-2-1': [2, 2, 1], '1-2-2': [1, 2, 2], '2-1-2': [2, 1, 2], '1-3-1': [1, 3, 1], '3-1-1': [3, 1, 1] };
-export const POS = ['Guard', 'Forward', 'Center'];
-export const ROSTER = { Guard: 4, Forward: 4, Center: 2 };
-export const DEFAULTS = { budget: 100, maxPerTeam: 6, risk: 'ceiling', formation: 'auto' };
-
-// coach points from the final margin (positive = his team won); overtime counts as a 1-10 game
-export function coachPoints(margin, ot = false) {
-  if (margin > 0) return ot || margin <= 10 ? 10 : margin <= 20 ? 20 : 25;
-  const m = -margin;
-  return ot || m <= 10 ? -5 : m <= 20 ? -10 : -20;
-}
-
-// fantasy points of a player in a slot: PIR x win bonus x slot multiplier x captain multiplier
-export function fantasyPoints(pir, { won = false, slot = 'start', captain = false } = {}) {
-  const slotM = slot === 'bench' ? 0.5 : 1, capM = captain && slot === 'start' ? 2 : 1;
-  return pir * (won ? 1.1 : 1) * slotM * capM;
-}
+import { FORMATIONS, POS, ROSTER, DEFAULTS, coachPoints, playerPoints } from './rules.mjs';
+import { solve } from './solver.mjs';
+export { FORMATIONS, POS, ROSTER, DEFAULTS, coachPoints };
+// fantasy points of a player in a slot (κρατιέται για συμβατότητα): ίδιο με rules.playerPoints
+export const fantasyPoints = (pir, o = {}) => playerPoints(pir, o);
 
 // expected value of a player for the optimizer: the +10% bonus is weighted by his team's win probability
 export function playerValue(p, risk) {
@@ -51,49 +39,17 @@ function totals(lu, coach) {
   return { expected: sum('pp'), floor: sum('p10'), median: sum('p50'), ceiling: sum('p90') };
 }
 
-// roster search: several feasible starts + best-improvement swaps (same position) until nothing improves
+// Optimizer: ακριβής λύση με τον solver (DP + branch-and-bound) αντί για greedy αναζήτηση.
+// Κρατά το ίδιο σχήμα αποτελέσματος για τις υπάρχουσες σελίδες. risk: 'safe' | 'balanced' | 'ceiling' (το παλιό 'ceiling' = αναμενόμενο → 'balanced')
 export function optimize(players, coaches, opts = {}) {
   const o = { ...DEFAULTS, ...opts };
-  const pool = players.filter(p => p.status !== 'injured' && p.status !== 'rest' && p.opp && (!o.exclude || !o.exclude.includes(p.c)));
-  const must = (o.include || []).map(c => pool.find(p => p.c === c)).filter(Boolean);
-  const cpool = coaches.filter(c => c.opp);
-  const feasible = (ro, co) => { const cost = ro.reduce((s, p) => s + p.price, 0) + (co ? co.price : 0); if (cost > o.budget + 1e-9) return false; const cnt = {}; for (const p of ro) { cnt[p.t] = (cnt[p.t] || 0) + 1; if (cnt[p.t] > o.maxPerTeam) return false; } return must.every(m => ro.includes(m)); };
-  const score = (ro, co) => { const lu = bestLineup(ro, o.risk, o.formation); return lu ? lu.score + (co ? coachValue(co, o.risk) : 0) : -1e9; };
-  const starts = [];
-  const cheapest = () => { const ro = [...must]; for (const ps of POS) { const have = ro.filter(p => p.pos === ps).length; ro.push(...pool.filter(p => p.pos === ps && !ro.includes(p)).sort((a, b) => a.price - b.price).slice(0, ROSTER[ps] - have)); } return ro; };
-  starts.push(cheapest());
-  for (const k of [0.6, 1, 1.4]) { // greedy by value per credit with different weights
-    const ro = [...must]; let spend = must.reduce((s, p) => s + p.price, 0); const cnt = {}; must.forEach(p => { cnt[p.t] = (cnt[p.t] || 0) + 1; });
-    const left = () => POS.reduce((s, ps) => s + Math.max(0, ROSTER[ps] - ro.filter(p => p.pos === ps).length), 0);
-    const cand = pool.filter(p => !ro.includes(p)).sort((a, b) => playerValue(b, o.risk) / Math.pow(b.price, k) - playerValue(a, o.risk) / Math.pow(a.price, k));
-    for (const p of cand) { if (ro.filter(x => x.pos === p.pos).length >= ROSTER[p.pos] || (cnt[p.t] || 0) >= o.maxPerTeam) continue; if (spend + p.price + 4 * (left() - 1) + 4 > o.budget) continue; ro.push(p); spend += p.price; cnt[p.t] = (cnt[p.t] || 0) + 1; if (!left()) break; }
-    if (!left()) starts.push(ro);
-  }
-  let best = null;
-  for (const st of starts) {
-    let ro = st, co = cpool.slice().sort((a, b) => a.price - b.price)[0];
-    if (!feasible(ro, co)) continue;
-    let cur = score(ro, co), improved = true, it = 0;
-    while (improved && it++ < 60) {
-      improved = false; let bestMove = null;
-      for (let i = 0; i < ro.length; i++) {
-        if (must.includes(ro[i])) continue;
-        for (const q of pool) {
-          if (q.pos !== ro[i].pos || ro.includes(q)) continue;
-          const nr = ro.slice(); nr[i] = q;
-          if (!feasible(nr, co)) continue;
-          const s = score(nr, co); if (s > cur + 1e-6 && (!bestMove || s > bestMove.s)) bestMove = { s, ro: nr, co };
-        }
-      }
-      for (const c of cpool) { if (c === co || !feasible(ro, c)) continue; const s = score(ro, c); if (s > cur + 1e-6 && (!bestMove || s > bestMove.s)) bestMove = { s, ro, co: c }; }
-      if (bestMove) { ro = bestMove.ro; co = bestMove.co; cur = bestMove.s; improved = true; }
-    }
-    if (!best || cur > best.s) best = { s: cur, ro, co };
-  }
-  if (!best) return null;
-  const lu = bestLineup(best.ro, o.risk, o.formation);
-  const cost = best.ro.reduce((s, p) => s + p.price, 0) + (best.co ? best.co.price : 0);
-  return { ...lu, roster: best.ro, coach: best.co, cost: Math.round(cost * 10) / 10, budget: o.budget, risk: o.risk, totals: totals(lu, best.co) };
+  const mode = o.mode || (o.risk === 'safe' ? 'safe' : o.risk === 'p90' ? 'ceiling' : o.risk === 'expected' ? 'expected' : 'balanced');
+  const pool = players.filter(p => p.opp);
+  const r = solve(pool, coaches.filter(c => c.opp), { budget: o.budget, maxPerTeam: o.maxPerTeam, mode, formation: o.formation, lock: o.include || [], exclude: o.exclude || [] });
+  if (!r || !r.start) return null;
+  const P = new Map(pool.map(p => [p.c, p])), coach = coaches.find(c => c.t === r.coach);
+  const lu = { formation: r.formation, start: r.start.map(c => P.get(c)), sixth: P.get(r.sixth), bench: r.bench.map(c => P.get(c)), captain: P.get(r.captain), score: r.objective };
+  return { ...lu, roster: [...lu.start, lu.sixth, ...lu.bench], coach, cost: r.cost, budget: o.budget, risk: o.risk, mode, status: r.status, totals: totals(lu, coach) };
 }
 
 // turn-by-turn plan for rounds spread over several game days
