@@ -568,3 +568,10 @@ svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}sv
 .wpsvg .wpk circle{fill:#222;stroke:#fff;stroke-width:1.5}.wpsvg .wpk text{fill:#fff;font-size:10px;font-weight:700}
 .wpkm{padding-left:0;list-style:none}.wpkm li{margin:6px 0}.wpkn{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#222;color:#fff;font-size:11px}
 .wpclk{color:#888;font-variant-numeric:tabular-nums}
+/* σε βάθος ανάλυση */
+.deepbtn{display:inline-block;background:var(--accent,#e4572e);color:#fff!important;font-weight:700;padding:10px 16px;border-radius:10px;text-decoration:none}
+.deeppage section{margin:26px 0}.deepkeys li{margin:10px 0;line-height:1.5}
+.deeppage td small{color:#888}
+.deepstrip{margin:14px 0 6px}.deepstrip h2{margin:0 0 8px}.deepl{display:flex;flex-wrap:wrap;gap:8px}
+.deepl a{background:var(--card,#fff);border:1px solid var(--line,#ddd);border-radius:999px;padding:7px 12px;font-weight:600;text-decoration:none;font-size:14px}
+.deepl a:hover{border-color:var(--accent,#e4572e)}

@@ -83,8 +83,8 @@ export function interpret(p, T) {
   good.sort((a, b) => b[0] - a[0]); bad.sort((a, b) => b[0] - a[0]);
   const G = good.slice(0, 2).map(x => x[1]), Bd = bad.slice(0, 2).map(x => x[1]);
   const and = T(' και ', ' and ', ' y ', ' i ');
-  if (G.length && Bd.length) return T(`Η ομάδα είναι ${G.join(and)}, αλλά ${Bd.join(and)}.`, `The team is ${G.join(and)}, but ${Bd.join(and)}.`, `El equipo destaca en ${G.join(and)}, pero ${Bd.join(and)}.`, `Tim je ${G.join(and)}, ali ${Bd.join(and)}.`);
-  if (G.length) return T(`Η ομάδα ξεχωρίζει: ${G.join(and)}.`, `Strengths: ${G.join(and)}.`, `Puntos fuertes: ${G.join(and)}.`, `Prednosti: ${G.join(and)}.`);
+  if (G.length && Bd.length) return T(`Δυνατά σημεία: ${G.join(and)}. Αδυναμίες: ${Bd.join(and)}.`, `Strengths: ${G.join(and)}. Weaknesses: ${Bd.join(and)}.`, `Puntos fuertes: ${G.join(and)}. Debilidades: ${Bd.join(and)}.`, `Prednosti: ${G.join(and)}. Slabosti: ${Bd.join(and)}.`);
+  if (G.length) return T(`Δυνατά σημεία: ${G.join(and)}.`, `Strengths: ${G.join(and)}.`, `Puntos fuertes: ${G.join(and)}.`, `Prednosti: ${G.join(and)}.`);
   if (Bd.length) return T(`Αδυναμίες: ${Bd.join(and)}.`, `Weaknesses: ${Bd.join(and)}.`, `Debilidades: ${Bd.join(and)}.`, `Slabosti: ${Bd.join(and)}.`);
   return T('Η ομάδα κινείται κοντά στον μέσο όρο της λίγκας σε όλους τους Four Factors.', 'The team is close to the league average in all four factors.', 'El equipo está cerca de la media en los cuatro factores.', 'Tim je blizu proseka lige u sva četiri faktora.');
 }

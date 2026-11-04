@@ -20,6 +20,7 @@ import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from
 import * as SB from './src/shots/build-shots.mjs';
 import { wpSeries, wpSVG, clockOf } from './src/game/wp.mjs';
 import * as RB from './src/refs/build-refs.mjs';
+import { deepFacts, renderDeep } from './src/deep/deep.mjs';
 import { describe as shDescribe } from './src/shots/zones.mjs';
 import { miniHeat } from './src/shots/court.mjs';
 import * as CB from './src/compare/build-compare.mjs';
@@ -953,6 +954,7 @@ async function main() {
     if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
     if (k === 'nat') return B(lg) + ({ el: 'ethnikotites', en: 'nationalities', es: 'nacionalidades', sr: 'nacionalnosti' })[lg] + '/' + (v ? natSlug(lg, v) + '/' : '');
+    if (k === 'deep') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.articles + '/' + ({ el: 'analysi', en: 'preview', es: 'analisis', sr: 'analiza' })[lg] + '-' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'ref') return B(lg) + ({ el: 'diaitites', en: 'referees', es: 'arbitros', sr: 'sudije' })[lg] + '/' + (v ? v + '/' : '');
     if (k === 'awards') return B(lg) + ({ el: 'vraveia', en: 'awards', es: 'premios', sr: 'nagrade' })[lg] + '/' + (v ? monthSlug(lg, v) + '/' : '');
     if (k === 'paroli') return B(lg) + ({ el: 'paroli', en: 'parlay', es: 'combinada', sr: 'tiket' })[lg] + '/' + (v ? ({ el: `agonistiki-${v}`, en: `round-${v}`, es: `jornada-${v}`, sr: `${v}-kolo` })[lg] + '/' : '');
@@ -1249,7 +1251,13 @@ ${ldTag(ld)}${script}
       if (!tops.length) return '';
       return `<section class="shstrip"><div class="shsh"><h2>Shot Charts</h2><p class="sub">${T('Από πού σουτάρει κάθε ομάδα και κάθε παίκτης, με hot/cold ζώνες σε σχέση με τη λίγκα.', 'Where every team and player shoots from, with hot/cold zones against the league.', 'Desde dónde tira cada equipo y cada jugador, con zonas calientes y frías frente a la liga.', 'Odakle šutira svaki tim i igrač, sa vrućim i hladnim zonama u odnosu na ligu.')}</p><a class="pread" href="${urlFor(LG, 'shots')}">${T('Όλα τα shot charts', 'All shot charts', 'Todos los mapas de tiro', 'Sve mape šuteva')} →</a></div><div class="shgrid">${tops.map(c => shPromo(urlFor(LG, 'sht:' + c), SHT[c].zones, SHLA?.[SEASON]?.zones, tName(c), teamShotLine(SHT[c], SHLA?.[SEASON]?.groups))).join('')}</div></section>`;
     })();
-    await page('home', { view: 'stand', top: homeShots, ld: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + B(LG), inLanguage: LG, description: T('Στατιστικά EuroLeague και EuroCup στα ελληνικά', 'EuroLeague and EuroCup stats', 'Estadísticas de la EuroLeague y la EuroCup', 'Statistika Evrolige i Evrokupa') },
+    const deepStrip = (() => {
+      const nr = (league.games.find(g => !g[6]) || [0])[0];
+      const gs = league.games.filter(g => g[0] === nr && !g[6] && TEAMS[g[2]] && TEAMS[g[3]]);
+      if (!gs.length) return '';
+      return `<section class="deepstrip"><h2>🔎 ${T(`Σε βάθος ανάλυση: ${nr}η αγωνιστική`, `In-depth previews: round ${nr}`, `Análisis en profundidad: jornada ${nr}`, `Detaljne analize: ${nr}. kolo`)}</h2><div class="deepl">${gs.map(g => `<a href="${urlFor(LG, `deep:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(g[2]))} – ${esc(tName(g[3]))}</a>`).join('')}</div></section>`;
+    })();
+    await page('home', { view: 'stand', top: deepStrip + homeShots, ld: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + B(LG), inLanguage: LG, description: T('Στατιστικά EuroLeague και EuroCup στα ελληνικά', 'EuroLeague and EuroCup stats', 'Estadísticas de la EuroLeague y la EuroCup', 'Statistika Evrolige i Evrokupa') },
       title: T(`EuroLeague βαθμολογία ${SEASON_LABEL}: πρόγραμμα, στατιστικά ομάδων και παικτών | ${SITE_NAME}`, `EuroLeague standings ${SEASON_LABEL}: schedule, team and player stats | ${SITE_NAME}`, `Clasificación de la EuroLeague ${SEASON_LABEL}: calendario y estadísticas de equipos y jugadores | ${SITE_NAME}`, `Tabela Evrolige ${SEASON_LABEL}: raspored, statistika timova i igrača | ${SITE_NAME}`),
       desc: T(`Η βαθμολογία της ${S} μετά την ${lastRound}η αγωνιστική, το πρόγραμμα, στατιστικά ομάδων και παικτών στα ελληνικά.`,
         `The ${S} standings after Round ${lastRound}, the schedule, team ratings and player stats.`, `La clasificación de la ${S} tras la jornada ${lastRound}, el calendario, los ratings de los equipos y las estadísticas de los jugadores.`, `Tabela ${S} posle ${lastRound}. kola, raspored, rejtinzi timova i statistika igrača.`) });
@@ -2069,6 +2077,34 @@ ${C && C.rows.length ? `<div class="anmetrics"><div class="am"><span>${T('Αγώ
           ld: crumbs([[SITE_NAME, B(LG)], ['Betting Insights', urlFor(LG, 'odds')], ['PIR', urlFor(LG, 'oddspir')]]) });
       }
     }
+    // ---- Σε βάθος ανάλυση για κάθε αγώνα της τρέχουσας αγωνιστικής
+    const DEEP = {};
+    {
+      const nr = (league.games.find(g => !g[6]) || [0])[0];
+      let FX = []; try { FX = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'matchups', 'fixtures.json'), 'utf8')).fixtures || []; } catch { }
+      const ordL = n => T(`${n}η`, `${n}${[, 'st', 'nd', 'rd'][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] || 'th'}`, `${n}.º`, `${n}.`);
+      const pNameD = id => NMALL[id] || niceName(AN.E?.names?.[id] || id);
+      const injOf = tm => players.filter(p => p.t.split(';').pop() === tm && INJ[LG][p.c]).map(p => ({ c: p.c, n: niceName(p.n), t: INJ[LG][p.c].t, m: INJ[LG][p.c].m }));
+      for (const g of league.games.filter(g => g[0] === nr && !g[6])) {
+        const [r, , h, a] = g;
+        if (!TEAMS[h] || !TEAMS[a]) continue;
+        const pred = MPK[`E|${r}|${h}|${a}`] || null;
+        const fx = FX.find(f => f.comp === 'E' && f.r === r && f.h === h && f.a === a);
+        const F = deepFacts({ h, a, C: AN.E, L: ANL.E, SH: SH?.[SEASON], ON: ANOO.E, players, playerSummary, MCH, pred, inj: injOf, stand: league.stand, games: league.games });
+        const H = tName(h), A = tName(a);
+        const dt = fx ? new Date(fx.t).toLocaleString({ el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG], { timeZone: 'Europe/Athens', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) : '';
+        const body = renderDeep(F, { T, esc, tName, niceName, pName: pNameD, pUrl: p => urlFor(LG, 'player:' + p.s), ord: ordL, urlFor, LG, r, dt, gameUrl: urlFor(LG, `game:${r}|${h}|${a}`), mcUrl: urlFor(LG, 'mc'), shtUrl: c => urlFor(LG, 'sht:' + c), interpret: AB.interpret, avg: ANL.E?.avg });
+        const ttl = T(`${H} – ${A}: σε βάθος ανάλυση (${r}η αγωνιστική EuroLeague)`, `${H} vs ${A}: in-depth preview (EuroLeague round ${r})`, `${H} – ${A}: análisis en profundidad (jornada ${r} de la EuroLeague)`, `${H} – ${A}: detaljna analiza (${r}. kolo Evrolige)`);
+        const key = `deep:${r}|${h}|${a}`;
+        DEEP[`${r}|${h}|${a}`] = urlFor(LG, key);
+        await simplePage(key, { view: 'article', title: `${ttl} | ${SITE_NAME}`,
+          desc: T(`Όλα τα επίπεδα του ${H} – ${A}: φόρμα, Four Factors, σουτ ανά ζώνη, πεντάδες, on/off, clutch, μονομαχίες ανά θέση, απουσίες, μεταξύ τους και πρόβλεψη.`, `Every level of ${H} vs ${A}: form, Four Factors, shot zones, lineups, on/off, clutch, positional matchups, absences, head-to-head and prediction.`, `Todos los niveles del ${H} – ${A}: forma, Four Factors, zonas de tiro, quintetos, on/off, clutch, duelos por posición, bajas, cara a cara y pronóstico.`, `Svi nivoi utakmice ${H} – ${A}: forma, Four Factors, zone šuta, petorke, on/off, clutch, dueli po pozicijama, odsustva, međusobni dueli i prognoza.`),
+          main: `<article class="article lead wide anpage deeppage"><p class="kicker">EuroLeague · ${esc(rdTxt0(r))}${dt ? ' · ' + esc(dt) : ''}</p><h1>${esc(ttl)}</h1><p class="lede2">${esc(T('Αυτόματη ανάλυση από τα επίσημα στατιστικά και το play-by-play όλης της σεζόν. Ανανεώνεται σε κάθε ενημέρωση του site μέχρι το τζάμπολ.', 'Automatic analysis from official stats and the full-season play-by-play. Refreshed with every site update until tip-off.', 'Análisis automático a partir de las estadísticas oficiales y el play-by-play de toda la temporada. Se actualiza con cada actualización del sitio hasta el salto inicial.', 'Automatska analiza iz zvanične statistike i play-by-play podataka cele sezone. Osvežava se pri svakom ažuriranju sajta do početka utakmice.'))}</p>
+${body}
+<p class="note">${T('Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος ή εγγύηση αποτελέσματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.', 'Projections are statistical estimates, not betting advice or a guarantee of any result. Gambling is for adults (18+) only. Please play responsibly.', 'Las estimaciones son estadísticas y no constituyen consejo de apuestas ni garantía de resultado. Apuestas solo para mayores de 18 años. Juega con responsabilidad.', 'Procene su statističke i nisu savet za klađenje niti garancija rezultata. Klađenje samo za punoletne (18+). Igrajte odgovorno.')}</p></article>`,
+          ld: crumbs([[SITE_NAME, B(LG)], [rdTxt0(r), urlFor(LG, 'preds')], [ttl, urlFor(LG, key)]]) });
+      }
+    }
     // ---- «Μάντεψε τον παίκτη»
     {
       const ISOG = { 'France': 'FR', 'Germany': 'DE', 'Italy': 'IT', 'Israel': 'IL', 'Serbia': 'RS', 'United States of America': 'US', 'Spain': 'ES', 'Lithuania': 'LT', 'Turkiye': 'TR', 'Turkey': 'TR', 'Greece': 'GR', 'Canada': 'CA', 'Dominican Republic': 'DO', 'Latvia': 'LV', 'Slovenia': 'SI', 'Nigeria': 'NG', 'Ireland': 'IE', 'Brazil': 'BR', 'United Kingdom': 'GB', 'North Macedonia': 'MK', 'Senegal': 'SN', 'Slovakia': 'SK', 'Georgia': 'GE', 'Finland': 'FI', 'Guinea': 'GN', 'Sweden': 'SE', 'Denmark': 'DK', 'Czech Republic': 'CZ', 'Poland': 'PL', 'Chile': 'CL', 'Hungary': 'HU', 'South Sudan': 'SS', 'Bahamas': 'BS', 'Angola': 'AO', 'Bulgaria': 'BG', 'Croatia': 'HR', 'Australia': 'AU', 'Cabo Verde': 'CV', 'Mali': 'ML', 'Montenegro': 'ME', 'Bosnia and Herzegovina': 'BA', 'Russia': 'RU', 'Ukraine': 'UA', 'Belgium': 'BE', 'Netherlands': 'NL', 'Argentina': 'AR', 'Mexico': 'MX', 'Puerto Rico': 'PR', 'Cameroon': 'CM', 'Congo': 'CG', 'DR Congo': 'CD', 'Austria': 'AT', 'Portugal': 'PT', 'Estonia': 'EE', 'Venezuela': 'VE', 'Uruguay': 'UY', 'Jamaica': 'JM', 'New Zealand': 'NZ', 'Switzerland': 'CH', 'Norway': 'NO', 'Iceland': 'IS', 'Cyprus': 'CY', 'Albania': 'AL', 'Kosovo': 'XK', 'Japan': 'JP', 'China': 'CN', 'Philippines': 'PH', 'Egypt': 'EG', 'Tunisia': 'TN', 'Morocco': 'MA', 'Ivory Coast': 'CI', "Cote d'Ivoire": 'CI', 'Ghana': 'GH', 'Gabon': 'GA', 'Haiti': 'HT', 'Panama': 'PA', 'Colombia': 'CO', 'Cuba': 'CU' };
@@ -2273,6 +2309,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
 <h1>${esc(H)} – ${esc(A)}</h1>
 <p class="lede">${esc(dt)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)')}${pl ? ` · ${T('Τελικό', 'Final', 'Final', 'Konačan rezultat')} ${sc}` : ''}</p>
 ${pl && SH?.[SEASON]?.games.some(x => x.h === h && x.a === a) ? `<p><a class="pread" href="${urlFor(LG, `shg:${r}|${h}|${a}`)}">Shot chart →</a></p>` : ''}
+${!pl && DEEP[`${r}|${h}|${a}`] ? `<p><a class="deepbtn" href="${DEEP[`${r}|${h}|${a}`]}">🔎 ${T('Διάβασε τη σε βάθος ανάλυση του αγώνα', 'Read the in-depth preview', 'Lee el análisis en profundidad', 'Pročitaj detaljnu analizu')} →</a></p>` : ''}
 <section class="gtop" id="gTop"></section>
 ${pl ? wpSection(r, h, a, H, A) : ''}
 <section class="gprev"><h2>${pl ? T('Σύνοψη', 'Summary', 'Resumen', 'Rezime') : T('Προεπισκόπηση', 'Preview', 'Previa', 'Najava')}</h2>${PV.map(t => `<p>${esc(t)}</p>`).join('')}</section>
