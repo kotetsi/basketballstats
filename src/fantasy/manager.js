@@ -155,7 +155,7 @@ function viewNews() {
   const mine = new Set(team().roster);
   return `<section class="fmsec"><h2>${esc(L.tabs.news)}</h2><ul class="fmnews">${NEWS.slice(0, 120).map(n => { const p = P.get(n.c); return `<li class="${mine.has(n.c) ? 'mine' : ''}"><span class="nk nk-${n.kind}">${esc(L.nk[n.kind] || n.kind)}</span> <b>${p ? pLink(n.c) : esc(n.n)}</b> <small><a href="${X.teamBase[n.t] || '#'}">${tm(n.t)}</a></small>
 <p>${esc((L.nm[n.kind] || '').replace('{b}', f1(n.before)).replace('{a}', f1(n.after)).replace('{m3}', n.detail?.m3 ?? '').replace('{m10}', n.detail?.m10 ?? '').replace('{from}', X.teams[n.detail?.from] || n.detail?.from || '').replace('{to}', X.teams[n.detail?.to] || n.detail?.to || ''))}${p ? ` · ${esc(L.proj)} ${f1(p.pp)}` : ''}</p>
-<p class="sub">${mine.has(n.c) ? '⭐ ' + esc(L.inTeam) + ' · ' : ''}${esc(L.na[n.kind] || '')} · ${esc(n.source)} · ${new Date(n.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></li>`; }).join('') || `<li>${esc(L.noNews)}</li>`}</ul></section>`;
+<p class="sub">${mine.has(n.c) ? '⭐ ' + esc(L.inTeam) + ' · ' : ''}${esc(L.na[n.kind] || '')} · ${esc(L.src[n.source] || n.source)} · ${new Date(n.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></li>`; }).join('') || `<li>${esc(L.noNews)}</li>`}</ul></section>`;
 }
 
 function render() {

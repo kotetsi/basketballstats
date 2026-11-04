@@ -212,8 +212,8 @@ export function buildAlerts(lineup, players, news = [], { curTurn = 0, now = new
   for (const c of mine) {
     const p = P.get(c); if (!p) continue;
     const slot = slotOf(c);
-    if (p.status === 'injured' || p.status === 'rest') add(c, 'ruled_out', p.pp0 ?? p.l5 ?? null, 0, slot === 'bench' ? 'keep_bench' : 'to_bench', 'injury_report');
-    else if (p.status === 'doubtful') add(c, 'doubtful', p.pp0 ?? p.l5 ?? null, p.pp, 'have_backup', 'injury_report');
+    if (p.status === 'injured' || p.status === 'rest') add(c, 'ruled_out', p.pp0 ?? p.l5 ?? null, 0, slot === 'bench' ? 'keep_bench' : 'to_bench', p.status_src || 'injury_list');
+    else if (p.status === 'doubtful') add(c, 'doubtful', p.pp0 ?? p.l5 ?? null, p.pp, 'have_backup', p.status_src || 'missed_games_rule');
     if (p.m3 != null && p.m10 && p.m3 - p.m10 <= -5) add(c, 'minutes_drop', null, p.pp, 'watch', 'model');
     if (p.b2b) add(c, 'b2b', null, p.pp, 'watch', 'schedule');
     if (c === lineup.captain && p.day === curTurn) add(c, 'captain_today', null, p.pp, 'confirm_captain', 'schedule');

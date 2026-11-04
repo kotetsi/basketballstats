@@ -116,17 +116,22 @@ def main():
         l10 = [x[PIR] for x in played[-10:]]
         mins10 = sum(x[SECS] for x in played[-10:]) / 60
         status = "playing"
+        status_src = "none"            # καμία πληροφορία = θεωρείται διαθέσιμος
         ij = inj.get(c)
         if ij:
             status = "injured" if ij.get("m") == 1 else "doubtful"
-        status = status_over.get(c, status_over.get(p["n"].upper(), status))
+            status_src = "injury_list" if ij.get("m") == 1 else "missed_games_rule"
+        ov = status_over.get(c, status_over.get(p["n"].upper()))
+        if ov:
+            status, status_src = ov, "manual_override"
         mult = {"playing": 1.0, "doubtful": 0.4, "injured": 0.0, "rest": 0.0}.get(status, 1.0)
         proj = max(float(r["proj_pir"]), 0.0) * mult
         base = 0.5 * (np.mean(l10) if l10 else 0) + 0.5 * max(float(r["proj_pir"]), 0)
-        price = float(prices_over.get(c, prices_over.get(p["n"].upper(), 0)) or 0) or round(min(24, max(4, 4 + 0.75 * base)), 1)
+        price_off = float(prices_over.get(c, prices_over.get(p["n"].upper(), 0)) or 0)
+        price = price_off or round(min(24, max(4, 4 + 0.75 * base)), 1)
         tg_ = team_game.get(r["team"], {})
         players.append({
-            "c": c, "n": p["n"], "t": r["team"], "pos": pos_of[c], "price": price, "status": status,
+            "c": c, "n": p["n"], "t": r["team"], "pos": pos_of[c], "price": price, "price_src": "official" if price_off else "estimate", "status": status, "status_src": status_src,
             "l5": round(float(np.mean(l5)), 1) if l5 else 0, "l10": round(float(np.mean(l10)), 1) if l10 else 0,
             "pirpm": round(sum(x[PIR] for x in played[-10:]) / mins10, 3) if mins10 else 0,
             "pm": round(float(r["proj_min"]) * mult, 1), "pp0": round(max(float(r["proj_pir"]), 0.0), 1), "ppm": round(float(r["proj_pirpm"]), 3), "pp": round(proj, 1),
@@ -311,7 +316,7 @@ def update_news(latest: dict) -> None:
     ts = latest["generated"]
     P0 = {p["c"]: p for p in prev.get("players", [])}
     items = []
-    def add(p, kind, before=None, after=None, source="basketballstats model", detail=None):
+    def add(p, kind, before=None, after=None, source="model", detail=None):
         items.append({"ts": ts, "c": p["c"], "n": p["n"], "t": p["t"], "kind": kind, "before": before, "after": after, "source": source, "detail": detail, "round": latest["round"]})
     same_round = prev.get("round") == latest["round"]
     if not feed.get("items"):   # πρώτη φορά: αφετηρία από την τρέχουσα εικόνα
@@ -322,14 +327,16 @@ def update_news(latest: dict) -> None:
         if not q:
             continue
         if q.get("status") != p["status"]:
+            SRC = {"injury_list": "injury_list", "missed_games_rule": "missed_games_rule", "manual_override": "manual_override", "none": "box_score"}
+            src = SRC.get(p.get("status_src"), "box_score")
             if p["status"] in ("injured", "rest"):
-                add(p, "injury", q.get("pp"), p["pp"], "EuroLeague / injury report")
+                add(p, "injury", q.get("pp"), p["pp"], src)
             elif p["status"] == "doubtful":
-                add(p, "doubtful", q.get("pp"), p["pp"], "EuroLeague / injury report")
+                add(p, "doubtful", q.get("pp"), p["pp"], src)
             elif p["status"] == "playing" and q.get("status") in ("injured", "rest", "doubtful"):
-                add(p, "return", q.get("pp"), p["pp"], "EuroLeague / injury report")
+                add(p, "return", q.get("pp"), p["pp"], src)
         if q.get("t") and q["t"] != p["t"]:
-            add(p, "transfer", None, p["pp"], "EuroLeague roster", detail={"from": q["t"], "to": p["t"]})
+            add(p, "transfer", None, p["pp"], "euroleague_roster", detail={"from": q["t"], "to": p["t"]})
         if same_round and q.get("pp") is not None and abs(p["pp"] - q["pp"]) >= 3 and q.get("status") == p["status"]:
             add(p, "projection_change", q["pp"], p["pp"])
         if not same_round:
