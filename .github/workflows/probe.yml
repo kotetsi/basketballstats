@@ -5,12 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          mkdir out
-          curl -s -o out/pbp.json -w "pbp %{http_code}\n" "https://live.euroleague.net/api/PlayByPlay?gamecode=1&seasoncode=E2026"
-          curl -s -o out/pbp_u.json -w "pbpU %{http_code}\n" "https://live.euroleague.net/api/PlayByPlay?gamecode=1&seasoncode=U2026"
-          curl -s -o out/box.json -w "box %{http_code}\n" "https://live.euroleague.net/api/Boxscore?gamecode=1&seasoncode=E2026"
-          curl -s -o out/v1pbp.json -w "v1 %{http_code}\n" "https://api-live.euroleague.net/v1/games/E2026/1/playbyplay"
-          curl -s -o out/games.json -w "games %{http_code}\n" "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2026/games?limit=3"
-          ls -la out
-      - uses: actions/upload-artifact@v4
-        with: { name: probe, path: out }
+          curl -s -o pbp.json "https://live.euroleague.net/api/PlayByPlay?gamecode=1&seasoncode=E2026"
+          curl -s -o box.json "https://live.euroleague.net/api/Boxscore?gamecode=1&seasoncode=E2026"
+          echo "KEYS"; jq -c 'keys' pbp.json
+          jq -c '[.FirstQuarter[0:25][] ]' pbp.json
+          echo "Q2START"; jq -c '[.SecondQuarter[0:12][]]' pbp.json
+          echo "TYPES"; jq -c '[.FirstQuarter[],.SecondQuarter[],.ThirdQuarter[],.ForthQuarter[]|.PLAYTYPE]|group_by(.)|map({(.[0]):length})|add' pbp.json
+          echo "BOX"; jq -c 'keys' box.json; jq -c '.Stats[0]|keys' box.json; jq -c '.Stats[0].PlayersStats[0]' box.json
