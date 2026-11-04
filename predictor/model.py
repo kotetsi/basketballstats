@@ -19,6 +19,11 @@ except Exception:  # pragma: no cover
     ENGINE = 'sklearn-hgb'
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
 from sklearn.isotonic import IsotonicRegression
+from sklearn.linear_model import LogisticRegression, Ridge
+
+# Γραμμικό «σκελετό» μοντέλο με λίγα, σταθερά features: πολύ λιγότερο overfitting σε μικρά δείγματα
+LIN = ['d_net', 'd_net_l5', 'd_net_l10', 'x_margin', 'elo_h', 'elo_a', 'home', 'd_rest', 'h_b2b', 'a_b2b', 'd_absent', 'h_sos', 'a_sos']
+LIN_T = ['x_total', 'x_pace', 'h_pace', 'a_pace', 'h_ortg', 'a_ortg', 'h_drtg', 'a_drtg']
 
 MODEL_VERSION = 'mp-1.0'
 TARGETS = ['y_margin', 'y_total', 'y_poss']
@@ -103,6 +108,8 @@ class Predictor:
         self.iso = None
         self.sigma = 12.0
         self.home_adv = 3.0
+        self.w_gbm = 0.35
+        self.w_elo = 0.5
 
     def fit(self, rows, calib_rows=None, calib_pred=None):
         self.names = feature_names(rows)
@@ -115,7 +122,25 @@ class Predictor:
             self.iso = IsotonicRegression(out_of_bounds='clip', y_min=0.02, y_max=0.98).fit(calib_pred, [r['y_win'] for r in calib_rows])
         m = np.array([r['y_margin'] for r in rows], float)
         self.home_adv = float(np.mean(m))
+        # γραμμικά μοντέλα (με τιμές που λείπουν = μέσος όρος)
+        self.lin = {}
+        for key, cols in (('win', LIN), ('margin', LIN), ('total', LIN_T + LIN), ('poss', LIN_T)):
+            Xl = matrix(rows, cols)
+            mu = np.nanmean(Xl, axis=0); mu = np.where(np.isnan(mu), 0, mu)
+            sd = np.nanstd(Xl, axis=0); sd = np.where((sd == 0) | np.isnan(sd), 1, sd)
+            Z = np.nan_to_num((Xl - mu) / sd)
+            if key == 'win':
+                mdl = LogisticRegression(C=0.3, max_iter=500).fit(Z, y)
+            else:
+                yy = {'margin': m, 'total': np.array([r['y_total'] for r in rows], float), 'poss': np.array([r['y_poss'] for r in rows], float)}[key]
+                mdl = Ridge(alpha=20.0).fit(Z, yy)
+            self.lin[key] = (cols, mu, sd, mdl)
         return self
+
+    def _lin(self, rows, key):
+        cols, mu, sd, mdl = self.lin[key]
+        Z = np.nan_to_num((matrix(rows, cols) - mu) / sd)
+        return mdl.predict_proba(Z)[:, 1] if key == 'win' else mdl.predict(Z)
 
     def predict(self, rows):
         X = matrix(rows, self.names)
@@ -123,11 +148,14 @@ class Predictor:
         if self.iso is not None:
             p = 0.5 * p + 0.5 * self.iso.predict(p)   # ήπια calibration, για να μη «σκαλώνει» σε σκαλοπάτια
         out = {}
-        for t in TARGETS:
-            out[t] = self.reg[t].predict(X)
+        W = self.w_gbm  # βάρος του LightGBM στο ensemble (το υπόλοιπο στο γραμμικό μοντέλο)
+        for t, k in (('y_margin', 'margin'), ('y_total', 'total'), ('y_poss', 'poss')):
+            out[t] = W * self.reg[t].predict(X) + (1 - W) * self._lin(rows, k)
+        p = W * p + (1 - W) * self._lin(rows, 'win')
         # συνέπεια πιθανότητας και σκορ: μέσος όρος classifier και κανονικής κατανομής γύρω από την προβλεπόμενη διαφορά
         pm = np.array([0.5 * (1 + math.erf(m / (self.sigma * math.sqrt(2)))) for m in out['y_margin']])
-        out['p'] = 0.5 * p + 0.5 * pm
+        elo = np.array([r.get('elo_p') if r.get('elo_p') is not None else 0.5 for r in rows])
+        out['p'] = (1 - self.w_elo) * (0.5 * p + 0.5 * pm) + self.w_elo * elo
         return out
 
 
