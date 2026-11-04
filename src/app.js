@@ -433,7 +433,8 @@ document.getElementById('fanSeg')?.addEventListener('click',e=>{const b=e.target
 // ---- Προγνωστικά: εκτίμηση από αποδόσεις ανά 100 κατοχές
 const HCA=3; // πλεονέκτημα έδρας σε πόντους
 function ncdf(x){const t=1/(1+0.2316419*Math.abs(x)),d=0.3989423*Math.exp(-x*x/2);const p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p;}
-function predict(h,a){const H=TS[h],A=TS[a];if(!H||!A)return null;const pace=(H.pace+A.pace)/2;
+// ίδια πρόβλεψη παντού: πρώτα ο Game Predictor (Matchup Center), αλλιώς το απλό μοντέλο ratings
+function predict(h,a){const M=D.mp&&D.mp[h+'|'+a];if(M)return{ph:M[0],pa:M[1],prob:M[2],total:M[3]};const H=TS[h],A=TS[a];if(!H||!A)return null;const pace=(H.pace+A.pace)/2;
   const ph=pace*((H.ortg+A.drtg)/2)/100+HCA/2, pa=pace*((A.ortg+H.drtg)/2)/100-HCA/2;
   return{ph,pa,prob:ncdf((ph-pa)/11),total:ph+pa};}
 function renderPreds(){
