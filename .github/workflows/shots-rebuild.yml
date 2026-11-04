@@ -1,0 +1,33 @@
+# Χειροκίνητος επανυπολογισμός των shot charts (π.χ. μετά από αλλαγή στον αλγόριθμο)
+name: Επανυπολογισμός shot charts
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Σεζόν"
+        required: false
+        default: "E2026 U2026"
+permissions:
+  contents: write
+concurrency:
+  group: shots-rebuild
+  cancel-in-progress: false
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Επανυπολογισμός
+        run: |
+          git config user.name "basketballstats-bot"
+          git config user.email "basketballstats-bot@users.noreply.github.com"
+          for s in ${{ github.event.inputs.seasons || 'E2026 U2026' }}; do
+            node scripts/shots.mjs --season $s --force --secs 2400 || echo "$s: σφάλμα"
+            git add data/shots
+            git diff --cached --quiet || git commit -qm "Shot charts: επανυπολογισμός $s"
+            for i in 1 2 3 4; do git pull --rebase -q -X theirs && git push -q && break; sleep 20; done
+          done
