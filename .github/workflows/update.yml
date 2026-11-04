@@ -40,7 +40,7 @@ jobs:
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
-        run: node scripts/pbp.mjs --keys || echo "PBP - παραλείφθηκε"
+        run: timeout 1200 node scripts/pbp.mjs --keys --secs 600 || echo "PBP - παραλείφθηκε"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις

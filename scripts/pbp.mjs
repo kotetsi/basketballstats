@@ -15,6 +15,7 @@ const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), '
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const FORCE = process.argv.includes('--force');
 const MAX = +arg('--max', 400);
+const DEADLINE = Date.now() + 1000 * +arg('--secs', 900); // όριο χρόνου ανά εκτέλεση
 const cur = process.env.SEASON || CONF.season || 'E2026';
 const SEASONS = arg('--season') ? [arg('--season')] : [cur, 'U' + cur.slice(1)];
 const FEED = 'https://feeds.incrowdsports.com/provider/euroleague-feeds';
@@ -24,7 +25,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function get(url, tries = 4) {
   for (let i = 0; i < tries; i++) {
     try {
-      const r = await fetch(url, { headers: { accept: 'application/json' } });
+      const r = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(20000) });
       if (r.ok) { const t = await r.text(); return t ? JSON.parse(t) : null; }
       if (r.status === 404) return null;
     } catch { /* ξανά */ }
@@ -62,7 +63,7 @@ async function season(code) {
   for (const g of games) {
     const gc = String(g.gameCode ?? g.code ?? String(g.identifier || '').split('_').pop());
     if (!gc || (!FORCE && have.has(gc))) continue;
-    if (done >= MAX) break;
+    if (done >= MAX || Date.now() > DEADLINE) { console.log(`${code}: όριο, συνέχεια στην επόμενη εκτέλεση`); break; }
     const [pbp, box] = await Promise.all([get(`${LIVE}/PlayByPlay?gamecode=${gc}&seasoncode=${code}`), get(`${LIVE}/Boxscore?gamecode=${gc}&seasoncode=${code}`)]);
     await sleep(250);
     if (!pbp || !box?.Stats?.length) { console.log(`${code} #${gc}: χωρίς δεδομένα`); continue; }
@@ -93,6 +94,7 @@ async function season(code) {
     };
     await fs.writeFile(path.join(dir, gc + '.json'), JSON.stringify(out));
     done++;
+    if (done % 10 === 0) console.log(`${code}: ${done}…`);
   }
   console.log(`${code}: ${done} νέοι αγώνες${bad ? `, ${bad} με ασυμφωνία σκορ/χρόνου (σημειώνονται στο chk)` : ''}`);
 }
