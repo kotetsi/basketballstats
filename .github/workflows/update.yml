@@ -45,7 +45,7 @@ jobs:
       - name: "Shot charts - συντεταγμένες σουτ (μόνο οι νέοι αγώνες)"
         run: timeout 900 node scripts/shots.mjs --secs 480 || echo "Shots - παραλείφθηκε"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
-        run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill: σφάλμα")
+        run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill - σφάλμα")
       - name: "Αποδόσεις από αδειοδοτημένο πάροχο (μόνο αν υπάρχει ODDS_API_KEY)"
         id: odds
         env:
