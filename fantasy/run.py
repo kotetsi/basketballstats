@@ -134,7 +134,7 @@ def main():
             "c": c, "n": p["n"], "t": r["team"], "pos": pos_of[c], "price": price, "price_src": "official" if price_off else "estimate", "status": status, "status_src": status_src,
             "l5": round(float(np.mean(l5)), 1) if l5 else 0, "l10": round(float(np.mean(l10)), 1) if l10 else 0,
             "pirpm": round(sum(x[PIR] for x in played[-10:]) / mins10, 3) if mins10 else 0,
-            "pm": round(float(r["proj_min"]) * mult, 1), "pp0": round(max(float(r["proj_pir"]), 0.0), 1), "ppm": round(float(r["proj_pirpm"]), 3), "pp": round(proj, 1),
+            "pm": round(float(r["proj_min"]) * mult, 1), "pp0": round(max(float(r["proj_pir"]), 0.0), 1), "pm0": round(float(r["proj_min"]), 1), "ppm": round(float(r["proj_pirpm"]), 3), "pp": round(proj, 1),
             "p10": round(float(r["p10"]) * mult, 1), "p50": round(float(r["p50"]) * mult, 1), "p90": round(float(r["p90"]) * mult, 1),
             "conf": int(r["confidence"]) if mult else 0, "opp": tg_.get("opp"), "home": tg_.get("home"), "day": tg_.get("day"), "pwin": tg_.get("pwin"),
             "f": facts[i][:4], "h": [[x[0], round(x[SECS] / 60, 1), x[PIR]] for x in p["g"][-12:]],
@@ -206,6 +206,15 @@ def main():
         p["p3"] = round(sum(x[3] for x in nx), 1)
         f0 = feat0.get(c)
         p["start"] = round(float(f0["start_rate5"]), 2) if f0 is not None else None
+        # για τον Captain Advisor: άμυνα αντιπάλου, ρυθμός αναμέτρησης, σταθερότητα λεπτών, ιστορικό «ως αρχηγός»
+        p["odrtg"] = round(float(f0["opp_drtg"]), 1) if f0 is not None and f0["opp_drtg"] == f0["opp_drtg"] else None
+        p["gpace"] = round((float(f0["team_pace"]) + float(f0["opp_pace"])) / 2, 1) if f0 is not None and f0["team_pace"] == f0["team_pace"] and f0["opp_pace"] == f0["opp_pace"] else None
+        pl10 = [x for x in pl_by[c]["g"] if x[SECS] > 0][-10:]
+        mins_ = [x[SECS] / 60 for x in pl10]
+        p["mcv"] = round(float(np.std(mins_) / np.mean(mins_)), 3) if len(mins_) >= 3 and np.mean(mins_) > 0 else None
+        p["hcap"] = round(2 * float(np.mean([x[PIR] for x in pl10])), 1) if pl10 else None
+        p["hhit"] = round(sum(1 for x in pl10 if x[PIR] >= 20) / len(pl10), 2) if pl10 else None
+        p["hneg"] = round(sum(1 for x in pl10 if x[PIR] <= 5) / len(pl10), 2) if pl10 else None
         p["rest"] = int(f0["rest"]) if f0 is not None else None
         p["b2b"] = int(any(x[5] for x in nx))
         pr = ph.get(c, {})
@@ -221,45 +230,8 @@ def main():
         avg3 = p["p3"] / max(len(nx), 1)
         val = avg3 / p["price"] if p["price"] else 0
         p["vpc"] = round(val, 2)
-    vals = sorted(x["vpc"] for x in players if x["status"] == "playing" and x["m10"] >= 12)
-    q75 = vals[int(0.75 * (len(vals) - 1))] if vals else 9
-    q25 = vals[int(0.25 * (len(vals) - 1))] if vals else 0
+    # σήματα buy-low/sell-high και value grade: υπολογίζονται σε ΕΝΑ σημείο, στο src/fantasy/value.mjs (build), με κατάταξη ανά θέση
     for p in players:
-        avg3 = p["p3"] / max(len(p["nx"]), 1)
-        ph_ = p["ph"]
-        dprice = ph_[-1][1] - ph_[-4][1] if len(ph_) >= 4 else 0
-        hard = sum(1 for x in p["nx"] if x[4] >= 4)
-        easy = sum(1 for x in p["nx"] if x[4] <= 2)
-        why = []
-        sig = "hold"
-        if p["status"] in ("injured", "rest"):
-            sig = "sell"; why.append("status")
-        elif p["vpc"] >= q75 and (p["l3"] < p["l10"] - 1 or dprice < 0 or easy >= 2) and p["m10"] >= 12:
-            sig = "buy"
-            if p["l3"] < p["l10"] - 1: why.append("dip")
-            if dprice < 0: why.append("price_down")
-            if easy >= 2: why.append("easy")
-            why.append("value")
-        elif (p["l3"] > avg3 + 4 and dprice > 0) or (p["vpc"] <= q25 and p["price"] >= 12) or (hard >= 2 and p["l3"] > avg3 + 2) or p["status"] == "doubtful":
-            sig = "sell"
-            if p["l3"] > avg3 + 4: why.append("overperf")
-            if dprice > 0: why.append("price_up")
-            if hard >= 2: why.append("hard")
-            if p["vpc"] <= q25: why.append("low_value")
-            if p["status"] == "doubtful": why.append("doubtful")
-        p["sig"], p["why"] = sig, why
-    # value grade από το εκατοστημόριο του PIR ανά credit (μόνο παίκτες με επαρκές δείγμα)
-    elig = sorted((x["vpc"] for x in players if x["gp"] >= 3), reverse=True)
-    def grade(v):
-        if not elig:
-            return "C"
-        r = sum(1 for e in elig if e > v) / len(elig)
-        for cut, g in ((0.05, "A+"), (0.15, "A"), (0.30, "B+"), (0.50, "B"), (0.70, "C+"), (0.85, "C")):
-            if r < cut:
-                return g
-        return "D"
-    for p in players:
-        p["grade"] = grade(p["vpc"]) if p["gp"] >= 3 else None
         p["small"] = 1 if p["gp"] < 3 else 0
     # coach: one per team, price from team strength
     strength = sorted(rat, key=lambda t: -(rat[t]["ortg"] - rat[t]["drtg"]))

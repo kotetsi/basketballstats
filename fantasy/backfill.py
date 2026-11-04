@@ -56,9 +56,16 @@ def main(argv):
         a = [s for s in snap if s["actual"] is not None]
         mae = float(np.mean([abs(s["actual"] - s["pp"]) for s in a])) if a else None
         top = sorted(a, key=lambda s: -s["vpc"])[: max(1, len(a) // 4)]
+        # captain: ο παίκτης με την υψηλότερη εκτίμηση PIR (καλύτερη αναμενόμενη επιλογή) σε σχέση με τους υπόλοιπους
+        byp = sorted(a, key=lambda s: -s["pp"])
+        act_rank = sorted(a, key=lambda s: -s["actual"])
+        cap = byp[0] if byp else None
         summary.append({"round": r, "n": len(a), "mae": round(mae, 2) if mae is not None else None,
                         "top_quartile_actual_per_credit": round(float(np.mean([s["actual"] / s["price"] for s in top])), 3) if top else None,
-                        "all_actual_per_credit": round(float(np.mean([s["actual"] / s["price"] for s in a])), 3) if a else None})
+                        "all_actual_per_credit": round(float(np.mean([s["actual"] / s["price"] for s in a])), 3) if a else None,
+                        "captain_pick": cap["c"] if cap else None, "captain_pick_actual": cap["actual"] if cap else None,
+                        "captain_pick_actual_rank": (act_rank.index(cap) + 1) if cap else None,
+                        "top10_projected_avg_actual": round(float(np.mean([s["actual"] for s in byp[:10]])), 1) if byp else None})
         print(f"[backfill] r{r}: {len(snap)} παίκτες, MAE {summary[-1]['mae']}")
     (OUT / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
 

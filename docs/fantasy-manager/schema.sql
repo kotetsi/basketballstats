@@ -175,3 +175,36 @@ CREATE TABLE notification_log (
   id BIGSERIAL PRIMARY KEY, alert_id BIGINT REFERENCES alerts ON DELETE CASCADE,
   channel TEXT CHECK (channel IN ('in_app','email','web_push','digest')), sent_at TIMESTAMPTZ DEFAULT now(), ok BOOLEAN, error TEXT
 );
+
+-- ============ Fantasy Captain & Strategy Tools ============
+CREATE TABLE captain_projections (          -- σήμερα: /api/fantasy/captain-advisor/latest.json (ανά παίκτη, ο χρήστης φιλτράρει με τη σύνθεσή του)
+  run_id BIGINT REFERENCES model_runs, player_id TEXT REFERENCES players, game_id TEXT REFERENCES games,
+  cap_floor NUMERIC(5,1), cap_median NUMERIC(5,1), cap_expected NUMERIC(5,1), cap_ceiling NUMERIC(5,1),
+  risk_score SMALLINT CHECK (risk_score BETWEEN 0 AND 100), captain_value NUMERIC(5,2), differential_score SMALLINT,
+  opp_drtg NUMERIC(5,1), game_pace NUMERIC(4,1), rest_days SMALLINT, back_to_back BOOLEAN,
+  hist_cap_avg NUMERIC(5,1), hist_cap_hit_rate NUMERIC(4,3),   -- ιστορικό: 2×PIR και ποσοστό αγώνων με PIR ≥ 20 (τελευταίοι 10)
+  PRIMARY KEY (run_id, player_id, game_id)
+);
+
+CREATE TABLE value_board_snapshot (         -- σήμερα: /api/fantasy/value-board.json
+  season_code TEXT, round_no SMALLINT, player_id TEXT REFERENCES players,
+  value_per_credit NUMERIC(5,3),            -- projected_PIR / price
+  fantasy_value_per_credit NUMERIC(5,3),    -- projected_fantasy_points / price
+  pos_percentile NUMERIC(5,2), pos_rank SMALLINT, overall_rank SMALLINT,
+  signal TEXT CHECK (signal IN ('buy_low','sell_high','hold','avoid')), signal_score SMALLINT CHECK (signal_score BETWEEN -100 AND 100),
+  signal_factors TEXT[], signal_confidence TEXT CHECK (signal_confidence IN ('low','medium','high')),
+  PRIMARY KEY (season_code, round_no, player_id)
+);
+
+CREATE TABLE whatif_scenarios (             -- σήμερα: localStorage 'fmt-v1' (έως 5 ανά γύρο)
+  scenario_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), team_id UUID REFERENCES fantasy_teams ON DELETE CASCADE,
+  round_no SMALLINT NOT NULL, name TEXT NOT NULL,
+  formation TEXT, captain_id TEXT REFERENCES players, sixth_id TEXT REFERENCES players, coach_team TEXT REFERENCES teams,
+  start_ids TEXT[] NOT NULL, bench_ids TEXT[] NOT NULL,
+  trades JSONB DEFAULT '[]',                -- [{out, in}]
+  overrides JSONB DEFAULT '{}',             -- {player_id: {status, minutes}}
+  result JSONB,                             -- expected, floor, median, ceiling, risk, exposure, budget
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE UNIQUE INDEX ON whatif_scenarios (team_id, round_no, name);
+-- κανόνας εφαρμογής: έως 5 scenarios ανά (team_id, round_no)
