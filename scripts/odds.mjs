@@ -63,7 +63,13 @@ const ADAPTERS = {
   },
 };
 
+// ΜΟΝΟ bookmakers αδειοδοτημένοι στην Ελλάδα (data/odds/licensed_gr.json)
+let LIC = null;
+const licensedBrand = (key, title) => { const n = norm(key + ' ' + title).replace(/[^a-z0-9 ]/g, ''); for (const [b, al] of Object.entries(LIC?.brands || {})) if (al.some(a => { const x = norm(a).replace(/[^a-z0-9 ]/g, '').trim(); return x.length >= 3 && n.includes(x); })) return b; return null; };
+
 async function main() {
+  LIC = await readJSON(path.join(DIR, 'licensed_gr.json'), null);
+  if (!LIC) { console.log('Odds: λείπει το data/odds/licensed_gr.json — δεν αποθηκεύεται καμία απόδοση'); return 0; }
   await fs.mkdir(DIR, { recursive: true });
   const status = await readJSON(path.join(DIR, 'status.json'), {});
   if (!KEY) { console.log('Odds: δεν υπάρχει ODDS_API_KEY — παραλείπεται (καμία απόδοση χωρίς αδειοδοτημένο πάροχο)'); return 0; }
@@ -82,10 +88,11 @@ async function main() {
     const h = codeOf(ev.home), a = codeOf(ev.away);
     const f = fx.fixtures.find(x => x.comp === 'E' && x.h === h && x.a === a && Math.abs(new Date(x.t) - new Date(ev.commence)) < 3 * 864e5);
     if (!f) continue;
+    if (!ev.books.some(b => licensedBrand(b.key, b.title))) continue;
     matched++;
     const gid = `E-${f.r}-${h}-${a}`;
     const G = (latest.games[gid] = { t: f.t, commence: ev.commence, provider: PROVIDER, books: {}, updated: ts });
-    for (const b of ev.books) {
+    for (const b of ev.books.filter(b => licensedBrand(b.key, b.title))) {
       G.books[b.key] = { title: b.title, upd: b.upd, ...b.markets };
       const add = (market, sel, price, line) => price > 1 && snaps.push({ provider: PROVIDER, event: gid, book: b.key, market, sel, line: line ?? null, price, t: b.upd || ts, seen: ts });
       if (b.markets.ml) { add('ml', 'home', b.markets.ml[0]); add('ml', 'away', b.markets.ml[1]); }
