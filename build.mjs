@@ -39,6 +39,8 @@ const GA_ID = (process.env.GA_ID || CONF.gaId || '').trim();
 const SEASON_LABEL = `${+SEASON.slice(1)}-${String(+SEASON.slice(1) + 1).slice(2)}`;
 const OFFLINE = process.argv.includes('--offline');
 const OUT = path.join(ROOT, 'dist');
+// ελληνική γραφή ονομάτων παικτών για τις ελληνικές σελίδες (data/greek-names.json)
+const GRN = await fs.readFile(path.join(ROOT, 'data', 'greek-names.json'), 'utf8').then(JSON.parse).catch(() => ({}));
 const CACHE = path.join(ROOT, 'data', 'cache.json');
 const FEED = 'https://feeds.incrowdsports.com/provider/euroleague-feeds';
 
@@ -1955,10 +1957,11 @@ ${method}</section>`;
     };
     for (const p of players) {
       const n = niceName(p.n), s = playerSummary(p), tn = teamNameL(p.t);
-      const lede = T(`${n} (${tn}) στην ${S}: ${s.G} αγώνες, ${f1(s.pts)} πόντοι, ${f1(s.reb)} ριμπάουντ, ${f1(s.ast)} ασίστ και ${f1(s.pir)} PIR ανά αγώνα.`,
+      const gr = LG === 'el' ? GRN[p.n] : null, ng = gr || n;
+      const lede = T(`${gr ? `${gr} (${n}, ${tn})` : `${n} (${tn})`} στην ${S}: ${s.G} αγώνες, ${f1(s.pts)} πόντοι, ${f1(s.reb)} ριμπάουντ, ${f1(s.ast)} ασίστ και ${f1(s.pir)} PIR ανά αγώνα.`,
         `${n} (${tn}) in the ${S}: ${s.G} games, ${f1(s.pts)} points, ${f1(s.reb)} rebounds, ${f1(s.ast)} assists and ${f1(s.pir)} PIR per game.`, `${n} (${tn}) en la ${S}: ${s.G} partidos, ${f1(s.pts)} puntos, ${f1(s.reb)} rebotes, ${f1(s.ast)} asistencias y ${f1(s.pir)} de PIR por partido.`, `${n} (${tn}) u ${S}: ${s.G} utakmica, ${f1(s.pts)} poena, ${f1(s.reb)} skokova, ${f1(s.ast)} asistencija i ${f1(s.pir)} PIR po utakmici.`);
       const tc = p.t.split(';').pop();
-      const pld = { '@context': 'https://schema.org', '@type': 'Person', name: n, url: SITE_URL + urlFor(LG, 'player:' + p.s), jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tName(tc), url: SITE_URL + urlFor(LG, 'team:' + tc) } };
+      const pld = { '@context': 'https://schema.org', '@type': 'Person', name: ng, ...(gr ? { alternateName: n } : {}), url: SITE_URL + urlFor(LG, 'player:' + p.s), jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tName(tc), url: SITE_URL + urlFor(LG, 'team:' + tc) } };
       if (p.bd) pld.birthDate = p.bd; if (p.ct) pld.nationality = p.ct; if (p.h) pld.height = { '@type': 'QuantitativeValue', value: p.h > 3 ? p.h : Math.round(p.h * 100), unitCode: 'CMT' };
       const car = Object.values(data.hist || {}).filter(h => h.rows?.length).sort((a, b) => a.code.localeCompare(b.code)).map(h => [h.code, h.rows.find(r => r[0] === p.c)]).filter(x => x[1]);
       const ooX = ANOO.E ? ANOO.E.find(x => x.id === p.c && x.t === p.t.split(';').pop()) : null;
@@ -1968,9 +1971,9 @@ ${method}</section>`;
       const simSec = simL.length ? `<section class="career"><h2>${T('Παρόμοιοι παίκτες', 'Similar players', 'Jugadores similares', 'Slični igrači')}</h2><p class="sub">${T('Με βάση usage, PIR/λεπτό, TS%, ασίστ, ριμπάουντ, λεπτά και άμυνα', 'Based on usage, PIR/min, TS%, assists, rebounding, minutes and defense', 'Según usage, PIR/min, TS%, asistencias, rebote, minutos y defensa', 'Na osnovu usage-a, PIR/min, TS%, asistencija, skokova, minuta i odbrane')}</p><ul class="cmpsim">${simL.map(q => `<li><span><a href="${urlFor(LG, 'player:' + q.s)}">${esc(niceName(q.n))}</a> <small>${esc(tName(q.t.split(';').pop()))}</small></span><a class="btnsm" href="${urlFor(LG, 'compare')}?ids=${p.c},${q.c}">${T('Σύγκρινε', 'Compare', 'Comparar', 'Uporedi')}</a></li>`).join('')}</ul></section>` : '';
       const extra = shLink + ooSec + simSec + (car.length ? `<section class="career"><h2>${T('Καριέρα στην EuroLeague', 'EuroLeague career', 'Trayectoria en la EuroLeague', 'Karijera u Evroligi')}</h2><p class="sub">${car.length + 1} ${T('σεζόν · μέσοι όροι ανά αγώνα', 'seasons · per-game averages', 'temporadas · promedios por partido', 'sezona · proseci po utakmici')}</p>${careerSum(car, s, tn)}<div class="tbl"><table><thead><tr><th class="l">${T('Σεζόν', 'Season', 'Temporada', 'Sezona')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>PIR</th></tr></thead><tbody>${car.map(([code, r]) => { const L = `${+code.slice(1)}-${String(+code.slice(1) + 1).slice(2)}`; return `<tr><td class="l"><a href="${urlFor(LG, 'hist:' + L)}">${L}</a></td><td class="l">${esc(TEAMS[r[2]] ? tName(r[2]) : r[3])}</td><td>${r[4]}</td><td>${f1(r[5])}</td><td>${f1(r[6])}</td><td>${f1(r[7])}</td><td>${f1(r[8])}</td><td>${f1(r[9])}</td></tr>`; }).join('')}<tr class="cur"><td class="l">${SEASON_LABEL}</td><td class="l">${esc(tn)}</td><td>${s.G}</td><td>–</td><td>${f1(s.pts)}</td><td>${f1(s.reb)}</td><td>${f1(s.ast)}</td><td>${f1(s.pir)}</td></tr>${careerTot(car, s)}</tbody></table></div></section>` : '');
       const pTop = SHP[p.c] && SHP[p.c].n >= 10 ? shPromo(urlFor(LG, 'shp:' + p.s), SHP[p.c].zones, SHLA?.[SEASON]?.zones, T(`${n}: shot chart και ζώνες`, `${n}: shot chart and zones`, `${n}: mapa de tiro y zonas`, `${n}: mapa šuteva i zone`), shDescribe(SHP[p.c].groups, SHP[p.c].creation, T)) : '';
-      await page('player:' + p.s, { view: 'player', id: p.c, h1p: n, ledep: lede, extra, top: pTop,
-        ld: [pld, crumbs([[SITE_NAME, B(LG)], [tName(tc), urlFor(LG, 'team:' + tc)], [n, urlFor(LG, 'player:' + p.s)]])],
-        title: T(`${n} στατιστικά ${S} (${tn}) | ${SITE_NAME}`, `${n} stats ${S} (${tn}) | ${SITE_NAME}`, `Estadísticas de ${n} en la ${S} (${tn}) | ${SITE_NAME}`, `${n} statistika ${S} (${tn}) | ${SITE_NAME}`), desc: lede });
+      await page('player:' + p.s, { view: 'player', id: p.c, h1p: ng, ledep: lede, extra, top: pTop,
+        ld: [pld, crumbs([[SITE_NAME, B(LG)], [tName(tc), urlFor(LG, 'team:' + tc)], [ng, urlFor(LG, 'player:' + p.s)]])],
+        title: T(`${gr ? `${gr} (${n})` : n} στατιστικά ${S} (${tn}) | ${SITE_NAME}`, `${n} stats ${S} (${tn}) | ${SITE_NAME}`, `Estadísticas de ${n} en la ${S} (${tn}) | ${SITE_NAME}`, `${n} statistika ${S} (${tn}) | ${SITE_NAME}`), desc: lede });
     }
 
     // ---- Matchup Center & Game Predictor
@@ -2790,22 +2793,23 @@ ${ros.length ? `<h2>${T('Ρόστερ και μέσοι όροι', 'Roster and a
       for (const p of EC.players) {
         if (!ET[p.t]) continue;
         const tn = ecFull(p.t), tu = urlFor(LG, 'ec:' + ecSlug(p.t)), u = urlFor(LG, 'ec:' + pSlug[p.c]);
-        const lede = T(`${p.n} (${tn}) στην ${ECL}: ${p.gp} αγώνες, ${f1(p.pts)} πόντοι, ${f1(p.reb)} ριμπάουντ, ${f1(p.ast)} ασίστ και ${f1(p.pir)} PIR ανά αγώνα.`, `${p.n} (${tn}) in the ${ECL}: ${p.gp} games, ${f1(p.pts)} points, ${f1(p.reb)} rebounds, ${f1(p.ast)} assists and ${f1(p.pir)} PIR per game.`, `${p.n} (${tn}) en la ${ECL}: ${p.gp} partidos, ${f1(p.pts)} puntos, ${f1(p.reb)} rebotes, ${f1(p.ast)} asistencias y ${f1(p.pir)} de PIR por partido.`, `${p.n} (${tn}) u ${ECL}: ${p.gp} utakmica, ${f1(p.pts)} poena, ${f1(p.reb)} skokova, ${f1(p.ast)} asistencija i ${f1(p.pir)} PIR-a po utakmici.`);
+        const gr = LG === 'el' ? GRN[p.n] : null, ng = gr || p.n;
+        const lede = T(`${gr ? `${gr} (${p.n}, ${tn})` : `${p.n} (${tn})`} στην ${ECL}: ${p.gp} αγώνες, ${f1(p.pts)} πόντοι, ${f1(p.reb)} ριμπάουντ, ${f1(p.ast)} ασίστ και ${f1(p.pir)} PIR ανά αγώνα.`, `${p.n} (${tn}) in the ${ECL}: ${p.gp} games, ${f1(p.pts)} points, ${f1(p.reb)} rebounds, ${f1(p.ast)} assists and ${f1(p.pir)} PIR per game.`, `${p.n} (${tn}) en la ${ECL}: ${p.gp} partidos, ${f1(p.pts)} puntos, ${f1(p.reb)} rebotes, ${f1(p.ast)} asistencias y ${f1(p.pir)} de PIR por partido.`, `${p.n} (${tn}) u ${ECL}: ${p.gp} utakmica, ${f1(p.pts)} poena, ${f1(p.reb)} skokova, ${f1(p.ast)} asistencija i ${f1(p.pir)} PIR-a po utakmici.`);
         const RK = [['pts', T('Πόντοι', 'Points', 'Puntos', 'Poeni')], ['reb', T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi')], ['ast', T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije')], ['pir', 'PIR']].map(([k, l]) => [l, rankOf(p, k)]).filter(x => x[1]);
         const cells = [[T('Αγώνες', 'Games', 'Partidos', 'Utakmice'), p.gp], [T('Λεπτά', 'Minutes', 'Minutos', 'Minuti'), f1(p.min)], [T('Πόντοι', 'Points', 'Puntos', 'Poeni'), f1(p.pts)], [T('Ριμπάουντ', 'Rebounds', 'Rebotes', 'Skokovi'), f1(p.reb)], [T('Ασίστ', 'Assists', 'Asistencias', 'Asistencije'), f1(p.ast)], [T('Κλεψίματα', 'Steals', 'Robos', 'Ukradene'), f1(p.stl)], [T('Κοψίματα', 'Blocks', 'Tapones', 'Blokade'), f1(p.blk)], [T('Λάθη', 'Turnovers', 'Pérdidas', 'Izgubljene'), f1(p.tov)], ['2' + T('Π', 'P', 'P', 'P') + '%', pct(p.m2, p.a2)], ['3' + T('Π', 'P', 'P', 'P') + '%', pct(p.m3, p.a3)], [T('Βολές', 'FT', 'TL', 'Slob. bac.') + ' %', pct(p.ftm, p.fta)], ['PIR', f1(p.pir)]];
         const mates = EC.players.filter(q => q.t === p.t && q !== p).sort((a, b) => b.min - a.min).slice(0, 8);
         const main = `<section class="article ec">
 <p class="crumbs"><a href="${urlFor(LG, 'ec')}">${ECL}</a> › <a href="${tu}">${esc(tn)}</a></p>
-<h1>${esc(p.n)}</h1>
+<h1>${esc(ng)}</h1>
 <p class="lede2">${esc(lede)}</p>
 <div class="otiles ectiles">${cells.map(([l, v]) => `<div><b>${v}</b><span>${esc(l)}</span></div>`).join('')}</div>
 ${RK.length ? `<h2>${T('Θέση στην EuroCup', 'EuroCup rank', 'Puesto en la EuroCup', 'Mesto u Evrokupu')}</h2><p>${RK.map(([l, r]) => `${esc(l)}: <b>${r}${T('ος', LG === 'en' ? ({ 1: 'st', 2: 'nd', 3: 'rd' }[r % 10 > 3 || [11, 12, 13].includes(r % 100) ? 0 : r % 10] || 'th') : '', '.º', '.')}</b>`).join(' · ')} <small class="muted">(${T('ανάμεσα σε', 'among', 'entre', 'među')} ${qual.length})</small></p>` : ''}
 ${mates.length ? `<h2>${T('Συμπαίκτες', 'Teammates', 'Compañeros', 'Saigrači')}</h2><p class="leadnav">${mates.map(q => `<a href="${urlFor(LG, 'ec:' + pSlug[q.c])}">${esc(q.n)}</a>`).join('')}</p>` : ''}
 <p class="note">${T('Πηγή: επίσημα στατιστικά της EuroCup. Μέσοι όροι ανά αγώνα.', 'Source: official EuroCup stats. Per-game averages.', 'Fuente: estadísticas oficiales de la EuroCup. Promedios por partido.', 'Izvor: zvanična statistika Evrokupa. Proseci po utakmici.')}</p>
 </section>`;
-        const pld = { '@context': 'https://schema.org', '@type': 'Person', name: p.n, url: SITE_URL + u, jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tn, url: SITE_URL + tu } };
-        await simplePage('ec:' + pSlug[p.c], { view: 'eurocup', title: T(`${p.n} στατιστικά EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} EuroCup ${SEASON_LABEL} stats (${tn}) | ${SITE_NAME}`, `Estadísticas de ${p.n} en la EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} statistika Evrokup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`), desc: lede, main,
-          ld: [pld, crumbs([[SITE_NAME, B(LG)], [ECL, urlFor(LG, 'ec')], [tn, tu], [p.n, u]])] });
+        const pld = { '@context': 'https://schema.org', '@type': 'Person', name: ng, ...(gr ? { alternateName: p.n } : {}), url: SITE_URL + u, jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tn, url: SITE_URL + tu } };
+        await simplePage('ec:' + pSlug[p.c], { view: 'eurocup', title: T(`${gr ? `${gr} (${p.n})` : p.n} στατιστικά EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} EuroCup ${SEASON_LABEL} stats (${tn}) | ${SITE_NAME}`, `Estadísticas de ${p.n} en la EuroCup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`, `${p.n} statistika Evrokup ${SEASON_LABEL} (${tn}) | ${SITE_NAME}`), desc: lede, main,
+          ld: [pld, crumbs([[SITE_NAME, B(LG)], [ECL, urlFor(LG, 'ec')], [tn, tu], [ng, u]])] });
       }
     }
 

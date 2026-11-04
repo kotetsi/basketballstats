@@ -61,7 +61,7 @@ function render(code){
   const p=byCode[code]||byCode['012610']||P[0]; cur=p; const A=p.A;
   
   document.getElementById('jersey').textContent=p.no?'#'+p.no:'';
-  document.getElementById('pname').textContent=p.name;
+  {const e=document.getElementById('pname');if(!e.textContent.trim())e.textContent=p.name;}
   if(INJ[p.c])document.getElementById('pname').insertAdjacentHTML('beforeend',injB(p.c));
   const age=p.age?p.age+' ετών':'';
   const meta=document.getElementById('pmeta'); meta.innerHTML='';
