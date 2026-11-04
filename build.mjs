@@ -13,6 +13,7 @@ import * as ES from './src/es.mjs';
 import * as SR from './src/sr.mjs';
 import * as OPT from './src/fantasy/optimizer.mjs';
 import * as OPTR from './src/fantasy/render.mjs';
+import * as AB from './src/analytics/build-analytics.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), 'utf8').catch(() => '{}'));
@@ -48,10 +49,10 @@ const TEAMS = {
 const LANGS = ['el', 'en', 'es', 'sr'];
 const TEAM_IDX = { el: [0, 2], en: [3, 4], es: [5, 6], sr: [7, 8] }; // θέση ονόματος και slug στο TEAMS
 const PATHS = {
-  el: { hist: 'istoriko', lead: 'koryfaioi', team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas', widgets: 'widget', compare: 'sygkrisi', model: 'montelo' },
-  en: { hist: 'history', lead: 'leaders', team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game', widgets: 'widget', compare: 'compare', model: 'model' },
-  es: { hist: 'historico', lead: 'lideres', team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido', widgets: 'widget', compare: 'comparar', model: 'modelo' },
-  sr: { hist: 'istorija', lead: 'lideri', team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica', widgets: 'widget', compare: 'poredjenje', model: 'model' },
+  el: { ana: 'analytika', onoff: 'on-off', lu: 'lineups', hist: 'istoriko', lead: 'koryfaioi', team: 'omada', player: 'paiktis', form: 'thermometro', fantasy: 'fantasy', preds: 'prognostika', articles: 'arthra', tipsters: 'tipsters', legal: 'politiki-aporritou', app: 'efarmogi', game: 'agonas', widgets: 'widget', compare: 'sygkrisi', model: 'montelo' },
+  en: { ana: 'team-analytics', onoff: 'on-off', lu: 'lineups', hist: 'history', lead: 'leaders', team: 'team', player: 'player', form: 'thermometer', fantasy: 'fantasy', preds: 'predictions', articles: 'articles', tipsters: 'tipsters', legal: 'privacy', app: 'app', game: 'game', widgets: 'widget', compare: 'compare', model: 'model' },
+  es: { ana: 'analitica', onoff: 'on-off', lu: 'quintetos', hist: 'historico', lead: 'lideres', team: 'equipo', player: 'jugador', form: 'termometro', fantasy: 'fantasy', preds: 'pronosticos', articles: 'articulos', tipsters: 'tipsters', legal: 'privacidad', app: 'app', game: 'partido', widgets: 'widget', compare: 'comparar', model: 'modelo' },
+  sr: { ana: 'analitika', onoff: 'on-off', lu: 'postave', hist: 'istorija', lead: 'lideri', team: 'tim', player: 'igrac', form: 'termometar', fantasy: 'fantasy', preds: 'prognoze', articles: 'clanci', tipsters: 'tipsters', legal: 'privatnost', app: 'aplikacija', game: 'utakmica', widgets: 'widget', compare: 'poredjenje', model: 'model' },
 };
 const LEAD_SUB = {
   el: { pts: 'pontoi', reb: 'ribaount', ast: 'asist', pir: 'pir', tpm: 'triponta', stl: 'klepsimata', blk: 'kopsimata', rec: 'rekor-agona', gr: 'ellines-paiktes', yg: 'neoteroi-paiktes' },
@@ -684,6 +685,11 @@ async function main() {
   const { players, league } = data;
   const VENUE = data.venue || {};
   const lastRound = data.lastRound || Math.max(0, ...league.games.filter(g => g[6]).map(g => g[0]));
+  // ---- Team Analytics / On-Off / Lineups (από data/pbp, όσο έχει κατέβει)
+  const AN = { E: await AB.loadComp(ROOT, SEASON), U: await AB.loadComp(ROOT, 'U' + SEASON.slice(1)) };
+  const ANL = Object.fromEntries(Object.entries(AN).filter(([, C]) => C).map(([k, C]) => [k, AB.leagueTable(C)]));
+  const ANOO = Object.fromEntries(Object.entries(AN).filter(([, C]) => C).map(([k, C]) => [k, AB.allOnOff(C)]));
+  if (AN.E) console.log(`Analytics: ${AN.E.games.length} αγώνες EuroLeague${AN.U ? `, ${AN.U.games.length} EuroCup` : ''} με play-by-play`);
   let FXD = null;
   try { FXD = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'latest.json'), 'utf8')); if (FXD.round <= lastRound) FXD = null; } catch { FXD = null; }
 
@@ -723,6 +729,21 @@ async function main() {
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
   await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
   for (const f of ['optimizer.mjs', 'render.mjs', 'fx.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
+  await fs.mkdir(path.join(OUT, 'assets', 'analytics'), { recursive: true });
+  for (const f of ['metrics.mjs', 'ui.js']) await fs.copyFile(path.join(ROOT, 'src', 'analytics', f), path.join(OUT, 'assets', 'analytics', f));
+  // static API (ίδιο για όλες τις γλώσσες)
+  for (const [cp, C] of Object.entries(AN)) {
+    if (!C) continue;
+    const api = (p, o) => fs.mkdir(path.dirname(path.join(OUT, 'api', p)), { recursive: true }).then(() => fs.writeFile(path.join(OUT, 'api', p), JSON.stringify(o)));
+    const pre = cp === 'U' ? 'eurocup/' : '';
+    const LT = ANL[cp];
+    await api(`${pre}teams/analytics.json`, { season: C.code, avg: LT.avg, teams: Object.fromEntries(LT.teams.map(t => [t, { season: LT.rows[t], pct: LT.pct[t], rank: LT.rk[t], games: AB.teamGames(C, t) }])) });
+    for (const t of Object.keys(C.byTeam)) {
+      await api(`${pre}lineups/${t}.json`, AB.teamPack(C, t));
+      await api(`${pre}onoff/team/${t}.json`, ANOO[cp].filter(x => x.t === t));
+    }
+    for (const x of ANOO[cp]) await api(`${pre}onoff/player/${x.id}.json`, x);
+  }
   const shellSrc = await fs.readFile(path.join(ROOT, 'src', 'shell.html'), 'utf8');
   const SHELL = { el: shellSrc, en: translate(shellSrc, SHELL_CODE, 'shell.html (en)'), es: translate(shellSrc, ES.SHELL_CODE, 'shell.html (es)', ES.PHRASES), sr: translate(shellSrc, SR.SHELL_CODE, 'shell.html (sr)', SR.PHRASES) };
   const ver = Date.now().toString(36);
@@ -750,6 +771,7 @@ async function main() {
     if (k === 'hist') return B(lg) + P.hist + '/' + (v ? v + '/' : '');
     if (k === 'lead') return B(lg) + P.lead + '/' + (v ? LEAD_SUB[lg][v] + '/' : '');
     if (k === 'ec') return B(lg) + 'eurocup/' + (v ? v + '/' : '');
+    if (k === 'lu') { const [cp, c] = v.split('-'); return B(lg) + P.lu + '/' + (cp === 'U' ? 'eurocup-' + c.toLowerCase() : TEAMS[c][TEAM_IDX[lg][1]]) + '/'; }
     return B(lg) + P[k] + '/';
   }
 
@@ -850,7 +872,7 @@ ${pwaStyle}`;
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>');
-    const shellB = SHELL[LG].replace(PRIV, `${PRIV}${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija')}</a>` : ''}<a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi')}</a><a href="${urlFor(LG, 'awards')}">${T('Βραβεία', 'Awards', 'Premios', 'Nagrade')}</a><a href="${urlFor(LG, 'nat')}">${T('Εθνικότητες', 'Nationalities', 'Nacionalidades', 'Nacionalnosti')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
+    const shellB = SHELL[LG].replace(PRIV, `${PRIV}${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija')}</a>` : ''}<a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi')}</a>${AN.E ? `<a href="${urlFor(LG, 'ana')}">Team Analytics</a><a href="${urlFor(LG, 'onoff')}">On/Off</a>` : ''}<a href="${urlFor(LG, 'awards')}">${T('Βραβεία', 'Awards', 'Premios', 'Nagrade')}</a><a href="${urlFor(LG, 'nat')}">${T('Εθνικότητες', 'Nationalities', 'Nacionalidades', 'Nacionalnosti')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL)
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
@@ -1441,6 +1463,121 @@ ${disclaimer}</article>` });
 <p>The stats come from the official public EuroLeague data. ${esc(SITE_NAME)} is not affiliated with the EuroLeague.</p>
 <p class="sub">Last updated: ${esc(athensEn)}</p></div>` });
 
+    // ---- Team Analytics, On/Off, Lineups
+    const TIP = {
+      ortg: T('Πόντοι ανά 100 κατοχές (επίθεση).', 'Points scored per 100 possessions.', 'Puntos anotados por cada 100 posesiones.', 'Postignuti poeni na 100 poseda.'),
+      drtg: T('Πόντοι που δέχεται ανά 100 κατοχές (άμυνα· χαμηλότερο = καλύτερο).', 'Points allowed per 100 possessions (lower is better).', 'Puntos recibidos por cada 100 posesiones (menos es mejor).', 'Primljeni poeni na 100 poseda (manje je bolje).'),
+      net: T('ORtg μείον DRtg: πόσους πόντους «κερδίζει» η ομάδα ανά 100 κατοχές.', 'ORtg minus DRtg: points won per 100 possessions.', 'ORtg menos DRtg: puntos ganados por cada 100 posesiones.', 'ORtg minus DRtg: dobijeni poeni na 100 poseda.'),
+      pace: T('Κατοχές ανά 40 λεπτά: πόσο γρήγορα παίζει.', 'Possessions per 40 minutes: how fast the team plays.', 'Posesiones por 40 minutos: ritmo de juego.', 'Posedi na 40 minuta: tempo igre.'),
+      ppp: T('Πόντοι ανά κατοχή.', 'Points per possession.', 'Puntos por posesión.', 'Poeni po posedu.'),
+      efg: T('Ποσοστό σουτ όπου το τρίποντο μετρά 1,5 φορά: (FGM + 0,5·3PM) / FGA.', 'Field goal % with threes worth 1.5: (FGM + 0.5·3PM) / FGA.', 'Acierto en tiros de campo con el triple valiendo 1,5.', 'Procenat šuta gde trojka vredi 1,5.'),
+      ts: T('Πραγματικό ποσοστό ευστοχίας, μετρώντας και τις βολές.', 'True shooting: efficiency including free throws.', 'Acierto real, incluidos los tiros libres.', 'Pravi procenat šuta, uključujući slobodna bacanja.'),
+      ast: T('Ποσοστό εύστοχων καλαθιών που ήρθαν από ασίστ.', 'Share of made field goals that were assisted.', 'Porcentaje de canastas asistidas.', 'Udeo pogođenih šuteva posle asistencije.'),
+      tov: T('Λάθη ανά κατοχή (χαμηλότερο = καλύτερο).', 'Turnovers per possession (lower is better).', 'Pérdidas por posesión (menos es mejor).', 'Izgubljene lopte po posedu (manje je bolje).'),
+      oreb: T('Ποσοστό των διαθέσιμων επιθετικών ριμπάουντ που παίρνει.', 'Share of available offensive rebounds grabbed.', 'Porcentaje de rebotes ofensivos disponibles capturados.', 'Udeo uhvaćenih skokova u napadu.'),
+      dreb: T('Ποσοστό των διαθέσιμων αμυντικών ριμπάουντ που παίρνει.', 'Share of available defensive rebounds grabbed.', 'Porcentaje de rebotes defensivos disponibles capturados.', 'Udeo uhvaćenih skokova u odbrani.'),
+      reb: T('Ποσοστό όλων των ριμπάουντ.', 'Share of all rebounds.', 'Porcentaje de todos los rebotes.', 'Udeo svih skokova.'),
+      ftr: T('Βολές ανά σουτ εντός παιδιάς (FTA/FGA).', 'Free throw attempts per field goal attempt (FTA/FGA).', 'Tiros libres por tiro de campo (FTA/FGA).', 'Slobodna bacanja po šutu iz igre (FTA/FGA).'),
+      oefg: T('eFG% των αντιπάλων (χαμηλότερο = καλύτερη άμυνα).', 'Opponent eFG% (lower is better).', 'eFG% del rival (menos es mejor).', 'eFG% protivnika (manje je bolje).'),
+      otov: T('Λάθη των αντιπάλων ανά κατοχή (ψηλότερο = καλύτερη άμυνα).', 'Opponent turnovers per possession (higher is better).', 'Pérdidas del rival por posesión (más es mejor).', 'Izgubljene lopte protivnika po posedu (više je bolje).'),
+      ooreb: T('Επιθετικά ριμπάουντ που δίνει στους αντιπάλους (χαμηλότερο = καλύτερο).', 'Offensive rebound % allowed (lower is better).', 'Rebote ofensivo concedido (menos es mejor).', 'Dozvoljeni skokovi u napadu (manje je bolje).'),
+      oftr: T('Βολές που δίνει στους αντιπάλους ανά σουτ τους.', 'Opponent free throw rate.', 'Tiros libres concedidos por tiro rival.', 'Slobodna bacanja protivnika po šutu.'),
+      min: T('Λεπτά στο παρκέ.', 'Minutes on court.', 'Minutos en pista.', 'Minuti na terenu.'),
+      poss: T('Κατοχές: FGA − OREB + TOV + 0,44·FTA.', 'Possessions: FGA − OREB + TOV + 0.44·FTA.', 'Posesiones: FGA − OREB + TOV + 0,44·FTA.', 'Posedi: FGA − OREB + TOV + 0,44·FTA.'),
+    };
+    const MN = { ortg: 'Offensive Rating', drtg: 'Defensive Rating', net: 'Net Rating', pace: 'Pace', ppp: T('Πόντοι ανά κατοχή', 'Points per possession', 'Puntos por posesión', 'Poeni po posedu'), efg: 'eFG%', ts: 'TS%', ast: 'AST%', tov: 'TOV%', oreb: 'OREB%', dreb: 'DREB%', reb: T('Ριμπάουντ %', 'Rebound %', 'Rebote %', 'Skok %'), ftr: 'FT rate', oefg: T('eFG% αντιπάλων', 'Opp. eFG%', 'eFG% rival', 'eFG% protivnika'), otov: T('TOV% αντιπάλων', 'Opp. TOV%', 'TOV% rival', 'TOV% protivnika'), ooreb: T('OREB% αντιπάλων', 'Opp. OREB%', 'OREB% rival', 'OREB% protivnika'), oftr: T('FT rate αντιπάλων', 'Opp. FT rate', 'FT rate rival', 'FT rate protivnika') };
+    const APCT = new Set(['efg', 'ts', 'ast', 'tov', 'oreb', 'dreb', 'reb', 'ftr', 'oefg', 'otov', 'ooreb', 'oftr']);
+    const af = (k, v) => (v == null ? '–' : APCT.has(k) ? (100 * v).toFixed(1) + '%' : k === 'net' ? (v > 0 ? '+' : '') + v.toFixed(1) : k === 'ppp' ? v.toFixed(2) : v.toFixed(1));
+    const nc = v => (v == null ? '' : v > 2 ? 'pos' : v < -2 ? 'neg' : 'neu');
+    const anCtx = cp => `<script type="application/json" id="anctx">${JSON.stringify({ lg: LG, tips: TIP, teams: cp === 'U' ? Object.fromEntries(Object.entries(data.ec?.teams || {}).map(([c, v]) => [c, LG === 'el' && { ARI: 'Άρης', PAO: 'ΠΑΟΚ' }[c] || v[1]])) : Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)])), sentence: T('Όταν ο {n} είναι στο παρκέ, η ομάδα του έχει {on} Net Rating. Όταν είναι εκτός, {off}. Διαφορά: {d}.', 'With {n} on court his team has a {on} Net Rating; with him off, {off}. Differential: {d}.', 'Con {n} en pista su equipo tiene un Net Rating de {on}; sin él, {off}. Diferencia: {d}.', 'Kada je {n} na terenu, tim ima Net Rating {on}; kada nije, {off}. Razlika: {d}.') }).replace(/</g, '\\u003c')}</script><script type="module" src="${BASE}assets/analytics/ui.js?v=${ver}"></script>`;
+    const method = `<details class="anmeth"><summary>${T('Μεθοδολογία', 'Methodology', 'Metodología', 'Metodologija')}</summary><p>${esc(T(
+      'Κατοχές = FGA − OREB + TOV + 0,44·FTA (μέσος όρος ομάδας και αντιπάλου). ORtg/DRtg = πόντοι ανά 100 κατοχές, Net = ORtg − DRtg, Pace = κατοχές ανά 40 λεπτά. Τα σχήματα (lineups) και το on/off υπολογίζονται μόνο από το επίσημο play-by-play: οι πεντάδες ξαναχτίζονται από τις αλλαγές, ποτέ από σκέτα box scores. Αν σε κάποιο διάστημα δεν βγαίνει καθαρά ποιοι ήταν στο παρκέ, το διάστημα δεν μετρά. Το on/off ενός παίκτη μετρά μόνο αγώνες που αγωνίστηκε. Clutch = τελευταία 5 λεπτά της 4ης περιόδου ή της παράτασης με διαφορά έως 5 πόντους. Κάτω από 150 λεπτά ή 200 κατοχές το δείγμα θεωρείται μικρό.',
+      'Possessions = FGA − OREB + TOV + 0.44·FTA (average of team and opponent). ORtg/DRtg = points per 100 possessions, Net = ORtg − DRtg, Pace = possessions per 40 minutes. Lineups and on/off come only from the official play-by-play: five-man units are rebuilt from substitutions, never from plain box scores. Stretches where it is unclear who was on court are left out. A player\'s on/off only counts games he played. Clutch = last 5 minutes of the 4th quarter or overtime with a margin of 5 or less. Under 150 minutes or 200 possessions is flagged as a small sample.',
+      'Posesiones = FGA − OREB + TOV + 0,44·FTA (media de equipo y rival). ORtg/DRtg = puntos por 100 posesiones, Net = ORtg − DRtg, Pace = posesiones por 40 minutos. Quintetos y on/off salen solo del play-by-play oficial: los quintetos se reconstruyen con los cambios, nunca con el box score. Los tramos en los que no está claro quién estaba en pista no cuentan. El on/off solo cuenta partidos jugados. Clutch = últimos 5 minutos del 4.º cuarto o de la prórroga con diferencia de 5 o menos. Menos de 150 minutos o 200 posesiones se marca como muestra pequeña.',
+      'Posedi = FGA − OREB + TOV + 0,44·FTA (prosek tima i protivnika). ORtg/DRtg = poeni na 100 poseda, Net = ORtg − DRtg, Pace = posedi na 40 minuta. Postave i on/off se računaju samo iz zvaničnog play-by-play zapisa: petorke se rekonstruišu iz izmena, nikada iz box score-a. Delovi gde nije jasno ko je bio na terenu se ne računaju. On/off igrača računa samo utakmice koje je igrao. Clutch = poslednjih 5 minuta 4. četvrtine ili produžetka uz razliku do 5 poena. Ispod 150 minuta ili 200 poseda označeno je kao mali uzorak.'))}</p></details>`;
+    const ffBars = (cp, c) => {
+      const LT = ANL[cp], r = LT.rows[c], p = LT.pct[c];
+      const row = k => { const v = r[k], a = LT.avg[k], q = p[k] ?? 50; return `<div class="bar pct" title="${esc(TIP[k])}"><span>${esc(MN[k])}</span><em><i class="${q >= 60 ? 'hi' : q <= 40 ? 'lo' : ''}" style="width:${Math.max(3, q)}%"></i></em><b>${af(k, v)} <small>${T('μ.ό.', 'avg', 'media', 'pros.')} ${af(k, a)} · ${T('εκατοστημόριο', 'percentile', 'percentil', 'percentil')} ${q}</small></b></div>`; };
+      return `<div class="ffgrid"><div><h4>${T('Επίθεση', 'Offense', 'Ataque', 'Napad')}</h4><div class="bars">${['efg', 'tov', 'oreb', 'ftr'].map(row).join('')}</div></div><div><h4>${T('Άμυνα', 'Defense', 'Defensa', 'Odbrana')}</h4><div class="bars">${['oefg', 'otov', 'ooreb', 'oftr'].map(row).join('')}</div></div></div><p class="sub">${T('Η μπάρα δείχνει το εκατοστημόριο στη λίγκα (100 = καλύτερη, η γραμμή στη μέση = μέσος όρος). Στην άμυνα, καλύτερο σημαίνει χαμηλότερη τιμή για τον αντίπαλο (εκτός από τα λάθη του).', 'The bar shows the league percentile (100 = best; the middle line is average). On defense, better means a lower opponent value (except their turnovers).', 'La barra muestra el percentil en la liga (100 = el mejor; la línea central es la media). En defensa, mejor significa un valor rival más bajo (salvo sus pérdidas).', 'Traka pokazuje percentil u ligi (100 = najbolji; linija u sredini je prosek). U odbrani, bolje znači nižu vrednost protivnika (osim njegovih izgubljenih lopti).')}</p><p class="lede2">${esc(AB.interpret(p, T))}</p>`;
+    };
+    const splitsT = (cp, c) => {
+      const C = AN[cp], L = [[T('Σύνολο', 'Total', 'Total', 'Ukupno'), () => true], [T('Εντός έδρας', 'Home', 'En casa', 'Kod kuće'), g => g.home], [T('Εκτός έδρας', 'Away', 'Fuera', 'U gostima'), g => !g.home], [T('Κανονική περίοδος', 'Regular season', 'Fase regular', 'Regularni deo'), g => g.ph === 'RS'], ['Playoffs / Play-in', g => g.ph !== 'RS']];
+      const gs = AB.teamGames(C, c); const last5 = new Set(gs.slice(-5).map(g => g.gc));
+      L.push([T('Τελευταίοι 5', 'Last 5', 'Últimos 5', 'Poslednjih 5'), g => last5.has(g.gc)]);
+      const K = ['ortg', 'drtg', 'net', 'pace', 'efg', 'tov', 'oreb', 'ftr'];
+      return `<div class="tbl"><table class="antbl"><thead><tr><th class="l">${T('Διάσπαση', 'Split', 'División', 'Podela')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Ν-Η', 'W-L', 'V-D', 'P-I')}</th>${K.map(k => `<th title="${esc(TIP[k])}">${k === 'efg' ? 'eFG%' : k === 'tov' ? 'TOV%' : k === 'oreb' ? 'OREB%' : k === 'ftr' ? 'FTr' : MN[k].split(' ')[0].replace('Offensive', 'ORtg').replace('Defensive', 'DRtg').replace('Net', 'Net')}</th>`).join('')}</tr></thead><tbody>${L.map(([n, f]) => { const s = AB.teamSeason(C, c, f); if (!s.gp) return ''; return `<tr><td class="l">${esc(n)}</td><td>${s.gp}</td><td>${s.w}-${s.gp - s.w}</td>${K.map(k => `<td class="${k === 'net' ? 'net ' + nc(s[k]) : ''}">${af(k, s[k])}</td>`).join('')}</tr>`; }).join('')}</tbody></table></div>`;
+    };
+    const metricT = (cp, c) => {
+      const LT = ANL[cp], r = LT.rows[c], n = LT.teams.length;
+      const K = ['ortg', 'drtg', 'net', 'pace', 'ppp', 'efg', 'ts', 'ast', 'tov', 'oreb', 'dreb', 'reb'];
+      return `<div class="anmetrics">${K.map(k => `<div class="am" title="${esc(TIP[k])}"><span>${esc(MN[k])}</span><b class="${k === 'net' ? nc(r[k]) : ''}">${af(k, r[k])}</b><small>${LT.rk[c][k]}η/${n} · ${LT.pct[c][k]}%</small><i style="width:${LT.pct[c][k]}%"></i></div>`).join('')}</div>`.replace(/η\//g, T('η/', '/', '.º/', './'));
+    };
+    const teamAnalytics = (cp, c, { venue = '', coach = '', recent = '', next = '', lineupsUrl = '' } = {}) => {
+      if (!ANL[cp] || !ANL[cp].rows[c]) return '';
+      const s = ANL[cp].rows[c];
+      return `<section class="tana article" id="analytics"><h2>Team Analytics</h2>
+<p class="sub">${[coach && `${T('Προπονητής', 'Head coach', 'Entrenador', 'Trener')}: <b>${esc(coach)}</b>`, venue && `${T('Έδρα', 'Arena', 'Pabellón', 'Dvorana')}: ${esc(venue)}`, `${T('Ρεκόρ', 'Record', 'Balance', 'Skor')}: ${s.w}-${s.gp - s.w}`, `${T('Πόντοι υπέρ/κατά', 'Points for/against', 'Puntos a favor/en contra', 'Poeni dati/primljeni')}: ${f1(s.pfpg)} / ${f1(s.papg)}`].filter(Boolean).join(' · ')}</p>
+${recent}${next}
+${metricT(cp, c)}
+<h3>Four Factors</h3>${ffBars(cp, c)}
+<h3>${T('Διασπάσεις', 'Splits', 'Divisiones', 'Podele')}</h3>${splitsT(cp, c)}
+${lineupsUrl ? `<p><a class="pread" href="${lineupsUrl}">${T('Lineups, On/Off και WOWY της ομάδας →', 'Team lineups, on/off and WOWY →', 'Quintetos, on/off y WOWY del equipo →', 'Postave, on/off i WOWY tima →')}</a></p>` : ''}
+${method}</section>`;
+    };
+    const coachOf = (cp, c) => { const C = AN[cp]; if (!C) return ''; for (let i = C.games.length - 1; i >= 0; i--) { const g = C.games[i]; if ((g.h === c || g.a === c) && g.coach?.[c]) return niceName(g.coach[c]); } return ''; };
+    for (const cp of ['E', 'U']) {
+      const C = AN[cp]; if (!C) continue;
+      const compL = cp === 'U' ? 'EuroCup' : 'EuroLeague';
+      const ecT = data.ec?.teams || {};
+      const nmT = c => (cp === 'U' ? ((LG === 'el' && { ARI: 'Άρης', PAO: 'ΠΑΟΚ' }[c]) || (ecT[c] ? ecT[c][1] : c)) : tName(c));
+      const teamU = c => (cp === 'U' ? urlFor(LG, 'ec:' + slugify(ecT[c] ? ecT[c][0] : c)) : urlFor(LG, 'team:' + c));
+      for (const c of Object.keys(C.byTeam)) {
+        if (cp === 'E' && !TEAMS[c]) continue;
+        const nm = nmT(c), url = urlFor(LG, 'lu:' + cp + '-' + c);
+        const five = AB.groupLineups(C.byTeam[c].stints, 5).filter(r => r.poss >= 20).sort((a, b) => b.net - a.net);
+        const best = five[0];
+        const pn = id => niceName(C.names[id] || id);
+        const intro = T(`Τα σχήματα (2, 3, 4 και 5 παικτών), το on/off και το WOWY ${cp === 'E' ? 'της' : 'της'} ${nm} στην ${compL} ${SEASON_LABEL}, από το επίσημο play-by-play.${best ? ` Καλύτερη πεντάδα (≥20 κατοχές): ${best.p.map(pn).join(', ')} με Net ${af('net', best.net)} σε ${Math.round(best.poss)} κατοχές.` : ''}`,
+          `${nm} lineups (2, 3, 4 and 5-man), on/off and WOWY in the ${compL} ${SEASON_LABEL}, from the official play-by-play.${best ? ` Best five-man unit (20+ possessions): ${best.p.map(pn).join(', ')}, ${af('net', best.net)} Net over ${Math.round(best.poss)} possessions.` : ''}`,
+          `Quintetos (de 2, 3, 4 y 5 jugadores), on/off y WOWY de ${nm} en la ${compL} ${SEASON_LABEL}, a partir del play-by-play oficial.${best ? ` Mejor quinteto (20+ posesiones): ${best.p.map(pn).join(', ')}, Net ${af('net', best.net)} en ${Math.round(best.poss)} posesiones.` : ''}`,
+          `Postave (2, 3, 4 i 5 igrača), on/off i WOWY za ${nm} u ${compL} ${SEASON_LABEL}, iz zvaničnog play-by-play zapisa.${best ? ` Najbolja petorka (20+ poseda): ${best.p.map(pn).join(', ')}, Net ${af('net', best.net)} na ${Math.round(best.poss)} poseda.` : ''}`);
+        await simplePage('lu:' + cp + '-' + c, { view: 'lead', title: T(`${nm}: lineups, on/off και WOWY ${compL} ${SEASON_LABEL} | ${SITE_NAME}`, `${nm} lineups, on/off and WOWY, ${compL} ${SEASON_LABEL} | ${SITE_NAME}`, `${nm}: quintetos, on/off y WOWY, ${compL} ${SEASON_LABEL} | ${SITE_NAME}`, `${nm}: postave, on/off i WOWY, ${compL} ${SEASON_LABEL} | ${SITE_NAME}`),
+          desc: intro.slice(0, 300),
+          main: `<article class="article lead wide anpage"><p class="crumbs"><a href="${urlFor(LG, 'ana')}">Team Analytics</a> · <a href="${teamU(c)}">${esc(nm)}</a></p><h1>${esc(nm)}: Lineups · On/Off · WOWY</h1><p class="lede2">${esc(intro)}</p>
+<div id="luApp" data-api="${BASE}api/${cp === 'U' ? 'eurocup/' : ''}lineups/${c}.json"><p class="sub">…</p></div>${method}</article>${anCtx(cp)}`,
+          ld: crumbs([[SITE_NAME, B(LG)], ['Team Analytics', urlFor(LG, 'ana')], [nm, url]]) });
+      }
+    }
+    if (ANL.E) {
+      const tableFor = cp => {
+        const LT = ANL[cp], C = AN[cp]; if (!LT) return '';
+        const ecT = data.ec?.teams || {};
+        const nmT = c => (cp === 'U' ? ((LG === 'el' && { ARI: 'Άρης', PAO: 'ΠΑΟΚ' }[c]) || (ecT[c] ? ecT[c][1] : c)) : tName(c));
+        const K = ['ortg', 'drtg', 'net', 'pace', 'ppp', 'efg', 'ts', 'ast', 'tov', 'oreb', 'dreb', 'ftr', 'oefg', 'otov', 'ooreb', 'oftr'];
+        const rows = LT.teams.filter(t => cp === 'U' || TEAMS[t]).sort((a, b) => LT.rows[b].net - LT.rows[a].net);
+        return `<div class="tbl"><table class="sortable antbl"><thead><tr><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th data-k>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th data-k>${T('Ν-Η', 'W-L', 'V-D', 'P-I')}</th>${K.map(k => `<th data-k title="${esc(TIP[k])}">${esc(MN[k].replace('Offensive Rating', 'ORtg').replace('Defensive Rating', 'DRtg').replace('Net Rating', 'Net'))}</th>`).join('')}<th class="l">Lineups</th></tr></thead><tbody>${rows.map(t => { const r = LT.rows[t]; return `<tr><td class="l">${cp === 'E' ? `<a href="${urlFor(LG, 'team:' + t)}#analytics">${esc(nmT(t))}</a>` : esc(nmT(t))}</td><td>${r.gp}</td><td data-v="${r.w}">${r.w}-${r.gp - r.w}</td>${K.map(k => `<td data-v="${r[k] ?? ''}" class="${k === 'net' ? 'net ' + nc(r[k]) : ''}" title="${LT.pct[t][k]}%">${af(k, r[k])}</td>`).join('')}<td class="l"><a href="${urlFor(LG, 'lu:' + cp + '-' + t)}">→</a></td></tr>`; }).join('')}
+<tr class="avg"><td class="l">${T('Μέσος όρος', 'Average', 'Media', 'Prosek')}</td><td></td><td></td>${K.map(k => `<td>${af(k, LT.avg[k])}</td>`).join('')}<td></td></tr></tbody></table></div>`;
+      };
+      const ooTable = cp => {
+        const L = (ANOO[cp] || []).filter(x => x.on.min >= 100 && (cp === 'U' || TEAMS[x.t])).sort((a, b) => b.diff.net - a.diff.net);
+        if (!L.length) return '';
+        const ecT = data.ec?.teams || {};
+        const nmT = c => (cp === 'U' ? (ecT[c] ? ecT[c][1] : c) : tName(c));
+        return `<div class="tbl"><table class="sortable antbl"><thead><tr><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th data-k>${T('Λεπτά', 'Min', 'Min', 'Min')}</th><th data-k title="${esc(TIP.net)}">Net ${T('μέσα', 'on', 'en pista', 'na terenu')}</th><th data-k>Net ${T('έξω', 'off', 'fuera', 'van')}</th><th data-k>On/Off</th><th data-k title="${esc(TIP.ortg)}">ORtg Δ</th><th data-k title="${esc(TIP.drtg)}">DRtg Δ</th></tr></thead><tbody>${L.map(x => `<tr><td class="l"><a href="${urlFor(LG, 'lu:' + cp + '-' + x.t)}#p=${x.id}">${esc(niceName(x.n))}</a>${x.on.min < 150 || x.on.poss < 200 ? ` <span class="badge small">${T('μικρό δείγμα', 'small sample', 'muestra pequeña', 'mali uzorak')}</span>` : ''}</td><td class="l">${esc(nmT(x.t))}</td><td>${Math.round(x.on.min)}</td><td class="net ${nc(x.on.net)}" data-v="${x.on.net}">${af('net', x.on.net)}</td><td class="net ${nc(x.off.net)}" data-v="${x.off.net}">${af('net', x.off.net)}</td><td class="net ${nc(x.diff.net)}" data-v="${x.diff.net}"><b>${af('net', x.diff.net)}</b></td><td data-v="${x.diff.ortg}">${af('net', x.diff.ortg)}</td><td data-v="${x.diff.drtg}" class="net ${nc(-x.diff.drtg)}">${af('net', x.diff.drtg)}</td></tr>`).join('')}</tbody></table></div>`;
+      };
+      const nE = AN.E.games.length, nU = AN.U ? AN.U.games.length : 0;
+      await simplePage('ana', { view: 'lead', title: T(`Team Analytics EuroLeague & EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, Four Factors | ${SITE_NAME}`, `Team Analytics EuroLeague & EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, Four Factors | ${SITE_NAME}`, `Team Analytics EuroLeague y EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, cuatro factores | ${SITE_NAME}`, `Team Analytics Evroliga i Evrokup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, četiri faktora | ${SITE_NAME}`),
+        desc: T(`Προχωρημένα στατιστικά για κάθε ομάδα της EuroLeague και του EuroCup: Offensive/Defensive/Net Rating, Pace, Four Factors επίθεσης και άμυνας, με κατάταξη και εκατοστημόριο.`, `Advanced stats for every EuroLeague and EuroCup team: offensive, defensive and net rating, pace and the four factors on both ends, with ranks and percentiles.`, `Estadísticas avanzadas de cada equipo de la EuroLeague y la EuroCup: rating ofensivo, defensivo y neto, ritmo y los cuatro factores, con ranking y percentil.`, `Napredna statistika za svaki tim Evrolige i Evrokupa: ofanzivni, defanzivni i neto rejting, tempo i četiri faktora, sa rangom i percentilom.`),
+        main: `<article class="article lead wide anpage"><h1>Team Analytics ${SEASON_LABEL}</h1><p class="lede2">${esc(T(`Από ${nE} αγώνες EuroLeague${nU ? ` και ${nU} EuroCup` : ''}. Κλικ στις στήλες για ταξινόμηση· πέρνα το ποντίκι πάνω από μια στήλη για εξήγηση.`, `From ${nE} EuroLeague${nU ? ` and ${nU} EuroCup` : ''} games. Click a column to sort; hover a header for an explanation.`, `Con ${nE} partidos de EuroLeague${nU ? ` y ${nU} de EuroCup` : ''}. Pulsa una columna para ordenar; pasa el ratón por el encabezado para ver la explicación.`, `Na osnovu ${nE} utakmica Evrolige${nU ? ` i ${nU} Evrokupa` : ''}. Klik na kolonu za sortiranje; pređi mišem preko zaglavlja za objašnjenje.`))}</p>
+<p><a class="pread" href="${urlFor(LG, 'onoff')}">${T('On/Off όλων των παικτών →', 'On/off for every player →', 'On/off de todos los jugadores →', 'On/off svih igrača →')}</a></p>
+<h2>EuroLeague</h2>${tableFor('E')}${AN.U ? `<h2>EuroCup</h2>${tableFor('U')}` : ''}${method}</article>${anCtx('E')}`,
+        ld: crumbs([[SITE_NAME, B(LG)], ['Team Analytics', urlFor(LG, 'ana')]]) });
+      await simplePage('onoff', { view: 'lead', title: T(`On/Off EuroLeague ${SEASON_LABEL}: Net Rating με και χωρίς κάθε παίκτη | ${SITE_NAME}`, `EuroLeague ${SEASON_LABEL} on/off: net rating with and without every player | ${SITE_NAME}`, `On/off EuroLeague ${SEASON_LABEL}: Net Rating con y sin cada jugador | ${SITE_NAME}`, `On/off Evroliga ${SEASON_LABEL}: Net Rating sa i bez svakog igrača | ${SITE_NAME}`),
+        desc: T('Πόσο καλύτερα ή χειρότερα παίζει κάθε ομάδα όταν ένας παίκτης είναι στο παρκέ: Net, ORtg και DRtg on/off για EuroLeague και EuroCup.', 'How much better or worse each team plays with a player on court: on/off net, offensive and defensive rating for the EuroLeague and EuroCup.', 'Cuánto mejor o peor juega cada equipo con un jugador en pista: Net, ORtg y DRtg on/off en la EuroLeague y la EuroCup.', 'Koliko bolje ili lošije tim igra kada je igrač na terenu: on/off Net, ORtg i DRtg u Evroligi i Evrokupu.'),
+        main: `<article class="article lead wide anpage"><p class="crumbs"><a href="${urlFor(LG, 'ana')}">Team Analytics</a></p><h1>On/Off ${SEASON_LABEL}</h1><p class="lede2">${esc(T('Παίκτες με τουλάχιστον 100 λεπτά. On/Off = Net Rating ομάδας με τον παίκτη στο παρκέ μείον χωρίς αυτόν. Κλικ σε παίκτη για φίλτρα, τάση και WOWY.', 'Players with at least 100 minutes. On/off = team net rating with the player on court minus without him. Click a player for filters, trend and WOWY.', 'Jugadores con al menos 100 minutos. On/off = Net Rating del equipo con el jugador en pista menos sin él. Pulsa un jugador para filtros, tendencia y WOWY.', 'Igrači sa najmanje 100 minuta. On/off = Net Rating tima sa igračem na terenu minus bez njega. Klik na igrača za filtere, trend i WOWY.'))}</p>
+<h2>EuroLeague</h2>${ooTable('E')}${AN.U ? `<h2>EuroCup</h2>${ooTable('U')}` : ''}${method}</article>${anCtx('E')}`,
+        ld: crumbs([[SITE_NAME, B(LG)], ['Team Analytics', urlFor(LG, 'ana')], ['On/Off', urlFor(LG, 'onoff')]]) });
+    }
     const srow = Object.fromEntries(league.stand.map(s => [s[1], s]));
     for (const c of Object.keys(TEAMS)) {
       const s = srow[c], name = tName(c);
@@ -1452,7 +1589,17 @@ ${disclaimer}</article>` });
         const md = (await fs.readFile(path.join(ROOT, 'teams', `${c}.${LG}.md`), 'utf8')).replace(/<!--[\s\S]*?-->/g, '').trim();
         if (md) thist = `<section class="thist article"><h2>${T('Η ιστορία της ομάδας', 'Club history', 'Historia del club', 'Istorija kluba')}</h2>${markdown(md)}</section>`;
       } catch { }
-      await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede, extra: thist,
+      let tana = '';
+      if (ANL.E && ANL.E.rows[c]) {
+        const tg = league.games.filter(g => g[2] === c || g[3] === c);
+        const pl = tg.filter(g => g[6]).sort((x, y) => x[0] - y[0]).slice(-10), nx = tg.filter(g => !g[6]).sort((x, y) => x[0] - y[0]).slice(0, 5);
+        const hv = tg.find(g => g[2] === c && VENUE[`${g[0]}|${g[2]}|${g[3]}`]);
+        const gU = g => urlFor(LG, 'game:' + `${g[0]}|${g[2]}|${g[3]}`);
+        const recent = pl.length ? `<p class="anform">${T('Φόρμα', 'Form', 'Forma', 'Forma')} (${pl.length}): ${pl.map(g => { const h = g[2] === c, w = h ? g[4] > g[5] : g[5] > g[4]; return `<a class="${w ? 'W' : 'L'}" href="${gU(g)}" title="${esc((h ? '' : '@ ') + tName(h ? g[3] : g[2]) + ' ' + g[4] + '-' + g[5])}">${w ? T('Ν', 'W', 'V', 'P') : T('Η', 'L', 'D', 'I')}</a>`; }).join('')}</p>` : '';
+        const next = nx.length ? `<p class="annext">${T('Επόμενοι', 'Next', 'Próximos', 'Sledeći')}: ${nx.map(g => `<a href="${gU(g)}">${T('Αγ.', 'R', 'J', 'K')}${g[0]} ${g[2] === c ? '' : '@ '}${esc(tName(g[2] === c ? g[3] : g[2]))}</a>`).join(' · ')}</p>` : '';
+        tana = teamAnalytics('E', c, { venue: hv ? VENUE[`${hv[0]}|${hv[2]}|${hv[3]}`] : '', coach: coachOf('E', c), recent, next, lineupsUrl: AN.E.byTeam[c] ? urlFor(LG, 'lu:E-' + c) : '' });
+      }
+      await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede, extra: tana + thist,
         ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name, sport: 'Basketball', url: SITE_URL + urlFor(LG, 'team:' + c), memberOf: { '@type': 'SportsOrganization', name: 'EuroLeague' }, athlete: roster.map(p => ({ '@type': 'Person', name: niceName(p.n), url: SITE_URL + urlFor(LG, 'player:' + p.s) })) },
           crumbs([[SITE_NAME, B(LG)], [name, urlFor(LG, 'team:' + c)]])],
         title: T(`${name} ${S}: ρόστερ, πρόγραμμα, στατιστικά | ${SITE_NAME}`, `${name} ${S}: roster, schedule, stats | ${SITE_NAME}`, `${name} ${S}: plantilla, calendario y estadísticas | ${SITE_NAME}`, `${name} ${S}: roster, raspored, statistika | ${SITE_NAME}`),
@@ -1477,7 +1624,9 @@ ${disclaimer}</article>` });
       const pld = { '@context': 'https://schema.org', '@type': 'Person', name: n, url: SITE_URL + urlFor(LG, 'player:' + p.s), jobTitle: T('Μπασκετμπολίστας', 'Basketball player', 'Jugador de baloncesto', 'Košarkaš'), memberOf: { '@type': 'SportsTeam', name: tName(tc), url: SITE_URL + urlFor(LG, 'team:' + tc) } };
       if (p.bd) pld.birthDate = p.bd; if (p.ct) pld.nationality = p.ct; if (p.h) pld.height = { '@type': 'QuantitativeValue', value: p.h > 3 ? p.h : Math.round(p.h * 100), unitCode: 'CMT' };
       const car = Object.values(data.hist || {}).filter(h => h.rows?.length).sort((a, b) => a.code.localeCompare(b.code)).map(h => [h.code, h.rows.find(r => r[0] === p.c)]).filter(x => x[1]);
-      const extra = car.length ? `<section class="career"><h2>${T('Καριέρα στην EuroLeague', 'EuroLeague career', 'Trayectoria en la EuroLeague', 'Karijera u Evroligi')}</h2><p class="sub">${car.length + 1} ${T('σεζόν · μέσοι όροι ανά αγώνα', 'seasons · per-game averages', 'temporadas · promedios por partido', 'sezona · proseci po utakmici')}</p>${careerSum(car, s, tn)}<div class="tbl"><table><thead><tr><th class="l">${T('Σεζόν', 'Season', 'Temporada', 'Sezona')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>PIR</th></tr></thead><tbody>${car.map(([code, r]) => { const L = `${+code.slice(1)}-${String(+code.slice(1) + 1).slice(2)}`; return `<tr><td class="l"><a href="${urlFor(LG, 'hist:' + L)}">${L}</a></td><td class="l">${esc(TEAMS[r[2]] ? tName(r[2]) : r[3])}</td><td>${r[4]}</td><td>${f1(r[5])}</td><td>${f1(r[6])}</td><td>${f1(r[7])}</td><td>${f1(r[8])}</td><td>${f1(r[9])}</td></tr>`; }).join('')}<tr class="cur"><td class="l">${SEASON_LABEL}</td><td class="l">${esc(tn)}</td><td>${s.G}</td><td>–</td><td>${f1(s.pts)}</td><td>${f1(s.reb)}</td><td>${f1(s.ast)}</td><td>${f1(s.pir)}</td></tr>${careerTot(car, s)}</tbody></table></div></section>` : '';
+      const ooX = ANOO.E ? ANOO.E.find(x => x.id === p.c && x.t === p.t.split(';').pop()) : null;
+      const ooSec = ooX && ooX.on.poss >= 20 ? `<section class="career anpo"><h2>On/Off</h2><p class="lede2">${esc(T(`Όταν ο ${n} είναι στο παρκέ, η ομάδα του έχει ${af('net', ooX.on.net)} Net Rating. Όταν είναι εκτός, ${af('net', ooX.off.net)}. Διαφορά: ${af('net', ooX.diff.net)}.`, `With ${n} on court his team has a ${af('net', ooX.on.net)} Net Rating; with him off, ${af('net', ooX.off.net)}. Differential: ${af('net', ooX.diff.net)}.`, `Con ${n} en pista su equipo tiene un Net Rating de ${af('net', ooX.on.net)}; sin él, ${af('net', ooX.off.net)}. Diferencia: ${af('net', ooX.diff.net)}.`, `Kada je ${n} na terenu, tim ima Net Rating ${af('net', ooX.on.net)}; kada nije, ${af('net', ooX.off.net)}. Razlika: ${af('net', ooX.diff.net)}.`))}${ooX.on.min < 150 || ooX.on.poss < 200 ? ` <span class="badge small">${T('μικρό δείγμα', 'small sample', 'muestra pequeña', 'mali uzorak')}</span>` : ''}</p><div class="tbl"><table class="antbl"><thead><tr><th class="l"></th><th>${T('Λεπτά', 'Min', 'Min', 'Min')}</th><th>${T('Κατοχές', 'Poss', 'Pos', 'Pos.')}</th><th title="${esc(TIP.net)}">Net</th><th title="${esc(TIP.ortg)}">ORtg</th><th title="${esc(TIP.drtg)}">DRtg</th><th title="${esc(TIP.pace)}">Pace</th><th>eFG%</th><th>${T('eFG% αντ.', 'Opp eFG%', 'eFG% rival', 'eFG% prot.')}</th><th>REB%</th><th>TOV%</th></tr></thead><tbody>${[[T('Στο παρκέ', 'On court', 'En pista', 'Na terenu'), ooX.on], [T('Εκτός', 'Off court', 'Fuera', 'Van terena'), ooX.off]].map(([l, r]) => `<tr><td class="l">${l}</td><td>${Math.round(r.min)}</td><td>${Math.round(r.poss)}</td><td class="net ${nc(r.net)}">${af('net', r.net)}</td><td>${af('ortg', r.ortg)}</td><td>${af('drtg', r.drtg)}</td><td>${af('pace', r.pace)}</td><td>${af('efg', r.efg)}</td><td>${af('oefg', r.oefg)}</td><td>${af('reb', r.reb)}</td><td>${af('tov', r.tov)}</td></tr>`).join('')}</tbody></table></div><p><a class="pread" href="${urlFor(LG, 'lu:E-' + ooX.t)}#p=${p.c}">${T('Φίλτρα, τάση και WOWY →', 'Filters, trend and WOWY →', 'Filtros, tendencia y WOWY →', 'Filteri, trend i WOWY →')}</a></p></section>` : '';
+      const extra = ooSec + (car.length ? `<section class="career"><h2>${T('Καριέρα στην EuroLeague', 'EuroLeague career', 'Trayectoria en la EuroLeague', 'Karijera u Evroligi')}</h2><p class="sub">${car.length + 1} ${T('σεζόν · μέσοι όροι ανά αγώνα', 'seasons · per-game averages', 'temporadas · promedios por partido', 'sezona · proseci po utakmici')}</p>${careerSum(car, s, tn)}<div class="tbl"><table><thead><tr><th class="l">${T('Σεζόν', 'Season', 'Temporada', 'Sezona')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th>${T('Αγ.', 'G', 'PJ', 'Ut.')}</th><th>${T('Λεπ.', 'Min', 'Min', 'Min')}</th><th>${T('Π', 'Pts', 'Pts', 'Poe')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sko')}</th><th>${T('Ασ.', 'Ast', 'Asi', 'Asi')}</th><th>PIR</th></tr></thead><tbody>${car.map(([code, r]) => { const L = `${+code.slice(1)}-${String(+code.slice(1) + 1).slice(2)}`; return `<tr><td class="l"><a href="${urlFor(LG, 'hist:' + L)}">${L}</a></td><td class="l">${esc(TEAMS[r[2]] ? tName(r[2]) : r[3])}</td><td>${r[4]}</td><td>${f1(r[5])}</td><td>${f1(r[6])}</td><td>${f1(r[7])}</td><td>${f1(r[8])}</td><td>${f1(r[9])}</td></tr>`; }).join('')}<tr class="cur"><td class="l">${SEASON_LABEL}</td><td class="l">${esc(tn)}</td><td>${s.G}</td><td>–</td><td>${f1(s.pts)}</td><td>${f1(s.reb)}</td><td>${f1(s.ast)}</td><td>${f1(s.pir)}</td></tr>${careerTot(car, s)}</tbody></table></div></section>` : '');
       await page('player:' + p.s, { view: 'player', id: p.c, h1p: n, ledep: lede, extra,
         ld: [pld, crumbs([[SITE_NAME, B(LG)], [tName(tc), urlFor(LG, 'team:' + tc)], [n, urlFor(LG, 'player:' + p.s)]])],
         title: T(`${n} στατιστικά ${S} (${tn}) | ${SITE_NAME}`, `${n} stats ${S} (${tn}) | ${SITE_NAME}`, `Estadísticas de ${n} en la ${S} (${tn}) | ${SITE_NAME}`, `${n} statistika ${S} (${tn}) | ${SITE_NAME}`), desc: lede });
@@ -1923,7 +2072,7 @@ ${ros.length ? `<h2>${T('Ρόστερ και μέσοι όροι', 'Roster and a
 </section>`;
         await simplePage('ec:' + ecSlug(c), { view: 'eurocup', title: T(`${ecFull(c)}: EuroCup ${SEASON_LABEL}, πρόγραμμα, ρόστερ, στατιστικά | ${SITE_NAME}`, `${ecFull(c)}: EuroCup ${SEASON_LABEL} schedule, roster and stats | ${SITE_NAME}`, `${ecFull(c)}: EuroCup ${SEASON_LABEL}, calendario, plantilla y estadísticas | ${SITE_NAME}`, `${ecFull(c)}: Evrokup ${SEASON_LABEL}, raspored, roster i statistika | ${SITE_NAME}`),
           ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name: ecFull(c), sport: 'Basketball', url: SITE_URL + urlFor(LG, 'ec:' + ecSlug(c)), memberOf: { '@type': 'SportsOrganization', name: 'EuroCup' }, athlete: ros.map(p => ({ '@type': 'Person', name: p.n, url: SITE_URL + urlFor(LG, 'ec:' + pSlug[p.c]) })) }, crumbs([[SITE_NAME, B(LG)], [ECL, urlFor(LG, 'ec')], [ecFull(c), urlFor(LG, 'ec:' + ecSlug(c))]])],
-          desc: T(`Το πρόγραμμα, τα αποτελέσματα και οι μέσοι όροι των παικτών της ${ecFull(c)} στην EuroCup ${SEASON_LABEL}.`, `${ecFull(c)} in the EuroCup ${SEASON_LABEL}: schedule, results and player averages.`, `${ecFull(c)} en la EuroCup ${SEASON_LABEL}: calendario, resultados y promedios de los jugadores.`, `${ecFull(c)} u Evrokupu ${SEASON_LABEL}: raspored, rezultati i proseci igrača.`), main: tmain });
+          desc: T(`Το πρόγραμμα, τα αποτελέσματα και οι μέσοι όροι των παικτών της ${ecFull(c)} στην EuroCup ${SEASON_LABEL}.`, `${ecFull(c)} in the EuroCup ${SEASON_LABEL}: schedule, results and player averages.`, `${ecFull(c)} en la EuroCup ${SEASON_LABEL}: calendario, resultados y promedios de los jugadores.`, `${ecFull(c)} u Evrokupu ${SEASON_LABEL}: raspored, rezultati i proseci igrača.`), main: tmain + (ANL.U && ANL.U.rows[c] ? teamAnalytics('U', c, { coach: coachOf('U', c), lineupsUrl: AN.U.byTeam[c] ? urlFor(LG, 'lu:U-' + c) : '' }) : '') });
       }
     }
 
