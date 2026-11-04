@@ -33,5 +33,5 @@ jobs:
             [ "${{ github.event.inputs.shots }}" = "yes" ] && node scripts/shots.mjs --season $s --secs 3000 || true
             git add data/pbp; [ -d data/shots ] && git add data/shots
             git diff --cached --quiet || git commit -qm "Backfill αγώνων $s"
-            for i in 1 2 3 4; do git pull --rebase -q && git push -q && break; sleep 20; done
+            for i in 1 2 3 4; do git pull --rebase -q -X theirs || (git rebase --abort; git pull --no-rebase -q -X ours --no-edit) && git push -q && break; sleep 20; done
           done

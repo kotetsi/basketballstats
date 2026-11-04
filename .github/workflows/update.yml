@@ -41,7 +41,7 @@ jobs:
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
         run: timeout 1200 node scripts/pbp.mjs --keys --secs 600 || echo "PBP - παραλείφθηκε"
-      - name: Shot charts: συντεταγμένες σουτ (μόνο οι νέοι αγώνες)
+      - name: "Shot charts - συντεταγμένες σουτ (μόνο οι νέοι αγώνες)"
         run: timeout 900 node scripts/shots.mjs --secs 480 || echo "Shots - παραλείφθηκε"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε"
@@ -55,11 +55,12 @@ jobs:
           TELEGRAM_CHAT: ${{ secrets.TELEGRAM_CHAT }}
         run: node scripts/telegram.mjs || true
       - name: Αποθήκευση των νέων δεδομένων στο repo
+        continue-on-error: true
         run: |
           git config user.name "basketballstats-bot"
           git config user.email "basketballstats-bot@users.noreply.github.com"
           git add data/cache.json data/fantasy; [ -d data/pbp ] && git add data/pbp; [ -d data/matchups ] && git add data/matchups; [ -d data/shots ] && git add data/shots; if [ -f data/telegram.json ]; then git add data/telegram.json; fi
-          git diff --cached --quiet || (git commit -m "Ενημέρωση δεδομένων $(date -u +%F)" && for i in 1 2 3 4; do git push && break; sleep 15; git pull --rebase -q; done)
+          git diff --cached --quiet || (git commit -m "Ενημέρωση δεδομένων $(date -u +%F)" && for i in 1 2 3 4; do git push && break; sleep 15; git pull --rebase -q -X theirs || (git rebase --abort; git pull --no-rebase -q -X ours --no-edit); done)
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
