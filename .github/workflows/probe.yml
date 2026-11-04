@@ -1,0 +1,17 @@
+name: Probe shots
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -s -o pts.json -w "pts %{http_code}\n" "https://live.euroleague.net/api/Points?gamecode=1&seasoncode=E2026"
+          curl -s -o ptsu.json -w "ptsU %{http_code}\n" "https://live.euroleague.net/api/Points?gamecode=1&seasoncode=U2026"
+          curl -s -o pts16.json -w "pts16 %{http_code}\n" "https://live.euroleague.net/api/Points?gamecode=1&seasoncode=E2016"
+          echo KEYS; jq -c 'keys' pts.json; jq -c '.Rows|length' pts.json ptsu.json pts16.json
+          jq -c '.Rows[0:4][]' pts.json
+          echo ACTIONS; jq -c '[.Rows[].ID_ACTION]|group_by(.)|map({(.[0]):length})|add' pts.json
+          echo ZONES; jq -c '[.Rows[].ZONE]|group_by(.)|map({(.[0]|tostring):length})|add' pts.json
+          echo RANGE; jq -c '[.Rows[]|select(.ID_ACTION!="FTM" and .ID_ACTION!="FTA")|.COORD_X]|[min,max]' pts.json; jq -c '[.Rows[]|select(.ID_ACTION!="FTM" and .ID_ACTION!="FTA")|.COORD_Y]|[min,max]' pts.json
+          echo THREES; jq -c '[.Rows[]|select(.ID_ACTION=="3FGM" or .ID_ACTION=="3FGA")|[.COORD_X,.COORD_Y,.ZONE]][0:15]' pts.json
+          echo RIM; jq -c '[.Rows[]|select(.ZONE=="A" or .ZONE=="B")|[.COORD_X,.COORD_Y,.ZONE,.ID_ACTION]][0:10]' pts.json
