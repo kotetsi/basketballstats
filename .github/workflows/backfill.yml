@@ -1,0 +1,32 @@
+# Χειροκίνητο backfill παλαιότερων σεζόν (box score + play-by-play) για την εκπαίδευση του Game Predictor.
+name: Backfill αγώνων
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Σεζόν (κενό = E2025 E2024 E2023 U2025 U2024 U2023)"
+        required: false
+permissions:
+  contents: write
+concurrency:
+  group: backfill
+  cancel-in-progress: false
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Λήψη ανά σεζόν (αποθήκευση μετά από κάθε σεζόν)
+        run: |
+          git config user.name "basketballstats-bot"
+          git config user.email "basketballstats-bot@users.noreply.github.com"
+          for s in ${{ github.event.inputs.seasons || 'E2025 E2024 E2023 U2025 U2024 U2023' }}; do
+            node scripts/pbp.mjs --season $s --secs 3000 --max 400 || echo "$s: σφάλμα"
+            git add data/pbp
+            git diff --cached --quiet || git commit -qm "Backfill αγώνων $s"
+            for i in 1 2 3 4; do git pull --rebase -q && git push -q && break; sleep 20; done
+          done
