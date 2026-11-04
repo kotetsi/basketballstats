@@ -155,4 +155,4 @@ async function init(app) {
 
   render();
 }
-function niceN(n) { const s = String(n || ''); const i = s.indexOf(','); if (i < 0) return s; const t = x => x.toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu, (m, p, c) => p + c.toUpperCase()); return t(s.slice(i + 1).trim()) + ' ' + t(s.slice(0, i).trim()); }
+function niceN(n) { const s = String(n || ''); const i = s.indexOf(','); if (i < 0) return s; const t = x => x.toLowerCase().replace(/(^|[\s\-'.])(\p{L})/gu, (m, p, c) => p + c.toUpperCase()); return t(s.slice(i + 1).trim()) + ' ' + t(s.slice(0, i).trim()); }

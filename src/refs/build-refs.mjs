@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const cap = s => s.toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+const cap = s => s.toLowerCase().replace(/(^|[\s\-'.])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
 // «LASTNAME, FIRSTNAME» → «Firstname Lastname»· αφαιρεί κωδικό χώρας σε παρένθεση
 export function cleanName(s) {
   let x = String(s || '').replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim();

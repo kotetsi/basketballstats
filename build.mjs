@@ -7,6 +7,7 @@
 //   SEASON     κωδικός σεζόν της Ευρωλίγκας                    (προεπιλογή E2026)
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { translate, APP_CODE, SHELL_CODE } from './src/en.mjs';
 import * as ES from './src/es.mjs';
@@ -202,9 +203,23 @@ async function pool(items, n, fn) {
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const GR = { α: 'a', β: 'v', γ: 'g', δ: 'd', ε: 'e', ζ: 'z', η: 'i', θ: 'th', ι: 'i', κ: 'k', λ: 'l', μ: 'm', ν: 'n', ξ: 'x', ο: 'o', π: 'p', ρ: 'r', σ: 's', ς: 's', τ: 't', υ: 'y', φ: 'f', χ: 'ch', ψ: 'ps', ω: 'o' };
 const slugify = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[α-ω]/g, c => GR[c] || '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// αφαιρεί από τη σελίδα τα <div id="vX" hidden>…</div> (με σωστό ταίριασμα των εμφωλευμένων div)
+function stripHiddenViews(html, ids) {
+  for (const id of ids) {
+    const s = html.indexOf(`<div id="${id}" hidden>`);
+    if (s < 0) continue;
+    const re = /<div\b|<\/div>/g; re.lastIndex = s;
+    let depth = 0, m;
+    while ((m = re.exec(html))) {
+      if (m[0] === '</div>') { if (--depth === 0) { html = html.slice(0, s) + html.slice(m.index + 6); break; } }
+      else depth++;
+    }
+  }
+  return html;
+}
 function niceName(n) {
   const [a, b] = n.split(',').map(s => s.trim());
-  const cap = s => s.toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu, (m, p, c) => p + c.toUpperCase());
+  const cap = s => s.toLowerCase().replace(/(^|[\s\-'.])(\p{L})/gu, (m, p, c) => p + c.toUpperCase());
   return b ? cap(b) + ' ' + cap(a) : cap(a);
 }
 const f1 = x => (Number.isFinite(x) ? x.toFixed(1) : '–');
@@ -975,7 +990,7 @@ async function main() {
     return B(lg) + P[k] + '/';
   }
 
-  const urls = [];
+  const urls = [], PAGE_HASH = new Map();
   const adUnit = lg => (AD_CLIENT && AD_SLOT)
     ? `<div class="wrap adwrap"><span class="adlabel">${{ el: 'Διαφήμιση', en: 'Advertisement', es: 'Publicidad', sr: 'Reklama' }[lg]}</span><ins class="adsbygoogle" style="display:block" data-ad-client="${esc(AD_CLIENT)}" data-ad-slot="${esc(AD_SLOT)}" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>`
     : '';
@@ -1118,6 +1133,8 @@ ${alts}<meta property="og:type" content="website">
 ${gaHead(LG, urlFor(LG, 'legal'))}${adHead}${pwaHead(LG)}</head>`;
     }
     async function write(url, html) {
+      // αποτύπωμα του περιεχομένου (χωρίς υποσέλιδο, scripts και cache-busters) για το lastmod του sitemap
+      PAGE_HASH.set(SITE_URL + url, createHash('sha1').update(html.replace(/<footer[\s\S]*?<\/footer>/g, '').replace(/<script\b(?![^>]*ld\+json)[\s\S]*?<\/script>/g, '').replace(/\?v=[\w.-]+/g, '')).digest('base64url').slice(0, 16));
       const file = path.join(OUT, url.slice(BASE.length), 'index.html');
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.writeFile(file, html);
@@ -1187,10 +1204,11 @@ ${low ? `<p><b>${esc(low)}</b></p>` : ''}
 <div class="gcols"><div><h3>${T('Οι κρίσιμες φάσεις', 'Key moments', 'Momentos clave', 'Ključni trenuci')}</h3><ol class="wpkm">${km}</ol></div>
 <div><h3>${T('Ποιος έκρινε τον αγώνα', 'Who decided the game', 'Quién decidió el partido', 'Ko je odlučio utakmicu')}</h3><p class="sub">${T('Άθροισμα της αλλαγής στην πιθανότητα νίκης από τους πόντους κάθε παίκτη (WPA)', 'Sum of the change in win probability from each player’s points (WPA)', 'Suma del cambio en la probabilidad de victoria por los puntos de cada jugador (WPA)', 'Zbir promene verovatnoće pobede od poena svakog igrača (WPA)')}</p><ol class="wpkm">${dec}</ol></div></div></section>`;
     }
-    async function simplePage(key, { title, desc, view, main, id = '', ld = null }) {
+    async function simplePage(key, { title, desc, view, main, id = '', ld = null, noindex = false }) {
       if (CATS[key]) { main = main + catFaq(key).replace('<section class="wrap catfaq">', '<section class="catfaq">'); ld = withLd(ld, key); }
-      const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
-      await write(url, `${head(title, desc, url, alt)}
+      const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); if (!noindex) urls.push(SITE_URL + url);
+      let hd = head(title, desc, url, alt); if (noindex) hd = hd.replace('</head>', '<meta name="robots" content="noindex,follow"></head>');
+      await write(url, `${hd}
 <body ${bodyAttrs(view, id)}>
 ${topband.replace('{{LANGSW}}', langSw(alt))}
 ${adUnit(LG)}<main class="wrap one">${main}</main>
@@ -1219,6 +1237,9 @@ ${ldTag(ld)}${script}
       }
       const map = { stand: 'vStand', team: 'vTeam', player: 'vPlayer', form: 'vForm', fantasy: 'vFantasy', preds: 'vPreds' };
       for (const [v, el] of Object.entries(map)) body = body.replace(`{{HIDDEN_${el}}}`, v === view ? '' : ' hidden');
+      // SEO: οι κρυφές ενότητες (άλλες προβολές) δεν χρειάζονται στη σελίδα· το app.js δείχνει μόνο τη δική της.
+      // Έτσι κάθε σελίδα έχει ένα <h1> και μόνο το δικό της κείμενο (όχι επαναλαμβανόμενο σε 7.000 σελίδες).
+      body = stripHiddenViews(body, Object.values(map));
       // μία διαφήμιση στην ορατή ενότητα + μία πριν από το υποσέλιδο
       const at = body.indexOf(`<div id="${map[view]}"`);
       const k = body.indexOf('{{AD}}', at);
@@ -1881,7 +1902,7 @@ ${method}</section>`;
         return `<div class="tbl"><table class="sortable antbl"><thead><tr><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim')}</th><th data-k>${T('Λεπτά', 'Min', 'Min', 'Min')}</th><th data-k title="${esc(TIP.net)}">Net ${T('μέσα', 'on', 'en pista', 'na terenu')}</th><th data-k>Net ${T('έξω', 'off', 'fuera', 'van')}</th><th data-k>On/Off</th><th data-k title="${esc(TIP.ortg)}">ORtg Δ</th><th data-k title="${esc(TIP.drtg)}">DRtg Δ</th></tr></thead><tbody>${L.map(x => `<tr><td class="l"><a href="${urlFor(LG, 'lu:' + cp + '-' + x.t)}#p=${x.id}">${esc(niceName(x.n))}</a>${x.on.min < 150 || x.on.poss < 200 ? ` <span class="badge small">${T('μικρό δείγμα', 'small sample', 'muestra pequeña', 'mali uzorak')}</span>` : ''}</td><td class="l">${esc(nmT(x.t))}</td><td>${Math.round(x.on.min)}</td><td class="net ${nc(x.on.net)}" data-v="${x.on.net}">${af('net', x.on.net)}</td><td class="net ${nc(x.off.net)}" data-v="${x.off.net}">${af('net', x.off.net)}</td><td class="net ${nc(x.diff.net)}" data-v="${x.diff.net}"><b>${af('net', x.diff.net)}</b></td><td data-v="${x.diff.ortg}">${af('net', x.diff.ortg)}</td><td data-v="${x.diff.drtg}" class="net ${nc(-x.diff.drtg)}">${af('net', x.diff.drtg)}</td></tr>`).join('')}</tbody></table></div>`;
       };
       const nE = AN.E.games.length, nU = AN.U ? AN.U.games.length : 0;
-      await simplePage('ana', { view: 'lead', title: T(`Team Analytics EuroLeague & EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, Four Factors | ${SITE_NAME}`, `Team Analytics EuroLeague & EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, Four Factors | ${SITE_NAME}`, `Team Analytics EuroLeague y EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, cuatro factores | ${SITE_NAME}`, `Team Analytics Evroliga i Evrokup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, četiri faktora | ${SITE_NAME}`),
+      await simplePage('ana', { view: 'lead', title: T(`Προχωρημένα στατιστικά ομάδων EuroLeague & EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace | ${SITE_NAME}`, `Team Analytics EuroLeague & EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, Four Factors | ${SITE_NAME}`, `Team Analytics EuroLeague y EuroCup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, cuatro factores | ${SITE_NAME}`, `Team Analytics Evroliga i Evrokup ${SEASON_LABEL}: ORtg, DRtg, Net, Pace, četiri faktora | ${SITE_NAME}`),
         desc: T(`Προχωρημένα στατιστικά για κάθε ομάδα της EuroLeague και του EuroCup: Offensive/Defensive/Net Rating, Pace, Four Factors επίθεσης και άμυνας, με κατάταξη και εκατοστημόριο.`, `Advanced stats for every EuroLeague and EuroCup team: offensive, defensive and net rating, pace and the four factors on both ends, with ranks and percentiles.`, `Estadísticas avanzadas de cada equipo de la EuroLeague y la EuroCup: rating ofensivo, defensivo y neto, ritmo y los cuatro factores, con ranking y percentil.`, `Napredna statistika za svaki tim Evrolige i Evrokupa: ofanzivni, defanzivni i neto rejting, tempo i četiri faktora, sa rangom i percentilom.`),
         main: `<article class="article lead wide anpage"><h1>Team Analytics ${SEASON_LABEL}</h1><p class="lede2">${esc(T(`Από ${nE} αγώνες EuroLeague${nU ? ` και ${nU} EuroCup` : ''}. Κλικ στις στήλες για ταξινόμηση· πέρνα το ποντίκι πάνω από μια στήλη για εξήγηση.`, `From ${nE} EuroLeague${nU ? ` and ${nU} EuroCup` : ''} games. Click a column to sort; hover a header for an explanation.`, `Con ${nE} partidos de EuroLeague${nU ? ` y ${nU} de EuroCup` : ''}. Pulsa una columna para ordenar; pasa el ratón por el encabezado para ver la explicación.`, `Na osnovu ${nE} utakmica Evrolige${nU ? ` i ${nU} Evrokupa` : ''}. Klik na kolonu za sortiranje; pređi mišem preko zaglavlja za objašnjenje.`))}</p>
 <p><a class="pread" href="${urlFor(LG, 'onoff')}">${T('On/Off όλων των παικτών →', 'On/off for every player →', 'On/off de todos los jugadores →', 'On/off svih igrača →')}</a></p>
@@ -2216,7 +2237,7 @@ ${new Set(REFROWS.map(g => g.season)).size > 1 ? `<h2>${T('Από το 2023', 'S
       const sent = shDescribe(pr.groups, pr.creation, T);
       const asl = pr.assisters.slice(0, 5).map(x => { const q = players.find(z => z.c === x.id); return `${q ? `<a href="${urlFor(LG, 'player:' + q.s)}">${esc(niceName(q.n))}</a>` : esc(x.id)} (${x.n})`; }).join(', ');
       await simplePage('shp:' + p.s, { view: 'lead', title: T(`${n} shot chart ${S}: ζώνες, FG% ανά περιοχή | ${SITE_NAME}`, `${n} shot chart ${S}: zones and FG% by area | ${SITE_NAME}`, `${n} mapa de tiro ${S}: zonas y % por área | ${SITE_NAME}`, `${n} mapa šuteva ${S}: zone i procenat po oblastima | ${SITE_NAME}`),
-        desc: (sent || T(`Όλα τα σουτ του ${n} στην ${S} σε γήπεδο, με ζώνες και σύγκριση με τη λίγκα.`, `Every ${n} shot of the ${S} on a court, with zones and league comparison.`, `Todos los tiros de ${n} en la ${S}, con zonas y comparación con la liga.`, `Svi šutevi igrača ${n} u ${S}, sa zonama i poređenjem sa ligom.`)).slice(0, 300),
+        desc: (sent ? `${n} (${tn}): ${sent}` : T(`Όλα τα σουτ του ${n} στην ${S} σε γήπεδο, με ζώνες και σύγκριση με τη λίγκα.`, `Every ${n} shot of the ${S} on a court, with zones and league comparison.`, `Todos los tiros de ${n} en la ${S}, con zonas y comparación con la liga.`, `Svi šutevi igrača ${n} u ${S}, sa zonama i poređenjem sa ligom.`)).slice(0, 300),
         main: `<article class="article lead wide anpage shpage"><p class="crumbs"><a href="${urlFor(LG, 'player:' + p.s)}">${esc(n)}</a> · <a href="${urlFor(LG, 'sht:' + p.t.split(';').pop())}">${esc(tn)} shot chart</a></p><h1>${esc(n)}: Shot chart</h1><p class="lede2">${esc(sent)}</p>
 ${shCfg({ kind: 'player', player: p.c, api: `${BASE}api/players/${p.c}/shot-chart.json`, teams: Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)])), file: `${p.s}-shots` })}
 <h2>Scoring zones</h2>${groupTable(pr.groups, shLA(SEASON))}
@@ -2459,7 +2480,7 @@ ${nx ? `<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Τα προγνω
 ${pcfg({ ids: topPairs[0] ? topPairs[0].map(p => p.id).join(',') : '' })}
 <h2>${T('Δημοφιλείς συγκρίσεις', 'Popular comparisons', 'Comparaciones populares', 'Popularna poređenja')}</h2><ul class="mckm">${topPairs.map(([a, b]) => `<li><a href="${urlFor(LG, 'compare')}?ids=${a.id},${b.id}">${esc(a.n)} vs ${esc(b.n)}</a></li>`).join('')}</ul>${meth}</article>`,
         ld: crumbs([[SITE_NAME, B(LG)], [T('Σύγκριση παικτών', 'Player comparison', 'Comparador de jugadores', 'Poređenje igrača'), urlFor(LG, 'compare')]]) });
-      await simplePage('cmpe', { view: 'lead', title: `${T('Σύγκριση παικτών', 'Player comparison', 'Comparador de jugadores', 'Poređenje igrača')} | ${SITE_NAME}`, desc: T('Ενσωματώσιμη σύγκριση παικτών EuroLeague.', 'Embeddable EuroLeague player comparison.', 'Comparador insertable de jugadores de la EuroLeague.', 'Ugradivo poređenje igrača Evrolige.'),
+      await simplePage('cmpe', { view: 'lead', noindex: true, title: `${T('Σύγκριση παικτών', 'Player comparison', 'Comparador de jugadores', 'Poređenje igrača')} | ${SITE_NAME}`, desc: T('Ενσωματώσιμη σύγκριση παικτών EuroLeague.', 'Embeddable EuroLeague player comparison.', 'Comparador insertable de jugadores de la EuroLeague.', 'Ugradivo poređenje igrača Evrolige.'),
         main: `<div class="cmpembed">${pcfg({ embed: true })}<p class="sub"><a href="${SITE_URL}${urlFor(LG, 'compare')}" target="_blank" rel="noopener">${SITE_NAME}</a></p></div>` });
       await simplePage('cmpt', { view: 'lead', title: T(`Σύγκριση ομάδων EuroLeague & EuroCup ${SEASON_LABEL}: ratings, Four Factors, head-to-head | ${SITE_NAME}`, `Compare EuroLeague & EuroCup teams ${SEASON_LABEL}: ratings, four factors, head-to-head | ${SITE_NAME}`, `Comparar equipos EuroLeague y EuroCup ${SEASON_LABEL}: ratings, cuatro factores, enfrentamientos | ${SITE_NAME}`, `Poređenje timova Evroliga i Evrokup ${SEASON_LABEL}: rejtinzi, četiri faktora, međusobni dueli | ${SITE_NAME}`),
         desc: T('Σύγκρινε δύο ομάδες: ρεκόρ, ORtg/DRtg/Net, pace, Four Factors, πάγκος, εντός/εκτός, φόρμα, καλύτερες πεντάδες, βασικοί παίκτες, head-to-head και πρόβλεψη.', 'Compare two teams: record, ORtg/DRtg/Net, pace, four factors, bench, home/away, form, best lineups, key players, head-to-head and forecast.', 'Compara dos equipos: balance, ratings, ritmo, cuatro factores, banquillo, local/visitante, forma, quintetos, jugadores clave, enfrentamientos y pronóstico.', 'Uporedi dva tima: skor, rejtinzi, tempo, četiri faktora, klupa, kod kuće/u gostima, forma, petorke, ključni igrači, međusobni dueli i prognoza.'),
@@ -2880,9 +2901,16 @@ ${wBlock('widget:rd', 1230, T('Προγνωστικά EuroLeague', 'EuroLeague p
   }
 
   const today = new Date().toISOString().slice(0, 10);
+  // lastmod = η μέρα που άλλαξε πραγματικά το περιεχόμενο της σελίδας (όχι η μέρα του build),
+  // ώστε το Google να εμπιστεύεται το sitemap και να ξαναδιαβάζει πρώτα ό,τι άλλαξε.
+  const LM_FILE = path.join(ROOT, 'data', 'sitemap-lastmod.json');
+  let lmOld = {}; try { lmOld = JSON.parse(await fs.readFile(LM_FILE, 'utf8')); } catch { }
+  const lmNew = {};
+  for (const u of urls) { const h = PAGE_HASH.get(u) || ''; const o = lmOld[u]; lmNew[u] = o && o[0] === h ? o : [h, today]; }
+  await fs.writeFile(LM_FILE, JSON.stringify(lmNew));
   await fs.writeFile(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => `  <url><loc>${esc(u)}</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq></url>`).join('\n')}
+${urls.map(u => `  <url><loc>${esc(u)}</loc><lastmod>${lmNew[u][1]}</lastmod></url>`).join('\n')}
 </urlset>
 `);
   if (AD_CLIENT) await fs.writeFile(path.join(OUT, 'ads.txt'), `google.com, ${AD_CLIENT.replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`);
