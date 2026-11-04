@@ -13,6 +13,7 @@ const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), '
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const cur = process.env.SEASON || CONF.season || 'E2026';
 const SEASONS = arg('--season') ? [arg('--season')] : [cur, 'U' + cur.slice(1)];
+const FORCE = process.argv.includes('--force');
 const DEADLINE = Date.now() + 1000 * +arg('--secs', 600);
 const LIVE = 'https://live.euroleague.net/api';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -57,9 +58,9 @@ async function season(code) {
   try { files = (await fs.readdir(src)).filter(f => f.endsWith('.json')); } catch { console.log(`${code}: δεν υπάρχει data/pbp`); return; }
   await fs.mkdir(dir, { recursive: true });
   const have = new Set(await fs.readdir(dir));
-  let done = 0, coords = 0, total = 0;
+  let done = 0, coords = 0, total = 0, astF = 0, astBox = 0;
   for (const f of files.sort((a, b) => parseInt(a) - parseInt(b))) {
-    if (have.has(f)) continue;
+    if (have.has(f) && !FORCE) continue;
     if (Date.now() > DEADLINE) { console.log(`${code}: όριο χρόνου, συνέχεια στην επόμενη εκτέλεση`); break; }
     const g = JSON.parse(await fs.readFile(path.join(src, f), 'utf8'));
     const [pbp, pts] = await Promise.all([get(`${LIVE}/PlayByPlay?gamecode=${g.gc}&seasoncode=${code}`), get(`${LIVE}/Points?gamecode=${g.gc}&seasoncode=${code}`)]);
@@ -74,9 +75,10 @@ async function season(code) {
     const S = shots.map(s => [ix[s.pid], s.home, s.q, s.clk, s.made, s.three, s.x, s.y, s.z, s.ast ? ix[s.ast] : -1, s.margin, s.clutch, s.fb, s.sc, s.def ? s.def.map(d => ix[d]) : null]);
     await fs.writeFile(path.join(dir, f), JSON.stringify({ gc: g.gc, d: g.d, ph: g.ph, h: g.h, a: g.a, hs: g.hs, as: g.as, ids: ids.map(id => id.replace(/^P/, '')), s: S, chk: { shots: shots.length, coords: matched } }));
     done++; coords += matched; total += shots.length;
+    astF += shots.filter(s => s.ast).length; astBox += (g.box?.[g.h]?.[10] || 0) + (g.box?.[g.a]?.[10] || 0);
     if (done % 20 === 0) console.log(`${code}: ${done}…`);
   }
-  console.log(`${code}: ${done} νέοι αγώνες, ${total} σουτ, ${total ? Math.round(100 * coords / total) : 0}% με συντεταγμένες`);
+  console.log(`${code}: ${done} νέοι αγώνες, ${total} σουτ, ${total ? Math.round(100 * coords / total) : 0}% με συντεταγμένες, ασίστ ${astF}/${astBox} του box score`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) for (const s of SEASONS) await season(s).catch(e => console.log(s, 'σφάλμα:', e.message));

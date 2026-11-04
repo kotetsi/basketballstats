@@ -129,15 +129,17 @@ export function buildStints(pbp, starters) {
     }
     if (eff.pts) score[e.team] += eff.pts;
   }
-  // assisted: η ασίστ καταγράφεται αμέσως μετά το εύστοχο σουτ (ίδια ομάδα, ίδιος χρόνος)
-  for (const s of shots) {
-    if (!s.made) continue;
-    for (let j = s.i + 1; j < Math.min(ev.length, s.i + 4); j++) {
-      const e = ev[j];
-      if (e.t !== s.t) break;
-      if (e.type === 'AS' && e.team === s.team && e.pid && e.pid !== s.pid) { s.ast = e.pid; break; }
-      if (FG[e.type]) break;
+  // assisted: κάθε ασίστ ταιριάζει με το πιο κοντινό (σε σειρά γεγονότων) εύστοχο σουτ της ίδιας ομάδας στον ίδιο χρόνο (±2΄΄)
+  const madeBy = shots.filter(s => s.made);
+  for (const e of ev) {
+    if (e.type !== 'AS' || !e.pid) continue;
+    let best = null, bd = 1e9;
+    for (const s of madeBy) {
+      if (s.ast || s.team !== e.team || s.pid === e.pid || Math.abs(s.t - e.t) > 2) continue;
+      const d = Math.abs(s.i - e.i);
+      if (d < bd && d <= 12) { bd = d; best = s; }
     }
+    if (best) best.ast = e.pid;
   }
   const end = Math.max(t0, ev.length ? periodStart(ev[ev.length - 1].q) + periodLen(ev[ev.length - 1].q) : 2400);
   advance(end, q0);
