@@ -956,6 +956,7 @@ ${ldTag(ld)}${script}
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
         .replace('{{PLAYER_H1}}', esc(h1p)).replace('{{PLAYER_LEDE}}', ledep ? `<p class="lede">${esc(ledep)}</p>` : '')
         .replace('{{TEAM_H1}}', esc(h1t)).replace('{{TEAM_LEDE}}', ledet ? `<p class="lede">${esc(ledet)}</p>` : '');
+      if (extra && view === 'team') { const vp = body.indexOf('<div id="vTeam"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
       if (extra && view === 'player') { const vp = body.indexOf('<div id="vPlayer"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
       if (extra && view === 'fantasy') { const vp = body.indexOf('<div id="vFantasy"'), ms = body.indexOf('<main class="wrap one">', vp); if (vp > -1 && ms > -1) { const k = ms + '<main class="wrap one">'.length; body = body.slice(0, k) + extra + body.slice(k); } }
       if (CATS[key]) {
@@ -1446,7 +1447,12 @@ ${disclaimer}</article>` });
       const lede = s ? T(`${name}: ${s[0]}η θέση στην ${S} με ρεκόρ ${s[2]}-${s[3]} και ${s[4]}-${s[5]} πόντους υπέρ/κατά.`, `${name}: ${ordEn(s[0])} in the ${S} with a ${s[2]}-${s[3]} record and ${s[4]}-${s[5]} points for/against.`, `${name}: ${s[0]}.º en la ${S} con un balance de ${s[2]}-${s[3]} y ${s[4]}-${s[5]} puntos a favor/en contra.`, `${name}: ${s[0]}. mesto u ${S}, skor ${s[2]}-${s[3]} i ${s[4]}-${s[5]} poena datih/primljenih.`)
         : T(`${name} στην ${S}.`, `${name} in the ${S}.`, `${name} en la ${S}.`, `${name} u ${S}.`);
       const roster = players.filter(p => p.t.split(';').pop() === c);
-      await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede,
+      let thist = '';
+      try {
+        const md = (await fs.readFile(path.join(ROOT, 'teams', `${c}.${LG}.md`), 'utf8')).replace(/<!--[\s\S]*?-->/g, '').trim();
+        if (md) thist = `<section class="thist article"><h2>${T('Η ιστορία της ομάδας', 'Club history', 'Historia del club', 'Istorija kluba')}</h2>${markdown(md)}</section>`;
+      } catch { }
+      await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede, extra: thist,
         ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name, sport: 'Basketball', url: SITE_URL + urlFor(LG, 'team:' + c), memberOf: { '@type': 'SportsOrganization', name: 'EuroLeague' }, athlete: roster.map(p => ({ '@type': 'Person', name: niceName(p.n), url: SITE_URL + urlFor(LG, 'player:' + p.s) })) },
           crumbs([[SITE_NAME, B(LG)], [name, urlFor(LG, 'team:' + c)]])],
         title: T(`${name} ${S}: ρόστερ, πρόγραμμα, στατιστικά | ${SITE_NAME}`, `${name} ${S}: roster, schedule, stats | ${SITE_NAME}`, `${name} ${S}: plantilla, calendario y estadísticas | ${SITE_NAME}`, `${name} ${S}: roster, raspored, statistika | ${SITE_NAME}`),
