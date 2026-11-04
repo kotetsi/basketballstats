@@ -36,7 +36,7 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs && python -m unittest predictor/test_predictor.py
+        run: node --test test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs && python -m unittest predictor/test_predictor.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
