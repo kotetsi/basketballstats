@@ -1,0 +1,16 @@
+name: Probe PBP
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir out
+          curl -s -o out/pbp.json -w "pbp %{http_code}\n" "https://live.euroleague.net/api/PlayByPlay?gamecode=1&seasoncode=E2026"
+          curl -s -o out/pbp_u.json -w "pbpU %{http_code}\n" "https://live.euroleague.net/api/PlayByPlay?gamecode=1&seasoncode=U2026"
+          curl -s -o out/box.json -w "box %{http_code}\n" "https://live.euroleague.net/api/Boxscore?gamecode=1&seasoncode=E2026"
+          curl -s -o out/v1pbp.json -w "v1 %{http_code}\n" "https://api-live.euroleague.net/v1/games/E2026/1/playbyplay"
+          curl -s -o out/games.json -w "games %{http_code}\n" "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2026/games?limit=3"
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with: { name: probe, path: out }
