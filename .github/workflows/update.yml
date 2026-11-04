@@ -34,15 +34,17 @@ jobs:
           cache: pip
           cache-dependency-path: fantasy/requirements.txt
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
-        run: pip install -r fantasy/requirements.txt
-      - name: Unit tests (on/off, lineups, δείκτες ομάδων)
-        run: node --test test/analytics.test.mjs
+        run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
+      - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
+        run: node --test test/analytics.test.mjs test/matchup.test.mjs && python -m unittest predictor/test_predictor.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
         run: timeout 1200 node scripts/pbp.mjs --keys --secs 600 || echo "PBP - παραλείφθηκε"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε"
+      - name: Game Predictor (LightGBM, backtest, προβλέψεις επόμενων αγώνων)
+        run: python predictor/run.py || echo "Game Predictor - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
         run: node build.mjs --offline
       - name: Αναρτήσεις στο κανάλι Telegram (μόνο αν υπάρχουν τα secrets)
@@ -54,7 +56,7 @@ jobs:
         run: |
           git config user.name "basketballstats-bot"
           git config user.email "basketballstats-bot@users.noreply.github.com"
-          git add data/cache.json data/fantasy; [ -d data/pbp ] && git add data/pbp; if [ -f data/telegram.json ]; then git add data/telegram.json; fi
+          git add data/cache.json data/fantasy; [ -d data/pbp ] && git add data/pbp; [ -d data/matchups ] && git add data/matchups; if [ -f data/telegram.json ]; then git add data/telegram.json; fi
           git diff --cached --quiet || (git commit -m "Ενημέρωση δεδομένων $(date -u +%F)" && for i in 1 2 3 4; do git push && break; sleep 15; git pull --rebase -q; done)
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -118,3 +118,19 @@ export function teamPack(C, tm) {
 }
 
 export { sum, rated, onOff, groupLineups };
+
+// Επικεφαλίδες όλων των αγώνων όλων των σεζόν (για head-to-head και ιστορικό)
+export async function loadHeaders(ROOT) {
+  const base = path.join(ROOT, 'data', 'pbp'), out = {};
+  let dirs = [];
+  try { dirs = await fs.readdir(base); } catch { return out; }
+  for (const s of dirs) {
+    let files = [];
+    try { files = (await fs.readdir(path.join(base, s))).filter(f => f.endsWith('.json')); } catch { continue; }
+    out[s] = [];
+    for (const f of files) {
+      try { const g = JSON.parse(await fs.readFile(path.join(base, s, f), 'utf8')); out[s].push({ comp: s[0], season: s, gc: g.gc, d: g.d, h: g.h, a: g.a, hs: g.hs, as: g.as }); } catch { }
+    }
+  }
+  return out;
+}
