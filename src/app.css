@@ -575,3 +575,14 @@ svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}sv
 .deepstrip{margin:14px 0 6px}.deepstrip h2{margin:0 0 8px}.deepl{display:flex;flex-wrap:wrap;gap:8px}
 .deepl a{background:var(--card,#fff);border:1px solid var(--line,#ddd);border-radius:999px;padding:7px 12px;font-weight:600;text-decoration:none;font-size:14px}
 .deepl a:hover{border-color:var(--accent,#e4572e)}
+/* Οι αγώνες σήμερα */
+.nav a.navtoday{font-weight:700;color:var(--band-ink)}
+.todayhome{margin:14px 0}.todayhome .shsh{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.tdd{font-weight:700;text-transform:capitalize;margin:6px 0 8px;color:#888}
+.tdg{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line,#ddd);border-radius:10px;margin:6px 0;background:var(--card,#fff)}
+.tdt{font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}.tdt small,.tdr small{display:block;font-size:11px;font-weight:500;color:#888}
+.tdn{font-weight:700}.tdn a{text-decoration:none}.tdan{margin-left:8px;font-size:12px;font-weight:700;background:var(--accent,#e4572e);color:#fff!important;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.tdr{text-align:right}.tdfin{font-size:18px}
+.tdh{margin-top:28px}.tddeep{border:1px solid var(--line,#ddd);border-radius:12px;margin:10px 0;background:var(--card,#fff)}
+.tddeep>summary{cursor:pointer;padding:14px 16px;font-weight:800;font-size:17px}.tddeep>div{padding:0 16px 10px}
+@media (max-width:560px){.tdg{grid-template-columns:58px 1fr}.tdr{grid-column:2;text-align:left}.tdt{font-size:16px}}
