@@ -1537,7 +1537,7 @@ ${method}</section>`;
         const five = AB.groupLineups(C.byTeam[c].stints, 5).filter(r => r.poss >= 20).sort((a, b) => b.net - a.net);
         const best = five[0];
         const pn = id => niceName(C.names[id] || id);
-        const intro = T(`Τα σχήματα (2, 3, 4 και 5 παικτών), το on/off και το WOWY ${cp === 'E' ? 'της' : 'της'} ${nm} στην ${compL} ${SEASON_LABEL}, από το επίσημο play-by-play.${best ? ` Καλύτερη πεντάδα (≥20 κατοχές): ${best.p.map(pn).join(', ')} με Net ${af('net', best.net)} σε ${Math.round(best.poss)} κατοχές.` : ''}`,
+        const intro = T(`${nm} στην ${compL} ${SEASON_LABEL}: τα σχήματα (2, 3, 4 και 5 παικτών), το on/off και το WOWY, από το επίσημο play-by-play.${best ? ` Καλύτερη πεντάδα (≥20 κατοχές): ${best.p.map(pn).join(', ')} με Net ${af('net', best.net)} σε ${Math.round(best.poss)} κατοχές.` : ''}`,
           `${nm} lineups (2, 3, 4 and 5-man), on/off and WOWY in the ${compL} ${SEASON_LABEL}, from the official play-by-play.${best ? ` Best five-man unit (20+ possessions): ${best.p.map(pn).join(', ')}, ${af('net', best.net)} Net over ${Math.round(best.poss)} possessions.` : ''}`,
           `Quintetos (de 2, 3, 4 y 5 jugadores), on/off y WOWY de ${nm} en la ${compL} ${SEASON_LABEL}, a partir del play-by-play oficial.${best ? ` Mejor quinteto (20+ posesiones): ${best.p.map(pn).join(', ')}, Net ${af('net', best.net)} en ${Math.round(best.poss)} posesiones.` : ''}`,
           `Postave (2, 3, 4 i 5 igrača), on/off i WOWY za ${nm} u ${compL} ${SEASON_LABEL}, iz zvaničnog play-by-play zapisa.${best ? ` Najbolja petorka (20+ poseda): ${best.p.map(pn).join(', ')}, Net ${af('net', best.net)} na ${Math.round(best.poss)} poseda.` : ''}`);
