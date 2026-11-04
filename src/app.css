@@ -452,3 +452,5 @@ article.fx,section.fxdash{min-width:0}
 .paroli .partot{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;border:2px solid var(--accent);border-radius:10px;padding:10px 14px;margin:14px 0}.paroli .partot>b{font-family:var(--display);font-size:26px}
 .paroli b.ok{color:#2e7d32}.paroli b.ko{color:#c62828}
 .lead .award{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}.lead .award h3{margin:0 0 4px}.lead .award ul.five{list-style:none;margin:6px 0 0;padding:0}.lead .award ul.five li{padding:3px 0}.lead .award a{color:inherit}.careersum{line-height:1.6}
+.catdesc{max-width:760px;margin:4px 0 0;opacity:.9}.catfaq{margin-top:26px}.catfaq h2{font-size:20px}.catfaq details{border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:6px 0;background:var(--surface)}.catfaq summary{cursor:pointer;font-weight:600}.catfaq details p{margin:8px 0 2px;line-height:1.55}section.wrap.catfaq{padding-bottom:6px}
+section.wrap.catfaq{margin-bottom:22px}
