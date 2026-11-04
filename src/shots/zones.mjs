@@ -110,17 +110,17 @@ export function percentile(values, v) {
 export function describe(g, cr, T) {
   const pc = v => Math.round(100 * v) + '%';
   const parts = [];
-  const z3 = [['wing3', T('από τα wings', 'from the wings', 'desde los laterales', 'sa krila')], ['top3', T('από το top of the key', 'from the top of the key', 'desde el frontal', 'sa vrha')], ['corner3', T('από τις γωνίες', 'from the corners', 'desde las esquinas', 'iz uglova')]]
+  const z3 = [['wing3', T('από τα wings', 'from the wings', 'desde los laterales', 'sa krila', 'kanatlardan')], ['top3', T('από το top of the key', 'from the top of the key', 'desde el frontal', 'sa vrha', 'tepeden')], ['corner3', T('από τις γωνίες', 'from the corners', 'desde las esquinas', 'iz uglova', 'köşelerden')]]
     .filter(([k]) => g[k].fga >= 5).map(([k, t]) => [g[k].fg, t]);
   if (z3.length >= 2) {
     const s = z3.sort((a, b) => b[0] - a[0]), last = s[s.length - 1];
     parts.push(T(`Σουτάρει ${s.slice(0, -1).map(([v, t]) => `${pc(v)} ${t}`).join(' και ')}, αλλά ${pc(last[0])} ${last[1]}.`,
       `Shoots ${s.slice(0, -1).map(([v, t]) => `${pc(v)} ${t}`).join(' and ')}, but ${pc(last[0])} ${last[1]}.`,
       `Tira con un ${s.slice(0, -1).map(([v, t]) => `${pc(v)} ${t}`).join(' y un ')}, pero un ${pc(last[0])} ${last[1]}.`,
-      `Šutira ${s.slice(0, -1).map(([v, t]) => `${pc(v)} ${t}`).join(' i ')}, ali ${pc(last[0])} ${last[1]}.`));
+      `Šutira ${s.slice(0, -1).map(([v, t]) => `${pc(v)} ${t}`).join(' i ')}, ali ${pc(last[0])} ${last[1]}.`, `Şut isabeti: ${s.slice(0, -1).map(([v, t]) => `${pc(v)} ${t}`).join(' ve ')}, ama ${pc(last[0])} ${last[1]}.`));
   } else if (g.rim.fga >= 5) {
-    parts.push(T(`Στο καλάθι (rim) σουτάρει ${pc(g.rim.fg)} σε ${g.rim.fga} προσπάθειες.`, `At the rim he shoots ${pc(g.rim.fg)} on ${g.rim.fga} attempts.`, `En el aro tira con un ${pc(g.rim.fg)} en ${g.rim.fga} intentos.`, `Ispod koša šutira ${pc(g.rim.fg)} iz ${g.rim.fga} pokušaja.`));
+    parts.push(T(`Στο καλάθι (rim) σουτάρει ${pc(g.rim.fg)} σε ${g.rim.fga} προσπάθειες.`, `At the rim he shoots ${pc(g.rim.fg)} on ${g.rim.fga} attempts.`, `En el aro tira con un ${pc(g.rim.fg)} en ${g.rim.fga} intentos.`, `Ispod koša šutira ${pc(g.rim.fg)} iz ${g.rim.fga} pokušaja.`, `Pota altında ${g.rim.fga} denemede ${pc(g.rim.fg)} isabetle oynuyor.`));
   }
-  if (cr.ast3Pct != null) parts.push(T(`Το ${pc(cr.ast3Pct)} των εύστοχων τριπόντων του είναι assisted.`, `${pc(cr.ast3Pct)} of his made threes are assisted.`, `El ${pc(cr.ast3Pct)} de sus triples anotados son asistidos.`, `${pc(cr.ast3Pct)} njegovih pogođenih trojki je posle asistencije.`));
+  if (cr.ast3Pct != null) parts.push(T(`Το ${pc(cr.ast3Pct)} των εύστοχων τριπόντων του είναι assisted.`, `${pc(cr.ast3Pct)} of his made threes are assisted.`, `El ${pc(cr.ast3Pct)} de sus triples anotados son asistidos.`, `${pc(cr.ast3Pct)} njegovih pogođenih trojki je posle asistencije.`, `İsabetli üçlüklerinin ${pc(cr.ast3Pct)} kadarı asistle geliyor.`));
   return parts.join(' ');
 }

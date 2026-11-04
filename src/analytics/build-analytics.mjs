@@ -71,22 +71,22 @@ export function leagueTable(C) {
 export function interpret(p, T) {
   const good = [], bad = [];
   const F = [
-    ['efg', T('εύστοχη στο σουτ', 'efficient shooting', 'tiro eficiente', 'efikasno šutiranje'), T('άστοχη στο σουτ', 'poor shooting', 'tiro poco eficiente', 'slabo šutiranje')],
-    ['tov', T('προσέχει την μπάλα', 'protects the ball', 'cuida el balón', 'čuva loptu'), T('χάνει πολλές κατοχές', 'turns the ball over a lot', 'pierde muchos balones', 'gubi mnogo lopti')],
-    ['oreb', T('δυνατή στις δεύτερες ευκαιρίες', 'strong on second chances', 'fuerte en segundas oportunidades', 'jaka u drugim šansama'), T('παίρνει λίγα επιθετικά ριμπάουντ', 'few offensive rebounds', 'pocos rebotes ofensivos', 'malo skokova u napadu')],
-    ['ftr', T('κερδίζει πολλές βολές', 'gets to the line often', 'va mucho a la línea', 'često ide na liniju'), T('κερδίζει λίγες βολές', 'rarely gets to the line', 'va poco a la línea', 'retko ide na liniju')],
-    ['oefg', T('κρατά χαμηλά τα ποσοστά των αντιπάλων', 'holds opponents to poor shooting', 'limita el acierto rival', 'drži protivnike na lošem šutu'), T('αφήνει εύκολα σουτ στους αντιπάλους', 'allows easy shots', 'concede tiros fáciles', 'dozvoljava lake šuteve')],
-    ['otov', T('προκαλεί λάθη', 'forces turnovers', 'fuerza pérdidas', 'izaziva izgubljene lopte'), T('προκαλεί λίγα λάθη', 'forces few turnovers', 'fuerza pocas pérdidas', 'izaziva malo grešaka')],
-    ['ooreb', T('κλείνει καλά τα ριμπάουντ', 'boxes out well', 'cierra bien el rebote', 'dobro zatvara skok'), T('δίνει δεύτερες ευκαιρίες', 'concedes second chances', 'concede segundas oportunidades', 'daje druge šanse')],
+    ['efg', T('εύστοχη στο σουτ', 'efficient shooting', 'tiro eficiente', 'efikasno šutiranje', 'isabetli şut'), T('άστοχη στο σουτ', 'poor shooting', 'tiro poco eficiente', 'slabo šutiranje', 'zayıf şut isabeti')],
+    ['tov', T('προσέχει την μπάλα', 'protects the ball', 'cuida el balón', 'čuva loptu', 'topu iyi koruyor'), T('χάνει πολλές κατοχές', 'turns the ball over a lot', 'pierde muchos balones', 'gubi mnogo lopti', 'çok top kaybediyor')],
+    ['oreb', T('δυνατή στις δεύτερες ευκαιρίες', 'strong on second chances', 'fuerte en segundas oportunidades', 'jaka u drugim šansama', 'ikinci şanslarda güçlü'), T('παίρνει λίγα επιθετικά ριμπάουντ', 'few offensive rebounds', 'pocos rebotes ofensivos', 'malo skokova u napadu', 'az hücum ribaundu')],
+    ['ftr', T('κερδίζει πολλές βολές', 'gets to the line often', 'va mucho a la línea', 'često ide na liniju', 'sık sık çizgiye gidiyor'), T('κερδίζει λίγες βολές', 'rarely gets to the line', 'va poco a la línea', 'retko ide na liniju', 'nadiren çizgiye gidiyor')],
+    ['oefg', T('κρατά χαμηλά τα ποσοστά των αντιπάλων', 'holds opponents to poor shooting', 'limita el acierto rival', 'drži protivnike na lošem šutu', 'rakiplerin şut isabetini düşürüyor'), T('αφήνει εύκολα σουτ στους αντιπάλους', 'allows easy shots', 'concede tiros fáciles', 'dozvoljava lake šuteve', 'kolay şutlara izin veriyor')],
+    ['otov', T('προκαλεί λάθη', 'forces turnovers', 'fuerza pérdidas', 'izaziva izgubljene lopte', 'top kaybı yaptırıyor'), T('προκαλεί λίγα λάθη', 'forces few turnovers', 'fuerza pocas pérdidas', 'izaziva malo grešaka', 'az top kaybı yaptırıyor')],
+    ['ooreb', T('κλείνει καλά τα ριμπάουντ', 'boxes out well', 'cierra bien el rebote', 'dobro zatvara skok', 'ribaund mücadelesinde iyi blok-out yapıyor'), T('δίνει δεύτερες ευκαιρίες', 'concedes second chances', 'concede segundas oportunidades', 'daje druge šanse', 'ikinci şans veriyor')],
   ];
   for (const [k, g, b] of F) { const v = p[k]; if (v == null) continue; if (v >= 75) good.push([v, g]); else if (v <= 25) bad.push([100 - v, b]); }
   good.sort((a, b) => b[0] - a[0]); bad.sort((a, b) => b[0] - a[0]);
   const G = good.slice(0, 2).map(x => x[1]), Bd = bad.slice(0, 2).map(x => x[1]);
-  const and = T(' και ', ' and ', ' y ', ' i ');
-  if (G.length && Bd.length) return T(`Δυνατά σημεία: ${G.join(and)}. Αδυναμίες: ${Bd.join(and)}.`, `Strengths: ${G.join(and)}. Weaknesses: ${Bd.join(and)}.`, `Puntos fuertes: ${G.join(and)}. Debilidades: ${Bd.join(and)}.`, `Prednosti: ${G.join(and)}. Slabosti: ${Bd.join(and)}.`);
-  if (G.length) return T(`Δυνατά σημεία: ${G.join(and)}.`, `Strengths: ${G.join(and)}.`, `Puntos fuertes: ${G.join(and)}.`, `Prednosti: ${G.join(and)}.`);
-  if (Bd.length) return T(`Αδυναμίες: ${Bd.join(and)}.`, `Weaknesses: ${Bd.join(and)}.`, `Debilidades: ${Bd.join(and)}.`, `Slabosti: ${Bd.join(and)}.`);
-  return T('Η ομάδα κινείται κοντά στον μέσο όρο της λίγκας σε όλους τους Four Factors.', 'The team is close to the league average in all four factors.', 'El equipo está cerca de la media en los cuatro factores.', 'Tim je blizu proseka lige u sva četiri faktora.');
+  const and = T(' και ', ' and ', ' y ', ' i ', ' ve ');
+  if (G.length && Bd.length) return T(`Δυνατά σημεία: ${G.join(and)}. Αδυναμίες: ${Bd.join(and)}.`, `Strengths: ${G.join(and)}. Weaknesses: ${Bd.join(and)}.`, `Puntos fuertes: ${G.join(and)}. Debilidades: ${Bd.join(and)}.`, `Prednosti: ${G.join(and)}. Slabosti: ${Bd.join(and)}.`, `Güçlü yönler: ${G.join(and)}. Zayıf yönler: ${Bd.join(and)}.`);
+  if (G.length) return T(`Δυνατά σημεία: ${G.join(and)}.`, `Strengths: ${G.join(and)}.`, `Puntos fuertes: ${G.join(and)}.`, `Prednosti: ${G.join(and)}.`, `Güçlü yönler: ${G.join(and)}.`);
+  if (Bd.length) return T(`Αδυναμίες: ${Bd.join(and)}.`, `Weaknesses: ${Bd.join(and)}.`, `Debilidades: ${Bd.join(and)}.`, `Slabosti: ${Bd.join(and)}.`, `Zayıf yönler: ${Bd.join(and)}.`);
+  return T('Η ομάδα κινείται κοντά στον μέσο όρο της λίγκας σε όλους τους Four Factors.', 'The team is close to the league average in all four factors.', 'El equipo está cerca de la media en los cuatro factores.', 'Tim je blizu proseka lige u sva četiri faktora.', 'Takım, Four Factors’ın dördünde de lig ortalamasına yakın.');
 }
 
 // On/off όλων των παικτών μιας διοργάνωσης (για τη σελίδα-πίνακα)
