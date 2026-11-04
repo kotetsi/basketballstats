@@ -550,3 +550,14 @@ svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}sv
 .oddsT td.best{font-weight:800;background:var(--accent-soft)}
 .oddsmv{width:100%;max-width:320px;height:auto}.oddsmv polyline{fill:none;stroke:var(--accent);stroke-width:2}.oddsmv circle{fill:var(--accent)}.oddsmv .mvl{font-size:9px;fill:var(--muted)}
 .mvgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mvgrid>*{min-width:0}@media(max-width:560px){.mvgrid{grid-template-columns:1fr}}
+/* Μάντεψε τον παίκτη */
+.guesspage .ghead{display:flex;justify-content:space-between;font-weight:700;margin:10px 0}
+.guesspage .gq{width:100%;max-width:420px;font-size:16px;padding:10px 12px;margin-bottom:10px}
+.gtbl td.gc{text-align:center;font-weight:600;border-radius:4px}
+.gtbl td.gc.ok{background:#2e9d5b;color:#fff}
+.gtbl td.gc.near{background:#e8b730;color:#222}
+.gtbl td.gc.no{background:var(--line,#ddd);color:inherit}
+.gtbl{border-collapse:separate;border-spacing:3px}
+.gres{margin:14px 0;padding:14px;border-radius:10px;border:2px solid var(--line,#ddd)}
+.gres.win{border-color:#2e9d5b}.gres.lose{border-color:#c0392b}
+.gres button{margin-right:8px}
