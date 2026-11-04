@@ -41,6 +41,23 @@ const OFFLINE = process.argv.includes('--offline');
 const OUT = path.join(ROOT, 'dist');
 // ελληνική γραφή ονομάτων παικτών για τις ελληνικές σελίδες (data/greek-names.json)
 const GRN = await fs.readFile(path.join(ROOT, 'data', 'greek-names.json'), 'utf8').then(JSON.parse).catch(() => ({}));
+// τηλεοπτικά κανάλια: ο βασικός σταθμός ανά χώρα/γλώσσα + ακριβές κανάλι ανά αγώνα από το kanalia.md
+const TV_DEF = {
+  el: { c: 'Ελλάδα', n: 'Novasports', u: 'https://www.novasports.gr/' },
+  es: { c: 'España', n: 'Movistar Plus+', u: 'https://www.movistarplus.es/' },
+  sr: { c: 'Srbija', n: 'Arena Sport', u: 'https://www.tvarenasport.com/' },
+  en: { c: 'International', n: 'EuroLeague TV', u: 'https://euroleague.tv/' },
+};
+const TVX = {};
+{
+  let txt = ''; try { txt = await fs.readFile(path.join(ROOT, 'kanalia.md'), 'utf8'); } catch { }
+  for (const line of txt.split(/\r?\n/)) {
+    const m = line.match(/^\s*(\d+)\s*\|\s*([A-Z]{3})\s*\|\s*([A-Z]{3})\s*\|(.*)$/); if (!m) continue;
+    const [gr, es, sr] = m[4].split('|').map(x => x.trim()).map(x => (x && x !== '-' ? x : ''));
+    TVX[`${m[1]}|${m[2]}|${m[3]}`] = { el: gr, es, sr };
+  }
+}
+const tvOf = (lg, r, h, a) => { const x = TVX[`${r}|${h}|${a}`]?.[lg]; return x || TV_DEF[lg].n; };
 const CACHE = path.join(ROOT, 'data', 'cache.json');
 const FEED = 'https://feeds.incrowdsports.com/provider/euroleague-feeds';
 
@@ -1327,7 +1344,7 @@ ${body}
       const gu = E ? urlFor(LG, `game:${g.r}|${g.h}|${g.a}`) : (pr ? urlFor(LG, `mcu:${g.r}|${g.h}|${g.a}`) : null);
       const dp = E ? DEEPB[`${g.r}|${g.h}|${g.a}`] : null;
       const right = g.pl ? `<b class="tdfin">${g.hs}-${g.as}</b><small>${T('Τελικό', 'Final', 'Final', 'Kraj')}</small>` : pr ? `<span class="tdp"><b>${Math.round(100 * pr.p_home)}%</b> – <b>${Math.round(100 * pr.p_away)}%</b></span><small>${T('εκτίμηση', 'projected', 'estimado', 'procena')} ${Math.round(pr.hs)}-${Math.round(pr.as)}</small>` : '';
-      return `<div class="tdg"><div class="tdt">${tm}<small>${E ? 'EuroLeague' : 'EuroCup'} · ${esc(rdTxt0(g.r))}</small></div><div class="tdn">${gu ? `<a href="${gu}">` : ''}${esc(nH)} – ${esc(nA)}${gu ? '</a>' : ''}${dp && !g.pl ? ` <a class="tdan" href="${dp.url}">🔎 ${T('Ανάλυση', 'Preview', 'Análisis', 'Analiza')}</a>` : ''}</div><div class="tdr">${right}</div></div>`;
+      return `<div class="tdg"><div class="tdt">${tm}<small>${E ? 'EuroLeague' : 'EuroCup'} · ${esc(rdTxt0(g.r))}</small></div><div class="tdn">${gu ? `<a href="${gu}">` : ''}${esc(nH)} – ${esc(nA)}${gu ? '</a>' : ''}${E && !g.pl ? ` <span class="tvch">📺 ${esc(tvOf(LG, g.r, g.h, g.a))}</span>` : ''}${dp && !g.pl ? ` <a class="tdan" href="${dp.url}">🔎 ${T('Ανάλυση', 'Preview', 'Análisis', 'Analiza')}</a>` : ''}</div><div class="tdr">${right}</div></div>`;
     };
     const todayBlocks = (withDeep) => Object.entries(TODAY).map(([d, gs]) => {
       const dd = new Date(d + 'T12:00:00Z').toLocaleDateString({ el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG], { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -1374,10 +1391,14 @@ ${deeps.length ? `<h2 class="tdh">🔎 ${T('Οι σε βάθος αναλύσε�
       const yr2 = +SEASON.slice(1), isoG = e => { const dg = +e[8], y = Math.floor(yr2 / 10) * 10 + dg + (dg < yr2 % 10 ? 10 : 0); return `${y}-${e.slice(0, 2)}-${e.slice(2, 4)}T${e.slice(4, 6)}:${e.slice(6, 8)}:00Z`; };
       const LOC = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS' }[LG];
       const rounds = [...new Set(league.games.map(g => g[0]))].sort((a, b) => a - b);
+      const tvBox = () => { const ctry = { el: T('Ελλάδα', 'Greece', 'Grecia', 'Grčka'), es: T('Ισπανία', 'Spain', 'España', 'Španija'), sr: T('Σερβία', 'Serbia', 'Serbia', 'Srbija') };
+        const mine = LG === 'en' ? null : LG;
+        const rowsT = ['el', 'es', 'sr'].sort((x, y) => (x === mine ? -1 : y === mine ? 1 : 0)).map(k => `<li><b>${ctry[k]}</b>: <a href="${TV_DEF[k].u}" rel="nofollow noopener" target="_blank">${TV_DEF[k].n}</a></li>`).join('');
+        return `<section class="tvbox"><h2>📺 ${T('Πού θα δείτε την EuroLeague', 'Where to watch the EuroLeague', 'Dónde ver la EuroLeague', 'Gde gledati Evroligu')}</h2><ul>${rowsT}<li><b>${T('Άλλες χώρες', 'Other countries', 'Otros países', 'Ostale zemlje')}</b>: <a href="${TV_DEF.en.u}" rel="nofollow noopener" target="_blank">EuroLeague TV</a> ${T('(επίσημη συνδρομητική υπηρεσία)', '(official subscription streaming)', '(plataforma oficial de pago)', '(zvanični striming uz pretplatu)')}</li></ul><p class="sub">${T('Δίπλα σε κάθε αγώνα: το κανάλι όταν έχει ανακοινωθεί, αλλιώς ο σταθμός που έχει τα δικαιώματα.', 'Next to each game: the exact channel once announced, otherwise the rights holder.', 'Junto a cada partido: el canal exacto cuando se anuncia; si no, la cadena con los derechos.', 'Pored svake utakmice: tačan kanal kada je objavljen, inače televizija koja ima prava.')}</p></section>`; };
       const nxt = (league.games.find(g => !g[6]) || [rounds[rounds.length - 1]])[0];
       const when = g => { const d = new Date(isoG(g[1])); return isNaN(d) ? ['', ''] : [d.toLocaleDateString(LOC, { timeZone: 'Europe/Athens', weekday: 'short', day: 'numeric', month: 'short' }), d.toLocaleTimeString(LOC, { timeZone: 'Europe/Athens', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })]; };
       const row = g => { const [d, t] = when(g), pr = MPK[`E|${g[0]}|${g[2]}|${g[3]}`]; const right = g[6] ? `<b class="tdfin">${g[4]}-${g[5]}</b><small>${T('Τελικό', 'Final', 'Final', 'Kraj')}</small>` : pr ? `<span class="tdp"><b>${Math.round(100 * pr.p_home)}%</b> – <b>${Math.round(100 * pr.p_away)}%</b></span><small>${T('εκτίμηση', 'projected', 'estimado', 'procena')} ${Math.round(pr.hs)}-${Math.round(pr.as)}</small>` : '';
-        return `<div class="tdg"><div class="tdt">${t}<small>${esc(d)}</small></div><div class="tdn"><a href="${urlFor(LG, `game:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(g[2]))} – ${esc(tName(g[3]))}</a></div><div class="tdr">${right}</div></div>`; };
+        return `<div class="tdg"><div class="tdt">${t}<small>${esc(d)}</small></div><div class="tdn"><a href="${urlFor(LG, `game:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(g[2]))} – ${esc(tName(g[3]))}</a>${g[6] ? '' : ` <span class="tvch">📺 ${esc(tvOf(LG, g[0], g[2], g[3]))}</span>`}</div><div class="tdr">${right}</div></div>`; };
       const block = (r, open) => { const gs = league.games.filter(g => g[0] === r && TEAMS[g[2]] && TEAMS[g[3]]); const done = gs.every(g => g[6]); const [d1] = gs.length ? when(gs[0]) : ['']; return `<details class="schr" id="r${r}"${open ? ' open' : ''}><summary><b>${esc(rdTxt0(r))}</b> <small>${esc(d1)}${done ? ' · ' + T('ολοκληρώθηκε', 'completed', 'disputada', 'završeno') : ''}</small></summary>${gs.map(row).join('')}</details>`; };
       const ttl = T(`Πρόγραμμα Ευρωλίγκας ${SEASON_LABEL}: αγώνες, ώρες και αποτελέσματα EuroLeague | ${SITE_NAME}`, `EuroLeague ${SEASON_LABEL} schedule: fixtures, tip-off times and results | ${SITE_NAME}`, `Calendario de la EuroLeague ${SEASON_LABEL}: partidos, horarios y resultados | ${SITE_NAME}`, `Raspored Evrolige ${SEASON_LABEL}: utakmice, satnica i rezultati | ${SITE_NAME}`);
       await simplePage('sched', { view: 'sched', title: ttl,
@@ -1385,6 +1406,7 @@ ${deeps.length ? `<h2 class="tdh">🔎 ${T('Οι σε βάθος αναλύσε�
         main: `<article class="article lead wide anpage todaypage"><h1>${T(`Πρόγραμμα και αποτελέσματα EuroLeague ${SEASON_LABEL}`, `EuroLeague ${SEASON_LABEL} schedule and results`, `Calendario y resultados de la EuroLeague ${SEASON_LABEL}`, `Raspored i rezultati Evrolige ${SEASON_LABEL}`)}</h1><p class="lede2">${esc(T('Όλες οι αγωνιστικές της κανονικής περιόδου, με ώρες Ελλάδας. Πατήστε έναν αγώνα για στατιστικά, ανάλυση και πρόβλεψη.', 'Every regular-season round, in Athens time. Tap a game for stats, preview and prediction.', 'Todas las jornadas de la fase regular, en hora de Atenas. Pulsa un partido para ver estadísticas, análisis y pronóstico.', 'Sva kola regularnog dela sezone, po atinskom vremenu. Klikni na utakmicu za statistiku, analizu i prognozu.'))}</p>
 <p><a class="pread" href="${urlFor(LG, 'today')}">📅 ${T('Οι αγώνες σήμερα →', 'Today’s games →', 'Los partidos de hoy →', 'Današnje utakmice →')}</a> · <a class="pread" href="${B(LG)}">${T('Βαθμολογία →', 'Standings →', 'Clasificación →', 'Tabela →')}</a></p>
 <nav class="leadnav">${rounds.map(r => `<a href="#r${r}">${r}</a>`).join('')}</nav>
+${tvBox()}
 ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) : ''}${rounds.filter(r => r !== nxt && r !== nxt - 1).map(r => block(r, false)).join('')}<script>(()=>{const o=()=>{const e=location.hash&&document.querySelector(location.hash);if(e&&e.tagName==='DETAILS'){e.open=true;e.scrollIntoView();}};addEventListener('hashchange',o);o();})();</script>
 <p class="note">${T('Ώρες Ελλάδας. Το πρόγραμμα και τα αποτελέσματα προέρχονται από την επίσημη EuroLeague και ενημερώνονται καθημερινά.', 'Athens time. Schedule and results come from the official EuroLeague feed and are updated daily.', 'Hora de Atenas. Calendario y resultados del feed oficial de la EuroLeague, actualizados a diario.', 'Atinsko vreme. Raspored i rezultati iz zvaničnog izvora Evrolige, ažurirani svakog dana.')} ${esc(UPD[LG])}.</p></article>`,
         ld: crumbs([[SITE_NAME, B(LG)], [T('Πρόγραμμα', 'Schedule', 'Calendario', 'Raspored'), urlFor(LG, 'sched')]]) });
@@ -2401,7 +2423,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
       const sc = LG === 'sr' ? `${hs}:${as}` : `${hs}-${as}`;
       const title = pl
         ? T(`${vs} ${sc}: στατιστικά αγώνα (${rdTxt(r)} EuroLeague)`, `${vs} ${sc}: game stats (EuroLeague ${rdTxt(r)})`, `${vs} ${sc}: estadísticas del partido (${rdTxt(r).toLowerCase()} de la EuroLeague)`, `${vs} ${sc}: statistika utakmice (${rdTxt(r)} Evrolige)`)
-        : T(`${vs} πρόβλεψη (${dS}): ώρα, απουσίες, στατιστικά | EuroLeague`, `${vs} prediction (${dS}): tip-off time, injuries, stats | EuroLeague`, `${vs} pronóstico (${dS}): horario, bajas, estadísticas | EuroLeague`, `${vs} prognoza (${dS}): satnica, povrede, statistika | Evroliga`);
+        : T(`${vs} πρόβλεψη (${dS}): ώρα, κανάλι, απουσίες | EuroLeague`, `${vs} prediction (${dS}): tip-off time, TV, injuries | EuroLeague`, `${vs} pronóstico (${dS}): horario, TV, bajas | EuroLeague`, `${vs} prognoza (${dS}): satnica, TV, povrede | Evroliga`);
       const desc = pl
         ? T(`${vs} ${sc} στην ${rdTxt(r)} της ${S}: οι κορυφαίοι του αγώνα, η φόρμα, οι τέσσερις παράγοντες και τα μεταξύ τους.`, `${vs} ${sc} in ${rdTxt(r)} of the ${S}: top performers, form, four factors and head-to-head.`, `${vs} ${sc} en la ${rdTxt(r).toLowerCase()} de la ${S}: los mejores del partido, la forma, los cuatro factores y los enfrentamientos.`, `${vs} ${sc} u ${rdTxt(r)} ${S}: najbolji igrači utakmice, forma, četiri faktora i međusobni dueli.`)
         : T(`${vs} (${dt}): εκτίμηση σκορ, πιθανότητα νίκης, φόρμα, τέσσερις παράγοντες, απουσίες και βασικοί παίκτες με τις γραμμές τους.`, `${vs} (${dt}): projected score, win probability, form, four factors, injuries and key players with their lines.`, `${vs} (${dt}): marcador estimado, probabilidad de victoria, forma, cuatro factores, bajas y jugadores clave con sus líneas.`, `${vs} (${dt}): procenjeni rezultat, verovatnoća pobede, forma, četiri faktora, povrede i ključni igrači sa linijama.`);
@@ -2420,6 +2442,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
 <p class="kicker">EuroLeague · ${esc(rdTxt(r))}</p>
 <h1>${esc(H)} – ${esc(A)}</h1>
 <p class="lede">${esc(dt)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)')}${pl ? ` · ${T('Τελικό', 'Final', 'Final', 'Konačan rezultat')} ${sc}` : ''}</p>
+${pl ? '' : `<p class="gtv">📺 ${LG === 'en' ? `On TV: Greece – ${esc(tvOf('el', r, h, a))} · Spain – ${esc(tvOf('es', r, h, a))} · Serbia – ${esc(tvOf('sr', r, h, a))} · elsewhere – EuroLeague TV` : `${T('Τηλεόραση', '', 'TV', 'TV')}: <b>${esc(tvOf(LG, r, h, a))}</b> · ${T('εκτός Ελλάδας', '', 'fuera de España', 'van Srbije')}: EuroLeague TV`}</p>`}
 ${pl && SH?.[SEASON]?.games.some(x => x.h === h && x.a === a) ? `<p><a class="pread" href="${urlFor(LG, `shg:${r}|${h}|${a}`)}">Shot chart →</a></p>` : ''}
 ${!pl && DEEP[`${r}|${h}|${a}`] ? `<p><a class="deepbtn" href="${DEEP[`${r}|${h}|${a}`]}">🔎 ${T('Διάβασε τη σε βάθος ανάλυση του αγώνα', 'Read the in-depth preview', 'Lee el análisis en profundidad', 'Pročitaj detaljnu analizu')} →</a></p>` : ''}
 <section class="gtop" id="gTop"></section>
