@@ -130,6 +130,19 @@ def main():
     (OUT / 'latest.json').write_text(json.dumps({**meta, 'sigma': sigma, 'home_adv': P.home_adv, 'games': preds}, ensure_ascii=False))
     if bt:
         (OUT / 'backtest.json').write_text(json.dumps({**meta, 'summary': summ, 'by_season': {s: summarize([x for x in bt if x['season'] == s]) for s in sorted({x['season'] for x in bt})}}, ensure_ascii=False))
+    # ιστορικό προβλέψεων ανά αγώνα (για Closing Line Value): πρώτη και τελευταία πρόβλεψη πριν από το τζάμπολ
+    logf = OUT / 'pred_log.json'
+    try:
+        plog = json.loads(logf.read_text())
+    except Exception:
+        plog = {}
+    for p in preds:
+        gid = f"{p['comp']}-{p['r']}-{p['h']}-{p['a']}"
+        if datetime.fromisoformat(p['t'].replace('Z', '+00:00').replace('.000', '')) < now:
+            continue
+        e = plog.setdefault(gid, {'first': {'p': p['p_home'], 't': gen, 'margin': p['margin'], 'total': p['total']}})
+        e['last'] = {'p': p['p_home'], 't': gen, 'margin': p['margin'], 'total': p['total'], 'model_version': MODEL_VERSION}
+    logf.write_text(json.dumps(plog))
     with open(OUT / 'runs.jsonl', 'a') as fh:
         fh.write(json.dumps({**meta, 'predictions': len(preds), **{k: summ.get(k) for k in ('n', 'log_loss', 'brier', 'accuracy', 'margin_mae', 'total_mae')}}) + '\n')
     print(f"Game Predictor ({ENGINE}): {len(rows)} αγώνες εκπαίδευσης, {len(preds)} προβλέψεις"

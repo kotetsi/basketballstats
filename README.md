@@ -197,3 +197,12 @@ cd dist && python3 -m http.server 8080   # μετά άνοιξε http://localhos
   (νεοφερμένος = χωρίς αγώνα στην EuroLeague στις σεζόν του ιστορικού). Υπολογίζονται από τα στατιστικά· δεν είναι τα επίσημα βραβεία.
 - **Καριέρα**: στη σελίδα κάθε παίκτη, σύνολα και μέσοι όροι καριέρας, καλύτερη σεζόν και οι ομάδες του ανά περίοδο.
 
+
+## 18. Betting Insights & Odds Intelligence (21+)
+
+- Αποδόσεις **μόνο από αδειοδοτημένο πάροχο δεδομένων** (όχι scraping bookmakers). Adapter έτοιμος για το The Odds API (`ODDS_PROVIDER=theoddsapi`) και γενικός adapter (`ODDS_PROVIDER=generic`, `ODDS_GENERIC_URL`).
+- Ενεργοποίηση: GitHub → Settings → Secrets and variables → Actions → New secret `ODDS_API_KEY` (και προαιρετικά variable `ODDS_PROVIDER`).
+- `scripts/odds.mjs`: snapshot σε κάθε εκτέλεση (rate limit 90′, μόνο όταν υπάρχει αγώνας τις επόμενες 4 μέρες), idempotent ιστορικό στο `data/odds/history.jsonl`, `latest.json`, `status.json`. Αν το feed «παγώσει» >30 ώρες ανοίγει issue «Odds feed stale».
+- `src/odds/core.mjs`: implied probability, vig, model edge, κατηγορίες/confidence, line movement/steam, CLV, PIR props (P10/P50/P90). Tests: `test/odds.test.mjs`.
+- Σελίδες: `/apodoseis/` (hub), `/apodoseis/clv/`, `/apodoseis/pir/` (εσωτερικές γραμμές PIR χωρίς αποδόσεις), και ενότητα «Αποδόσεις και μοντέλο» στο Matchup Center κάθε αγώνα.
+- Affiliate: προαιρετικό `data/odds/affiliates.json` = `{ "<book>": { "name": "...", "licensed": true, "terms": "https://..." } }` — μόνο διαχειριστές αδειοδοτημένοι από την ΕΕΕΠ.

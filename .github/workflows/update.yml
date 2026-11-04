@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
   pages: write
   id-token: write
 
@@ -36,7 +37,7 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs && python -m unittest predictor/test_predictor.py
+        run: node --test test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
@@ -45,6 +46,19 @@ jobs:
         run: timeout 900 node scripts/shots.mjs --secs 480 || echo "Shots - παραλείφθηκε"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε"
+      - name: "Αποδόσεις από αδειοδοτημένο πάροχο (μόνο αν υπάρχει ODDS_API_KEY)"
+        id: odds
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_PROVIDER: ${{ vars.ODDS_PROVIDER }}
+        run: node scripts/odds.mjs; echo "rc=$?" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+      - name: "Alert: το feed αποδόσεων σταμάτησε"
+        if: steps.odds.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state open --search "Odds feed stale" --json number -q '.[0].number' | grep -q . || gh issue create --title "Odds feed stale" --body "Το feed αποδόσεων δεν ενημερώθηκε για >30 ώρες. Δες το log του workflow και το data/odds/status.json."
       - name: Game Predictor (LightGBM, backtest, προβλέψεις επόμενων αγώνων)
         run: python predictor/run.py || echo "Game Predictor - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
@@ -59,7 +73,7 @@ jobs:
         run: |
           git config user.name "basketballstats-bot"
           git config user.email "basketballstats-bot@users.noreply.github.com"
-          git add data/cache.json data/fantasy; [ -d data/pbp ] && git add data/pbp; [ -d data/matchups ] && git add data/matchups; [ -d data/shots ] && git add data/shots; if [ -f data/telegram.json ]; then git add data/telegram.json; fi
+          git add data/cache.json data/fantasy; [ -d data/pbp ] && git add data/pbp; [ -d data/matchups ] && git add data/matchups; [ -d data/shots ] && git add data/shots; [ -d data/odds ] && git add data/odds; if [ -f data/telegram.json ]; then git add data/telegram.json; fi
           git diff --cached --quiet || (git commit -m "Ενημέρωση δεδομένων $(date -u +%F)" && for i in 1 2 3 4; do git push && break; sleep 15; git pull --rebase -q -X theirs || (git rebase --abort; git pull --no-rebase -q -X ours --no-edit); done)
       - uses: actions/upload-pages-artifact@v3
         with:
