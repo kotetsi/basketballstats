@@ -561,3 +561,10 @@ svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}sv
 .gres{margin:14px 0;padding:14px;border-radius:10px;border:2px solid var(--line,#ddd)}
 .gres.win{border-color:#2e9d5b}.gres.lose{border-color:#c0392b}
 .gres button{margin-right:8px}
+/* πιθανότητα νίκης μέσα στον αγώνα */
+.wpwrap{overflow-x:auto}.wpsvg{width:100%;min-width:520px;height:auto;color:var(--ink,#222)}
+.wpsvg .wpbg{fill:var(--card,#fff);stroke:var(--line,#ddd)}.wpsvg .wpg{stroke:var(--line,#ddd);stroke-dasharray:3 3}.wpsvg .wpm{stroke:#999}
+.wpsvg .wpt{font-size:10px;fill:#888}.wpsvg .wpn{font-size:12px;font-weight:700}
+.wpsvg .wpk circle{fill:#222;stroke:#fff;stroke-width:1.5}.wpsvg .wpk text{fill:#fff;font-size:10px;font-weight:700}
+.wpkm{padding-left:0;list-style:none}.wpkm li{margin:6px 0}.wpkn{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#222;color:#fff;font-size:11px}
+.wpclk{color:#888;font-variant-numeric:tabular-nums}

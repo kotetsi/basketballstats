@@ -18,6 +18,7 @@ import { impliedProbs } from './src/matchup/sim.mjs';
 import * as OBM from './src/odds/build-odds.mjs';
 import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from './src/odds/core.mjs';
 import * as SB from './src/shots/build-shots.mjs';
+import { wpSeries, wpSVG, clockOf } from './src/game/wp.mjs';
 import { describe as shDescribe } from './src/shots/zones.mjs';
 import { miniHeat } from './src/shots/court.mjs';
 import * as CB from './src/compare/build-compare.mjs';
@@ -700,6 +701,8 @@ async function main() {
   const MCH = await AB.loadHeaders(ROOT);
   let MPRED = null;
   try { MPRED = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'matchups', 'latest.json'), 'utf8')); } catch { }
+  let PLOG = {};
+  try { PLOG = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'matchups', 'pred_log.json'), 'utf8')); } catch { }
   const MPK = Object.fromEntries((MPRED?.games || []).map(g => [`${g.comp}|${g.r}|${g.h}|${g.a}`, g]));
   // αποδόσεις μόνο από αδειοδοτημένο πάροχο: data/odds/latest.json = { provider, updated, games: { '<comp>-<r>-<h>-<a>': { ml:[h,a], spread:{line,h,a}, total:{line,over,under}, history:[[iso,h,a]] } } }
   const OB = await OBM.loadOdds(ROOT);
@@ -815,6 +818,15 @@ async function main() {
     const nm = {};
     for (const p of players) nm[p.c] = niceName(p.n);
     for (const p of data.ec?.players || []) nm[p.c] ||= p.n;
+    // παίκτες παλαιότερων σεζόν (ή που δεν είναι στη φετινή λίστα): ονόματα από τα αρχεία play-by-play όλων των σεζόν
+    for (const C of Object.values(AN)) for (const [id, n] of Object.entries(C?.names || {})) nm[id] ||= niceName(n);
+    try {
+      for (const s of await fs.readdir(path.join(ROOT, 'data', 'pbp'))) {
+        for (const f of await fs.readdir(path.join(ROOT, 'data', 'pbp', s)).catch(() => [])) {
+          try { const g = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'pbp', s, f), 'utf8')); for (const [id, v] of Object.entries(g.pl || {})) nm[id.replace(/^P/, '')] ||= niceName(v[0]); } catch { }
+        }
+      }
+    } catch { }
     const names = ids => Object.fromEntries(ids.map(id => [id, nm[id] || id]));
     await api('shot-zones/league-averages.json', SHLA);
     // ομάδες (επίθεση + άμυνα), όλες οι σεζόν που υπάρχουν
@@ -938,6 +950,7 @@ async function main() {
     if (k === 'game') { const [r, h, a] = v.split('|'); const si = TEAM_IDX[lg][1]; return B(lg) + P.game + '/' + TEAMS[h][si] + '-' + TEAMS[a][si] + '-' + r + '/'; }
     if (k === 'pick') return B(lg) + 'tipsters/' + v + '/';
     if (k === 'nat') return B(lg) + ({ el: 'ethnikotites', en: 'nationalities', es: 'nacionalidades', sr: 'nacionalnosti' })[lg] + '/' + (v ? natSlug(lg, v) + '/' : '');
+    if (k === 'ref') return B(lg) + ({ el: 'diaitites', en: 'referees', es: 'arbitros', sr: 'sudije' })[lg] + '/' + (v ? v + '/' : '');
     if (k === 'awards') return B(lg) + ({ el: 'vraveia', en: 'awards', es: 'premios', sr: 'nagrade' })[lg] + '/' + (v ? monthSlug(lg, v) + '/' : '');
     if (k === 'paroli') return B(lg) + ({ el: 'paroli', en: 'parlay', es: 'combinada', sr: 'tiket' })[lg] + '/' + (v ? ({ el: `agonistiki-${v}`, en: `round-${v}`, es: `jornada-${v}`, sr: `${v}-kolo` })[lg] + '/' : '');
     if (k === 'fx') return B(lg) + P.fantasy + '/' + v + '/';
@@ -1142,6 +1155,31 @@ ${gaHead(LG, urlFor(LG, 'legal'))}${adHead}${pwaHead(LG)}</head>`;
 
     const ldTag = ld => ld ? `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>\n` : '';
     const crumbs = list => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: list.map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: SITE_URL + u })) });
+    // ---- πιθανότητα νίκης μέσα στον αγώνα (από τα δεδομένα shot charts v3)
+    const pByCode = new Map(players.map(p => [String(p.c), p]));
+    function wpSection(r, h, a, H, A) {
+      const g = SH?.[SEASON]?.games.find(x => x.h === h && x.a === a && x.sc?.length);
+      if (!g) return '';
+      const pl = PLOG[`E-${r}-${h}-${a}`]?.last;
+      const mu = pl?.margin ?? (MPRED?.home_adv || 3), sigma = MPRED?.sigma || 12;
+      const S = wpSeries(g.sc, { mu, sigma });
+      const who = (side, pid) => { const p = pByCode.get(String(g.ids?.[pid] ?? '')); const tm = side === 0 ? H : A; return p ? `<a href="${urlFor(LG, 'player:' + p.s)}">${esc(niceName(p.n))}</a> (${esc(tm)})` : esc(tm); };
+      const shotTxt = n => (n === 3 ? T('τρίποντο', 'three-pointer', 'triple', 'trojka') : n === 2 ? T('καλάθι', 'basket', 'canasta', 'koš') : T('βολή', 'free throw', 'tiro libre', 'slobodno bacanje'));
+      const pct = v => `${Math.round(100 * v)}%`;
+      const km = S.key.map((k, i) => `<li><b class="wpkn">${i + 1}</b> <span class="wpclk">${clockOf(k.t)}</span> ${who(k.side, k.pid)}: ${shotTxt(k.pts)} · <b>${k.h}-${k.a}</b> · ${esc(k.side === 0 ? H : A)} ${pct(k.side === 0 ? k.before : 1 - k.before)} → <b>${pct(k.side === 0 ? k.now : 1 - k.now)}</b></li>`).join('');
+      const W = S.winner;
+      const top = S.players.filter(p => p.side === W).slice(0, 3), topL = S.players.filter(p => p.side !== W).slice(0, 1);
+      const pp = x => `${x.wpa >= 0 ? '+' : ''}${Math.round(100 * x.wpa)}`;
+      const dec = [...top, ...topL].map(x => `<li>${who(x.side, x.pid)} <b>${pp(x)}</b> ${T('μονάδες πιθανότητας', 'percentage points', 'puntos porcentuales', 'procentnih poena')}</li>`).join('');
+      const wn = W === 0 ? H : A, pre = W === 0 ? S.pts[0].p : 1 - S.pts[0].p;
+      const low = S.low && S.low.v < 0.3 ? T(`Η ${wn} έφτασε να έχει μόλις ${pct(S.low.v)} πιθανότητα νίκης (${clockOf(S.low.t)}, ${S.low.h}-${S.low.a}) και τελικά κέρδισε.`, `${wn} were down to a ${pct(S.low.v)} chance of winning (${clockOf(S.low.t)}, ${S.low.h}-${S.low.a}) and still won.`, `${wn} llegó a tener solo un ${pct(S.low.v)} de probabilidad de ganar (${clockOf(S.low.t)}, ${S.low.h}-${S.low.a}) y aun así ganó.`, `${wn} je u jednom trenutku imao samo ${pct(S.low.v)} šanse za pobedu (${clockOf(S.low.t)}, ${S.low.h}-${S.low.a}) i ipak pobedio.`) : '';
+      return `<section class="gwp"><h2>${T('Πιθανότητα νίκης μέσα στον αγώνα', 'In-game win probability', 'Probabilidad de victoria durante el partido', 'Verovatnoća pobede tokom utakmice')}</h2>
+<p class="sub">${T(`Πριν από το τζάμπολ η ${wn} είχε ${pct(pre)} · ${S.leadChanges} αλλαγές προβαδίσματος. Η πιθανότητα υπολογίζεται μετά από κάθε καλάθι από τη διαφορά, τον χρόνο που μένει και την πρόβλεψη πριν από τον αγώνα.`, `Before tip-off ${wn} had ${pct(pre)} · ${S.leadChanges} lead changes. Probability is recalculated after every basket from the margin, the time left and the pre-game prediction.`, `Antes del salto inicial ${wn} tenía un ${pct(pre)} · ${S.leadChanges} cambios de líder. La probabilidad se recalcula tras cada canasta a partir de la diferencia, el tiempo restante y el pronóstico previo.`, `Pre početka ${wn} je imao ${pct(pre)} · ${S.leadChanges} promena vođstva. Verovatnoća se računa posle svakog koša iz razlike, preostalog vremena i prognoze pre utakmice.`)}</p>
+<div class="wpwrap">${wpSVG(S, { home: esc(H), away: esc(A), clock: clockOf })}</div>
+${low ? `<p><b>${esc(low)}</b></p>` : ''}
+<div class="gcols"><div><h3>${T('Οι κρίσιμες φάσεις', 'Key moments', 'Momentos clave', 'Ključni trenuci')}</h3><ol class="wpkm">${km}</ol></div>
+<div><h3>${T('Ποιος έκρινε τον αγώνα', 'Who decided the game', 'Quién decidió el partido', 'Ko je odlučio utakmicu')}</h3><p class="sub">${T('Άθροισμα της αλλαγής στην πιθανότητα νίκης από τους πόντους κάθε παίκτη (WPA)', 'Sum of the change in win probability from each player’s points (WPA)', 'Suma del cambio en la probabilidad de victoria por los puntos de cada jugador (WPA)', 'Zbir promene verovatnoće pobede od poena svakog igrača (WPA)')}</p><ol class="wpkm">${dec}</ol></div></div></section>`;
+    }
     async function simplePage(key, { title, desc, view, main, id = '', ld = null }) {
       if (CATS[key]) { main = main + catFaq(key).replace('<section class="wrap catfaq">', '<section class="catfaq">'); ld = withLd(ld, key); }
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
@@ -2195,6 +2233,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
 <p class="lede">${esc(dt)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)')}${pl ? ` · ${T('Τελικό', 'Final', 'Final', 'Konačan rezultat')} ${sc}` : ''}</p>
 ${pl && SH?.[SEASON]?.games.some(x => x.h === h && x.a === a) ? `<p><a class="pread" href="${urlFor(LG, `shg:${r}|${h}|${a}`)}">Shot chart →</a></p>` : ''}
 <section class="gtop" id="gTop"></section>
+${pl ? wpSection(r, h, a, H, A) : ''}
 <section class="gprev"><h2>${pl ? T('Σύνοψη', 'Summary', 'Resumen', 'Rezime') : T('Προεπισκόπηση', 'Preview', 'Previa', 'Najava')}</h2>${PV.map(t => `<p>${esc(t)}</p>`).join('')}</section>
 ${pl ? '' : matchupCenter('E', MPK[`E|${r}|${h}|${a}`])}
 ${pl ? '' : `<section class="glive" id="gLive" hidden><div class="lq tbl"></div><div class="ll"></div><p class="note">${T('Ζωντανή ενημέρωση κάθε 30 δευτερόλεπτα από τα επίσημα στοιχεία της EuroLeague', 'Live updates every 30 seconds from official EuroLeague data', 'Actualización en vivo cada 30 segundos con los datos oficiales de la EuroLeague', 'Ažuriranje uživo na svakih 30 sekundi iz zvaničnih podataka Evrolige')}</p></section>\n`}${vidSec}<div class="gcols2">

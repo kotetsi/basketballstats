@@ -15,7 +15,7 @@ export async function loadShots(ROOT) {
     for (const f of files) {
       let g; try { g = JSON.parse(await fs.readFile(path.join(base, s, f), 'utf8')); } catch { continue; }
       const gi = games.length;
-      games.push({ gc: g.gc, d: g.d, ph: g.ph || 'RS', h: g.h, a: g.a, hs: g.hs, as: g.as });
+      games.push({ gc: g.gc, d: g.d, ph: g.ph || 'RS', h: g.h, a: g.a, hs: g.hs, as: g.as, ref: g.ref || null, att: g.att || null, sc: g.sc || null, ids: g.ids });
       for (const r of g.s) {
         const [p, home, q, clk, made, three, x, y, z, ast, margin, clutch, fb, sc, def] = r;
         shots.push({ season: s, gi, pid: g.ids[p], team: home ? g.h : g.a, opp: home ? g.a : g.h, home, q, clk, made, three, x, y, z, ast: ast >= 0 ? g.ids[ast] : null, margin, clutch, fb, sc, def: def ? def.map(i => g.ids[i]) : null });
