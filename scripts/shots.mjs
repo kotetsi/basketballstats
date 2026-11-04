@@ -14,7 +14,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? proce
 const cur = process.env.SEASON || CONF.season || 'E2026';
 const SEASONS = arg('--season') ? [arg('--season')] : [cur, 'U' + cur.slice(1)];
 const FORCE = process.argv.includes('--force');
-const VER = 2; // αυξάνεται όταν αλλάζει ο αλγόριθμος· παλαιότερα αρχεία ξαναϋπολογίζονται αυτόματα
+const VER = 3; // αυξάνεται όταν αλλάζει ο αλγόριθμος· παλαιότερα αρχεία ξαναϋπολογίζονται αυτόματα
 const DEADLINE = Date.now() + 1000 * +arg('--secs', 600);
 const LIVE = 'https://live.euroleague.net/api';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -64,7 +64,7 @@ async function season(code) {
     if (have.has(f) && !FORCE) { try { if ((JSON.parse(await fs.readFile(path.join(dir, f), 'utf8')).v || 1) >= VER) continue; } catch { } }
     if (Date.now() > DEADLINE) { console.log(`${code}: όριο χρόνου, συνέχεια στην επόμενη εκτέλεση`); break; }
     const g = JSON.parse(await fs.readFile(path.join(src, f), 'utf8'));
-    const [pbp, pts] = await Promise.all([get(`${LIVE}/PlayByPlay?gamecode=${g.gc}&seasoncode=${code}`), get(`${LIVE}/Points?gamecode=${g.gc}&seasoncode=${code}`)]);
+    const [pbp, pts, box] = await Promise.all([get(`${LIVE}/PlayByPlay?gamecode=${g.gc}&seasoncode=${code}`), get(`${LIVE}/Points?gamecode=${g.gc}&seasoncode=${code}`), get(`${LIVE}/Boxscore?gamecode=${g.gc}&seasoncode=${code}`)]);
     await sleep(200);
     if (!pbp) continue;
     const starters = {};
@@ -74,7 +74,7 @@ async function season(code) {
     const ids = [...new Set(shots.flatMap(s => [s.pid, s.ast, ...(s.def || [])]).filter(Boolean))], ix = Object.fromEntries(ids.map((id, i) => [id, i]));
     // συμπαγής μορφή: [σουτέρ, γηπεδούχος, περίοδος, ρολόι, εύστοχο, τρίποντο, x, y, ζώνη, ασίστ, διαφορά, clutch, fastbreak, 2η ευκαιρία, άμυνα(5)]
     const S = shots.map(s => [ix[s.pid], s.home, s.q, s.clk, s.made, s.three, s.x, s.y, s.z, s.ast ? ix[s.ast] : -1, s.margin, s.clutch, s.fb, s.sc, s.def ? s.def.map(d => ix[d]) : null]);
-    await fs.writeFile(path.join(dir, f), JSON.stringify({ v: VER, gc: g.gc, d: g.d, ph: g.ph, h: g.h, a: g.a, hs: g.hs, as: g.as, ids: ids.map(id => id.replace(/^P/, '')), s: S, chk: { shots: shots.length, coords: matched } }));
+    await fs.writeFile(path.join(dir, f), JSON.stringify({ v: VER, ref: T(box?.Referees), att: +String(box?.Attendance ?? '').replace(/\D/g, '') || null, sc: r.scoring.map(([tt, side, p, pid, a, b]) => [tt, side, p, pid ? (ix[pid] ?? (ids.push(pid), ix[pid] = ids.length - 1)) : -1, a, b]), gc: g.gc, d: g.d, ph: g.ph, h: g.h, a: g.a, hs: g.hs, as: g.as, ids: ids.map(id => id.replace(/^P/, '')), s: S, chk: { shots: shots.length, coords: matched } }));
     done++; coords += matched; total += shots.length;
     astF += shots.filter(s => s.ast).length; astBox += (g.box?.[g.h]?.[10] || 0) + (g.box?.[g.a]?.[10] || 0);
     if (done % 20 === 0) console.log(`${code}: ${done}…`);

@@ -105,7 +105,7 @@ export function buildStints(pbp, starters) {
     t0 = Math.max(t0, t);
   };
 
-  const shots = [];
+  const shots = [], scoring = [];
   const FG = { '2FGM': [1, 0], '2FGA': [0, 0], '3FGM': [1, 1], '3FGA': [0, 1] };
   ev.forEach((e, i) => (e.i = i));
   for (const e of ev) {
@@ -127,7 +127,7 @@ export function buildStints(pbp, starters) {
       shots.push({ n: e.NUMBEROFPLAY, i: e.i, team: e.team, pid: e.pid, q: e.q, t: e.t, clk: trim(e.MARKERTIME), made, three, margin: mg, clutch: cl,
         on: on[e.team].size === 5 ? [...on[e.team]].sort() : null, def: on[opp].size === 5 ? [...on[opp]].sort() : null, ast: null });
     }
-    if (eff.pts) score[e.team] += eff.pts;
+    if (eff.pts) { score[e.team] += eff.pts; scoring.push([e.t, e.team === A ? 0 : 1, eff.pts, e.pid, score[A], score[B]]); }
   }
   // assisted: κάθε ασίστ ταιριάζει με το πιο κοντινό (σε σειρά γεγονότων) εύστοχο σουτ της ίδιας ομάδας στον ίδιο χρόνο (±2΄΄)
   const madeBy = shots.filter(s => s.made);
@@ -147,7 +147,7 @@ export function buildStints(pbp, starters) {
   const out = { [A]: [...acc[A].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)), [B]: [...acc[B].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)) };
   const sumPts = tm => out[tm].reduce((a, x) => a + x.own[0], 0);
   return {
-    teams: [A, B], stints: out, total, secs: end, shots,
+    teams: [A, B], stints: out, total, secs: end, shots, scoring,
     checks: { scoreA: score[A], scoreB: score[B], stintPtsA: sumPts(A), stintPtsB: sumPts(B), lostSecs: lost.secs, lostEvents: lost.events },
   };
 }
