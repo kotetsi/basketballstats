@@ -234,3 +234,23 @@ CREATE TABLE optimizer_turn_plans (
   lineup JSONB, captain TEXT REFERENCES players, playing TEXT[], substitutions JSONB, expected_points NUMERIC(6,1),
   PRIMARY KEY (optimization_id, turn_no)
 );
+
+-- ============ Optimizer: explainability, εναλλακτικές, sensitivity ============
+CREATE TABLE optimizer_contributions (
+  optimization_id UUID REFERENCES optimizer_runs ON DELETE CASCADE, player_id TEXT REFERENCES players,   -- player_id NULL = προπονητής (βλ. coach_team)
+  coach_team TEXT REFERENCES teams, slot TEXT, is_captain BOOLEAN,
+  points NUMERIC(6,2), captain_extra NUMERIC(6,2), share_total NUMERIC(5,4),
+  floor_contrib NUMERIC(6,2), ceiling_contrib NUMERIC(6,2), risk_share NUMERIC(5,4), points_per_credit NUMERIC(5,3),
+  explanation TEXT                          -- κείμενο που παράγεται από τα features (όχι ελεύθερο κείμενο)
+);
+CREATE TABLE optimizer_key_factors (
+  optimization_id UUID REFERENCES optimizer_runs ON DELETE CASCADE, factor TEXT,   -- budget, concentration, positions, captain, bench, injury, fixtures, pace, ownership
+  score SMALLINT, available BOOLEAN DEFAULT TRUE, params JSONB, PRIMARY KEY (optimization_id, factor)
+);
+CREATE TABLE optimizer_sensitivity (
+  optimization_id UUID REFERENCES optimizer_runs ON DELETE CASCADE, player_id TEXT REFERENCES players,
+  scenario TEXT CHECK (scenario IN ('dnp','dnp_captain_swap','minutes_down_25','minutes_up_25')),
+  delta_total NUMERIC(6,2), impact TEXT CHECK (impact IN ('high','medium','low')), single_point_of_failure BOOLEAN,
+  PRIMARY KEY (optimization_id, player_id, scenario)
+);
+-- optimizer_alternatives.label ∈ ('safest','balanced','ceiling','value','differential'); 'differential' μένει κενό χωρίς ownership

@@ -66,10 +66,10 @@ function dpPosition(items, n, B, mode) {
         if (allowed[0]) { const o = off + c; if (v > nxt[o]) { nxt[o] = v; choice[base + o] = 0; } }
         if (tot === n || c + pc > B) continue;
         const nc = c + pc;
-        if (allowed[1]) { const o = idx(cap, st, six, bn + 1) * C + nc, nv = v + it.v * 0.5; if (nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 1; } }
-        if (allowed[2] && !six) { const o = idx(cap, st, 1, bn) * C + nc, nv = v + it.v; if (nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 2; } }
-        if (allowed[3]) { const o = idx(cap, st + 1, six, bn) * C + nc, nv = v + it.v; if (cap + st + 1 + six + bn <= n && nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 3; } }
-        if (allowed[4] && !cap) { const o = idx(1, st, six, bn) * C + nc, nv = v + it.v * 2; if (nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 4; } }
+        if (allowed[1]) { const o = idx(cap, st, six, bn + 1) * C + nc, nv = v + it.v * 0.5 + it.k; if (nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 1; } }
+        if (allowed[2] && !six) { const o = idx(cap, st, 1, bn) * C + nc, nv = v + it.v + it.k; if (nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 2; } }
+        if (allowed[3]) { const o = idx(cap, st + 1, six, bn) * C + nc, nv = v + it.v + it.k; if (cap + st + 1 + six + bn <= n && nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 3; } }
+        if (allowed[4] && !cap) { const o = idx(1, st, six, bn) * C + nc, nv = v + it.v * 2 + it.k; if (nv > nxt[o]) { nxt[o] = nv; choice[base + o] = 4; } }
       }
     }
     cur = nxt;
@@ -108,7 +108,8 @@ function itemsFor(players, ps, o, P) {
     let allowed = [!o.lock.has(p.c) && !fixed, true, !out, !out, !out && !o.noCaptain.has(p.c)];
     // έχει ήδη παίξει: κρατά τη θέση του· ο αρχηγός που έπαιξε μπορεί μόνο να «χάσει» την αρχηγία (μένει στην πεντάδα)
     if (fixed) allowed = [false, fixed === 'bench', fixed === 'sixth', fixed === 'start' || fixed === 'captain', fixed === 'captain'];
-    return { c: p.c, cost: Math.round(p.price * 10), v, allowed };
+    // k: σταθερός όρος ανά επιλογή (ανεξάρτητος από το slot), π.χ. «κόστος» για το Value lineup: −λ × τιμή
+    return { c: p.c, cost: Math.round(p.price * 10), v, k: -(o.costPenalty || 0) * p.price, allowed };
   }).filter(it => it.allowed.some(Boolean));
 }
 
@@ -140,7 +141,7 @@ function solveOnce(players, coaches, o, cache) {
         let bv = -Infinity, bk = -1;
         for (const c of Cc.bp) { if (c > R) break; const v = H[R - c] + Cc.val[c]; if (v > bv) { bv = v; bk = R - c; } }
         if (bv === -Infinity) continue;
-        const tot = bv + coachValue(co, o.mode);
+        const tot = bv + coachValue(co, o.mode) - (o.costPenalty || 0) * co.price;
         if (!best || tot > best.obj) best = { obj: tot, f, sp, cp, coach: co, kGF: bk, kC: R - bk, pre };
       }
     }
