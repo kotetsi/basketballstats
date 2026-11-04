@@ -17,7 +17,7 @@ import { appendChanges } from '../src/odds/core.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'data', 'odds');
 const KEY = (process.env.ODDS_API_KEY || '').trim();
-const PROVIDER = process.env.ODDS_PROVIDER || 'theoddsapi';
+const PROVIDER = process.env.ODDS_PROVIDER || 'oddspapi';
 const MIN_INT = +(process.env.ODDS_MIN_INTERVAL_MIN || 180);
 const FORCE = process.argv.includes('--force');
 const STALE_H = 30;
