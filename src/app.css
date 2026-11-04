@@ -502,3 +502,13 @@ svg.trend{width:100%;max-width:420px;height:auto}svg.trend rect.pos{fill:#1f8a4c
 .mclist{display:grid;gap:6px}.mcrow{display:grid;grid-template-columns:48px 1fr 90px 1fr auto auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-decoration:none}
 .mcrow:hover{border-color:var(--accent)}.mcrow .mca{text-align:left}.mcrow .mch{text-align:right}.mcrow small{color:var(--muted)}.mcrow>*{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:640px){.mcrow{grid-template-columns:40px 1fr 1fr;grid-template-rows:auto auto}.mcrow .mcbar{grid-column:1/-1;grid-row:2}.mcrow small,.mcrow b{display:none}.mcteams{grid-template-columns:1fr;text-align:center}.mcteams>div{justify-content:center}.mc2{grid-template-columns:1fr}.mchd{display:none}}
+/* Shot charts */
+:root{--sh-none:rgba(128,128,128,.12)}
+.shwrap{position:relative;max-width:760px;margin:0 auto}.shcourt{width:100%;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;touch-action:none;cursor:grab}
+.shcourt .court rect,.shcourt .court path,.shcourt .court circle,.shcourt .court line{stroke:var(--muted);stroke-width:5}.shcourt .rimc{stroke:var(--accent)!important}
+.shcourt .mk{fill:#1f8a4c;fill-opacity:.8;stroke:var(--surface);stroke-width:2}.shcourt .ms{fill:#c62828;fill-opacity:.55}.shcourt .op{stroke:var(--ink);stroke-width:3}
+.shcourt .zp{stroke:var(--surface);stroke-width:6;opacity:.9}.shcourt .zt{font:700 46px var(--font,sans-serif);text-anchor:middle;fill:var(--ink);pointer-events:none}.shcourt .zs{font:30px var(--font,sans-serif);text-anchor:middle;fill:var(--ink);opacity:.75;pointer-events:none}
+.shtip{position:absolute;z-index:6;background:var(--band);color:var(--band-ink);font-size:12px;line-height:1.45;padding:8px 10px;border-radius:8px;pointer-events:none;max-width:200px}
+.shbtns{display:flex;gap:6px;flex-wrap:wrap}.shbtns button{font:inherit;font-size:12px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.zsw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}tr.dim td{opacity:.5}
+svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}svg.mom .m1{fill:var(--muted)}svg.mom .zero{stroke:var(--line)}svg.mom .zs{font-size:11px;text-anchor:middle;fill:var(--muted)}
