@@ -222,6 +222,26 @@ async function pool(items, n, fn) {
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const GR = { α: 'a', β: 'v', γ: 'g', δ: 'd', ε: 'e', ζ: 'z', η: 'i', θ: 'th', ι: 'i', κ: 'k', λ: 'l', μ: 'm', ν: 'n', ξ: 'x', ο: 'o', π: 'p', ρ: 'r', σ: 's', ς: 's', τ: 't', υ: 'y', φ: 'f', χ: 'ch', ψ: 'ps', ω: 'o' };
 const slugify = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[α-ω]/g, c => GR[c] || '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// Ισπανικά: οι Ισπανοί ψάχνουν «Euroliga» (Google Trends: ~5× το «EuroLeague»). Αλλάζουμε μόνο ορατό κείμενο,
+// <title>, meta description/og και JSON-LD — όχι URLs, attributes ή scripts. Τα ονόματα προϊόντων μένουν όπως είναι.
+function esEuroliga(html) {
+  const fix = t => t.replace(/EuroLeague(?! (?:TV|Fantasy|Basketball|Final Four))(?!\.tv)/g, 'Euroliga').replace(/Euroliga \(Euroliga\)/g, 'Euroliga (EuroLeague)');
+  // κρατάμε το «(EuroLeague)» που βάλαμε επίτηδες στον τίτλο της αρχικής
+  const keep = '\u0000KEEP\u0000';
+  html = html.split('(EuroLeague)').join(keep);
+  let out = '', i = 0;
+  const re = /<script\b[^>]*>[\s\S]*?<\/script>|<style\b[^>]*>[\s\S]*?<\/style>|<[^>]+>/g; let m;
+  while ((m = re.exec(html))) {
+    out += fix(html.slice(i, m.index));
+    let tag = m[0];
+    if (/^<script[^>]*ld\+json/.test(tag)) tag = fix(tag);
+    else if (/^<meta\b[^>]*(name="description"|property="og:(title|description)"|name="twitter:(title|description)")/.test(tag)) tag = tag.replace(/content="([^"]*)"/, (x, c) => `content="${fix(c)}"`);
+    else if (/^<(img|a|button|span|div|section|input)\b/.test(tag)) tag = tag.replace(/\b(alt|title|aria-label|placeholder)="([^"]*)"/g, (x, k, c) => `${k}="${fix(c)}"`);
+    out += tag; i = m.index + m[0].length;
+  }
+  out += fix(html.slice(i));
+  return out.split(keep).join('(EuroLeague)');
+}
 // αφαιρεί από τη σελίδα τα <div id="vX" hidden>…</div> (με σωστό ταίριασμα των εμφωλευμένων div)
 function stripHiddenViews(html, ids) {
   for (const id of ids) {
@@ -1155,6 +1175,7 @@ ${alts}<meta property="og:type" content="website">
 ${gaHead(LG, urlFor(LG, 'legal'))}${adHead}${pwaHead(LG)}</head>`;
     }
     async function write(url, html) {
+      if (LG === 'es') html = esEuroliga(html);
       // αποτύπωμα του περιεχομένου (χωρίς υποσέλιδο, scripts και cache-busters) για το lastmod του sitemap
       PAGE_HASH.set(SITE_URL + url, createHash('sha1').update(html.replace(/<footer[\s\S]*?<\/footer>/g, '').replace(/<script\b(?![^>]*ld\+json)[\s\S]*?<\/script>/g, '').replace(/\?v=[\w.-]+/g, '')).digest('base64url').slice(0, 16));
       const file = path.join(OUT, url.slice(BASE.length), 'index.html');
@@ -1355,7 +1376,7 @@ ${deeps.length ? `<h2 class="tdh">🔎 ${T('Οι σε βάθος αναλύσε�
     }).join('');
     const todayJS = `<script>(()=>{const d=new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Athens'});document.querySelectorAll('.todaybox').forEach(b=>{const all=[...b.querySelectorAll('.tday')];let x=all.find(e=>e.dataset.day===d);const no=b.querySelector('.tdnone');if(!x){x=all.find(e=>e.dataset.day>d);if(no)no.hidden=false;}if(x)x.hidden=false;});})();</script>`;
     const noneTxt = T('Δεν υπάρχουν αγώνες σήμερα. Οι επόμενοι:', 'No games today. Next up:', 'Hoy no hay partidos. Los próximos:', 'Danas nema utakmica. Sledeće:');
-    await simplePage('today', { view: 'today', title: T(`Αγώνες μπάσκετ σήμερα: EuroLeague και EuroCup, ώρες και προγνωστικά | ${SITE_NAME}`, `Today's games: EuroLeague and EuroCup times, predictions and previews | ${SITE_NAME}`, `Los partidos de hoy: EuroLeague y EuroCup, horarios, pronósticos y análisis | ${SITE_NAME}`, `Današnje utakmice: Evroliga i Evrokup, satnica, prognoze i analize | ${SITE_NAME}`),
+    await simplePage('today', { view: 'today', title: T(`Αγώνες μπάσκετ σήμερα: EuroLeague και EuroCup, ώρες και προγνωστικά | ${SITE_NAME}`, `Today's games: EuroLeague and EuroCup times, predictions and previews | ${SITE_NAME}`, `Euroliga hoy: partidos de Euroliga y Eurocup, horarios, TV y pronósticos | ${SITE_NAME}`, `Evroliga danas: utakmice Evrolige i Evrokupa uživo, satnica, TV i prognoze | ${SITE_NAME}`),
       desc: T('Όλοι οι σημερινοί αγώνες της EuroLeague και του EuroCup: ώρα Ελλάδας, πιθανότητα νίκης, εκτιμώμενο σκορ, αποτελέσματα και σε βάθος ανάλυση κάθε αγώνα.', 'All of today’s EuroLeague and EuroCup games: tip-off times, win probability, projected score, results and an in-depth preview of every game.', 'Todos los partidos de hoy de la EuroLeague y la EuroCup: horario, probabilidad de victoria, marcador estimado, resultados y análisis en profundidad.', 'Sve današnje utakmice Evrolige i Evrokupa: satnica, verovatnoća pobede, procenjeni rezultat, rezultati i detaljna analiza svake utakmice.'),
       main: `<article class="article lead wide anpage todaypage"><h1>${T('Οι αγώνες σήμερα', 'Today’s games', 'Los partidos de hoy', 'Današnje utakmice')}</h1><p class="lede2">${esc(T('Ώρες Ελλάδας · πιθανότητες από το μοντέλο μας · τα αποτελέσματα ενημερώνονται σε κάθε ανανέωση του site.', 'Athens time · probabilities from our model · results refresh with every site update.', 'Hora de Atenas · probabilidades de nuestro modelo · los resultados se actualizan con cada actualización.', 'Atinsko vreme · verovatnoće iz našeg modela · rezultati se osvežavaju pri svakom ažuriranju.'))}</p>
 <div class="todaybox"><p class="tdnone sub" hidden>${noneTxt}</p>${todayBlocks(true)}</div>${todayJS}
@@ -1420,7 +1441,7 @@ ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) 
       return `<section class="deepstrip"><h2>🔎 ${T(`Σε βάθος ανάλυση: ${nr}η αγωνιστική`, `In-depth previews: round ${nr}`, `Análisis en profundidad: jornada ${nr}`, `Detaljne analize: ${nr}. kolo`)}</h2><div class="deepl">${gs.map(g => `<a href="${urlFor(LG, `deep:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(g[2]))} – ${esc(tName(g[3]))}</a>`).join('')}</div></section>`;
     })();
     await page('home', { view: 'stand', top: homeToday + deepStrip + homeShots, ld: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + B(LG), inLanguage: LG, description: T('Στατιστικά EuroLeague και EuroCup στα ελληνικά', 'EuroLeague and EuroCup stats', 'Estadísticas de la EuroLeague y la EuroCup', 'Statistika Evrolige i Evrokupa') },
-      title: T(`Βαθμολογία EuroLeague ${SEASON_LABEL} (Ευρωλίγκα): πρόγραμμα, αποτελέσματα, στατιστικά | ${SITE_NAME}`, `EuroLeague standings ${SEASON_LABEL}: schedule, team and player stats | ${SITE_NAME}`, `Clasificación de la EuroLeague ${SEASON_LABEL}: calendario y estadísticas de equipos y jugadores | ${SITE_NAME}`, `Tabela Evrolige ${SEASON_LABEL}: raspored, statistika timova i igrača | ${SITE_NAME}`),
+      title: T(`Βαθμολογία EuroLeague ${SEASON_LABEL} (Ευρωλίγκα): πρόγραμμα, αποτελέσματα, στατιστικά | ${SITE_NAME}`, `EuroLeague standings ${SEASON_LABEL}: schedule, team and player stats | ${SITE_NAME}`, `Clasificación de la Euroliga ${SEASON_LABEL} (EuroLeague): calendario, resultados y estadísticas | ${SITE_NAME}`, `Evroliga tabela i raspored ${SEASON_LABEL}: rezultati, statistika timova i igrača | ${SITE_NAME}`),
       desc: T(`Η βαθμολογία της ${S} μετά την ${lastRound}η αγωνιστική, το πρόγραμμα, στατιστικά ομάδων και παικτών στα ελληνικά.`,
         `The ${S} standings after Round ${lastRound}, the schedule, team ratings and player stats.`, `La clasificación de la ${S} tras la jornada ${lastRound}, el calendario, los ratings de los equipos y las estadísticas de los jugadores.`, `Tabela ${S} posle ${lastRound}. kola, raspored, rejtinzi timova i statistika igrača.`) });
     await page('form', { view: 'form',
@@ -1604,7 +1625,7 @@ ${notes}</article>`;
 </article>`,
       ld: crumbs([[SITE_NAME, B(LG)], ['EuroLeague Fantasy', urlFor(LG, 'fantasy')], [T('Οδηγός', 'Guide', 'Guía', 'Vodič'), urlFor(LG, 'fxrules')]]) });
     await page('fantasy', { view: 'fantasy', extra: fxInj + FXDASH,
-      title: T(`EuroLeague Fantasy προτάσεις ${lastRound + 1}ης αγωνιστικής (tips): ποιους να βάλεις | ${SITE_NAME}`, `EuroLeague Fantasy tips & picks for Round ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy consejos jornada ${lastRound + 1}: a quién fichar | ${SITE_NAME}`, `EuroLeague Fantasy saveti za ${lastRound + 1}. kolo: koga izabrati | ${SITE_NAME}`),
+      title: T(`EuroLeague Fantasy προτάσεις ${lastRound + 1}ης αγωνιστικής (tips): ποιους να βάλεις | ${SITE_NAME}`, `EuroLeague Fantasy tips & picks for Round ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy consejos jornada ${lastRound + 1}: a quién fichar | ${SITE_NAME}`, `Evroliga Fantazi (Fantasy) saveti za ${lastRound + 1}. kolo: koga izabrati | ${SITE_NAME}`),
       desc: T(`Εκτιμήσεις PIR ανά θέση, δυσκολία προγράμματος, διπλές εβδομάδες και η πεντάδα της αγωνιστικής για το EuroLeague Fantasy.`,
         `Projected PIR by position, schedule difficulty, double weeks and the team of the round for EuroLeague Fantasy.`, `PIR estimado por posición, dificultad del calendario, semanas dobles y el quinteto de la jornada para el EuroLeague Fantasy.`, `Procena PIR-a po poziciji, težina rasporeda, duple nedelje i idealna petorka kola za EuroLeague Fantasy.`) });
     await page('preds', { view: 'preds',
@@ -2055,7 +2076,7 @@ ${method}</section>`;
       await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede, extra: tana + thist, top: nextBox(c) + shTop,
         ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name, sport: 'Basketball', url: SITE_URL + urlFor(LG, 'team:' + c), memberOf: { '@type': 'SportsOrganization', name: 'EuroLeague' }, athlete: roster.map(p => ({ '@type': 'Person', name: niceName(p.n), url: SITE_URL + urlFor(LG, 'player:' + p.s) })) },
           crumbs([[SITE_NAME, B(LG)], [name, urlFor(LG, 'team:' + c)]])],
-        title: T(GREEK_T[c] ? `${name} μπάσκετ: πρόγραμμα, αποτελέσματα, επόμενος αγώνας και κανάλι | ${S}` : `${name} ${S}: ρόστερ, πρόγραμμα, αποτελέσματα | ${SITE_NAME}`, `${name} ${S}: roster, schedule, stats | ${SITE_NAME}`, `${name} ${S}: plantilla, calendario y estadísticas | ${SITE_NAME}`, `${name} ${S}: roster, raspored, statistika | ${SITE_NAME}`),
+        title: T(GREEK_T[c] ? `${name} μπάσκετ: πρόγραμμα, αποτελέσματα, επόμενος αγώνας και κανάλι | ${S}` : `${name} ${S}: ρόστερ, πρόγραμμα, αποτελέσματα | ${SITE_NAME}`, `${name} ${S}: roster, schedule, stats | ${SITE_NAME}`, ({ MAD: 1, BAR: 1, PAM: 1, BAS: 1 }[c] ? `${name} baloncesto: calendario, resultados y próximo partido | Euroliga ${SEASON_LABEL}` : `${name} Euroliga ${SEASON_LABEL}: plantilla, calendario y resultados | ${SITE_NAME}`), ({ RED: 1, PAR: 1 }[c] ? `${name} Evroliga: raspored, rezultati, tabela i sledeća utakmica | ${SEASON_LABEL}` : `${name} Evroliga ${SEASON_LABEL}: roster, raspored, rezultati | ${SITE_NAME}`)),
         desc: lede + T(' Ρόστερ, πρόγραμμα, τέσσερις παράγοντες και φόρμα παικτών.', ' Roster, schedule, four factors and player form.', ' Plantilla, calendario, los cuatro factores y la forma de los jugadores.', ' Roster, raspored, četiri faktora i forma igrača.') });
     }
     // συνολική καριέρα στην EuroLeague: σύνολα, σταθμισμένοι μέσοι όροι, ομάδες ανά περίοδο, καλύτερη σεζόν
