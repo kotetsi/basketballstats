@@ -105,6 +105,9 @@ export function buildStints(pbp, starters) {
     t0 = Math.max(t0, t);
   };
 
+  const shots = [];
+  const FG = { '2FGM': [1, 0], '2FGA': [0, 0], '3FGM': [1, 1], '3FGA': [0, 1] };
+  ev.forEach((e, i) => (e.i = i));
   for (const e of ev) {
     advance(e.t, e.q);
     if (e.q !== curQ) { curQ = e.q; startPeriod(e.q); }
@@ -119,7 +122,22 @@ export function buildStints(pbp, starters) {
       const mine = cell(e.team, cl), theirs = cell(opp, cl);
       for (const [k, v] of Object.entries(eff)) { mine.own[IX[k]] += v; theirs.opp[IX[k]] += v; }
     } else lost.events++;
+    if (FG[e.type] && e.pid) {
+      const [made, three] = FG[e.type], mg = e.team === A ? score[A] - score[B] : score[B] - score[A];
+      shots.push({ n: e.NUMBEROFPLAY, i: e.i, team: e.team, pid: e.pid, q: e.q, t: e.t, clk: trim(e.MARKERTIME), made, three, margin: mg, clutch: cl,
+        on: on[e.team].size === 5 ? [...on[e.team]].sort() : null, def: on[opp].size === 5 ? [...on[opp]].sort() : null, ast: null });
+    }
     if (eff.pts) score[e.team] += eff.pts;
+  }
+  // assisted: η ασίστ καταγράφεται αμέσως μετά το εύστοχο σουτ (ίδια ομάδα, ίδιος χρόνος)
+  for (const s of shots) {
+    if (!s.made) continue;
+    for (let j = s.i + 1; j < Math.min(ev.length, s.i + 4); j++) {
+      const e = ev[j];
+      if (e.t !== s.t) break;
+      if (e.type === 'AS' && e.team === s.team && e.pid && e.pid !== s.pid) { s.ast = e.pid; break; }
+      if (FG[e.type]) break;
+    }
   }
   const end = Math.max(t0, ev.length ? periodStart(ev[ev.length - 1].q) + periodLen(ev[ev.length - 1].q) : 2400);
   advance(end, q0);
@@ -127,7 +145,7 @@ export function buildStints(pbp, starters) {
   const out = { [A]: [...acc[A].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)), [B]: [...acc[B].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)) };
   const sumPts = tm => out[tm].reduce((a, x) => a + x.own[0], 0);
   return {
-    teams: [A, B], stints: out, total, secs: end,
+    teams: [A, B], stints: out, total, secs: end, shots,
     checks: { scoreA: score[A], scoreB: score[B], stintPtsA: sumPts(A), stintPtsB: sumPts(B), lostSecs: lost.secs, lostEvents: lost.events },
   };
 }

@@ -6,6 +6,10 @@ on:
       seasons:
         description: "Σεζόν (κενό = E2025 E2024 E2023 U2025 U2024 U2023)"
         required: false
+      shots:
+        description: "Και shot charts (yes/no)"
+        required: false
+        default: "no"
 permissions:
   contents: write
 concurrency:
@@ -26,7 +30,8 @@ jobs:
           git config user.email "basketballstats-bot@users.noreply.github.com"
           for s in ${{ github.event.inputs.seasons || 'E2025 E2024 E2023 U2025 U2024 U2023' }}; do
             node scripts/pbp.mjs --season $s --secs 3000 --max 400 || echo "$s: σφάλμα"
-            git add data/pbp
+            [ "${{ github.event.inputs.shots }}" = "yes" ] && node scripts/shots.mjs --season $s --secs 3000 || true
+            git add data/pbp; [ -d data/shots ] && git add data/shots
             git diff --cached --quiet || git commit -qm "Backfill αγώνων $s"
             for i in 1 2 3 4; do git pull --rebase -q && git push -q && break; sleep 20; done
           done
