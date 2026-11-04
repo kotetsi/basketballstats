@@ -26,7 +26,7 @@ jobs:
           git config user.name "basketballstats-bot"
           git config user.email "basketballstats-bot@users.noreply.github.com"
           for s in ${{ github.event.inputs.seasons || 'E2026 U2026' }}; do
-            node scripts/shots.mjs --season $s --force --secs 2400 || echo "$s: σφάλμα"
+            node scripts/shots.mjs --season $s --secs 2400 || echo "$s: σφάλμα"
             git add data/shots
             git diff --cached --quiet || git commit -qm "Shot charts: επανυπολογισμός $s"
             for i in 1 2 3 4; do git pull --rebase -q -X theirs && git push -q && break; sleep 20; done
