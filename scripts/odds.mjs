@@ -55,6 +55,80 @@ const ADAPTERS = {
       }),
     })) };
   },
+  // OddsPapi (v4): basketball sportId 11, EuroLeague tournamentId 138. Το δωρεάν πακέτο έχει 250 κλήσεις/μήνα,
+  // οπότε: meta (ομάδες, αγορές, bookmakers) μία φορά την εβδομάδα, fixtures μία φορά τη μέρα,
+  // και αποδόσεις ανά αγώνα σε 3 «παράθυρα»: άνοιγμα (≤96 ώρες πριν), ~1 μέρα πριν, και κλείσιμο (≤4 ώρες πριν).
+  async oddspapi(ctx) {
+    const BASE = 'https://api.oddspapi.io/v4', SPORT = 11, TOUR = +(process.env.ODDSPAPI_TOURNAMENT || 138);
+    const month = new Date().toISOString().slice(0, 7), st = (ctx.status.oddspapi ||= {});
+    if (st.month !== month) { st.month = month; st.calls = 0; }
+    const CAP = +(process.env.ODDS_MONTHLY_CAP || 240);
+    const call = async (p, o) => {
+      if (st.calls >= CAP) throw new Error(`μηνιαίο όριο ${CAP} κλήσεων`);
+      st.calls++;
+      const r = await fetch(`${BASE}/${p}?${new URLSearchParams({ apiKey: KEY, ...o })}`, { signal: AbortSignal.timeout(30000) });
+      if (!r.ok) throw new Error(`OddsPapi /${p} ${r.status}: ${(await r.text()).slice(0, 200)}`);
+      return r.json();
+    };
+    const arr = x => (Array.isArray(x) ? x : x && typeof x === 'object' ? Object.entries(x).map(([k, v]) => (typeof v === 'object' ? { _k: k, ...v } : { _k: k, name: v })) : []);
+    const pick = (o, ks) => { for (const k of ks) if (o[k] != null) return o[k]; return null; };
+    const metaF = path.join(DIR, 'oddspapi_meta.json');
+    let meta = await readJSON(metaF, {});
+    if (!meta.at || Date.now() - new Date(meta.at) > 7 * 864e5) {
+      const parts = await call('participants', { sportId: SPORT, tournamentId: TOUR });
+      const markets = await call('markets', { sportId: SPORT });
+      const books = await call('bookmakers', {}).catch(() => []);
+      meta = {
+        at: new Date().toISOString(),
+        parts: Object.fromEntries(arr(parts).map(p => [String(pick(p, ['participantId', 'id', '_k'])), pick(p, ['participantName', 'name', 'shortName'])])),
+        markets: Object.fromEntries(arr(markets).map(m => [String(pick(m, ['marketId', 'id', '_k'])), { name: pick(m, ['marketName', 'name']) || '', line: pick(m, ['handicap', 'line', 'marketLine', 'points']), outcomes: arr(m.outcomes).map(o => ({ id: String(pick(o, ['outcomeId', 'id', '_k'])), name: pick(o, ['outcomeName', 'name']) })) }])),
+        books: Object.fromEntries(arr(books).map(b => [String(pick(b, ['slug', 'bookmakerSlug', 'bookmaker', '_k'])), pick(b, ['bookmakerName', 'name', 'title']) || pick(b, ['slug'])])),
+      };
+      await fs.writeFile(metaF, JSON.stringify(meta));
+    }
+    // fixtures (μία φορά τη μέρα)
+    const today = new Date().toISOString().slice(0, 10);
+    if (st.fixturesDay !== today || !st.fixtures) {
+      const to = new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10);
+      const fx = await call('fixtures', { sportId: SPORT, tournamentId: TOUR, from: today, to });
+      st.fixtures = arr(fx).map(f => ({ id: String(pick(f, ['fixtureId', 'id'])), p1: String(f.participant1Id), p2: String(f.participant2Id), start: f.startTime || f.trueStartTime }));
+      st.fixturesDay = today;
+    }
+    st.done ||= {};
+    const now = Date.now(), events = [];
+    for (const f of st.fixtures) {
+      const hrs = (new Date(f.start) - now) / 3600e3;
+      if (hrs < -1 || hrs > 96) continue;
+      const WINS = (process.env.ODDSPAPI_WINDOWS || 'open,close').split(',');
+      const win = hrs <= 4 ? 'close' : hrs <= 30 ? 'mid' : 'open';
+      if (!WINS.includes(win)) continue;
+      const done = (st.done[f.id] ||= []);
+      if (done.includes(win) && !FORCE) continue;
+      const res = await call('odds', { fixtureId: f.id, oddsFormat: 'decimal' }).catch(e => { console.log('Odds:', e.message); return null; });
+      if (!res) continue;
+      done.push(win);
+      const price = o => { const p = o && (o.players?.['0'] || Object.values(o.players || {})[0]); return p && p.active !== false ? p.price : null; };
+      const changed = o => { const p = o && (o.players?.['0'] || Object.values(o.players || {})[0]); return p?.changedAt || null; };
+      const bo = res.bookmakerOdds || {};
+      // κύρια γραμμή handicap/συνόλου: η αγορά (marketId) που έχουν οι περισσότεροι bookmakers
+      const count = re => { const c = {}; for (const b of Object.values(bo)) for (const mid of Object.keys(b.markets || {})) if (re.test(meta.markets[mid]?.name || '')) c[mid] = (c[mid] || 0) + 1; return Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0]; };
+      const hMid = count(/handicap/i), tMid = count(/over\s*\/\s*under|total/i);
+      const books = [];
+      for (const [slug, b] of Object.entries(bo)) {
+        if (b.bookmakerIsActive === false) continue;
+        const M = b.markets || {}, m = {}; let upd = null;
+        const two = mid => { const oc = M[mid]?.outcomes || {}; const ids = Object.keys(oc).sort((x, y) => +x - +y); const ps = ids.map(i => price(oc[i])); upd = ids.map(i => changed(oc[i])).filter(Boolean).sort().pop() || upd; return ps.length >= 2 && ps[0] > 1 && ps[1] > 1 ? ps.slice(0, 2) : null; };
+        const ml = two('111'); if (ml) m.ml = ml;
+        if (hMid) { const p = two(hMid); if (p) m.spread = { line: meta.markets[hMid]?.line != null ? +meta.markets[hMid].line : null, h: p[0], a: p[1] }; }
+        if (tMid) { const p = two(tMid); if (p) m.total = { line: meta.markets[tMid]?.line != null ? +meta.markets[tMid].line : null, over: p[0], under: p[1] }; }
+        if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, markets: m });
+      }
+      events.push({ eventId: f.id, home: meta.parts[f.p1] || '', away: meta.parts[f.p2] || '', commence: f.start, books });
+    }
+    // καθαρισμός παλιών αγώνων από τη μνήμη κατάστασης
+    for (const id of Object.keys(st.done)) if (!st.fixtures.some(f => f.id === id)) delete st.done[id];
+    return { quota: { used: st.calls, cap: CAP, month }, events };
+  },
   // γενικός adapter: ένα JSON στο ίδιο σχήμα με το παραπάνω (π.χ. από άλλον αδειοδοτημένο πάροχο μέσω proxy)
   async generic() {
     const r = await fetch(process.env.ODDS_GENERIC_URL, { headers: { authorization: `Bearer ${KEY}` }, signal: AbortSignal.timeout(30000) });
@@ -67,7 +141,13 @@ const ADAPTERS = {
 let LIC = null;
 const JUR = ['gr', 'uk', 'es', 'rs'];
 const clean = s => norm(s).replace(/[^a-z0-9 _]/g, '').trim();
-export const jurisdictions = (key, title, lic = LIC) => { const n = clean(key + ' ' + title); return JUR.filter(j => Object.values(lic?.[j]?.brands || {}).some(al => al.some(a => { const x = clean(a); return x.length >= 3 && n.includes(x); }))); };
+// εκδόσεις χωρών (π.χ. «maxbet.rs», «Admiral IT», «betfair_es»): μετρούν μόνο για τη χώρα τους
+const SUFFIX = { gr: 'gr', rs: 'rs', es: 'es', uk: 'uk', gb: 'uk', it: 'xx', dk: 'xx', ro: 'xx', me: 'xx', ba: 'xx', fr: 'xx', de: 'xx', se: 'xx', nl: 'xx', pt: 'xx', at: 'xx', be: 'xx', ch: 'xx', bg: 'xx', hr: 'xx', si: 'xx', mk: 'xx', cy: 'xx', pl: 'xx', cz: 'xx', sk: 'xx', hu: 'xx', ie: 'xx', us: 'xx', ca: 'xx', br: 'xx', co: 'xx', mx: 'xx', pe: 'xx', ar: 'xx', au: 'xx', fi: 'xx', no: 'xx', ee: 'xx', lv: 'xx', lt: 'xx', ua: 'xx', ru: 'xx', tr: 'xx', ng: 'xx', ke: 'xx', za: 'xx', in: 'xx' };
+const countryOf = (key, title) => { const m = /(?:^|[\s._\-(])([a-z]{2})\)?$/.exec(norm(String(key)).trim()) || /(?:^|[\s._\-(])([a-z]{2})\)?$/.exec(norm(String(title)).trim()); return m && SUFFIX[m[1]] ? SUFFIX[m[1]] : null; };
+export const jurisdictions = (key, title, lic = LIC) => {
+  const n = clean(key + ' ' + title), c = countryOf(key, title);
+  return JUR.filter(j => (!c || c === j) && Object.values(lic?.[j]?.brands || {}).some(al => al.some(a => { const x = clean(a); return x.length >= 3 && n.includes(x); })));
+};
 async function main() {
   LIC = await readJSON(path.join(DIR, 'licensed.json'), null);
   if (!LIC) { console.log('Odds: λείπει το data/odds/licensed.json — δεν αποθηκεύεται καμία απόδοση'); return 0; }
@@ -77,10 +157,10 @@ async function main() {
   const fx = await readJSON(path.join(ROOT, 'data', 'matchups', 'fixtures.json'), { fixtures: [] });
   const now = Date.now();
   const soon = fx.fixtures.filter(f => f.comp === 'E' && new Date(f.t) - now < 4 * 864e5 && new Date(f.t) - now > -3 * 3600e3);
-  if (!FORCE && status.lastCall && now - new Date(status.lastCall) < MIN_INT * 60000) { console.log('Odds: rate limit, επόμενη κλήση αργότερα'); return stale(status); }
+  if (!FORCE && PROVIDER !== 'oddspapi' && status.lastCall && now - new Date(status.lastCall) < MIN_INT * 60000) { console.log('Odds: rate limit, επόμενη κλήση αργότερα'); return stale(status); }
   if (!FORCE && !soon.length) { console.log('Odds: κανένας αγώνας τις επόμενες 4 μέρες'); return 0; }
   let res;
-  try { res = await ADAPTERS[PROVIDER](); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); status.lastError = new Date().toISOString(); status.error = e.message; await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(status, true); }
+  try { res = await ADAPTERS[PROVIDER]({ status, fx }); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); status.lastError = new Date().toISOString(); status.error = e.message; await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(status, true); }
   const ts = new Date().toISOString();
   // αντιστοίχιση με τους δικούς μας αγώνες
   const snaps = [], latest = await readJSON(path.join(DIR, 'latest.json'), { games: {} });
