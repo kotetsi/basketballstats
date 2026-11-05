@@ -59,7 +59,11 @@ export function matchEL(name, team, players) {
   const cand = players.filter(p => p.t.split(';').includes(team));
   const score = p => { const [L, F] = p.n.split(',').map(x => norm(x)); const all = new Set([...L.split(' '), ...(F || '').split(' ')].filter(Boolean)); let k = 0; for (const t of toks) if (all.has(t)) k++; return k / Math.max(all.size, toks.size); };
   const best = cand.map(p => [score(p), p]).sort((a, b) => b[0] - a[0])[0];
-  return best && best[0] >= 0.5 ? best[1] : null;
+  if (best && best[0] >= 0.5) return best[1];
+  // εναλλακτικά: ίδιο επώνυμο (οποιαδήποτε λέξη του slug) και ίδιο αρχικό ονόματος, μοναδικό στην ομάδα
+  const first = [...toks][0] || '';
+  const alt = cand.filter(p => { const [L, F] = p.n.split(',').map(x => norm(x)); return L.split(' ').some(l => l.length > 2 && toks.has(l)) && (F || '')[0] === first[0]; });
+  return alt.length === 1 ? alt[0] : null;
 }
 
 async function get(url) { const r = await fetch(url, { headers: UA }); if (!r.ok) throw new Error(`HTTP ${r.status}`); await sleep(800); return r.text(); }
@@ -71,20 +75,20 @@ async function main() {
   let db = { source: 'aba-liga.com', games: [], unmatched: [] }; try { db = JSON.parse(await fs.readFile(f, 'utf8')); } catch { }
   const have = new Set(db.games.map(g => g.id));
   const cal = parseCalendar(await get(`https://www.aba-liga.com/calendar/${SEASON_ID}/1/`));
-  const todo = cal.filter(g => g.played && !have.has(g.id) && (clubOf(g.home) || clubOf(g.away))).slice(0, 12);
+  const todo = cal.filter(g => g.played && !have.has(g.id) && (clubOf(g.home) || clubOf(g.away))).sort((a, b) => b.id - a.id).slice(0, 30);   // πρώτα οι πιο πρόσφατοι
   const unmatched = new Set(db.unmatched || []);
   let parsed = 0;
   for (const g of todo) {
     try {
       const html = await get(`https://www.aba-liga.com/match/${g.id}/${SEASON_ID}/1/Boxscore/`);
       const tables = parseBox(html);
-      if (tables.length < 2) { console.log(`[dom] ABA ${g.id}: δεν βρέθηκε box score (${tables.length} πίνακες)`); if (!parsed) await fs.writeFile(path.join(OUT, 'probe', 'played_box.html'), html.slice(0, 400000)).catch(() => {}); continue; }
+      if (tables.length < 2) { console.log(`[dom] ABA ${g.id}: δεν βρέθηκε box score (${tables.length} πίνακες)`); if (!parsed) await fs.mkdir(path.join(OUT, 'probe'), { recursive: true }); await fs.writeFile(path.join(OUT, 'probe', 'played_box.html'), html.slice(0, 400000)).catch(() => {}); continue; }
       const date = gameDate(html);
       for (const { club, players: pl } of tables) {
         const team = clubOf(club);
         if (!team) continue;
         const players = {};
-        for (const x of pl) { const p = matchEL(x.slug, team, cache.players); if (p) players[p.c] = x.min == null ? null : +x.min.toFixed(1); else unmatched.add(`${team}: ${x.name}`); }
+        for (const x of pl) { const p = matchEL(x.slug, team, cache.players); if (p) players[p.c] = x.min == null ? null : +x.min.toFixed(1); else unmatched.add(`${team}: ${x.name} (${x.slug})`); }
         db.games.push({ league: 'ABA', id: g.id, date, team, home: g.home, away: g.away, players });
       }
       parsed++;
