@@ -701,3 +701,4 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 .pfcsv{margin:4px 0 0;text-align:right}.pfcsv button{font-size:12px;padding:3px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}
 .pfact{font-size:10px;background:var(--accent);color:#fff;border-radius:4px;padding:1px 5px;margin-left:4px}.pftbl td{font-variant-numeric:tabular-nums}
 .fmheads{list-style:none;padding:0}.fmheads li{border-bottom:1px solid var(--line);padding:8px 0}.fmheads li a{font-weight:600}.fmheads li.mine{background:var(--accent-soft);padding-left:8px;border-radius:6px}.fmheads .sub{margin:3px 0 0}
+.trnote{color:var(--muted);font-size:11px}

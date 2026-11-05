@@ -15,6 +15,10 @@ const f1 = v => (v == null || isNaN(v) ? '–' : (+v).toFixed(1));
 const sg = v => (v == null ? '–' : `<span class="${v > 0 ? 'up' : v < 0 ? 'dn' : ''}">${v > 0 ? '+' : ''}${(+v).toFixed(1)}</span>`);
 
 let D, P, NEWS = [], HEAD = [], S, tab = X.tab || 'team';
+const LANG = String(X.loc || 'el').slice(0, 2);
+// τίτλος στη γλώσσα της σελίδας (αυτόματη μετάφραση), αλλιώς το πρωτότυπο
+const trTitle = h => (h.i18n && h.i18n[LANG]) || h.title;
+const trNote = h => (h.i18n && h.i18n[LANG] && h.src_lang !== LANG ? ` <small class="trnote" title="${esc(h.title)}">· ${esc(L.autoTr || '')} ${esc(h.title)}</small>` : '');
 const team = () => S.teams[S.active];
 const rosterOf = t => t.roster.map(c => P.get(c)).filter(Boolean);
 const save = () => store.set(S);
@@ -147,7 +151,7 @@ function viewAlerts() {
   const t = team(), lu = lineupFor(t);
   if (!lu) return `<section class="fmsec"><h2>${esc(L.tabs.alerts)}</h2><p>${esc(L.needTen)}</p></section>`;
   const al = buildAlerts(lu, D.players, NEWS, { curTurn: S.turn ?? todayTurn(), now: D.generated });
-  const msg = a => a.kind === 'press' ? esc((L.al.press || '{title}').replace('{p}', P.get(a.c)?.dn || a.c).replace('{title}', a.title || '')) + (a.link ? ` <a href="${esc(a.link)}" rel="nofollow noopener" target="_blank">↗</a>` : '') : esc((L.al[a.kind] || a.kind).replace('{p}', P.get(a.c)?.dn || a.c).replace('{b}', f1(a.before)).replace('{a}', f1(a.after))) + (a.link ? ` <a href="${esc(a.link)}" rel="nofollow noopener" target="_blank">↗</a>` : '');
+  const msg = a => a.kind === 'press' ? esc((L.al.press || '{title}').replace('{p}', P.get(a.c)?.dn || a.c).replace('{title}', (a.i18n && a.i18n[LANG]) || a.title || '')) + (a.link ? ` <a href="${esc(a.link)}" rel="nofollow noopener" target="_blank">↗</a>` : '') : esc((L.al[a.kind] || a.kind).replace('{p}', P.get(a.c)?.dn || a.c).replace('{b}', f1(a.before)).replace('{a}', f1(a.after))) + (a.link ? ` <a href="${esc(a.link)}" rel="nofollow noopener" target="_blank">↗</a>` : '');
   return `<section class="fmsec"><h2>${esc(L.tabs.alerts)} <small>${al.length}</small></h2><ul class="fmalerts">${al.map(a => `<li class="sev-${a.severity}"><span class="sev">${esc(L.sev[a.severity])}</span><div><b>${pLink(a.c)}</b> <small>${tm(a.team)} · ${a.slots.map(s => esc(L.slot[s] || s)).join(', ')}</small><p>${msg(a)}</p><p class="sub">${esc(L.act[a.action] || '')} · ${esc(L.src[a.source] || a.source)} · ${new Date(a.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></div></li>`).join('') || `<li>${esc(L.noAlerts)}</li>`}</ul>
 <p class="sub">${esc(L.alertNote)}</p></section>`;
 }
@@ -159,13 +163,13 @@ function viewHeadlines(mine) {
   const tag = { injury: L.nk.injury, doubtful: L.nk.doubtful, return: L.nk.return };
   return `<section class="fmsec"><h2>${esc(L.pressH)}</h2><p class="sub">${esc(L.pressSub)}</p><ul class="fmheads">${HEAD.slice(0, 40).map(h => {
     const mineP = (h.players || []).filter(c => mine.has(c));
-    return `<li class="${mineP.length ? 'mine' : ''}">${h.tag ? `<span class="nk nk-${h.tag === 'return' ? 'return' : h.tag}">${esc(tag[h.tag] || h.tag)}</span> ` : ''}<a href="${esc(h.link)}" rel="nofollow noopener" target="_blank">${esc(h.title)}</a>
-<p class="sub">${(h.players || []).filter(c => P.get(c)).map(pLink).join(', ')}${(h.players || []).some(c => P.get(c)) ? ' · ' : ''}${esc(L.src['press_' + h.source] || h.source)} · ${new Date(h.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}${mineP.length ? ' · ⭐ ' + esc(L.inTeam) : ''}</p></li>`; }).join('')}</ul></section>`;
+    return `<li class="${mineP.length ? 'mine' : ''}">${h.tag ? `<span class="nk nk-${h.tag === 'return' ? 'return' : h.tag}">${esc(tag[h.tag] || h.tag)}</span> ` : ''}<a href="${esc(h.link)}" rel="nofollow noopener" target="_blank" lang="${LANG}">${esc(trTitle(h))}</a>
+<p class="sub">${(h.players || []).filter(c => P.get(c)).map(pLink).join(', ')}${(h.players || []).some(c => P.get(c)) ? ' · ' : ''}${esc(L.src['press_' + h.source] || h.source)} · ${new Date(h.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}${mineP.length ? ' · ⭐ ' + esc(L.inTeam) : ''}${trNote(h)}</p></li>`; }).join('')}</ul></section>`;
 }
 function viewNews() {
   const mine = new Set(team().roster);
   return viewHeadlines(mine) + `<section class="fmsec"><h2>${esc(L.tabs.news)}</h2><ul class="fmnews">${NEWS.slice(0, 120).map(n => { const p = P.get(n.c); return `<li class="${mine.has(n.c) ? 'mine' : ''}"><span class="nk nk-${n.kind}">${esc(L.nk[n.kind] || n.kind)}</span> <b>${p ? pLink(n.c) : esc(prettyN(n.n))}</b> <small><a href="${X.teamBase[n.t] || '#'}">${tm(n.t)}</a></small>
-<p>${n.kind === 'press' ? `<a href="${esc(n.link)}" rel="nofollow noopener" target="_blank">${esc(n.title)}</a>` : esc((L.nm[n.kind] || '').replace('{dom}', n.detail?.league ? `${n.detail.league}, ${n.detail.home} – ${n.detail.away}` : '').replace('{b}', f1(n.before)).replace('{a}', f1(n.after)).replace('{m3}', n.detail?.m3 ?? '').replace('{m10}', n.detail?.m10 ?? '').replace('{from}', X.teams[n.detail?.from] || n.detail?.from || '').replace('{to}', X.teams[n.detail?.to] || n.detail?.to || ''))}${p ? ` · ${esc(L.proj)} ${f1(p.pp)}` : ''}</p>
+<p>${n.kind === 'press' ? `<a href="${esc(n.link)}" rel="nofollow noopener" target="_blank">${esc(trTitle(n))}</a>` : esc((L.nm[n.kind] || '').replace('{dom}', n.detail?.league ? `${n.detail.league}, ${n.detail.home} – ${n.detail.away}` : '').replace('{b}', f1(n.before)).replace('{a}', f1(n.after)).replace('{m3}', n.detail?.m3 ?? '').replace('{m10}', n.detail?.m10 ?? '').replace('{from}', X.teams[n.detail?.from] || n.detail?.from || '').replace('{to}', X.teams[n.detail?.to] || n.detail?.to || ''))}${p ? ` · ${esc(L.proj)} ${f1(p.pp)}` : ''}</p>
 <p class="sub">${mine.has(n.c) ? '⭐ ' + esc(L.inTeam) + ' · ' : ''}${esc(L.na[n.kind] || '')} · ${esc(L.src[n.source] || n.source)} · ${new Date(n.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></li>`; }).join('') || `<li>${esc(L.noNews)}</li>`}</ul></section>`;
 }
 
