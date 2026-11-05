@@ -1,10 +1,41 @@
 {
-  "active": "pir-2stage-v1",
+  "active": "pir-2stage-v2",
   "versions": [
-    {"id": "pir-2stage-v1", "engine": "hgb", "created": "2026-10-20", "description": "Δύο στάδια: λεπτά × PIR/λεπτό με HistGradientBoosting (scikit-learn) πάνω σε Bayesian baseline, P10/P50/P90 με quantile regression και conformal διεύρυνση", "status": "production"},
-    {"id": "pir-lgbm-v1", "engine": "lgbm", "created": "2026-11-05", "description": "Ίδια features και δομή με το pir-2stage-v1, με LightGBM αντί για HistGradientBoosting", "status": "challenger"}
+    {
+      "id": "pir-2stage-v1",
+      "engine": "hgb",
+      "created": "2026-10-20",
+      "description": "Δύο στάδια: λεπτά × PIR/λεπτό με HistGradientBoosting (scikit-learn) πάνω σε Bayesian baseline, P10/P50/P90 με quantile regression και conformal διεύρυνση",
+      "status": "retired"
+    },
+    {
+      "id": "pir-lgbm-v1",
+      "engine": "lgbm",
+      "created": "2026-11-05",
+      "description": "Ίδια features και δομή με το pir-2stage-v1, με LightGBM αντί για HistGradientBoosting",
+      "status": "challenger"
+    },
+    {
+      "id": "pir-2stage-v2",
+      "engine": "hgb",
+      "created": "2026-11-05",
+      "description": "Όπως το v1, συν: προηγούμενη σεζόν του παίκτη ως αφετηρία, εκπαίδευση και σε 2 προηγούμενες σεζόν (προβλέπει από τη 2η αγωνιστική), ταξίδι, φάουλ ανά 36', λεπτά συμπαικτών που λείπουν",
+      "status": "production"
+    }
   ],
   "history": [
-    {"at": "2026-10-20", "action": "activate", "to": "pir-2stage-v1", "reason": "πρώτη έκδοση"}
+    {
+      "at": "2026-10-20",
+      "action": "activate",
+      "to": "pir-2stage-v1",
+      "reason": "πρώτη έκδοση"
+    },
+    {
+      "at": "2026-11-05",
+      "action": "activate",
+      "from": "pir-2stage-v1",
+      "to": "pir-2stage-v2",
+      "reason": "backtest 2024-25 έως 2026-27 (ίδιες γραμμές): MAE 5,63 έναντι 5,67, correlation 0,50 έναντι 0,49, optimizer 116 έναντι 107 πόντων ανά αγωνιστική, προβλέψεις από τη 2η αγωνιστική"
+    }
   ]
 }

@@ -16,10 +16,12 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import features as F  # noqa: E402
-from model import ENGINES, PirModel, lgbm_available  # noqa: E402
+from model import ENGINES, FEATSET, PirModel, lgbm_available  # noqa: E402
+import features2 as F2  # noqa: E402
 
 SD_MARGIN = 11.0
-START_ROUND = 4          # όπως στην παραγωγή: πριν από την 4η αγωνιστική δεν υπάρχουν αρκετά δεδομένα για εκπαίδευση
+START_ROUND = 4          # όπως στην παραγωγή: πριν από την 4η αγωνιστική δεν υπάρχουν αρκετά δεδομένα για εκπαίδευση (v1)
+EARLY_FROM = 2           # το v2 (pooled με προηγούμενες σεζόν) προβλέπει από τη 2η: οι 2η–3η μετρούνται χωριστά (early=1)
 MIN_TRAIN = 200
 BASELINES = {"roll10-avg": "Μέσος όρος PIR 10 αγώνων × ποσοστό συμμετοχής", "pos-avg": "Μέσος όρος PIR της θέσης"}
 SNAPSHOT = ["n_played", "m5", "m10", "pir10", "play_rate5", "start_rate5", "rest", "b2b", "home", "opp_drtg", "opp_pos_allow", "m_trend"]
@@ -96,25 +98,39 @@ def _absence_and_role(rows: pd.DataFrame) -> pd.DataFrame:
     return rows
 
 
-def walk_forward(cache: dict, season: str, versions: list[str] | None = None, rounds: list[int] | None = None, log=print) -> pd.DataFrame:
+def walk_forward(cache: dict, season: str, versions: list[str] | None = None, rounds: list[int] | None = None, log=print,
+                 caches: dict | None = None, pool_cache: dict | None = None) -> pd.DataFrame:
+    """caches = {σεζόν: cache} όλων των διαθέσιμων σεζόν (για το v2: prior προηγούμενης σεζόν + pooled εκπαίδευση)."""
     F._team_cache.clear()   # ο cache ομάδων είναι ανά σεζόν
     rows = F.build_rows(cache)
     rows = rows[~rows["is_target"]].copy()
     rows = _absence_and_role(rows)
     tt = F.team_tables(cache)
     versions = versions or model_versions()
+    v2s = [v for v in versions if FEATSET.get(v) == "v2"]
+    r2 = hist2 = None
+    if v2s:
+        order = sorted(caches or {season: cache})
+        prev = (caches or {}).get(order[order.index(season) - 1]) if season in order and order.index(season) > 0 else None
+        r2 = F2.add_time_index(F2.rows_v2(cache, prev), season)
+        r2 = r2[~r2["is_target"]]
+        hist2 = F2.pooled_history(caches, season, cache_rows=pool_cache) if caches else pd.DataFrame()
+        F._team_cache.clear()
     done = sorted(rows["round"].unique().tolist())
-    want = [r for r in (rounds or done) if r >= START_ROUND and r in done]
+    lo = EARLY_FROM if v2s else START_ROUND
+    want = [r for r in (rounds or done) if r >= lo and r in done]
     out = []
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     for r in want:
+        early = r < START_ROUND
         tr, te = time_split(rows, r)
         te = te[te["n_played"] >= 1]        # προβλέψεις μόνο για όσους έχουν παίξει τουλάχιστον μία φορά (όπως στο site)
-        if len(tr) < MIN_TRAIN or te.empty:
+        if te.empty or (not early and len(tr) < MIN_TRAIN) or (early and (hist2 is None or len(hist2) < MIN_TRAIN)):
             continue
         ctx = game_context(cache, r, tt)
         base = te[["c", "round", "team", "opp", "home", "pos", *[c for c in SNAPSHOT if c != "home"], "after_absence", "role_change", "new_player", "prev_missed", "y_min", "y_pir"]].copy()
         base["season"] = season
+        base["early"] = int(early)
         base["pwin"] = base["team"].map(lambda t: ctx.get(t, {}).get("pwin", 0.5))
         base["won"] = base["team"].map(lambda t: ctx.get(t, {}).get("won", 0))
         base["exp_starter"] = (base["start_rate5"] >= 0.5).astype(int)
@@ -122,12 +138,21 @@ def walk_forward(cache: dict, season: str, versions: list[str] | None = None, ro
         base["price"] = np.round(np.clip(4 + 0.75 * base["pir10"].clip(lower=0), 4, 24), 1)
         base["actual_fp"] = base["y_pir"] * np.where(base["won"] == 1, 1.1, 1.0)
         base["generated_at"] = now
-        preds = predict_baselines(tr, te)
+        preds = predict_baselines(tr, te) if len(tr) >= 30 else {}
         for v in versions:
             try:
-                m = PirModel(v).fit(tr)
-                p = m.predict(te)
-                preds[v] = pd.DataFrame({"pir": p["proj_pir"].to_numpy(), "min": p["proj_min"].to_numpy(), "p10": p["p10"].to_numpy(), "p50": p["p50"].to_numpy(), "p90": p["p90"].to_numpy()}, index=te.index)
+                if FEATSET.get(v) == "v2":
+                    tr2 = pd.concat([hist2, r2[r2["round"] < r]], ignore_index=True)
+                    te2 = r2[r2["round"] == r].set_index("c")
+                    m = PirModel(v).fit(tr2)
+                    p = m.predict(te2.reset_index()).set_index("c")
+                    p = p.reindex(te["c"].to_numpy())
+                    base["has_prev"] = te2["has_prev"].reindex(te["c"].to_numpy()).to_numpy()
+                    preds[v] = pd.DataFrame({"pir": p["proj_pir"].to_numpy(), "min": p["proj_min"].to_numpy(), "p10": p["p10"].to_numpy(), "p50": p["p50"].to_numpy(), "p90": p["p90"].to_numpy()}, index=te.index)
+                elif not early:
+                    m = PirModel(v).fit(tr)
+                    p = m.predict(te)
+                    preds[v] = pd.DataFrame({"pir": p["proj_pir"].to_numpy(), "min": p["proj_min"].to_numpy(), "p10": p["p10"].to_numpy(), "p50": p["p50"].to_numpy(), "p90": p["p90"].to_numpy()}, index=te.index)
             except Exception as e:  # μια έκδοση που αποτυγχάνει δεν σταματά το backtest
                 log(f"[backtest] {season} r{r} {v}: {e}")
         wb = 1 + 0.1 * base["pwin"]
@@ -136,7 +161,7 @@ def walk_forward(cache: dict, season: str, versions: list[str] | None = None, ro
                 base[f"{v}|{k}"] = np.round(p[k].to_numpy(float), 2)
             base[f"{v}|fp"] = np.round(p["pir"].to_numpy(float) * wb, 2)
         out.append(base)
-        log(f"[backtest] {season} r{r}: train {len(tr)}, test {len(te)}, μοντέλα {', '.join(preds)}")
+        log(f"[backtest] {season} r{r}{' (early)' if early else ''}: train {len(tr)}, test {len(te)}, μοντέλα {', '.join(preds)}")
     return pd.concat(out, ignore_index=True) if out else pd.DataFrame()
 
 

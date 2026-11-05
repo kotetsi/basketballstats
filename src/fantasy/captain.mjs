@@ -3,9 +3,12 @@
 export const wb = p => 1 + 0.1 * (p.pwin ?? 0.5);
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
+// κανόνας «upside» για τον προτεινόμενο αρχηγό: αναμενόμενο + 1 τυπική απόκλιση. Στο backtest 2023-26 (Model Performance)
+// έδωσε περισσότερους πόντους αρχηγού από την επιλογή με το απλό αναμενόμενο: ο αρχηγός διπλασιάζεται, άρα μετράει το ταβάνι.
+export const CAP_SD = 1.0;
 export function capPoints(p) {
-  const k = 2 * wb(p);
-  return { exp: +(k * (p.pp || 0)).toFixed(1), floor: +(k * (p.p10 || 0)).toFixed(1), median: +(k * (p.p50 || 0)).toFixed(1), ceiling: +(k * (p.p90 || 0)).toFixed(1) };
+  const k = 2 * wb(p), sd = Math.max(0, ((p.p90 || 0) - (p.p10 || 0)) / 2.5631);
+  return { exp: +(k * (p.pp || 0)).toFixed(1), floor: +(k * (p.p10 || 0)).toFixed(1), median: +(k * (p.p50 || 0)).toFixed(1), ceiling: +(k * (p.p90 || 0)).toFixed(1), upside: +(k * ((p.pp || 0) + CAP_SD * sd)).toFixed(1) };
 }
 
 /**
@@ -47,10 +50,10 @@ export function adviseCaptain(lineup, players, curTurn = 0) {
   const ok = rows.filter(r => !r.warn || r.warn === 'doubtful');
   const pick = f => (ok.length ? ok.reduce((a, b) => (f(b) > f(a) ? b : a)) : null);
   const safest = pick(r => r.floor * (1 - r.risk / 100));
-  const best = pick(r => r.median);
+  const best = pick(r => r.upside);
   const ceiling = pick(r => r.ceiling);
   const cur = rows.find(r => r.c === lineup.captain) || null;
-  const compare = cur && best ? { vsBest: +(best.median - cur.median).toFixed(1), vsCeiling: +(ceiling.ceiling - cur.ceiling).toFixed(1), vsSafe: +(safest.floor - cur.floor).toFixed(1) } : null;
+  const compare = cur && best ? { vsBest: +(best.upside - cur.upside).toFixed(1), vsCeiling: +(ceiling.ceiling - cur.ceiling).toFixed(1), vsSafe: +(safest.floor - cur.floor).toFixed(1) } : null;
   // swap advisor: αν ο αρχηγός παίζει νωρίτερα από άλλον βασικό, άλλαξε αν φέρει λιγότερο από την εκτίμηση εκείνου
   const capP = P.get(lineup.captain);
   let swap = null;

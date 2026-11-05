@@ -124,7 +124,7 @@ class TestCaptain(unittest.TestCase):
             for i in range(10):
                 rows.append({"season": "S", "round": r, "c": f"p{i}", "exp_starter": 1, "n_played": 5, "m|fp": float(i), "m|p10": i - 3.0, "m|p90": i + 3.0,
                              "y_pir": float(i if r != 3 else 9 - i), "actual_fp": float(i if r != 3 else 9 - i)})
-        res = captain_eval(pd.DataFrame(rows), "m")
+        res = captain_eval(pd.DataFrame(rows), "m", "mean")
         picks = {p["round"]: p for p in res["picks"]}
         self.assertEqual(picks[1]["c"], "p9")
         self.assertEqual(picks[1]["rank"], 1)
@@ -135,6 +135,12 @@ class TestCaptain(unittest.TestCase):
         self.assertEqual(picks[3]["top5"], 0)
         self.assertAlmostEqual(res["best_rate"], round(2 / 3, 3))
         self.assertTrue(res["hidden"])                  # n=3 < 30
+
+    def test_upside_rule_prefers_ceiling(self):
+        # ίδιο αναμενόμενο, ο B έχει μεγαλύτερο εύρος: με τον κανόνα upside γίνεται αρχηγός
+        rows = [{"season": "S", "round": 1, "c": c, "exp_starter": 1, "n_played": 5, "pwin": 0.5, "m|pir": 15.0, "m|fp": 15.75, "m|p10": 15 - w, "m|p90": 15 + w,
+                 "y_pir": y, "actual_fp": y} for c, w, y in (("A", 3.0, 10.0), ("B", 10.0, 30.0))]
+        self.assertEqual(captain_eval(pd.DataFrame(rows), "m", "upside")["picks"][0]["c"], "B")
 
 
 class TestCompare(unittest.TestCase):

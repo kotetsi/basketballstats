@@ -69,7 +69,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const args = process.argv.slice(2), force = args.includes('--force');
   const seasons = args.filter(a => /^E\d{4}$/.test(a));
   await fs.mkdir(OUT, { recursive: true });
-  for (const S of seasons.length ? seasons : ['E2023', 'E2024', 'E2025']) {
+  for (const S of seasons.length ? seasons : ['E2020', 'E2021', 'E2022', 'E2023', 'E2024', 'E2025']) {
     const f = path.join(OUT, `${S}.json`);
     if (!force) { try { await fs.access(f); console.log(`[hist] ${S}: υπάρχει ήδη`); continue; } catch { /* λείπει */ } }
     try {

@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import json
 import math
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -20,7 +21,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 from features import build_rows, game_date, team_tables, team_ratings_before, SECS, PIR  # noqa: E402
-from model import MODEL_VERSION, PirModel, backtest, ncdf  # noqa: E402
+from model import FEATSET, MODEL_VERSION, PirModel, backtest, ncdf  # noqa: E402
+import features2 as F2  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "fantasy"
@@ -76,10 +78,28 @@ def main():
     if target is None:
         log("no upcoming round, nothing to project")
         return
-    rows = build_rows(cache, target)
+    v2 = FEATSET.get(MODEL_VERSION) == "v2"
+    caches, season = {}, None
+    if v2:
+        # v2: features με την προηγούμενη σεζόν + εκπαίδευση και στις 2 προηγούμενες σεζόν (data/fantasy/hist)
+        season = os.environ.get("SEASON") or json.loads((ROOT / "site.config.json").read_text(encoding="utf-8")).get("season", "E2026")
+        for f in sorted((ROOT / "data" / "fantasy" / "hist").glob("E*.json")):
+            if f.stem < season:
+                caches[f.stem] = json.loads(f.read_text(encoding="utf-8"))
+        caches[season] = cache
+        order = sorted(caches)
+        prev_cache = caches.get(order[order.index(season) - 1]) if order.index(season) > 0 else None
+
+    def make_rows(rr):
+        if v2:
+            return F2.add_time_index(F2.rows_v2(cache, prev_cache, rr), season)
+        return build_rows(cache, rr)
+
+    rows = make_rows(target)
     done_rounds = sorted({g[0] for g in games if g[6]})
     hist_rows = rows[~rows["is_target"]]
-    model = PirModel().fit(hist_rows)
+    train_rows = pd.concat([F2.pooled_history(caches, season), hist_rows], ignore_index=True) if v2 else hist_rows
+    model = PirModel().fit(train_rows)
     tgt = rows[rows["is_target"]].reset_index(drop=True)
     pred = model.predict(tgt)
     facts = model.factors(tgt)
@@ -158,7 +178,7 @@ def main():
         rr = target + k
         if not any(g[0] == rr for g in games):
             break
-        rows_k = build_rows(cache, rr)
+        rows_k = make_rows(rr)
         tk = rows_k[rows_k["is_target"]].reset_index(drop=True)
         if not len(tk):
             break

@@ -67,12 +67,16 @@ def complete_rounds(cache: dict) -> list[int]:
     return sorted(r for r, v in by.items() if v and all(v))
 
 
+CACHES: dict = {}
+POOL: dict = {}
+
+
 def update_season(season: str, f: Path | None, full: bool) -> pd.DataFrame:
     pf = PERF / f"pred_{season}.csv.gz"
     old = pd.DataFrame()
     if pf.exists() and not full:
         old = pd.read_csv(pf, dtype={"c": str})
-    cache = load_cache(season, f)
+    cache = CACHES.get(season) or load_cache(season, f)
     rounds = complete_rounds(cache)
     want_models = model_versions()
     have_models = models_in(old) if len(old) else []
@@ -86,7 +90,7 @@ def update_season(season: str, f: Path | None, full: bool) -> pd.DataFrame:
         log(f"{season}: ενημερωμένο ({len(old)} γραμμές)")
         return old
     t0 = time.time()
-    new = walk_forward(cache, season, want_models, todo, log=log)
+    new = walk_forward(cache, season, want_models, todo, log=log, caches=CACHES, pool_cache=POOL)
     df = pd.concat([old, new], ignore_index=True) if len(old) else new
     if len(df):
         df = df.sort_values(["round", "c"]).reset_index(drop=True)
@@ -137,17 +141,44 @@ def section(df: pd.DataFrame, v: str) -> dict:
     }
 
 
+def early_section(early: pd.DataFrame) -> dict:
+    """2η–3η αγωνιστική: μόνο όσα μοντέλα προβλέπουν τόσο νωρίς (το v2 με τις προηγούμενες σεζόν και τα baselines)."""
+    if early.empty:
+        return {"n": 0, "models": []}
+    ms = [m for m in models_in(early) if early[f"{m}|pir"].notna().any()]
+    common = early.dropna(subset=[f"{m}|pir" for m in ms])
+    return {"n": int(len(common)), "rounds": sorted(int(x) for x in common["round"].unique()), "models": [{"model": m, **error_metrics(common["y_pir"], common[f"{m}|pir"], common["pir10"])} for m in ms]}
+
+
+def prev_section(df: pd.DataFrame, models: list[str]) -> list[dict]:
+    """Παίκτες με/χωρίς ιστορικό προηγούμενης σεζόν: πού κερδίζει το v2."""
+    if "has_prev" not in df.columns or df["has_prev"].isna().all():
+        return []
+    out = []
+    common = df.dropna(subset=[f"{m}|pir" for m in models])
+    for k, g in common.groupby(common["has_prev"].fillna(0).astype(int)):
+        out.append({"group": "returning" if k == 1 else "new_to_league", "n": int(len(g)), "models": {m: error_metrics(g["y_pir"], g[f"{m}|pir"]).get("mae") for m in models}})
+    return out
+
+
 def report(dfs: dict[str, pd.DataFrame], reg: dict) -> dict:
     allp = pd.concat([d for d in dfs.values() if len(d)], ignore_index=True)
+    if "early" not in allp.columns:
+        allp["early"] = 0
+    allp["early"] = allp["early"].fillna(0).astype(int)
+    early = allp[allp["early"] == 1].copy()
+    allp = allp[allp["early"] == 0].copy()
     models = [m for m in models_in(allp)]
     active = reg.get("active") if reg.get("active") in models else ("pir-2stage-v1" if "pir-2stage-v1" in models else models[0])
     prev = previous_version(reg)
-    allp = add_groups(allp, active)
+    full = allp
+    allp = add_groups(allp[allp[f"{active}|pir"].notna()], active)   # οι μετρικές του ενεργού μοντέλου: μόνο όπου έχει προβλέψεις
     cur = allp[allp["season"] == CUR]
     ser = round_series(allp, active)
     cap = captain_eval(allp, active)
+    cap_rules = {m: {r: {k: x for k, x in captain_eval(full, m, r).items() if k not in ("picks", "risk")} for r in ("mean", "upside")} for m in models}
     cap_cur = captain_eval(cur, active) if len(cur) else {"n": 0, "hidden": True, "picks": []}
-    hist = {m: [{"season": x["season"], "round": x["round"], "n": x["n"], "mae": x["mae"]} for x in round_series(allp, m)] for m in models}
+    hist = {m: [{"season": x["season"], "round": x["round"], "n": x["n"], "mae": x["mae"]} for x in round_series(full[full[f"{m}|pir"].notna()], m)] for m in models}
     out = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "active": active, "previous": prev, "current_season": CUR, "min_n": MIN_N,
@@ -161,12 +192,14 @@ def report(dfs: dict[str, pd.DataFrame], reg: dict) -> dict:
         "teams_current": by_group(cur, "team", "y_pir", f"{active}|pir", "pir10") if len(cur) else [],
         "teams_all": by_group(allp, "team", "y_pir", f"{active}|pir", "pir10"),
         "captain": {k: v for k, v in cap.items() if k != "picks"}, "captain_current": {k: v for k, v in cap_cur.items() if k != "picks"},
-        "captain_picks": cap.get("picks", [])[-60:],
+        "captain_picks": cap.get("picks", [])[-60:], "captain_rules": cap_rules,
         "series": ser, "rolling5": rolling(ser, 5), "rolling10": rolling(ser, 10),
         "rolling5_rmse": rolling(ser, 5, "rmse"), "rolling5_corr": rolling(ser, 5, "corr"),
         "history": hist,
-        "compare": {"all": compare_models(allp, models), "current": compare_models(cur, models) if len(cur) else []},
-        "alerts": detect(allp, active, prev if prev in models else None, ser),
+        "compare": {"all": compare_models(full, models), "current": compare_models(cur, models) if len(cur) else []},
+        "alerts": detect(full.dropna(subset=[f"{active}|pir"]), active, prev if prev in models else None, ser),
+        "early": early_section(early),
+        "by_prev": prev_section(full, models),
     }
     return out
 
@@ -184,6 +217,11 @@ def main(argv=None):
         return
     t0 = time.time()
     dfs = {}
+    for s, f in seasons_available().items():
+        try:
+            CACHES[s] = load_cache(s, f)
+        except FileNotFoundError:
+            pass
     for s, f in seasons_available().items():
         if a.season and s != a.season:
             pf = PERF / f"pred_{s}.csv.gz"

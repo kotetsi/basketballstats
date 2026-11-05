@@ -147,7 +147,7 @@ function viewAlerts() {
   const t = team(), lu = lineupFor(t);
   if (!lu) return `<section class="fmsec"><h2>${esc(L.tabs.alerts)}</h2><p>${esc(L.needTen)}</p></section>`;
   const al = buildAlerts(lu, D.players, NEWS, { curTurn: S.turn ?? todayTurn(), now: D.generated });
-  const msg = a => esc((L.al[a.kind] || a.kind).replace('{p}', P.get(a.c)?.dn || a.c).replace('{b}', f1(a.before)).replace('{a}', f1(a.after)));
+  const msg = a => a.kind === 'press' ? esc((L.al.press || '{title}').replace('{p}', P.get(a.c)?.dn || a.c).replace('{title}', a.title || '')) + (a.link ? ` <a href="${esc(a.link)}" rel="nofollow noopener" target="_blank">↗</a>` : '') : esc((L.al[a.kind] || a.kind).replace('{p}', P.get(a.c)?.dn || a.c).replace('{b}', f1(a.before)).replace('{a}', f1(a.after)));
   return `<section class="fmsec"><h2>${esc(L.tabs.alerts)} <small>${al.length}</small></h2><ul class="fmalerts">${al.map(a => `<li class="sev-${a.severity}"><span class="sev">${esc(L.sev[a.severity])}</span><div><b>${pLink(a.c)}</b> <small>${tm(a.team)} · ${a.slots.map(s => esc(L.slot[s] || s)).join(', ')}</small><p>${msg(a)}</p><p class="sub">${esc(L.act[a.action] || '')} · ${esc(L.src[a.source] || a.source)} · ${new Date(a.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></div></li>`).join('') || `<li>${esc(L.noAlerts)}</li>`}</ul>
 <p class="sub">${esc(L.alertNote)}</p></section>`;
 }
@@ -156,7 +156,7 @@ function viewAlerts() {
 function viewNews() {
   const mine = new Set(team().roster);
   return `<section class="fmsec"><h2>${esc(L.tabs.news)}</h2><ul class="fmnews">${NEWS.slice(0, 120).map(n => { const p = P.get(n.c); return `<li class="${mine.has(n.c) ? 'mine' : ''}"><span class="nk nk-${n.kind}">${esc(L.nk[n.kind] || n.kind)}</span> <b>${p ? pLink(n.c) : esc(n.n)}</b> <small><a href="${X.teamBase[n.t] || '#'}">${tm(n.t)}</a></small>
-<p>${esc((L.nm[n.kind] || '').replace('{b}', f1(n.before)).replace('{a}', f1(n.after)).replace('{m3}', n.detail?.m3 ?? '').replace('{m10}', n.detail?.m10 ?? '').replace('{from}', X.teams[n.detail?.from] || n.detail?.from || '').replace('{to}', X.teams[n.detail?.to] || n.detail?.to || ''))}${p ? ` · ${esc(L.proj)} ${f1(p.pp)}` : ''}</p>
+<p>${n.kind === 'press' ? `<a href="${esc(n.link)}" rel="nofollow noopener" target="_blank">${esc(n.title)}</a>` : esc((L.nm[n.kind] || '').replace('{b}', f1(n.before)).replace('{a}', f1(n.after)).replace('{m3}', n.detail?.m3 ?? '').replace('{m10}', n.detail?.m10 ?? '').replace('{from}', X.teams[n.detail?.from] || n.detail?.from || '').replace('{to}', X.teams[n.detail?.to] || n.detail?.to || ''))}${p ? ` · ${esc(L.proj)} ${f1(p.pp)}` : ''}</p>
 <p class="sub">${mine.has(n.c) ? '⭐ ' + esc(L.inTeam) + ' · ' : ''}${esc(L.na[n.kind] || '')} · ${esc(L.src[n.source] || n.source)} · ${new Date(n.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></li>`; }).join('') || `<li>${esc(L.noNews)}</li>`}</ul></section>`;
 }
 
@@ -167,7 +167,7 @@ function capCard(kind, r) {
   const p = P.get(r.c);
   return `<div class="capcard ${kind}"><span class="sub">${esc(L.capK[kind])}</span><h3>${pLink(r.c)}</h3><p class="sub">${tm(p.t)} · ${esc(L.pos[p.pos])} · ${f1(p.price)} cr · ${dayL(p.day)}</p>
 <p class="capbig"><b>${f1(kind === 'safest' ? r.floor : kind === 'ceiling' ? r.ceiling : r.median)}</b> <small>${esc(kind === 'safest' ? 'floor' : kind === 'ceiling' ? 'ceiling (P90)' : 'median')}</small></p>
-<p class="sub">floor ${f1(r.floor)} · median ${f1(r.median)} · ceiling ${f1(r.ceiling)} · risk ${riskB(r.risk)} · captain value ${f1(r.value)}</p>
+<p class="sub">floor ${f1(r.floor)} · median ${f1(r.median)} · upside ${f1(r.upside)} · ceiling ${f1(r.ceiling)} · risk ${riskB(r.risk)} · captain value ${f1(r.value)}</p>
 <button type="button" data-copycap="${r.c}" data-kind="${kind}">${esc(L.copy)}</button></div>`;
 }
 function viewCaptain() {
@@ -177,7 +177,7 @@ function viewCaptain() {
   const A = adviseCaptain(lu, D.players, cur);
   const all = [...lu.start, lu.sixth, ...lu.bench].filter(Boolean);
   const warn = A.warnings.map(w => `<p class="fmwarn">⚠ ${esc((L.capW[w.k] || w.k).replace('{p}', P.get(w.c)?.dn || ''))}</p>`).join('');
-  const cmp = A.compare && A.current ? `<p>${esc(L.vsCurrent.replace('{p}', P.get(A.current.c)?.dn || ''))}: median ${sg(A.compare.vsBest)} · floor ${sg(A.compare.vsSafe)} · ceiling ${sg(A.compare.vsCeiling)}</p>` : '';
+  const cmp = A.compare && A.current ? `<p>${esc(L.vsCurrent.replace('{p}', P.get(A.current.c)?.dn || ''))}: upside ${sg(A.compare.vsBest)} · floor ${sg(A.compare.vsSafe)} · ceiling ${sg(A.compare.vsCeiling)}</p>` : '';
   const swap = A.swap ? `<p class="fmswap">🔁 ${esc(L.capSwitch.replace('{a}', P.get(A.swap.from)?.dn || '').replace('{x}', A.swap.thresholdPIR).replace('{b}', P.get(A.swap.to)?.dn || ''))}</p>` : '';
   const row = c => { const p = P.get(c), r = captainRow(p, { played: p.day != null && p.day < cur }), st = lu.start.includes(c);
     return `<tr class="${st ? '' : 'nostart'}"><td class="l">${c === lu.captain ? '© ' : ''}${pLink(c)}<small class="tmsub">${tm(p.t)} · ${esc(L.pos[p.pos])} · ${f1(p.price)} cr${st ? '' : ' · ' + esc(L.notStarter)}${r.played ? ' · ' + esc(L.playedShort) : ''}${p.small ? ' · ⚠ ' + esc(L.small) : ''}</small></td><td>${f1(p.pp)}</td><td><b>${f1(r.exp)}</b></td><td>${f1(r.floor)}</td><td>${f1(r.median)}</td><td>${f1(r.ceiling)}</td><td>${riskB(r.risk)}</td><td>${f1(r.value)}</td><td>${esc(L.st[p.status] || p.status)}</td><td>${f1(p.pm)}</td><td>${p.start == null ? '–' : Math.round(100 * p.start) + '%'}</td><td>${p.odrtg == null ? '–' : f1(p.odrtg)} <small>${p.opp ? (p.home ? 'vs ' : '@') + esc(p.opp) : ''}</small></td><td>${p.gpace == null ? '–' : f1(p.gpace)}</td><td>${p.home ? esc(L.home) : esc(L.away)}</td><td>${p.rest ?? '–'}</td><td>${p.b2b ? 'B2B' : '–'}</td><td>${f1(p.l3)} / ${f1(p.l5)} / ${f1(p.l10)}</td><td>${f1(p.hcap)} <small>${p.hhit == null ? '' : Math.round(100 * p.hhit) + '% ≥20'}</small></td><td>${r.diff}</td></tr>`; };

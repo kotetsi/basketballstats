@@ -12,15 +12,25 @@ def captain_points(fp):
     return 2 * np.asarray(fp, float)
 
 
-def pick_captain(g: pd.DataFrame, v: str) -> pd.Series | None:
+CAP_SD = 1.0   # κανόνας «upside»: αναμενόμενο + 1 τυπική απόκλιση (επιλέχθηκε στο backtest 2023-26· ο αρχηγός παίρνει ×2, άρα μετράει το ταβάνι)
+
+
+def captain_score(g: pd.DataFrame, v: str, rule: str = "upside"):
+    if rule == "mean":
+        return g[f"{v}|fp"]
+    sd = (g[f"{v}|p90"] - g[f"{v}|p10"]) / 2.5631
+    return (g[f"{v}|pir"] + CAP_SD * sd) * (1 + 0.1 * g["pwin"])
+
+
+def pick_captain(g: pd.DataFrame, v: str, rule: str = "upside") -> pd.Series | None:
     pool = g[(g["exp_starter"] == 1) & (g["n_played"] >= 3)]
     if pool.empty:
         pool = g
-    return None if pool.empty else pool.loc[pool[f"{v}|fp"].idxmax()]
+    return None if pool.empty else pool.loc[captain_score(pool, v, rule).idxmax()]
 
 
-def evaluate_round(g: pd.DataFrame, v: str) -> dict | None:
-    pick = pick_captain(g, v)
+def evaluate_round(g: pd.DataFrame, v: str, rule: str = "upside") -> dict | None:
+    pick = pick_captain(g, v, rule)
     if pick is None:
         return None
     act = captain_points(g["actual_fp"])
@@ -34,15 +44,16 @@ def evaluate_round(g: pd.DataFrame, v: str) -> dict | None:
             "width": round(width, 1), "in_range": int(pick[f"{v}|p10"] <= pick["y_pir"] <= pick[f"{v}|p90"])}
 
 
-def captain_eval(df: pd.DataFrame, v: str) -> dict:
-    picks = [x for _, g in df.groupby(["season", "round"]) if (x := evaluate_round(g, v))]
+def captain_eval(df: pd.DataFrame, v: str, rule: str = "upside") -> dict:
+    df = df.dropna(subset=[f"{v}|fp", f"{v}|p10", f"{v}|p90"])
+    picks = [x for _, g in df.groupby(["season", "round"]) if (x := evaluate_round(g, v, rule))]
     if not picks:
         return {"n": 0, "hidden": True, "picks": []}
     P = pd.DataFrame(picks)
     n = len(P)
     summary = {"n": n, "hidden": n < MIN_N, "best_rate": _f(P["best"].mean()), "top5_rate": _f(P["top5"].mean()), "top10_rate": _f(P["top10"].mean()),
                "median_pct": _f(P["pct"].median()), "avg_rank": _f(P["rank"].mean(), 1), "avg_missed": _f(P["missed"].mean(), 1),
-               "mae": _f(P["error"].abs().mean(), 1), "bias": _f(P["error"].mean(), 1)}
+               "mae": _f(P["error"].abs().mean(), 1), "bias": _f(P["error"].mean(), 1), "avg_points": _f(P["actual"].mean(), 1), "rule": rule}
     # calibration ρίσκου: οι προτάσεις χωρισμένες σε τρία ίσα μέρη κατά το εύρος P10–P90 (μικρό = «ασφαλής», μεγάλο = «ρισκαδόρικη»)
     risk = []
     if n >= 3:

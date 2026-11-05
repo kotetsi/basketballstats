@@ -86,6 +86,11 @@ export function evalRound(rows, models, { nRandom = N_RANDOM, seed = 1 } = {}) {
     const s = solve(pool, co, { budget: BUDGET, maxPerTeam: MAX_TEAM, mode: MODE, timeLimitMs: 6000 });
     if (!s.start) { out.models[m] = { status: s.status }; continue; }
     const lu = asLineup(s), pts = lineupPoints(lu, act);
+    // κανόνας αρχηγού «upside» (όπως ο Captain Advisor): ίδια σύνθεση, αρχηγός = μέγιστο (εκτίμηση + 1 τυπ. απόκλιση) × μπόνους νίκης
+    const PP = new Map(pool.map(p => [p.c, p]));
+    const upOf = c => { const p = PP.get(c); return ((p.pp || 0) + Math.max(0, (p.p90 - p.p10) / 2.5631)) * (1 + 0.1 * (p.pwin ?? 0.5)); };
+    const capUp = lu.start.reduce((a, b) => (upOf(b) > upOf(a) ? b : a));
+    const ptsUp = lineupPoints({ ...lu, captain: capUp }, act);
     // ακρίβεια αρχηγού: ήταν ο καλύτερος βασικός της σύνθεσης;
     const capBest = Math.max(...lu.start.map(c => act.get(c) ?? 0));
     // ακρίβεια τοποθέτησης (πάγκος): οι ίδιοι 10, καλύτερη δυνατή τοποθέτηση με γνώση των αποτελεσμάτων
@@ -94,7 +99,7 @@ export function evalRound(rows, models, { nRandom = N_RANDOM, seed = 1 } = {}) {
     out.models[m] = { points: +pts.toFixed(1), projected: s.objective, pct: +percentile(pts, rand).toFixed(4), rank: 1 + rand.filter(x => x > pts).length,
       above_random: +(pts - mean).toFixed(1), below_best: out.best != null ? +(out.best - pts).toFixed(1) : null,
       captain: lu.captain, captain_pts: +(act.get(lu.captain) ?? 0).toFixed(1), captain_best: (act.get(lu.captain) ?? 0) >= capBest - 1e-9 ? 1 : 0,
-      arrangement: +(pts / (bestArr || 1)).toFixed(3), arrangement_opt: pts >= bestArr - 0.05 ? 1 : 0, missed_arrangement: +(bestArr - pts).toFixed(1), status: s.status };
+      arrangement: +(pts / (bestArr || 1)).toFixed(3), points_capup: +ptsUp.toFixed(1), captain_up: capUp, captain_up_best: (act.get(capUp) ?? 0) >= capBest - 1e-9 ? 1 : 0, pct_capup: +percentile(ptsUp, rand).toFixed(4), arrangement_opt: pts >= bestArr - 0.05 ? 1 : 0, missed_arrangement: +(bestArr - pts).toFixed(1), status: s.status };
   }
   return out;
 }
@@ -108,7 +113,8 @@ export function summarize(rounds, models) {
     const pcts = xs.map(x => x.pct).sort((a, b) => a - b);
     out[m] = { n, hidden: n < 30, avg_pct: avg('pct'), median_pct: +pcts[Math.floor(n / 2)].toFixed(3), top10: +(xs.filter(x => x.pct >= 0.9).length / n).toFixed(3), top25: +(xs.filter(x => x.pct >= 0.75).length / n).toFixed(3),
       avg_rank: +avg('rank').toFixed(1), above_random: +avg('above_random').toFixed(1), below_best: +avg('below_best').toFixed(1), points: +avg('points').toFixed(1),
-      captain_acc: avg('captain_best'), arrangement: avg('arrangement'), arrangement_opt: avg('arrangement_opt') };
+      captain_acc: avg('captain_best'), arrangement: avg('arrangement'), arrangement_opt: avg('arrangement_opt'),
+      points_capup: xs.every(x => x.points_capup != null) ? +avg('points_capup').toFixed(1) : null, captain_acc_up: xs.every(x => x.captain_up_best != null) ? avg('captain_up_best') : null, median_pct_capup: xs.every(x => x.pct_capup != null) ? +xs.map(x => x.pct_capup).sort((a, b) => a - b)[Math.floor(n / 2)].toFixed(3) : null };
   }
   return out;
 }
