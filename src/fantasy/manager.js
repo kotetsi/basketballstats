@@ -17,8 +17,8 @@ const sg = v => (v == null ? '–' : `<span class="${v > 0 ? 'up' : v < 0 ? 'dn'
 let D, P, NEWS = [], HEAD = [], S, tab = X.tab || 'team';
 const LANG = String(X.loc || 'el').slice(0, 2);
 // τίτλος στη γλώσσα της σελίδας (αυτόματη μετάφραση), αλλιώς το πρωτότυπο
-const trTitle = h => (h.i18n && h.i18n[LANG]) || h.title;
-const trNote = h => (h.i18n && h.i18n[LANG] && h.src_lang !== LANG ? ` <small class="trnote" title="${esc(h.title)}">· ${esc(L.autoTr || '')} ${esc(h.title)}</small>` : '');
+const trTitle = h => (h.i18n && (h.i18n[LANG] || (LANG !== 'el' && h.i18n.en))) || h.title;   // σερβικά: χωρίς μοντέλο → αγγλικά
+const trNote = h => (trTitle(h) !== h.title ? ` <small class="trnote" title="${esc(h.title)}">· ${esc(L.autoTr || '')} ${esc(h.title)}</small>` : '');
 const team = () => S.teams[S.active];
 const rosterOf = t => t.roster.map(c => P.get(c)).filter(Boolean);
 const save = () => store.set(S);

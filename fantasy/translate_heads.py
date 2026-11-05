@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -28,6 +29,12 @@ MAX_NEW = 120   # όριο τίτλων ανά εκτέλεση (χρόνος)
 
 def log(*a):
     print("[translate]", *a, flush=True)
+
+
+def prep(t: str) -> str:
+    """Λέξεις ολόκληρες σε κεφαλαία (π.χ. «ΒΑΣΙΛΙΑΣ», «ΘΗΡΙΟ») τα μοντέλα τις αφήνουν αμετάφραστες ή τις μπερδεύουν:
+    γίνονται πεζά με κεφαλαίο το πρώτο γράμμα. Οι συντομογραφίες (MVP, NBA, ≤ 3 γράμματα) μένουν ως έχουν."""
+    return re.sub(r"\b([^\W\d_]{4,})\b", lambda m: m.group(1).capitalize() if m.group(1).isupper() else m.group(1), t)
 
 
 def detect(title: str, feed_lang: str) -> str:
@@ -102,7 +109,7 @@ class Argos:
 
     def translate_batch(self, texts, a, b):
         tr, sp, prefix = self.model(a, b)
-        toks = [sp.encode(t, out_type=str) for t in texts]
+        toks = [sp.encode(prep(t), out_type=str) for t in texts]
         kw = {"target_prefix": [[prefix]] * len(toks)} if prefix else {}
         res = tr.translate_batch(toks, beam_size=4, max_decoding_length=160, replace_unknowns=True, **kw)
         out = []
@@ -110,7 +117,7 @@ class Argos:
             t = r.hypotheses[0]
             if prefix and t and t[0] == prefix:
                 t = t[1:]
-            out.append(sp.decode(t).replace("▁", " ").strip())
+            out.append(html.unescape(sp.decode(t).replace("▁", " ").strip()))
         return out
 
     def translate(self, texts, a, b):
