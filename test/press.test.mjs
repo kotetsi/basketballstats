@@ -20,9 +20,9 @@ test('αναγνώριση παικτών σε λατινικά και ελλη�
   assert.equal(matchPlayers('Team news', idx).length, 0);
 });
 test('RSS: τίτλος, link, ημερομηνία (CDATA, entities)', () => {
-  const xml = `<rss><channel><item><title><![CDATA[Nunn out &amp; doubtful]]></title><link>https://x.y/a</link><pubDate>Thu, 05 Nov 2026 10:00:00 +0000</pubDate><description>κείμενο που δεν κρατάμε</description></item></channel></rss>`;
+  const xml = `<rss><channel><item><title><![CDATA[Nunn out &amp; doubtful &#8220;x&#8221; &#038;]]></title><link>https://x.y/a</link><pubDate>Thu, 05 Nov 2026 10:00:00 +0000</pubDate><description>κείμενο που δεν κρατάμε</description></item></channel></rss>`;
   const it = parseRSS(xml);
-  assert.equal(it.length, 1); assert.equal(it[0].title, 'Nunn out & doubtful'); assert.equal(it[0].link, 'https://x.y/a'); assert.ok(it[0].ts.startsWith('2026-11-05'));
+  assert.equal(it.length, 1); assert.equal(it[0].title, 'Nunn out & doubtful “x” &'); assert.equal(it[0].link, 'https://x.y/a'); assert.ok(it[0].ts.startsWith('2026-11-05'));
   assert.equal(Object.keys(it[0]).includes('description'), false);
 });
 test('ροή τίτλων: ομάδες και EuroLeague', () => {
@@ -30,4 +30,7 @@ test('ροή τίτλων: ομάδες και EuroLeague', () => {
   assert.deepEqual(teamsIn('Ο Παναθηναϊκός πήρε το ντέρμπι με τον Ολυμπιακό'), ['OLY', 'PAN']);
   assert.deepEqual(teamsIn('NBA: Lakers win'), []);
   assert.equal(isEL('EuroLeague Round 10 preview'), true);
+  assert.deepEqual(teamsIn('Hapoel Jerusalem wins in EuroCup'), []);
+  assert.deepEqual(teamsIn('Ο Παρίσι παριστάνει'), []);
+  assert.deepEqual(teamsIn('Νίκη της Παρί'), ['PRS']);
 });

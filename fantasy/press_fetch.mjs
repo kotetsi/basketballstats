@@ -19,12 +19,13 @@ export const TEAM_KW = {
   MIL: ['olimpia milano', 'ea7', 'armani', 'αρμανι', 'ολιμπια μιλανο'], VIR: ['virtus', 'βιρτους'], MUN: ['bayern', 'μπαγερν'], ASV: ['asvel', 'βιλερμπαν'],
   PRS: ['paris basketball', 'παρι'], MCO: ['monaco', 'μονακο'], OLY: ['olympiacos', 'olympiakos', 'ολυμπιακ'], PAN: ['panathinaikos', 'παναθηναικ'],
   ULK: ['fenerbahce', 'φενερμπαχτσε', 'φενερ'], IST: ['anadolu efes', 'efes', 'εφες'], ZAL: ['zalgiris', 'ζαλγκιρις'], RED: ['crvena zvezda', 'red star', 'ερυθρος', 'τσρβενα'],
-  PAR: ['partizan', 'παρτιζαν'], TEL: ['maccabi', 'μακαμπι'], HTA: ['hapoel', 'χαποελ'], DUB: ['dubai', 'ντουμπαι'],
+  PAR: ['partizan', 'παρτιζαν'], TEL: ['maccabi tel aviv', 'maccabi playtika', 'μακαμπι'], HTA: ['hapoel tel aviv', 'hapoel ibi', 'χαποελ τελ αβιβ'], DUB: ['dubai', 'ντουμπαι'],
 };
 const EL_KW = ['euroleague', 'ευρωλιγκ', 'final four', 'φαιναλ φορ'];
 export function teamsIn(title) {
   const t = ` ${norm(title)} `, out = [];
-  for (const [c, ks] of Object.entries(TEAM_KW)) if (ks.some(k => t.includes(` ${k}`))) out.push(c);
+  // μικρές λέξεις (≤ 5 γράμματα) μόνο ως ολόκληρη λέξη· οι μεγαλύτερες και ως αρχή λέξης (ελληνικές καταλήξεις)
+  for (const [c, ks] of Object.entries(TEAM_KW)) if (ks.some(k => t.includes(k.length <= 5 ? ` ${k} ` : ` ${k}`))) out.push(c);
   return out;
 }
 export const isEL = title => { const t = norm(title); return EL_KW.some(k => t.includes(k)); };
@@ -66,7 +67,7 @@ export function matchPlayers(title, idx) {
 export function parseRSS(xml) {
   const items = [];
   for (const m of xml.matchAll(/<item\b[\s\S]*?<\/item>/g)) {
-    const get = tag => { const x = m[0].match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`)); return x ? x[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/, '$1').replace(/&amp;/g, '&').replace(/&#8217;|&rsquo;/g, '’').replace(/&#8211;/g, '–').replace(/&quot;/g, '"').replace(/&#039;|&#39;/g, "'").replace(/<[^>]+>/g, '').trim() : ''; };
+    const get = tag => { const x = m[0].match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`)); return x ? x[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/, '$1').replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&quot;/g, '"').replace(/&rsquo;/g, '’').replace(/&lsquo;/g, '‘').replace(/&ldquo;/g, '“').replace(/&rdquo;/g, '”').replace(/&ndash;/g, '–').replace(/&amp;/g, '&').replace(/<[^>]+>/g, '').trim() : ''; };
     const title = get('title'), link = get('link'), date = get('pubDate');
     if (title && /^https?:\/\//.test(link)) items.push({ title, link, ts: date ? new Date(date).toISOString() : null });
   }
