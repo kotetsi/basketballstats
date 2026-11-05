@@ -49,7 +49,7 @@ class Argos:
         if self.index is None:
             f = CACHE / "index.json"
             try:
-                with urllib.request.urlopen(INDEX, timeout=30) as r:
+                with urllib.request.urlopen(urllib.request.Request(INDEX, headers={"User-Agent": "ArgosTranslate"}), timeout=30) as r:
                     f.write_bytes(r.read())
             except Exception as e:
                 log("index: δεν κατέβηκε,", e, "(χρησιμοποιείται το αποθηκευμένο αν υπάρχει)")
@@ -71,9 +71,20 @@ class Argos:
         d = CACHE / f"{a}_{b}_{p.get('package_version', '0')}"
         if not d.exists():
             z = CACHE / f"{a}_{b}.zip"
-            url = (p.get("links") or [None])[0]
-            log(f"λήψη μοντέλου {a}→{b}: {url}")
-            urllib.request.urlretrieve(url, z)
+            log(f"λήψη μοντέλου {a}→{b}: {len(p.get('links') or [])} links")
+            last = None
+            for u in (p.get("links") or []):   # δοκιμάζει όλους τους mirrors
+                try:
+                    req = urllib.request.Request(u, headers={"User-Agent": "ArgosTranslate"})
+                    with urllib.request.urlopen(req, timeout=120) as r, open(z, "wb") as fo:
+                        fo.write(r.read())
+                    last = None
+                    break
+                except Exception as e:
+                    last = e
+                    log(f"  {u}: {e}")
+            if last:
+                raise last
             with zipfile.ZipFile(z) as zf:
                 zf.extractall(d)
             z.unlink()
@@ -105,6 +116,11 @@ class Argos:
     def translate(self, texts, a, b):
         if a == b:
             return texts
+        if b == "sr" and not self.has("en", "sr") and not self.has(a, "sr"):
+            # σερβικά (λατινικά): αν δεν υπάρχει μοντέλο, κροατικά ή βοσνιακά (σχεδόν ίδια γλώσσα στη λατινική γραφή)
+            for alt in ("hr", "bs"):
+                if self.has("en", alt) or self.has(a, alt):
+                    return self.translate(texts, a, alt)
         if self.has(a, b):
             return self.translate_batch(texts, a, b)
         if a != "en" and b != "en" and self.has(a, "en") and self.has("en", b):
@@ -122,7 +138,7 @@ def main():
     d = json.loads(HEADS.read_text(encoding="utf-8")) if HEADS.exists() else {"items": []}
     A = Argos()
     A.load_index()
-    todo = [x for x in d["items"] if any(t not in (x.get("i18n") or {}) for t in TARGETS)][:MAX_NEW]
+    todo = [x for x in d["items"] if any((x.get("i18n") or {}).get(t) is None for t in TARGETS)][:MAX_NEW]
     if not todo:
         log("τίποτα νέο")
         return
@@ -132,7 +148,7 @@ def main():
         x["src_lang"] = x.get("src_lang") or detect(x["title"], x.get("lang", "en"))
         x.setdefault("i18n", {})
         for t in TARGETS:
-            if t not in x["i18n"]:
+            if x["i18n"].get(t) is None:
                 groups.setdefault((x["src_lang"], t), []).append(x)
     for (a, b), xs in groups.items():
         try:

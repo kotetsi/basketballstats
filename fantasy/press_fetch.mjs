@@ -10,7 +10,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const FEEDS = [
   { id: 'eurohoops', lang: 'en', url: 'https://www.eurohoops.net/feed/' },
   { id: 'eurohoops_gr', lang: 'el', url: 'https://www.eurohoops.net/el/feed/' },
-  { id: 'sportando', lang: 'en', url: 'https://sportando.basketball/feed/' },
+  { id: 'sportando', lang: 'it', url: 'https://sportando.basketball/feed/' },
 ];
 const KEEP_DAYS = 21;
 // ομάδες της EuroLeague (για τη ροή τίτλων): λέξεις σε λατινικά και ελληνικά, χωρίς τόνους
