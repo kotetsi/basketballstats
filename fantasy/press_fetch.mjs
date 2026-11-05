@@ -9,10 +9,25 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const FEEDS = [
   { id: 'eurohoops', lang: 'en', url: 'https://www.eurohoops.net/feed/' },
-  { id: 'eurohoops_gr', lang: 'el', url: 'https://www.eurohoops.net/gr/feed/' },
+  { id: 'eurohoops_gr', lang: 'el', url: 'https://www.eurohoops.net/el/feed/' },
   { id: 'sportando', lang: 'en', url: 'https://sportando.basketball/feed/' },
 ];
 const KEEP_DAYS = 21;
+// ομάδες της EuroLeague (για τη ροή τίτλων): λέξεις σε λατινικά και ελληνικά, χωρίς τόνους
+export const TEAM_KW = {
+  MAD: ['real madrid', 'ρεαλ'], BAR: ['barcelona', 'barca', 'μπαρτσελονα', 'μπαρτσα'], BAS: ['baskonia', 'μπασκονια'], PAM: ['valencia basket', 'βαλενθια'],
+  MIL: ['olimpia milano', 'ea7', 'armani', 'αρμανι', 'ολιμπια μιλανο'], VIR: ['virtus', 'βιρτους'], MUN: ['bayern', 'μπαγερν'], ASV: ['asvel', 'βιλερμπαν'],
+  PRS: ['paris basketball', 'παρι'], MCO: ['monaco', 'μονακο'], OLY: ['olympiacos', 'olympiakos', 'ολυμπιακ'], PAN: ['panathinaikos', 'παναθηναικ'],
+  ULK: ['fenerbahce', 'φενερμπαχτσε', 'φενερ'], IST: ['anadolu efes', 'efes', 'εφες'], ZAL: ['zalgiris', 'ζαλγκιρις'], RED: ['crvena zvezda', 'red star', 'ερυθρος', 'τσρβενα'],
+  PAR: ['partizan', 'παρτιζαν'], TEL: ['maccabi', 'μακαμπι'], HTA: ['hapoel', 'χαποελ'], DUB: ['dubai', 'ντουμπαι'],
+};
+const EL_KW = ['euroleague', 'ευρωλιγκ', 'final four', 'φαιναλ φορ'];
+export function teamsIn(title) {
+  const t = ` ${norm(title)} `, out = [];
+  for (const [c, ks] of Object.entries(TEAM_KW)) if (ks.some(k => t.includes(` ${k}`))) out.push(c);
+  return out;
+}
+export const isEL = title => { const t = norm(title); return EL_KW.some(k => t.includes(k)); };
 
 export const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim();
 // σειρά: πρώτα επιστροφή (π.χ. «returns from injury»), μετά αμφίβολος, μετά τραυματισμός/εκτός
@@ -67,6 +82,9 @@ async function main() {
   const seen = new Set(old.items.map(x => x.link + '|' + x.c));
   const status = {};
   const add = [];
+  const hf = path.join(ROOT, 'data', 'fantasy', 'headlines.json');
+  let oldH = { items: [] }; try { oldH = JSON.parse(await fs.readFile(hf, 'utf8')); } catch { }
+  const headSeen = new Set(oldH.items.map(x => x.link)), heads = [];
   for (const F of FEEDS) {
     try {
       const r = await fetch(F.url, { headers: { accept: 'application/rss+xml, application/xml, text/xml', 'user-agent': 'basketballstats.eu news bot (headlines + links only)' } });
@@ -74,7 +92,14 @@ async function main() {
       const items = parseRSS(await r.text());
       status[F.id] = `ok (${items.length})`;
       for (const it of items) {
-        const kind = classify(it.title); if (!kind) continue;
+        const kind = classify(it.title);
+        // ροή τίτλων: ό,τι αφορά ομάδα ή παίκτη της EuroLeague (τίτλος + link + πηγή)
+        const pls = matchPlayers(it.title, idx), tms = teamsIn(it.title);
+        if ((pls.length || tms.length || isEL(it.title)) && !headSeen.has(it.link)) {
+          headSeen.add(it.link);
+          heads.push({ ts: it.ts || new Date().toISOString(), title: it.title.slice(0, 200), link: it.link, source: F.id, lang: F.lang, tag: kind, players: pls.map(p => p.c).slice(0, 4), teams: tms.slice(0, 3) });
+        }
+        if (!kind) continue;
         for (const p of matchPlayers(it.title, idx)) {
           const k = it.link + '|' + p.c; if (seen.has(k)) continue; seen.add(k);
           add.push({ ts: it.ts || new Date().toISOString(), c: p.c, n: p.n, t: p.t.split(';').pop(), kind: 'press', tag: kind, title: it.title.slice(0, 200), link: it.link, source: 'press_' + F.id, lang: F.lang });
@@ -85,6 +110,8 @@ async function main() {
   const lim = Date.now() - KEEP_DAYS * 864e5;
   const items = [...add, ...old.items].filter(x => Date.parse(x.ts) >= lim).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 400);
   await fs.writeFile(f, JSON.stringify({ updated: new Date().toISOString(), feeds: status, items }, null, 0));
-  console.log(`[press] ${JSON.stringify(status)} · νέα ${add.length} · σύνολο ${items.length}`);
+  const hitems = [...heads, ...oldH.items].filter(x => Date.parse(x.ts) >= Date.now() - 10 * 864e5).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 300);
+  await fs.writeFile(hf, JSON.stringify({ updated: new Date().toISOString(), feeds: status, items: hitems }));
+  console.log(`[press] ${JSON.stringify(status)} · νέα ${add.length} · σύνολο ${items.length} · τίτλοι +${heads.length} (${hitems.length})`);
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) await main();

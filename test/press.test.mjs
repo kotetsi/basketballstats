@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify, nameIndex, matchPlayers, parseRSS } from '../fantasy/press_fetch.mjs';
+import { classify, nameIndex, matchPlayers, parseRSS, teamsIn, isEL } from '../fantasy/press_fetch.mjs';
 
 const players = [{ c: '1', n: 'VEZENKOV, SASHA', t: 'OLY' }, { c: '2', n: 'NUNN, KENDRICK', t: 'PAN' }, { c: '3', n: 'SLOUKAS, KOSTAS', t: 'PAN' }];
 const idx = nameIndex(players, { 'VEZENKOV, SASHA': 'Σάσα Βεζένκοφ', 'SLOUKAS, KOSTAS': 'Κώστας Σλούκας' });
@@ -24,4 +24,10 @@ test('RSS: τίτλος, link, ημερομηνία (CDATA, entities)', () => {
   const it = parseRSS(xml);
   assert.equal(it.length, 1); assert.equal(it[0].title, 'Nunn out & doubtful'); assert.equal(it[0].link, 'https://x.y/a'); assert.ok(it[0].ts.startsWith('2026-11-05'));
   assert.equal(Object.keys(it[0]).includes('description'), false);
+});
+test('ροή τίτλων: ομάδες και EuroLeague', () => {
+  assert.deepEqual(teamsIn('Real Madrid beat Panathinaikos'), ['MAD', 'PAN']);
+  assert.deepEqual(teamsIn('Ο Παναθηναϊκός πήρε το ντέρμπι με τον Ολυμπιακό'), ['OLY', 'PAN']);
+  assert.deepEqual(teamsIn('NBA: Lakers win'), []);
+  assert.equal(isEL('EuroLeague Round 10 preview'), true);
 });

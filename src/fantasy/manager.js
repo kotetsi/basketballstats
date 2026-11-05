@@ -14,7 +14,7 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const f1 = v => (v == null || isNaN(v) ? '–' : (+v).toFixed(1));
 const sg = v => (v == null ? '–' : `<span class="${v > 0 ? 'up' : v < 0 ? 'dn' : ''}">${v > 0 ? '+' : ''}${(+v).toFixed(1)}</span>`);
 
-let D, P, NEWS = [], S, tab = X.tab || 'team';
+let D, P, NEWS = [], HEAD = [], S, tab = X.tab || 'team';
 const team = () => S.teams[S.active];
 const rosterOf = t => t.roster.map(c => P.get(c)).filter(Boolean);
 const save = () => store.set(S);
@@ -37,7 +37,7 @@ function lineupFor(t) {
 }
 
 async function init() {
-  [D, NEWS] = await Promise.all([fetch(X.api, { cache: 'no-cache' }).then(r => r.json()), fetch(X.news, { cache: 'no-cache' }).then(r => r.json()).then(j => j.items || []).catch(() => [])]);
+  [D, NEWS] = await Promise.all([fetch(X.api, { cache: 'no-cache' }).then(r => r.json()), fetch(X.news, { cache: 'no-cache' }).then(r => r.json()).then(j => { HEAD = j.headlines || []; return j.items || []; }).catch(() => [])]);
   P = new Map(D.players.map(p => [p.c, p]));
   S = store.get() || { teams: [newTeam(L.myTeam + ' 1')], active: 0 };
   if (!S.teams.length) S.teams.push(newTeam(L.myTeam + ' 1'));
@@ -153,9 +153,18 @@ function viewAlerts() {
 }
 
 // ---------- News
+const prettyN = n => String(n || '').split(',').map(x => x.trim()).reverse().join(' ').toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu, (m, a, c) => a + c.toUpperCase());
+function viewHeadlines(mine) {
+  if (!HEAD.length) return '';
+  const tag = { injury: L.nk.injury, doubtful: L.nk.doubtful, return: L.nk.return };
+  return `<section class="fmsec"><h2>${esc(L.pressH)}</h2><p class="sub">${esc(L.pressSub)}</p><ul class="fmheads">${HEAD.slice(0, 40).map(h => {
+    const mineP = (h.players || []).filter(c => mine.has(c));
+    return `<li class="${mineP.length ? 'mine' : ''}">${h.tag ? `<span class="nk nk-${h.tag === 'return' ? 'return' : h.tag}">${esc(tag[h.tag] || h.tag)}</span> ` : ''}<a href="${esc(h.link)}" rel="nofollow noopener" target="_blank">${esc(h.title)}</a>
+<p class="sub">${(h.players || []).filter(c => P.get(c)).map(pLink).join(', ')}${(h.players || []).some(c => P.get(c)) ? ' · ' : ''}${esc(L.src['press_' + h.source] || h.source)} · ${new Date(h.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}${mineP.length ? ' · ⭐ ' + esc(L.inTeam) : ''}</p></li>`; }).join('')}</ul></section>`;
+}
 function viewNews() {
   const mine = new Set(team().roster);
-  return `<section class="fmsec"><h2>${esc(L.tabs.news)}</h2><ul class="fmnews">${NEWS.slice(0, 120).map(n => { const p = P.get(n.c); return `<li class="${mine.has(n.c) ? 'mine' : ''}"><span class="nk nk-${n.kind}">${esc(L.nk[n.kind] || n.kind)}</span> <b>${p ? pLink(n.c) : esc(n.n)}</b> <small><a href="${X.teamBase[n.t] || '#'}">${tm(n.t)}</a></small>
+  return viewHeadlines(mine) + `<section class="fmsec"><h2>${esc(L.tabs.news)}</h2><ul class="fmnews">${NEWS.slice(0, 120).map(n => { const p = P.get(n.c); return `<li class="${mine.has(n.c) ? 'mine' : ''}"><span class="nk nk-${n.kind}">${esc(L.nk[n.kind] || n.kind)}</span> <b>${p ? pLink(n.c) : esc(prettyN(n.n))}</b> <small><a href="${X.teamBase[n.t] || '#'}">${tm(n.t)}</a></small>
 <p>${n.kind === 'press' ? `<a href="${esc(n.link)}" rel="nofollow noopener" target="_blank">${esc(n.title)}</a>` : esc((L.nm[n.kind] || '').replace('{dom}', n.detail?.league ? `${n.detail.league}, ${n.detail.home} – ${n.detail.away}` : '').replace('{b}', f1(n.before)).replace('{a}', f1(n.after)).replace('{m3}', n.detail?.m3 ?? '').replace('{m10}', n.detail?.m10 ?? '').replace('{from}', X.teams[n.detail?.from] || n.detail?.from || '').replace('{to}', X.teams[n.detail?.to] || n.detail?.to || ''))}${p ? ` · ${esc(L.proj)} ${f1(p.pp)}` : ''}</p>
 <p class="sub">${mine.has(n.c) ? '⭐ ' + esc(L.inTeam) + ' · ' : ''}${esc(L.na[n.kind] || '')} · ${esc(L.src[n.source] || n.source)} · ${new Date(n.ts).toLocaleString(X.loc, { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p></li>`; }).join('') || `<li>${esc(L.noNews)}</li>`}</ul></section>`;
 }
