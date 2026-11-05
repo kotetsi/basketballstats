@@ -836,7 +836,7 @@ async function main() {
   const OBIJ = Object.fromEntries(Object.values(JUR_OF).map(j => [j, Object.fromEntries(Object.keys(OB.latest?.games || {}).map(gid => { const [c, r, h, a] = gid.split('-'); return [gid, OBM.gameIntel(OB, gid, MPK[`${c}|${r}|${h}|${a}`], SIG, j)]; }).filter(([, v]) => v))]));
   const OCLVJ = Object.fromEntries(Object.values(JUR_OF).map(j => [j, OB.hist.length ? OBM.clvReport(OB, j) : null]));
   let FXD = null;
-  try { FXD = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'latest.json'), 'utf8')); if (FXD.round <= lastRound) FXD = null; } catch { FXD = null; }
+  try { FXD = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'latest.json'), 'utf8')); if (FXD.round < lastRound) FXD = null; } catch { FXD = null; }   // κρατάμε τις εκτιμήσεις και όσο παίζεται η αγωνιστική (live tracker)
 
   // slugs παικτών (μοναδικά, ίδια και στις δύο γλώσσες)
   const used = new Set();
@@ -884,7 +884,7 @@ async function main() {
   await fs.writeFile(path.join(OUT, 'assets', 'app.tr.js'), translate(appSrc, TRL.APP_CODE, 'app.js (tr)', TRL.PHRASES));
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
   await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
-  for (const f of ['optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
+  for (const f of ['optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs', 'live.mjs', 'livetracker.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
   await fs.mkdir(path.join(OUT, 'assets', 'analytics'), { recursive: true });
   for (const f of ['metrics.mjs', 'ui.js']) await fs.copyFile(path.join(ROOT, 'src', 'analytics', f), path.join(OUT, 'assets', 'analytics', f));
   await fs.mkdir(path.join(OUT, 'assets', 'matchup'), { recursive: true });
@@ -1555,7 +1555,7 @@ ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) 
       const teamsJ = Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)]));
       const ctxJ = sub => `<script type="application/json" id="fxctx">${JSON.stringify({ U, base: urlFor(LG, 'fx:player'), teams: teamsJ, pos: POSL, days: FXD.days.map((d, i) => dayLbl(i)), api: BASE + 'api/fantasy/projections/latest.json', page: sub }).replace(/</g, '\\u003c')}</script><script type="module" src="${BASE}assets/fantasy/fx.js?v=${ver}"></script>`;
       const ctxS = { U, name: dn, team: tName, purl: fxp, pos: p => POSL[p] || p, day: dayLbl };
-      const nav = cur => `<p class="leadnav fxnav">${[['', T('Fantasy', 'Fantasy', 'Fantasy', 'Fantasy', 'Fantasy')], ['projections', T('Προβλέψεις PIR', 'PIR projections', 'Proyecciones PIR', 'PIR projekcije', 'PIR tahminleri')], ['optimizer', T('Βέλτιστη σύνθεση', 'Lineup optimizer', 'Optimizador', 'Optimizator', 'Kadro optimizasyonu')], ['round-planner', T('Πλάνο αγωνιστικής', 'Round planner', 'Planificador', 'Plan kola', 'Hafta planı')], ['transfer-market', 'Transfer Market'], ['manager', 'Fantasy Manager'], ['captain-advisor', 'Captain Advisor'], ['what-if', 'What-If'], ['value-board', 'Value Board'], ['trade-simulator', 'Trade Simulator'], ['news', T('Ειδήσεις', 'News', 'Noticias', 'Vesti', 'Haberler')]].map(([k, l]) => `<a href="${k ? fxu(k) : urlFor(LG, 'fantasy')}"${k === cur ? ' aria-current="page"' : ''}>${esc(l)}</a>`).join('')}</p>`;
+      const nav = cur => `<p class="leadnav fxnav">${[['', T('Fantasy', 'Fantasy', 'Fantasy', 'Fantasy', 'Fantasy')], ['projections', T('Προβλέψεις PIR', 'PIR projections', 'Proyecciones PIR', 'PIR projekcije', 'PIR tahminleri')], ['optimizer', T('Βέλτιστη σύνθεση', 'Lineup optimizer', 'Optimizador', 'Optimizator', 'Kadro optimizasyonu')], ['round-planner', T('Πλάνο αγωνιστικής', 'Round planner', 'Planificador', 'Plan kola', 'Hafta planı')], ['transfer-market', 'Transfer Market'], ['manager', 'Fantasy Manager'], ['captain-advisor', 'Captain Advisor'], ['what-if', 'What-If'], ['value-board', 'Value Board'], ['trade-simulator', 'Trade Simulator'], ['news', T('Ειδήσεις', 'News', 'Noticias', 'Vesti', 'Haberler')], ['live', 'Live Tracker']].map(([k, l]) => `<a href="${k ? fxu(k) : urlFor(LG, 'fantasy')}"${k === cur ? ' aria-current="page"' : ''}>${esc(l)}</a>`).join('')}</p>`;
       const bt = FXD.backtest || {};
       const btTxt = bt.mae ? T(`Έλεγχος σε ${bt.n} αγώνες παικτών των προηγούμενων αγωνιστικών: μέσο λάθος ${f1(bt.mae)} PIR (απλός μέσος όρος 10 αγώνων: ${f1(bt.mae_base)}), και το εύρος P10–P90 περιείχε το ${Math.round(bt.coverage_80 * 100)}% των αποτελεσμάτων.`, `Backtest on ${bt.n} player-games of past rounds: mean error ${f1(bt.mae)} PIR (simple 10-game average: ${f1(bt.mae_base)}); the P10–P90 range contained ${Math.round(bt.coverage_80 * 100)}% of outcomes.`, `Prueba sobre ${bt.n} actuaciones de jornadas anteriores: error medio de ${f1(bt.mae)} de PIR (media simple de 10 partidos: ${f1(bt.mae_base)}); el rango P10–P90 contuvo el ${Math.round(bt.coverage_80 * 100)}% de los resultados.`, `Provera na ${bt.n} učinaka iz prethodnih kola: prosečna greška ${f1(bt.mae)} PIR-a (prosek 10 utakmica: ${f1(bt.mae_base)}); opseg P10–P90 obuhvatio je ${Math.round(bt.coverage_80 * 100)}% ishoda.`, `Geçmiş haftalardan ${bt.n} oyuncu-maç üzerinde geriye dönük test: ortalama hata ${f1(bt.mae)} PIR (basit 10 maç ortalaması: ${f1(bt.mae_base)}); P10–P90 aralığının kapsama oranı: %${Math.round(bt.coverage_80 * 100)}.`) : '';
       const notes = `<p class="note">${esc(DISC)} ${esc(PRICE_NOTE)}</p>${btTxt ? `<p class="note">${esc(btTxt)}</p>` : ''}`;
@@ -1572,6 +1572,7 @@ ${toolCard('value-board', '💎', 'Value Board', T('Πόντοι ανά credit �
 ${toolCard('transfer-market', '🔁', 'Transfer Market', T('Ποιον να φέρεις, ποιον να πουλήσεις', 'Who to buy and sell', 'A quién comprar y vender', 'Koga kupiti i prodati', ''))}
 ${toolCard('trade-simulator', '⚖️', 'Trade Simulator', T('Αξίζει το trade;', 'Is the trade worth it?', '¿Vale la pena?', 'Da li se isplati?', ''))}
 ${toolCard('round-planner', '🗓️', T('Πλάνο αγωνιστικής', 'Round planner', 'Planificador', 'Plan kola', ''), T('Αρχηγός και αλλαγές ανά turn', 'Captain and swaps per turn', 'Capitán y cambios', 'Kapiten i izmene', ''))}
+${toolCard('live', '🔴', 'Live Tracker', T('Η σύνθεσή σου live, turn προς turn', 'Your lineup live, turn by turn', 'Tu alineación en directo', 'Tvoja postava uživo', ''))}
 ${toolCard('news', '📰', T('Ειδήσεις', 'News', 'Noticias', 'Vesti', ''), T('Τραυματισμοί, λεπτά, βασικοί', 'Injuries, minutes, starters', 'Lesiones, minutos', 'Povrede, minuti', ''))}
 </div></section>`;
       FXDASH = FXTOOLS + `<section class="fxdash"><h2>EuroLeague Fantasy PIR Projections · ${esc(rdTxt0(FXD.round))}</h2>${nav('')}<div class="tbl"><table><thead><tr><th class="l">${esc(U.player)}</th><th class="l">${esc(U.teamH)}</th><th>${esc(U.price)}</th><th>${T('Λεπτά', 'Min', 'Min', 'Min', 'Dk')}</th><th>${esc(U.proj)}</th><th>P10–P90</th></tr></thead><tbody>${top10.map(x => `<tr><td class="l"><a href="${fxp(x.c)}">${esc(dn(x.c))}</a></td><td class="l">${esc(tName(x.t))} <small>${vsTxt(x)}</small></td><td>${f1(x.price)}</td><td>${f1(x.pm)}</td><td><b>${f1(x.pp)}</b></td><td>${f1(x.p10)}–${f1(x.p90)}</td></tr>`).join('')}</tbody></table></div><p><a class="pread" href="${fxu('projections')}">${T('Όλες οι προβλέψεις →', 'All projections →', 'Todas las proyecciones →', 'Sve projekcije →', 'Tüm tahminler →')}</a> <a class="pread" href="${fxu('optimizer')}">${T('Βγάλε τη σύνθεσή σου →', 'Build your lineup →', 'Crea tu alineación →', 'Napravi postavu →', 'Kadronu kur →')}</a></p></section>`;
@@ -1784,6 +1785,101 @@ ${fieldsTable(LG, esc)}<p class="note">${esc(T('Οι captain suggestions, οι v
 <ul class="fmnews">${NEWSF.slice(0, 150).map(n => { const p = FXP.find(x => x.c === n.c); return `<li><span class="nk nk-${n.kind}">${esc(NK[n.kind] || n.kind)}</span> <b>${p ? `<a href="${fxp(n.c)}">${esc(dn(n.c))}</a>` : esc(n.n)}</b> <small><a href="${urlFor(LG, 'team:' + n.t)}">${esc(tName(n.t))}</a></small><p>${esc(nf(n))}${p ? ` · ${esc(T('Εκτ. PIR', 'Proj. PIR', 'PIR est.', 'Proj. PIR'))} ${f1(p.pp)}` : ''}</p><p class="sub">${esc(NA[n.kind] || '')} · ${esc(ML.src[n.source] || n.source)} · ${esc(new Date(n.ts).toLocaleString({ el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG], { timeZone: 'Europe/Athens', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))}</p></li>`; }).join('') || `<li>${esc(ML.noNews)}</li>`}</ul>
 ${fieldsTable(LG, esc)}<p class="note">${esc(T('Δεν δημοσιεύουμε δηλώσεις προπονητών, γιατί δεν υπάρχει ανοιχτή πηγή που να μπορούμε να χρησιμοποιήσουμε.', 'We do not publish coach quotes, as there is no open source we can use.', 'No publicamos declaraciones de entrenadores porque no hay una fuente abierta utilizable.', 'Ne objavljujemo izjave trenera jer ne postoji otvoren izvor.'))}</p><p class="note">${esc(FMDISC)}</p></article>`,
           ld: crumbs([[SITE_NAME, B(LG)], ['Fantasy', urlFor(LG, 'fantasy')], [T('Ειδήσεις', 'News', 'Noticias', 'Vesti'), fxu('news')]]) });
+      }
+
+      // ---- Fantasy Live Tracker: δεδομένα αγωνιστικής (στατικό API) + σελίδες /fantasy/live/ και /fantasy/live/<r>/
+      {
+        const yrL = +SEASON.slice(1), isoL = e => { const dg = +e[8], y = Math.floor(yrL / 10) * 10 + dg + (dg < yrL % 10 ? 10 : 0); return `${y}-${e.slice(0, 2)}-${e.slice(2, 4)}T${e.slice(4, 6)}:${e.slice(6, 8)}:00Z`; };
+        const athD = ts => new Date(ts).toLocaleDateString('sv-SE', { timeZone: 'Europe/Athens' });
+        const liveRounds = [];
+        for (let rr = 1; rr <= FXD.round; rr++) {
+          const gs = league.games.filter(g => g[0] === rr && TEAMS[g[2]] && TEAMS[g[3]]).map(g => ({ h: g[2], a: g[3], t: isoL(g[1]), hs: g[4], as: g[5], played: !!g[6], id: `${rr}-${g[2]}-${g[3]}` }));
+          if (!gs.length) continue;
+          const days = rr === FXD.round ? FXD.days : [...new Set(gs.map(g => athD(g.t)))].sort();
+          for (const g of gs) g.day = Math.max(0, days.indexOf(athD(g.t)));
+          const teamDay = {}; for (const g of gs) { teamDay[g.h] = g.day; teamDay[g.a] = g.day; }
+          // επίσημα box scores των αγώνων που έχουν τελειώσει: [λεπτά, PIR, πόντοι, ριμπ., ασίστ, κλεψ., κοψ., λάθη, 2πμ, 2πε, 3πμ, 3πε, βμ, βε, φάουλ]
+          const box = {};
+          for (const p of players) { const r = p.g.find(x => x[0] === rr); if (!r || !gs.some(g => g.played && (g.h === p.t || g.a === p.t))) continue; box[p.c] = [Math.round(r[7] / 6) / 10, r[25], r[8], r[15] + r[16], r[17], r[18], r[20], r[19], r[9], r[10], r[11], r[12], r[13], r[14], r[22]]; }
+          // εκτιμήσεις εκείνης της αγωνιστικής (όπως ήταν πριν από τους αγώνες), αν υπάρχουν
+          let proj = null, bfP = {};
+          try { const bf = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'backfill', `r${rr}.json`), 'utf8')); bfP = Object.fromEntries(bf.players.map(x => [x.c, x])); } catch { bfP = {}; }
+          if (rr < FXD.round && Object.keys(bfP).length) proj = Object.fromEntries(Object.values(bfP).map(x => [x.c, x.pp]));
+          // παίκτες που λείπουν από τις τρέχουσες εκτιμήσεις (π.χ. η ομάδα τους έπαιξε ήδη): [κωδικός, όνομα, ομάδα, θέση, slug, εκτ. PIR εκείνης της αγωνιστικής ή null, τιμή]
+          const inFX = new Set(FXP.map(q => q.c)), rTeams = new Set(gs.flatMap(g => [g.h, g.a]));
+          const extra = players.filter(q => !inFX.has(q.c) && rTeams.has(q.t) && q.pos).map(q => [q.c, dn(q.c), q.t, q.pos, q.s, bfP[q.c]?.pp ?? null, bfP[q.c]?.price ?? null]);
+          liveRounds.push({ round: rr, season: SEASON, days, games: gs, teamDay, box, proj, extra, projSource: rr === FXD.round ? 'live_model' : proj ? 'backfill' : null, generated: new Date().toISOString(), fields: { box: ['min', 'pir', 'pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'fgm2', 'fga2', 'fgm3', 'fga3', 'ftm', 'fta', 'pf'] } });
+        }
+        if (LG === 'el') {
+          await fs.mkdir(path.join(OUT, 'api', 'fantasy', 'live'), { recursive: true });
+          for (const x of liveRounds) await fs.writeFile(path.join(OUT, 'api', 'fantasy', 'live', `${x.round}.json`), JSON.stringify(x));
+          await fs.writeFile(path.join(OUT, 'api', 'fantasy', 'live', 'index.json'), JSON.stringify({ current: FXD.round, rounds: liveRounds.map(x => ({ round: x.round, days: x.days, finished: x.games.every(g => g.played), proj: x.projSource })), feed: 'https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/' + SEASON + '/games' }));
+        }
+        const LL = LG === 'el' ? {
+          st: { not_started: 'Δεν ξεκίνησε', playing: 'Παίζει', finished: 'Τελείωσε', dnp: 'DNP', injured: 'Εκτός', no_game: 'Χωρίς αγώνα' },
+          gst: { scheduled: 'Δεν ξεκίνησε', live: 'Live', final: 'Τελικό' },
+          pos: POSL, warnOut: 'Δεν παίζει: 0 πόντοι.', warnMin: 'Πολύ λίγα λεπτά μέχρι τώρα.',
+          tip: { pir: 'Performance Index Rating από το επίσημο live box score', proj: 'Εκτίμηση PIR του μοντέλου πριν από τον αγώνα', fp: 'Fantasy points μέχρι τώρα: PIR × θέση (βασικός/6ος 1, πάγκος 0,5) × αρχηγός 2 × 1,1 για νίκη (μόνο στο τέλος). Όσοι δεν ξεκίνησαν δείχνουν τους αναμενόμενους πόντους.', init: 'Η εκτίμηση της σύνθεσής σου πριν ξεκινήσει ο γύρος (κρατιέται στη συσκευή σου)', upd: 'Πόντοι μέχρι τώρα + αναμενόμενοι πόντοι όσων δεν έχουν τελειώσει' },
+          minL: 'Λεπτά', projL: 'Εκτ. PIR', fpL: 'Fantasy', s: { pts: 'πόν.', reb: 'ριμπ.', ast: 'ασίστ', stl: 'κλεψ.', blk: 'κοψ.', tov: 'λάθη' },
+          noTeam: 'Δεν έχεις ακόμη αποθηκευμένη ομάδα 10 παικτών. Φτιάξ\' την στο Fantasy Manager και γύρνα εδώ.', noLineup: 'Κάποιοι παίκτες της ομάδας σου δεν βρέθηκαν στα δεδομένα της αγωνιστικής.',
+          final: 'ΤΕΛΙΚΟ', round: 'Αγωνιστική', actualL: 'Πόντοι τώρα', initL: 'Αρχική εκτίμηση', updL: 'Νέα εκτίμηση', diffL: 'Διαφορά', groups: 'Ανά ομάδα θέσεων',
+          slot: { start: 'Βασικοί', sixth: '6ος', bench: 'Πάγκος', captain: 'Αρχηγός' }, coach: 'Προπονητής', coachPending: 'μετά το τελικό', updated: 'ενημέρωση', feedErr: 'το live feed δεν απαντά, δείχνουμε τα τελευταία δεδομένα',
+          projH: 'Live projection', worst: 'Χειρότερο', likely: 'Πιθανότερο', bestT: 'Καλύτερο', remL: 'Αναμένονται ακόμη', pBeat: 'Πιθανότητα να ξεπεράσεις την αρχική εκτίμηση', keyMiss: 'Αν δεν παίξει ο {p}',
+          playersH: 'Οι παίκτες σου', coachRule: 'πόντοι μόνο με το τελικό αποτέλεσμα', marginL: 'Διαφορά σκορ',
+          turnsH: 'Turn προς turn', ts: { done: 'ολοκληρώθηκε', live: 'σε εξέλιξη', current: 'επόμενο', next: 'αργότερα' }, plays: 'Παίζουν', playedB: 'Έπαιξαν ή παίζουν σε προηγούμενο turn', estL: 'Εκτίμηση', availL: 'Διαθέσιμοι για αλλαγές', bestCap: 'Καλύτερος διαθέσιμος αρχηγός', ptsSoFar: 'πόντοι', remShort: 'αναμένονται',
+          rk: { captain: 'Αρχηγός', swap: 'Αλλαγή', avoid: 'Απόφυγε' }, rcap: 'Δώσε το περιβραχιόνιο από τον {a} στον {b}.', rswap: 'Βγάλε τον {a} στον πάγκο και ανέβασε τον {b}.', rform: 'Νέο σχήμα: {f}.',
+          impact: 'Επίδραση', riskL: 'ρίσκο', confL: 'βεβαιότητα', lvl: { low: 'χαμηλό', medium: 'μέτριο', high: 'υψηλό' },
+          rwhy: { captain_low: 'Ο αρχηγός σου έπαιξε ήδη με χαμηλό PIR, άλλος βασικός δεν έχει παίξει ακόμη.', captain_out: 'Ο αρχηγός σου δεν παίζει.', captain_better: 'Βασικός που παίζει αργότερα έχει μεγαλύτερη εκτίμηση.', injured: 'Είναι εκτός αγώνα.', played_low: 'Έπαιξε ήδη με λιγότερο PIR απ\' όσο αναμένεται από τον παίκτη του πάγκου.', doubtful: 'Είναι αμφίβολος.', low_minutes: 'Παίρνει λίγα λεπτά.' },
+          bestRem: 'Με τη σύνθεση όπως είναι: {a}. Με τις αλλαγές: {b}.', noRec: 'Καμία αλλαγή δεν βελτιώνει τη σύνθεση αυτή τη στιγμή.',
+          alertsH: 'Ειδοποιήσεις', sev: { critical: 'Κρίσιμο', warning: 'Προσοχή', info: 'Πληροφορία' }, gameDone: 'Τέλος αγώνα',
+          al: { captain_out: 'Ο αρχηγός δεν παίζει.', starter_out: 'Βασικός δεν παίζει.', injury: 'Τραυματισμός παίκτη πάγκου.', dnp: 'DNP στον πάγκο.', bench_hot: 'Παίκτης του πάγκου παίζει πολύ καλύτερα από το αναμενόμενο.', low_minutes: 'Πολύ λίγα λεπτά στο δεύτερο μισό του αγώνα.', game_final: 'Ένας αγώνας της σύνθεσής σου τελείωσε.', better_captain: 'Υπάρχει καλύτερος αρχηγός για το επόμενο turn.', captain_opportunity: 'Ευκαιρία για αρχηγό στο επόμενο turn.', better_swap: 'Υπάρχει καλύτερη αλλαγή με τον πάγκο.', projection_drop: 'Η εκτίμηση έπεσε σημαντικά.' },
+          act: { move_captain: 'Άλλαξε αρχηγό', bench_swap: 'Κάνε αλλαγή με τον πάγκο', keep_bench: 'Άφησέ τον στον πάγκο', none: 'Καμία ενέργεια', consider_up: 'Σκέψου να τον ανεβάσεις αν δεν έχει τελειώσει ο αγώνας του', watch: 'Παρακολούθησέ τον', review: 'Δες τις προτάσεις' }, noAlerts: 'Καμία ειδοποίηση.',
+          reviewH: 'Απολογισμός αγωνιστικής', finalL: 'Τελικοί πόντοι', bestP: 'Καλύτερος', worstP: 'Χειρότερος', capPerf: 'Ο αρχηγός {p} έφερε {x} πόντους.', capMiss: 'Με αρχηγό τον {p} θα έπαιρνες {x} περισσότερους.', benchPerf: 'Πάγκος: {x} πόντοι.',
+          bestArr: 'Η καλύτερη τοποθέτηση των ίδιων 10 παικτών (με γνώση των αποτελεσμάτων) θα έδινε {x} πόντους ({m} περισσότερους).', bestRos: 'Η καλύτερη δυνατή ομάδα με 100 credits θα έδινε {x} πόντους',
+          lessonsH: 'Τι κρατάμε για την επόμενη', ls: { captain: 'Ο αρχηγός κόστισε {v} πόντους· στην επόμενη δες τα σενάρια του Captain Advisor.', arrangement: 'Η τοποθέτηση βασικών/πάγκου κόστισε {v} πόντους.', dnp: 'Παίκτης της ενεργής σύνθεσης δεν έπαιξε ({p}): έλεγξε τις ειδήσεις πριν τη λήξη.', coach: 'Ο προπονητής ({p}) έφερε {v}.', under: 'Η σύνθεση έμεινε {v} κάτω από την εκτίμηση.' }, noLessons: 'Καμία σημαντική απώλεια.',
+          editH: 'Η σύνθεσή σου σε αυτή την αγωνιστική', editHelp: 'Αν στο επίσημο παιχνίδι έχεις άλλη τοποθέτηση (βασικοί, 6ος, πάγκος, αρχηγός), διόρθωσέ την εδώ. Αποθηκεύεται μόνο στη συσκευή σου.', resetL: 'Επαναφορά στη σύνθεση του Fantasy Manager',
+          disc: 'Τα live fantasy points βασίζονται σε προσωρινά/live στατιστικά και μπορεί να αλλάξουν μέχρι την επίσημη ολοκλήρωση των αγώνων. Δεν είναι το επίσημο score του EuroLeague Fantasy Challenge. Οι τιμές των παικτών είναι δικές μας εκτιμήσεις.',
+        } : {
+          st: { not_started: 'Not started', playing: 'Playing', finished: 'Finished', dnp: 'DNP', injured: 'Out', no_game: 'No game' },
+          gst: { scheduled: 'Not started', live: 'Live', final: 'Final' },
+          pos: POSL, warnOut: 'Not playing: 0 points.', warnMin: 'Very few minutes so far.',
+          tip: { pir: 'Performance Index Rating from the official live box score', proj: 'Model PIR projection before the game', fp: 'Fantasy points so far: PIR × slot (starter/6th 1, bench 0.5) × captain 2 × 1.1 for a win (only at the end). Players who have not started show expected points.', init: 'Your lineup projection before the round started (kept on your device)', upd: 'Points so far + expected points of players not finished' },
+          minL: 'Min', projL: 'Proj. PIR', fpL: 'Fantasy', s: { pts: 'pts', reb: 'reb', ast: 'ast', stl: 'stl', blk: 'blk', tov: 'tov' },
+          noTeam: 'You have no saved 10-player team yet. Build it in Fantasy Manager and come back.', noLineup: 'Some of your players were not found in this round\'s data.',
+          final: 'FINAL', round: 'Round', actualL: 'Points now', initL: 'Initial projection', updL: 'Updated projection', diffL: 'Difference', groups: 'By group',
+          slot: { start: 'Starters', sixth: '6th man', bench: 'Bench', captain: 'Captain' }, coach: 'Coach', coachPending: 'after the final', updated: 'updated', feedErr: 'live feed not responding, showing the latest data',
+          projH: 'Live projection', worst: 'Worst', likely: 'Most likely', bestT: 'Best', remL: 'Still expected', pBeat: 'Chance to beat the initial projection', keyMiss: 'If {p} does not play',
+          playersH: 'Your players', coachRule: 'points only from the final result', marginL: 'Margin',
+          turnsH: 'Turn by turn', ts: { done: 'done', live: 'in progress', current: 'next', next: 'later' }, plays: 'Playing', playedB: 'Played or playing in an earlier turn', estL: 'Projection', availL: 'Available for swaps', bestCap: 'Best remaining captain', ptsSoFar: 'points', remShort: 'expected',
+          rk: { captain: 'Captain', swap: 'Swap', avoid: 'Avoid' }, rcap: 'Move the armband from {a} to {b}.', rswap: 'Move {a} to the bench and bring up {b}.', rform: 'New formation: {f}.',
+          impact: 'Impact', riskL: 'risk', confL: 'confidence', lvl: { low: 'low', medium: 'medium', high: 'high' },
+          rwhy: { captain_low: 'Your captain already played with a low PIR; another starter has not played yet.', captain_out: 'Your captain is not playing.', captain_better: 'A starter who plays later has a higher projection.', injured: 'He is out.', played_low: 'He already played with less PIR than the bench player is expected to score.', doubtful: 'He is doubtful.', low_minutes: 'He gets few minutes.' },
+          bestRem: 'Lineup as is: {a}. With the swaps: {b}.', noRec: 'No change improves the lineup right now.',
+          alertsH: 'Alerts', sev: { critical: 'Critical', warning: 'Warning', info: 'Info' }, gameDone: 'Game over',
+          al: { captain_out: 'Captain not playing.', starter_out: 'Starter not playing.', injury: 'Bench player injured.', dnp: 'DNP on the bench.', bench_hot: 'A bench player is doing much better than expected.', low_minutes: 'Very few minutes in the second half.', game_final: 'A game of your lineup is over.', better_captain: 'Better captain available for the next turn.', captain_opportunity: 'Captain opportunity in the next turn.', better_swap: 'Better bench swap available.', projection_drop: 'Projection dropped significantly.' },
+          act: { move_captain: 'Change captain', bench_swap: 'Swap with the bench', keep_bench: 'Keep him on the bench', none: 'No action', consider_up: 'Consider bringing him up if his game is not over', watch: 'Keep an eye on him', review: 'See the recommendations' }, noAlerts: 'No alerts.',
+          reviewH: 'Round review', finalL: 'Final points', bestP: 'Best', worstP: 'Worst', capPerf: 'Captain {p} brought {x} points.', capMiss: 'With {p} as captain you would have {x} more.', benchPerf: 'Bench: {x} points.',
+          bestArr: 'The best arrangement of the same 10 players (knowing the results) would give {x} points ({m} more).', bestRos: 'The best possible team with 100 credits would give {x} points',
+          lessonsH: 'Lessons for next round', ls: { captain: 'The captain choice cost {v} points; check the Captain Advisor scenarios next time.', arrangement: 'Starter/bench placement cost {v} points.', dnp: 'An active player did not play ({p}): check the news before the deadline.', coach: 'The coach ({p}) brought {v}.', under: 'The lineup finished {v} below projection.' }, noLessons: 'No significant losses.',
+          editH: 'Your lineup in this round', editHelp: 'If your official lineup is different (starters, 6th man, bench, captain), fix it here. It is saved only on your device.', resetL: 'Reset to the Fantasy Manager lineup',
+          disc: 'Live fantasy points are based on provisional/live stats and may change until the games are officially completed. This is not the official EuroLeague Fantasy Challenge score. Player prices are our own estimates.',
+        };
+        const T2 = (el, en) => (LG === 'el' ? el : en);
+        const LOCL = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG];
+        const lvDay = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString(LOCL, { weekday: 'long', day: 'numeric', month: 'numeric' });
+        const rlist = rr => `<p class="leadnav">${liveRounds.map(x => `<a href="${x.round === FXD.round ? fxu('live') : fxu('live/' + x.round)}"${x.round === rr ? ' aria-current="page"' : ''}>${x.round}</a>`).join('')}</p>`;
+        for (const x of liveRounds) {
+          const cur = x.round === FXD.round;
+          const ctx = { L: LL, round: x.round, current: cur, season: SEASON, days: x.days.map(lvDay), teams: teamsJ, base: urlFor(LG, 'fx:player'), pbase: urlFor(LG, 'player:x').slice(0, -2), manager: fxu('manager'), loc: LOCL, roundApi: BASE + `api/fantasy/live/${x.round}.json`, projApi: BASE + 'api/fantasy/projections/latest.json' };
+          const h1 = T(`Fantasy Live Tracker · ${x.round}η αγωνιστική`, `Fantasy Live Tracker · Round ${x.round}`, `Fantasy Live Tracker · Jornada ${x.round}`, `Fantasy Live Tracker · ${x.round}. kolo`, `Fantasy Live Tracker · Hafta ${x.round}`);
+          const main = `<article class="article lead wide fx fmpage livepage"><p class="kicker">Fantasy Manager Tools</p><h1>${esc(h1)}</h1><p class="lede2">${esc(cur ? T2('Η σύνθεσή σου live: πόντοι τώρα, νέα εκτίμηση, προτάσεις για τα επόμενα turns και ειδοποιήσεις. Ανανεώνεται μόνη της κάθε 30 δευτερόλεπτα όσο γίνονται αγώνες, από το επίσημο live box score της EuroLeague.', 'Your lineup live: points now, updated projection, recommendations for the next turns and alerts. Refreshes every 30 seconds while games are on, from the official EuroLeague live box score.') : T2('Απολογισμός της αγωνιστικής για τη σύνθεσή σου, με τα επίσημα τελικά box scores.', 'Round review for your lineup, from the official final box scores.'))}</p>${nav('live')}${rlist(x.round)}
+${!cur ? `<p class="note">${esc(T2('Για παλιές αγωνιστικές χρησιμοποιείται η σημερινή 10άδα σου (ή η τοποθέτηση που ορίσεις παρακάτω) και οι εκτιμήσεις PIR που είχε το μοντέλο πριν από εκείνη την αγωνιστική' + (x.proj ? '.' : ' (δεν υπάρχουν αποθηκευμένες για αυτή την αγωνιστική, οπότε η αρχική εκτίμηση μένει κενή).'), 'For past rounds we use your current 10 players (or the placement you set below) and the PIR projections the model had before that round' + (x.proj ? '.' : ' (none stored for this round, so the initial projection is left empty).')))}</p>` : ''}
+<div id="liveApp" aria-live="polite"><p class="sub">${esc(T2('Φόρτωση…', 'Loading…'))}</p></div>
+<script type="application/json" id="livectx">${JSON.stringify(ctx).replace(/</g, '\\u003c')}</script><script type="module" src="${BASE}assets/fantasy/livetracker.js?v=${ver}"></script></article>`;
+          await simplePage(cur ? 'fx:live' : 'fx:live/' + x.round, { view: 'fx', title: `${h1} | ${SITE_NAME}`,
+            desc: T2(`Live παρακολούθηση της EuroLeague Fantasy σύνθεσής σου στην ${x.round}η αγωνιστική: live PIR, fantasy points, εκτίμηση, προτάσεις αρχηγού και αλλαγών, ειδοποιήσεις και απολογισμός.`, `Live tracking of your EuroLeague Fantasy lineup in round ${x.round}: live PIR, fantasy points, projection, captain and swap recommendations, alerts and review.`),
+            main, noindex: !cur, ld: crumbs([[SITE_NAME, B(LG)], ['Fantasy', urlFor(LG, 'fantasy')], ['Live Tracker', fxu('live')]]) });
+        }
       }
 
       // optimizer (default result pre-computed, the form runs it again in the browser)

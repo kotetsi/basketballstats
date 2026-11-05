@@ -254,3 +254,32 @@ CREATE TABLE optimizer_sensitivity (
   PRIMARY KEY (optimization_id, player_id, scenario)
 );
 -- optimizer_alternatives.label ∈ ('safest','balanced','ceiling','value','differential'); 'differential' μένει κενό χωρίς ownership
+
+-- ============ Fantasy Live Tracker & Round Progress ============
+-- Στο site (στατικό) τα box scores έρχονται κατευθείαν από το επίσημο live feed στον browser και τα τελικά από το build
+-- (api/fantasy/live/<round>.json). Οι πίνακες περιγράφουν την αντίστοιχη μορφή σε βάση, αν χρειαστεί ποτέ server.
+CREATE TABLE live_rounds (
+  season TEXT NOT NULL, round INT NOT NULL, days DATE[] NOT NULL, current_turn INT, finished BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMPTZ DEFAULT now(), PRIMARY KEY (season, round));
+CREATE TABLE live_games (
+  season TEXT, round INT, game_id TEXT, home TEXT, away TEXT, tipoff TIMESTAMPTZ, turn INT,
+  state TEXT CHECK (state IN ('scheduled','live','final')), quarter INT, remaining TEXT, home_score INT, away_score INT, overtime BOOLEAN,
+  updated_at TIMESTAMPTZ DEFAULT now(), PRIMARY KEY (season, round, game_id));
+CREATE TABLE live_player_stats (
+  season TEXT, round INT, game_id TEXT, player_code TEXT, minutes NUMERIC(4,1), pir INT, pts INT, reb INT, ast INT, stl INT, blk INT, tov INT,
+  fgm2 INT, fga2 INT, fgm3 INT, fga3 INT, ftm INT, fta INT, pf INT, provisional BOOLEAN DEFAULT TRUE,
+  updated_at TIMESTAMPTZ DEFAULT now(), PRIMARY KEY (season, round, player_code));
+CREATE TABLE live_lineup_snapshots (
+  team_id UUID REFERENCES fantasy_teams(team_id) ON DELETE CASCADE, season TEXT, round INT,
+  lineup JSONB NOT NULL,              -- {start[5], sixth, bench[4], captain, coach}
+  initial_projection NUMERIC(6,1),    -- πριν από τον πρώτο αγώνα του γύρου
+  taken_at TIMESTAMPTZ DEFAULT now(), PRIMARY KEY (team_id, season, round));
+CREATE TABLE live_alerts (
+  id BIGSERIAL PRIMARY KEY, team_id UUID REFERENCES fantasy_teams(team_id) ON DELETE CASCADE, season TEXT, round INT,
+  kind TEXT CHECK (kind IN ('captain_out','starter_out','bench_hot','injury','dnp','low_minutes','game_final','captain_opportunity','better_captain','better_swap','projection_drop')),
+  severity TEXT CHECK (severity IN ('info','warning','critical')), player_code TEXT, impact NUMERIC(6,1), action TEXT, created_at TIMESTAMPTZ DEFAULT now());
+CREATE TABLE round_reviews (
+  team_id UUID REFERENCES fantasy_teams(team_id) ON DELETE CASCADE, season TEXT, round INT,
+  final_points NUMERIC(6,1), initial_projection NUMERIC(6,1), best_player TEXT, worst_player TEXT,
+  captain_points NUMERIC(6,1), captain_missed NUMERIC(6,1), bench_points NUMERIC(6,1), coach_points NUMERIC(6,1),
+  best_arrangement JSONB, best_roster JSONB, lessons JSONB, created_at TIMESTAMPTZ DEFAULT now(), PRIMARY KEY (team_id, season, round));
