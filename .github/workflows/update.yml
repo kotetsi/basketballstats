@@ -10,6 +10,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: "Fantasy model rollback: έκδοση μοντέλου (π.χ. pir-2stage-v1). Κενό = καμία αλλαγή."
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -37,15 +42,25 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py
+        run: node --test test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py fantasy/tests/test_perf.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
         run: timeout 1200 node scripts/pbp.mjs --keys --secs 600 || echo "PBP - παραλείφθηκε"
       - name: "Shot charts - συντεταγμένες σουτ (μόνο οι νέοι αγώνες)"
         run: timeout 900 node scripts/shots.mjs --secs 480 || echo "Shots - παραλείφθηκε"
+      - name: Fantasy model rollback (μόνο αν δόθηκε έκδοση στο Run workflow)
+        if: github.event.inputs.rollback_to != ''
+        env:
+          ROLLBACK_TO: ${{ github.event.inputs.rollback_to }}
+        run: python fantasy/perf_run.py --rollback "$ROLLBACK_TO" --reason "GitHub Actions workflow_dispatch"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill - σφάλμα")
+      - name: "Fantasy model performance - ιστορικές σεζόν (μία φορά), walk-forward backtest, optimizer backtest"
+        run: |
+          timeout 1500 node fantasy/hist_fetch.mjs || echo "hist_fetch - σφάλμα"
+          timeout 2700 python fantasy/perf_run.py || echo "perf_run - σφάλμα"
+          timeout 1500 node fantasy/optbt.mjs || echo "optbt - σφάλμα"
       - name: "Αποδόσεις από αδειοδοτημένο πάροχο (μόνο αν υπάρχει ODDS_API_KEY)"
         id: odds
         env:

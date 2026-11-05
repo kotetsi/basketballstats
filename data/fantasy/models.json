@@ -1,0 +1,10 @@
+{
+  "active": "pir-2stage-v1",
+  "versions": [
+    {"id": "pir-2stage-v1", "engine": "hgb", "created": "2026-10-20", "description": "Δύο στάδια: λεπτά × PIR/λεπτό με HistGradientBoosting (scikit-learn) πάνω σε Bayesian baseline, P10/P50/P90 με quantile regression και conformal διεύρυνση", "status": "production"},
+    {"id": "pir-lgbm-v1", "engine": "lgbm", "created": "2026-11-05", "description": "Ίδια features και δομή με το pir-2stage-v1, με LightGBM αντί για HistGradientBoosting", "status": "challenger"}
+  ],
+  "history": [
+    {"at": "2026-10-20", "action": "activate", "to": "pir-2stage-v1", "reason": "πρώτη έκδοση"}
+  ]
+}

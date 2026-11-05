@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 from features import build_rows, game_date, team_tables, team_ratings_before, SECS, PIR  # noqa: E402
@@ -24,6 +25,7 @@ from model import MODEL_VERSION, PirModel, backtest, ncdf  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "fantasy"
 SD_MARGIN = 11.0
+SNAP_COLS = ["n_played", "m5", "m10", "pir10", "play_rate5", "start_rate5", "rest", "b2b", "home", "opp_drtg", "opp_pos_allow", "m_trend"]
 
 
 def log(*a):
@@ -266,7 +268,10 @@ def main():
     hist = OUT / "history"
     hist.mkdir(exist_ok=True)
     slim = {"round": target, "generated": latest["generated"], "model": MODEL_VERSION,
-            "p": [[x["c"], x["pm"], x["pp"], x["p10"], x["p50"], x["p90"], x["status"]] for x in players]}
+            "p": [[x["c"], x["pm"], x["pp"], x["p10"], x["p50"], x["p90"], x["status"]] for x in players],
+            # feature snapshot: ό,τι ήξερε το μοντέλο τη στιγμή της πρόβλεψης (για το backtesting/model performance)
+            "snapshot_cols": SNAP_COLS,
+            "snapshot": {r["c"]: [None if pd.isna(r[k]) else round(float(r[k]), 3) for k in SNAP_COLS] for _, r in tgt.iterrows()}}
     (hist / f"r{target}_{now.date().isoformat()}_{MODEL_VERSION}.json").write_text(json.dumps(slim), encoding="utf-8")
     log(f"round {target}: {len(players)} players, {len(coaches)} coaches, trained on {model.n_train} rows, "
         f"backtest MAE {bt.get('mae')} (baseline {bt.get('mae_base')}), {time.time() - t0:.1f}s")

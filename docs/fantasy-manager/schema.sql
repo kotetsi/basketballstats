@@ -283,3 +283,38 @@ CREATE TABLE round_reviews (
   final_points NUMERIC(6,1), initial_projection NUMERIC(6,1), best_player TEXT, worst_player TEXT,
   captain_points NUMERIC(6,1), captain_missed NUMERIC(6,1), bench_points NUMERIC(6,1), coach_points NUMERIC(6,1),
   best_arrangement JSONB, best_roster JSONB, lessons JSONB, created_at TIMESTAMPTZ DEFAULT now(), PRIMARY KEY (team_id, season, round));
+
+-- ============ Fantasy Model Performance & Backtesting ============
+-- Στο site: data/fantasy/models.json (registry), data/fantasy/perf/pred_<S>.csv.gz (prediction log), report.json, optimizer.json.
+CREATE TABLE model_versions (
+  version TEXT PRIMARY KEY, engine TEXT NOT NULL, description TEXT, created_at DATE NOT NULL,
+  status TEXT CHECK (status IN ('production','challenger','retired','baseline')) NOT NULL);
+CREATE TABLE model_activations (           -- ιστορικό ενεργοποιήσεων/rollback
+  id BIGSERIAL PRIMARY KEY, at TIMESTAMPTZ DEFAULT now(), action TEXT CHECK (action IN ('activate','rollback')),
+  from_version TEXT REFERENCES model_versions, to_version TEXT REFERENCES model_versions NOT NULL, reason TEXT);
+CREATE TABLE backtest_runs (
+  id BIGSERIAL PRIMARY KEY, started_at TIMESTAMPTZ DEFAULT now(), finished_at TIMESTAMPTZ, season_code TEXT,
+  rounds INT[], versions TEXT[], split TEXT DEFAULT 'walk_forward_round', status TEXT, log TEXT);
+CREATE TABLE prediction_log (             -- κάθε πρόβλεψη: backtest ή παραγωγή
+  id BIGSERIAL PRIMARY KEY, run_id BIGINT REFERENCES backtest_runs, source TEXT CHECK (source IN ('backtest','production')),
+  model_version TEXT NOT NULL, generated_at TIMESTAMPTZ NOT NULL, season_code TEXT NOT NULL, round INT NOT NULL,
+  player_code TEXT NOT NULL, team TEXT, opp TEXT, home BOOLEAN, pos TEXT,
+  feature_snapshot JSONB NOT NULL,         -- n_played, m5, m10, pir10, play_rate5, start_rate5, rest, b2b, opp_drtg, ...
+  proj_pir NUMERIC(6,2), proj_min NUMERIC(5,2), p10 NUMERIC(6,2), p50 NUMERIC(6,2), p90 NUMERIC(6,2), proj_fp NUMERIC(6,2), pwin NUMERIC(4,3),
+  actual_pir NUMERIC(6,2), actual_min NUMERIC(5,2), actual_fp NUMERIC(6,2), won BOOLEAN,   -- NULL μέχρι να παιχτεί ο αγώνας
+  UNIQUE (source, model_version, season_code, round, player_code));
+CREATE INDEX ON prediction_log (season_code, round);
+CREATE TABLE perf_metrics (                -- materialized: μετρικές ανά μοντέλο × scope × ομάδα
+  model_version TEXT, scope TEXT, dimension TEXT, grp TEXT, n INT NOT NULL, hidden BOOLEAN NOT NULL,   -- hidden όταν n < 30
+  mae NUMERIC, rmse NUMERIC, mape NUMERIC, medae NUMERIC, corr NUMERIC, r2 NUMERIC, bias NUMERIC, directional NUMERIC, ou_hit NUMERIC,
+  fp_mae NUMERIC, coverage_80 NUMERIC, ece NUMERIC, computed_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (model_version, scope, dimension, grp));
+CREATE TABLE optimizer_backtest (
+  model_version TEXT, season_code TEXT, round INT, points NUMERIC, pct NUMERIC, rank INT, random_mean NUMERIC, best NUMERIC, worst NUMERIC,
+  captain TEXT, captain_best BOOLEAN, arrangement NUMERIC, PRIMARY KEY (model_version, season_code, round));
+CREATE TABLE captain_eval (
+  model_version TEXT, season_code TEXT, round INT, player_code TEXT, proj NUMERIC, actual NUMERIC, rank INT, n INT, pct NUMERIC, missed NUMERIC,
+  width NUMERIC, PRIMARY KEY (model_version, season_code, round));
+CREATE TABLE drift_alerts (
+  id BIGSERIAL PRIMARY KEY, created_at TIMESTAMPTZ DEFAULT now(), model_version TEXT,
+  kind TEXT CHECK (kind IN ('mae_up','calibration','position','new_worse')), severity TEXT, grp TEXT, value NUMERIC, ref NUMERIC, action TEXT);
