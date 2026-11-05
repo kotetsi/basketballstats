@@ -107,7 +107,7 @@ async function main() {
       const m10 = pl.reduce((s, r) => s + r[7], 0) / 60 / pl.length; if (m10 < 12) continue;
       const m = gm.players[p.c];
       const kind = m == null && !(p.c in gm.players) ? 'dom_absent' : m === 0 ? 'dom_dnp' : m != null && m < 0.4 * m10 ? 'dom_low' : null;
-      if (kind) items.push({ ts: gm.date + 'T21:00:00Z', c: p.c, n: p.n, t: gm.team, kind: 'domestic', tag: kind, before: +m10.toFixed(1), after: m ?? 0, source: 'domestic_aba', detail: { league: 'ABA', date: gm.date, home: gm.home, away: gm.away, link: `https://www.aba-liga.com/match/${gm.id}/${SEASON_ID}/1/Boxscore/` } });
+      if (kind) items.push({ ts: gm.date + 'T21:00:00Z', c: p.c, n: p.n, t: gm.team, kind, tag: kind, before: +m10.toFixed(1), after: m ?? 0, source: 'domestic_aba', detail: { league: 'ABA', date: gm.date, home: gm.home, away: gm.away, link: `https://www.aba-liga.com/match/${gm.id}/${SEASON_ID}/1/Boxscore/` } });
     }
   }
   await fs.writeFile(path.join(OUT, 'news.json'), JSON.stringify({ updated: db.updated, items }));
