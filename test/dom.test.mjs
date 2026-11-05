@@ -8,16 +8,17 @@ test('ABA ημερολόγιο: αγώνες, ομάδες, σκορ', () => {
   const c = parseCalendar(html);
   assert.equal(c.length, 2); assert.deepEqual([c[0].id, c[0].played, c[0].hs, c[0].as], [15, true, 88, 80]); assert.equal(c[1].played, false); assert.equal(c[1].home, 'Dubai');
 });
-test('ABA box score: στήλη Min, DNP, ημερομηνία', () => {
-  const rows = (n) => Array.from({ length: n }, (_, i) => `<tr><td><a href="/player/${i}/26/1/x/">Player${i} Name</a></td><td>${i === 0 ? 'DNP' : i === 1 ? '25:30' : '10:00'}</td><td>5</td></tr>`).join('');
-  const html = `<p>05.11.2026 20:00</p><table><tr><th>Player</th><th>Min</th><th>Pts</th></tr>${rows(6)}</table><table><tr><th>Player</th><th>Min</th><th>Pts</th></tr>${rows(7)}</table>`;
+test('ABA box score: πίνακας ανά ομάδα, λεπτά ΜΜ:ΔΔ, 00:00, ημερομηνία', () => {
+  const row = (i, m) => `<tr><td>${i}</td><td><strong><a href='/player/${i}/26/1/first-last${i}/'>Last${i} F.</a> </strong>*</td><td>${m}</td><td>5</td></tr>`;
+  const tbl = (club, n) => `<h4 class="x">${club}</h4> <div class="table-responsive"> <table class="table match_boxscore_team_table"><thead><tr><td colspan="2"></td><td>Min</td></tr></thead>${Array.from({ length: n }, (_, i) => row(i, i === 0 ? '00:00' : i === 1 ? '25:30' : '10:00')).join('')}</table></div>`;
+  const html = `<p>05.11.2026 20:00</p>${tbl('Partizan Mozzart Bet', 6)}${tbl('Krka', 7)}`;
   const t = parseBox(html);
-  assert.equal(t.length, 2); assert.equal(t[0][0].min, 0); assert.equal(t[0][1].min, 25.5); assert.equal(t[1].length, 7);
+  assert.equal(t.length, 2); assert.equal(t[0].club, 'Partizan Mozzart Bet'); assert.equal(t[0].players[0].min, 0); assert.equal(t[0].players[1].min, 25.5); assert.equal(t[0].players[1].slug, 'first-last1'); assert.equal(t[1].players.length, 7);
   assert.equal(gameDate(html), '2026-11-05');
 });
 test('αντιστοίχιση ονόματος ABA → EuroLeague μέσα στην ίδια ομάδα', () => {
   const pl = [{ c: '1', n: 'NWORA, JORDAN', t: 'RED' }, { c: '2', n: 'NWORA, OTHER', t: 'PAR' }, { c: '3', n: 'DOBRIC, OGNJEN', t: 'RED' }];
-  assert.equal(matchEL('Nwora Jordan', 'RED', pl)?.c, '1');
-  assert.equal(matchEL('Dobrić Ognjen', 'RED', pl)?.c, '3');
-  assert.equal(matchEL('Unknown Guy', 'RED', pl), null);
+  assert.equal(matchEL('jordan-nwora', 'RED', pl)?.c, '1');
+  assert.equal(matchEL('ognjen-dobric', 'RED', pl)?.c, '3');
+  assert.equal(matchEL('unknown-guy', 'RED', pl), null);
 });

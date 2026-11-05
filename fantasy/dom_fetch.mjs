@@ -32,24 +32,22 @@ export function parseCalendar(html) {
 }
 const clubOf = name => { const n = norm(name); for (const [k, v] of Object.entries(ABA_CLUBS)) if (n.includes(k)) return v; return null; };
 
-/** box score: πίνακες με γραμμή κεφαλίδας που έχει «Min» και γραμμές με link παίκτη */
+/** box score του aba-liga.com: ένας πίνακας «match_boxscore_team_table» ανά ομάδα, με το όνομα της ομάδας στο <h4> πριν από αυτόν.
+ * Γραμμή παίκτη: αριθμός · link /player/<id>/<season>/1/<slug>/ (όνομα «Επώνυμο Α.») · λεπτά «ΜΜ:ΔΔ» (00:00 = δεν έπαιξε). */
 export function parseBox(html) {
   const tables = [];
-  for (const t of html.matchAll(/<table[^>]*>([\s\S]*?)<\/table>/g)) {
-    const rows = [...t[1].matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)].map(r => r[1]);
-    const head = rows.map(r => [...r.matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)].map(c => strip(c[1]))).find(cells => cells.some(c => /^min\.?$/i.test(c)));
-    if (!head) continue;
-    const mi = head.findIndex(c => /^min\.?$/i.test(c));
+  for (const t of html.matchAll(/<table[^>]*match_boxscore_team_table[^>]*>([\s\S]*?)<\/table>/g)) {
+    // το όνομα της ομάδας: το τελευταίο <h4> πριν από τον πίνακα
+    const before = html.slice(Math.max(0, t.index - 3000), t.index), hs = [...before.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/g)];
+    const club = hs.length ? strip(hs[hs.length - 1][1]) : '';
     const players = [];
-    for (const r of rows) {
-      const link = r.match(/\/player\/(\d+)\/[^"]*">([\s\S]*?)<\/a>/); if (!link) continue;
-      const cells = [...r.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(c => strip(c[1]));
-      const raw = cells[mi] ?? '';
-      const mm = raw.match(/(\d{1,2}):(\d{2})/);
-      const min = mm ? +mm[1] + +mm[2] / 60 : /^\d+$/.test(raw) ? +raw : /dnp|^-$|^$/i.test(raw) ? 0 : null;
-      players.push({ aba: +link[1], name: strip(link[2]), min });
+    for (const r of t[1].matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)) {
+      const link = r[1].match(/\/player\/(\d+)\/\d+\/\d+\/([^/'"]+)\/?['"][^>]*>([\s\S]*?)<\/a>/); if (!link) continue;
+      const cells = [...r[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(c => strip(c[1]));
+      const mm = cells.map(c => c.match(/^(\d{1,2}):(\d{2})$/)).find(Boolean);
+      players.push({ aba: +link[1], slug: decodeURIComponent(link[2]), name: strip(link[3]), min: mm ? +mm[1] + +mm[2] / 60 : null });
     }
-    if (players.length >= 5) tables.push(players);
+    if (players.length >= 5) tables.push({ club, players });
   }
   return tables;
 }
@@ -57,7 +55,7 @@ export function gameDate(html) { const m = html.match(/(\d{2})\.(\d{2})\.(\d{4})
 
 /** ABA «Επώνυμο Όνομα» → κωδικός EuroLeague (ίδια ομάδα, ίδια σύνολα λέξεων ή ίδιο επώνυμο+αρχικό) */
 export function matchEL(name, team, players) {
-  const toks = new Set(norm(name).split(' '));
+  const toks = new Set(norm(name.replace(/-/g, ' ')).split(' ').filter(t => t.length > 1));
   const cand = players.filter(p => p.t.split(';').includes(team));
   const score = p => { const [L, F] = p.n.split(',').map(x => norm(x)); const all = new Set([...L.split(' '), ...(F || '').split(' ')].filter(Boolean)); let k = 0; for (const t of toks) if (all.has(t)) k++; return k / Math.max(all.size, toks.size); };
   const best = cand.map(p => [score(p), p]).sort((a, b) => b[0] - a[0])[0];
@@ -82,11 +80,11 @@ async function main() {
       const tables = parseBox(html);
       if (tables.length < 2) { console.log(`[dom] ABA ${g.id}: δεν βρέθηκε box score (${tables.length} πίνακες)`); if (!parsed) await fs.writeFile(path.join(OUT, 'probe', 'played_box.html'), html.slice(0, 400000)).catch(() => {}); continue; }
       const date = gameDate(html);
-      const sides = [[clubOf(g.home), tables[0]], [clubOf(g.away), tables[1]]];
-      for (const [team, pl] of sides) {
+      for (const { club, players: pl } of tables) {
+        const team = clubOf(club);
         if (!team) continue;
         const players = {};
-        for (const x of pl) { const p = matchEL(x.name, team, cache.players); if (p) players[p.c] = x.min == null ? null : +x.min.toFixed(1); else unmatched.add(`${team}: ${x.name}`); }
+        for (const x of pl) { const p = matchEL(x.slug, team, cache.players); if (p) players[p.c] = x.min == null ? null : +x.min.toFixed(1); else unmatched.add(`${team}: ${x.name}`); }
         db.games.push({ league: 'ABA', id: g.id, date, team, home: g.home, away: g.away, players });
       }
       parsed++;
