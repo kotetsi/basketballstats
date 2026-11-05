@@ -41,7 +41,7 @@ def main(argv):
         target = rows[rows["round"] == r].reset_index(drop=True)
         if len(train) < 200 or not len(target):
             continue
-        m = PirModel().fit(train)
+        m = PirModel("pir-2stage-v1").fit(train)   # snapshot αγοράς: v1 (features μόνο της τρέχουσας σεζόν)
         pr = m.predict(target)
         snap = []
         for i, x in pr.iterrows():

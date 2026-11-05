@@ -42,7 +42,7 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test test/press.test.mjs test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py && python -m unittest fantasy/tests/test_perf.py
+        run: node --test test/dom.test.mjs test/press.test.mjs test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/odds.test.mjs && python -m unittest predictor/test_predictor.py && python -m unittest fantasy/tests/test_perf.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
@@ -61,10 +61,10 @@ jobs:
           timeout 1500 node fantasy/hist_fetch.mjs || echo "hist_fetch - σφάλμα"
           timeout 2700 python fantasy/perf_run.py || echo "perf_run - σφάλμα"
           timeout 1500 node fantasy/optbt.mjs || echo "optbt - σφάλμα"
-      - name: "Ειδήσεις τύπου (RSS, μόνο τίτλοι + links) και δείγμα ABA"
+      - name: "Ειδήσεις τύπου (RSS, μόνο τίτλοι + links) και λεπτά στην ABA"
         run: |
           timeout 120 node fantasy/press_fetch.mjs || echo "press - σφάλμα"
-          timeout 120 node fantasy/dom_probe.mjs || echo "dom probe - σφάλμα"
+          timeout 300 node fantasy/dom_fetch.mjs || echo "dom - σφάλμα"
       - name: "Αποδόσεις από αδειοδοτημένο πάροχο (μόνο αν υπάρχει ODDS_API_KEY)"
         id: odds
         env:

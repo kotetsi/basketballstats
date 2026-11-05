@@ -227,6 +227,7 @@ export function buildAlerts(lineup, players, news = [], { curTurn = 0, now = new
   for (const n of news) if (mineSet.has(n.c) && ['return', 'probable_starter', 'minutes_up', 'projection_change', 'transfer'].includes(n.kind)) add(n.c, n.kind, n.before ?? null, n.after ?? null, 'review', n.source || 'model', n.ts || now);
   // δημοσιεύματα τύπου (τελευταίες 4 μέρες): ειδοποίηση με link, χωρίς αλλαγή εκτίμησης
   const fresh = Date.parse(now) - 4 * 864e5;
+  for (const n of news) if (mineSet.has(n.c) && n.kind === 'domestic' && Date.parse(n.ts) >= fresh) { add(n.c, 'domestic', n.before ?? null, n.after ?? 0, 'check_news', n.source, n.ts); Object.assign(out[out.length - 1], { link: n.detail?.link, severity: alertSeverity('doubtful', slotOf(n.c), n.c === lineup.captain) }); }
   for (const n of news) if (mineSet.has(n.c) && n.kind === 'press' && Date.parse(n.ts) >= fresh) { add(n.c, 'press', null, P.get(n.c)?.pp ?? null, 'check_news', n.source, n.ts); Object.assign(out[out.length - 1], { title: n.title, link: n.link, tag: n.tag }); if (n.tag !== 'return') out[out.length - 1].severity = alertSeverity('doubtful', slotOf(n.c), n.c === lineup.captain); }
   const rank = { critical: 0, warning: 1, info: 2 };
   return out.sort((a, b) => rank[a.severity] - rank[b.severity]);
