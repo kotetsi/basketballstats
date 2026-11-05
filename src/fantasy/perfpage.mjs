@@ -83,15 +83,15 @@ ${kpi(L('Αρχηγός στο top 10', 'Captain in top 10'), cap.hidden ? '–'
   }
   function lines(seriesBy, key = 'mae', label = '') {
     // x = κοινή σειρά (σεζόν, αγωνιστική)· ένα κενό ανάμεσα στις σεζόν
-    const keys = [...new Set(Object.values(seriesBy).flat().map(x => `${x.season}|${x.round}`))].sort();
+    const keys = [...new Set(Object.values(seriesBy).flat().map(x => `${x.season}|${x.round}`))].sort((a, b) => { const [sa, ra] = a.split('|'), [sb, rb] = b.split('|'); return sa.localeCompare(sb) || ra - rb; });
     if (keys.length < 2) return '';
     const vals = Object.values(seriesBy).flat().map(x => x[key]).filter(v => v != null);
     const lo = Math.floor(Math.min(...vals) * 0.95), hi = Math.ceil(Math.max(...vals) * 1.05);
     const X = k => M.l + ((W - M.l - M.r) * keys.indexOf(k)) / (keys.length - 1), Y = v => H - M.b - ((H - M.t - M.b) * (v - lo)) / (hi - lo || 1);
     let s = yAxis(lo, hi, H, W);
-    let prevS = null; keys.forEach(k => { const S = k.split('|')[0]; if (S !== prevS) { s += `<text class="pft" x="${X(k)}" y="${H - M.b + 16}">${S.slice(1)}-${String(+S.slice(1) + 1).slice(2)}</text>`; if (prevS) s += `<line class="pfg" x1="${X(k)}" x2="${X(k)}" y1="${M.t}" y2="${H - M.b}"/>`; prevS = S; } });
+    let prevS = null; keys.forEach(k => { const S = k.split('|')[0]; if (S !== prevS) { s += `<text class="pft" x="${Math.min(X(k), W - M.r)}" y="${H - M.b + 16}"${X(k) > W - 70 ? ' text-anchor="end"' : ''}>${S.slice(1)}-${String(+S.slice(1) + 1).slice(2)}</text>`; if (prevS) s += `<line class="pfg" x1="${X(k)}" x2="${X(k)}" y1="${M.t}" y2="${H - M.b}"/>`; prevS = S; } });
     for (const [m, ser] of Object.entries(seriesBy)) {
-      const pts = ser.filter(x => x[key] != null);
+      const pts = ser.filter(x => x[key] != null).sort((a, b) => a.season.localeCompare(b.season) || a.round - b.round);
       // διακοπή γραμμής ανάμεσα στις σεζόν
       const segs = []; let cur = [];
       pts.forEach((p, i) => { if (i && p.season !== pts[i - 1].season) { segs.push(cur); cur = []; } cur.push(p); }); segs.push(cur);
