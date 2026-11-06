@@ -1,8 +1,8 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 38
+  "calls": 39
  },
- "lastError": "2026-11-05T21:20:06.764Z",
+ "lastError": "2026-11-06T06:41:04.555Z",
  "error": "OddsPapi /participants 401: {\"error\":{\"message\":\"Invalid API key\",\"code\":\"INVALID_API_KEY\",\"details\":\"The provided API key is invalid or does not exist.\"}}"
 }
