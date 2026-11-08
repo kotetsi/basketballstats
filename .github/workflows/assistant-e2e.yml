@@ -1,0 +1,26 @@
+# Έλεγχος του AI Fantasy Assistant σε branch (χωρίς δημοσίευση): unit tests + πραγματικό OCR στον browser.
+name: AI Fantasy Assistant - έλεγχος
+
+on:
+  push:
+    branches: [ai-fantasy-assistant]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Unit tests
+        run: node --test test/assistant.test.mjs test/fantasy-manager.test.mjs
+      - name: Build (offline, χωρίς δημοσίευση)
+        run: node build.mjs --offline
+      - name: OCR στον browser (Tesseract.js)
+        run: |
+          npm i --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+          node test/e2e/assistant-ocr.e2e.mjs

@@ -1,0 +1,13 @@
+name = "bs-fantasy-vision"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+MODEL = "claude-haiku-5-5"        # φθηνό μοντέλο με όραση· άλλαξέ το αν θέλεις
+DAILY_PER_IP = "10"
+DAILY_TOTAL = "300"                # όριο κόστους: το πολύ τόσες αναγνωρίσεις τη μέρα συνολικά
+ALLOWED_ORIGINS = "https://basketballstats.eu"
+
+[[kv_namespaces]]
+binding = "LIMITS"
+id = "ΒΑΛΕ_ΕΔΩ_ΤΟ_ID_ΤΟΥ_KV"         # wrangler kv namespace create LIMITS

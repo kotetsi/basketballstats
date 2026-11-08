@@ -90,10 +90,11 @@ export function tradeEval(roster, outC, inC, players, { bank = 0, transfersLeft 
  * Multi-trade optimizer: έως maxTrades (1-4) αλλαγές, beam search πάνω σε ανταλλαγές ίδιας θέσης.
  * Σέβεται ταμείο, θέσεις, έως 6 ανά ομάδα και υπόλοιπο transfers.
  */
-export function multiTrade(roster, players, { bank = 0, transfersLeft = 4, maxTrades = 4, risk = 'balanced', horizonRounds = 3, maxPerTeam = MAX_PER_TEAM, beam = 6, minGain = 0.5 } = {}) {
-  const K = Math.max(0, Math.min(4, maxTrades, transfersLeft));
+export function multiTrade(roster, players, { bank = 0, transfersLeft = 4, maxTrades = 4, risk = 'balanced', horizonRounds = 3, maxPerTeam = MAX_PER_TEAM, beam = 6, minGain = 0.5, locked = [], exclude = [] } = {}) {
+  const LK = new Set(locked), EX = new Set(exclude);
+  const K = Math.max(0, Math.min(maxTrades, transfersLeft));
   const rk = risk === 'balanced' ? 'ceiling' : risk;
-  const pool = players.filter(p => p.status !== 'injured' && p.status !== 'rest' && p.opp && !p.small);
+  const pool = players.filter(p => p.status !== 'injured' && p.status !== 'rest' && p.opp && !p.small && !EX.has(p.c));
   const score = ro => lineupScore(ro, rk, horizonRounds);
   const base = score(roster);
   let states = [{ ro: roster, bank, trades: [], s: base }];
@@ -105,7 +106,7 @@ export function multiTrade(roster, players, { bank = 0, transfersLeft = 4, maxTr
       const sold = new Set(st.trades.map(t => t.out)), bought = new Set(st.trades.map(t => t.in));
       for (let i = 0; i < st.ro.length; i++) {
         const o = st.ro[i];
-        if (bought.has(o.c)) continue;
+        if (bought.has(o.c) || LK.has(o.c)) continue;   // κλειδωμένοι: δεν πουλιούνται
         // υποψήφιοι: οι καλύτεροι της ίδιας θέσης που χωράνε στο ταμείο
         const cands = pool.filter(q => q.pos === o.pos && !st.ro.some(x => x.c === q.c) && !sold.has(q.c) && q.price <= st.bank + o.price + 1e-9)
           .sort((a, b) => horizon(b, horizonRounds).pp - horizon(a, horizonRounds).pp).slice(0, 12);
