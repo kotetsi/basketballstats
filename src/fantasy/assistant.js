@@ -2,7 +2,7 @@
 // Η εικόνα διαβάζεται στη συσκευή σου (Tesseract.js, OCR ανοιχτού κώδικα) και δεν αποθηκεύεται πουθενά.
 // Αν έχει ρυθμιστεί endpoint μοντέλου όρασης (X.vision), ο χρήστης μπορεί να το επιλέξει· η εικόνα στέλνεται μόνο τότε.
 // Η αντιστοίχιση, οι κανόνες, το budget και τα σενάρια γίνονται από τον κώδικα του assistant.mjs, όχι από μοντέλο.
-import { parseScan, parseVision, parseCards, parseHeader, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
+import { parseScan, parseVision, parseCards, parseHeader, fixCode, APP_CODES, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
 import { CLASSIC_RULES, tradesAllowed } from './rules.mjs';
 
 const X = JSON.parse(document.getElementById('asctx').textContent), L = X.L;
@@ -173,7 +173,18 @@ async function ocr(img, onPct) {
     for (let i = 0; i < anchors.length; i++) {
       const a = anchors[i], R = cardRegions(a), cs = bandCanvases(bmp, R.name), t = [];
       for (const c of cs) { const { data } = await TESS.recognize(c); if (data.text && data.text.trim()) t.push(data.text.trim()); }
-      cards.push({ texts: t, text: t[0] || '', price: a.price, opp: oppFrom(words, a), captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0 });
+      let opp = oppFrom(words, a);
+      if (!opp) {   // ο αντίπαλος δεν βγήκε στο γενικό πέρασμα: διαβάζουμε μόνο εκείνο το κομμάτι της κάρτας
+        const oc = headerCanvas(bmp, { x0: a.x1 + 0.3 * a.h, y0: a.y1 + 0.1 * a.h, x1: R.opp.x1 + 0.5 * a.h, y1: a.crY + 0.6 * a.h });
+        if (oc) {
+          await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ@ ' });
+          const { data } = await TESS.recognize(oc);
+          await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'' });
+          const m = String(data.text || '').toUpperCase().match(/(@|VS|V5|YS)?\s*([A-Z]{3})\s*$/m);
+          if (m) { const code = fixCode(m[2]); opp = { code, away: m[1] === '@' ? true : m[1] ? false : null, our: APP_CODES[code] || code }; }
+        }
+      }
+      cards.push({ texts: t, text: t[0] || '', price: a.price, opp, captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0 });
       onPct(40 + Math.round(60 * (i + 1) / anchors.length));
     }
     await TESS.setParameters({ tessedit_char_whitelist: '' });
