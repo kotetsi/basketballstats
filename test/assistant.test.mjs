@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { parseScan, parseVision, segmentLine, nameIndex, decide, validateTeam, readiness, assist, MIN_GAIN } from '../src/fantasy/assistant.mjs';
+import { parseScan, parseVision, segmentLine, nameIndex, decide, validateTeam, readiness, assist, MIN_GAIN, findAnchors, cardRegions, oppFrom, parseCards, parseCardText, fixPrice } from '../src/fantasy/assistant.mjs';
 import { CLASSIC_RULES, tradesAllowed } from '../src/fantasy/rules.mjs';
 
 // ---------- συνθετική αγορά: 3 ομάδες × θέσεις, με γνωστές εκτιμήσεις
@@ -138,4 +138,29 @@ test('εκτιμώμενες τιμές σημειώνονται· τιμές τ
   const r2 = assist({ ...t, prices: Object.fromEntries(t.roster.map(c => [c, 1])) }, P, coaches);   // πουλάς φθηνά → λιγότερο budget
   const sum = s => s.trades.reduce((a, x) => a + x.priceOut, 0);
   for (const s of r2.scenarios) assert.equal(sum(s), s.trades.length * 1);
+});
+
+// ---------- πραγματικό screenshot της επίσημης εφαρμογής (κάρτες)
+test('κάρτες επίσημης εφαρμογής: 10 παίκτες, προπονητής, αρχηγός, 6ος/πάγκος, αξίες', () => {
+  const F = JSON.parse(fs.readFileSync(new URL('./fixtures/assistant-real-card.json', import.meta.url)));
+  const words = F.words.map(([text, x0, y0, x1, y1]) => ({ text, x0, y0, x1, y1 }));
+  const A = findAnchors(words);
+  assert.equal(A.length, 11);                                   // 10 παίκτες + προπονητής· όχι νούμερα φανέλας
+  const cards = A.map((a, i) => ({ texts: F.bands[i], price: a.price, opp: oppFrom(words, a), captain: i === F.captainIndex, x: a.x0, y: a.y0 }));
+  const r = parseCards(cards, F.players, F.coaches);
+  assert.equal(r.sureCount, 10);
+  const by = Object.fromEntries(r.entries.map(e => [e.raw, e]));
+  assert.equal(by.Feliz.price, 9.3); assert.equal(r.captain, by.Feliz.c);
+  assert.equal(by.Tubelis.slotHint, 'sixth');
+  assert.deepEqual(['Mitoglou', 'Hayes', 'Strazel', 'Ndiaye'].map(n => by[n].slotHint), ['bench', 'bench', 'bench', 'bench']);
+  assert.equal(r.entries.filter(e => e.slotHint === 'start').length, 5);
+  assert.equal(r.coach.t, 'ASV');
+});
+test('κείμενο κάρτας με θόρυβο OCR και αξίες χωρίς τελεία', () => {
+  assert.deepEqual(parseCardText('[ GFeliz J]'), { pos: 'Guard', coach: false, name: 'Feliz' });
+  assert.deepEqual(parseCardText('[oF Tubelis |'), { pos: 'Forward', coach: false, name: 'Tubelis' });
+  assert.equal(parseCardText('[ HC Parker ]').coach, true);
+  assert.equal(fixPrice('93'), 9.3); assert.equal(fixPrice('10,5'), 10.5); assert.equal(fixPrice('99999'), null);
+  // ακέραιος χωρίς «T1-3» δίπλα = νούμερο φανέλας, όχι αξία
+  assert.equal(findAnchors([{ text: '10', x0: 100, y0: 100, x1: 120, y1: 120 }, { text: 'CR', x0: 100, y0: 125, x1: 120, y1: 135 }]).length, 0);
 });

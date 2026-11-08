@@ -2,7 +2,7 @@
 // Η εικόνα διαβάζεται στη συσκευή σου (Tesseract.js, OCR ανοιχτού κώδικα) και δεν αποθηκεύεται πουθενά.
 // Αν έχει ρυθμιστεί endpoint μοντέλου όρασης (X.vision), ο χρήστης μπορεί να το επιλέξει· η εικόνα στέλνεται μόνο τότε.
 // Η αντιστοίχιση, οι κανόνες, το budget και τα σενάρια γίνονται από τον κώδικα του assistant.mjs, όχι από μοντέλο.
-import { parseScan, parseVision, validateTeam, readiness, assist, norm } from './assistant.mjs';
+import { parseScan, parseVision, parseCards, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
 import { CLASSIC_RULES, tradesAllowed } from './rules.mjs';
 
 const X = JSON.parse(document.getElementById('asctx').textContent), L = X.L;
@@ -66,25 +66,98 @@ async function preprocess(file, mode = 'otsu') {
   return cv;
 }
 let TESS = null;
+const otsuTh = (gray) => {
+  const hist = new Array(256).fill(0); for (const v of gray) hist[v]++;
+  let tot = 0; for (let i = 0; i < 256; i++) tot += i * hist[i];
+  let sB = 0, wB = 0, best = 0, th = 128; const n = gray.length;
+  for (let t = 0; t < 256; t++) { wB += hist[t]; if (!wB) continue; const wF = n - wB; if (!wF) break; sB += t * hist[t]; const mB = sB / wB, mF = (tot - sB) / wF, v = wB * wF * (mB - mF) ** 2; if (v > best) { best = v; th = t; } }
+  return th;
+};
+const wordsOf = data => (data.words && data.words.length ? data.words : (data.blocks || []).flatMap(b => (b.paragraphs || []).flatMap(p => (p.lines || []).flatMap(l => l.words || []))));
+/** λωρίδα ονόματος κάρτας → δύο εκδοχές για OCR μίας γραμμής (γκρι και δυαδική), με σκούρα γράμματα σε λευκό */
+function bandCanvases(bmp, r) {
+  const x0 = Math.max(0, Math.round(r.x0)), y0 = Math.max(0, Math.round(r.y0)), x1 = Math.min(bmp.width, Math.round(r.x1)), y1 = Math.min(bmp.height, Math.round(r.y1));
+  const w = x1 - x0, h = y1 - y0; if (w < 10 || h < 6) return [];
+  const K = 3, W = w * K, H = h * K;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, x0, y0, w, h, 0, 0, W, H);
+  const d = g.getImageData(0, 0, W, H).data, n = W * H, gray = new Uint8ClampedArray(n);
+  let sum = 0; for (let i = 0; i < n; i++) { gray[i] = 0.299 * d[4 * i] + 0.587 * d[4 * i + 1] + 0.114 * d[4 * i + 2]; sum += gray[i]; }
+  if (sum / n < 128) for (let i = 0; i < n; i++) gray[i] = 255 - gray[i];
+  let lo = 255, hi = 0; for (const v of gray) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const k2 = 255 / Math.max(1, hi - lo); for (let i = 0; i < n; i++) gray[i] = (gray[i] - lo) * k2;
+  // μόνο οι γραμμές της λωρίδας: η μεγαλύτερη συνεχής ζώνη με φωτεινό φόντο (διάμεσος ≥ 190)
+  let bs = 0, be = 0, st = -1;
+  for (let y = 0; y <= H; y++) {
+    let ok = false;
+    if (y < H) { const row = []; for (let x = 0; x < W; x += 2) row.push(gray[y * W + x]); row.sort((a, b) => a - b); ok = row[row.length >> 1] >= 190; }
+    if (ok && st < 0) st = y;
+    if (!ok && st >= 0) { if (y - st > be - bs) { bs = st; be = y; } st = -1; }
+  }
+  if (be - bs < 10) return [];
+  const th = otsuTh(gray.subarray(bs * W, be * W)), P = 20, out = [];
+  for (const bin of [false, true]) {
+    const c = document.createElement('canvas'); c.width = W + 2 * P; c.height = be - bs + 2 * P;
+    const cg = c.getContext('2d'); cg.fillStyle = '#fff'; cg.fillRect(0, 0, c.width, c.height);
+    const im = cg.createImageData(W, be - bs);
+    for (let y = bs; y < be; y++) for (let x = 0; x < W; x++) { const v = gray[y * W + x], o = 4 * ((y - bs) * W + x), q = bin ? (v > th ? 255 : 0) : v; im.data[o] = im.data[o + 1] = im.data[o + 2] = q; im.data[o + 3] = 255; }
+    cg.putImageData(im, P, P); out.push(c);
+  }
+  return out;
+}
+/** σήμα αρχηγού: ποσοστό «λαχανί» pixel στην πάνω δεξιά γωνία της κάρτας */
+function limeRatio(bmp, r) {
+  const x0 = Math.max(0, Math.round(r.x0)), y0 = Math.max(0, Math.round(r.y0)), w = Math.min(bmp.width, Math.round(r.x1)) - x0, h = Math.min(bmp.height, Math.round(r.y1)) - y0;
+  if (w < 2 || h < 2) return 0;
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, x0, y0, w, h, 0, 0, w, h);
+  const d = g.getImageData(0, 0, w, h).data; let k = 0;
+  for (let i = 0; i < d.length; i += 4) if (d[i + 1] > 200 && d[i] > 170 && d[i + 2] < 90 && d[i + 1] - d[i + 2] > 130) k++;
+  return k / (w * h);
+}
+/** OCR μιας εικόνας. Πρώτα αραιά περάσματα με θέσεις λέξεων: αν βρεθούν κάρτες της επίσημης εφαρμογής (αξία + CR/T1-3),
+ * κάθε λωρίδα ονόματος διαβάζεται χωριστά. Αλλιώς: επιπλέον περάσματα και ανάλυση του κειμένου γραμμή-γραμμή. */
 async function ocr(img, onPct) {
   if (!TESS) {
     const mod = await import('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.esm.min.js');
     const T = mod.default || mod;
     TESS = await T.createWorker('eng', 1);
-    await TESS.setParameters({ tessedit_pageseg_mode: '3', preserve_interword_spaces: '1' });
+    await TESS.setParameters({ preserve_interword_spaces: '1' });
   }
-  // πολλά περάσματα: κάθε εφαρμογή/θέμα έχει άλλα χρώματα· τα αποτελέσματα ενώνονται (οι διπλοεγγραφές φεύγουν στην αντιστοίχιση)
-  const passes = [['otsu', '3'], ['otsu-inv', '3'], ['gray', '11'], ['otsu', '11']];
-  const out = [];
-  for (let i = 0; i < passes.length; i++) {
-    const [mode, psm] = passes[i];
+  const bmp = await createImageBitmap(img.file), scale = bmp.width < 1000 ? 2 : 1;
+  const texts = [], words = [];
+  const sparse = [['otsu', '11'], ['gray', '11']];
+  for (let i = 0; i < sparse.length; i++) {
+    const [mode, psm] = sparse[i];
     await TESS.setParameters({ tessedit_pageseg_mode: psm });
-    const cv = await preprocess(img.file, mode);
-    const { data } = await TESS.recognize(cv);
-    out.push(data.text || '');
-    onPct(Math.round(100 * (i + 1) / passes.length));
+    const { data } = await TESS.recognize(await preprocess(img.file, mode), {}, { text: true, blocks: true });
+    texts.push(data.text || '');
+    for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / scale, y0: w.bbox.y0 / scale, x1: w.bbox.x1 / scale, y1: w.bbox.y1 / scale });
+    onPct(Math.round(40 * (i + 1) / sparse.length));
   }
-  return out.join('\n');
+  const anchors = findAnchors(words);
+  if (anchors.length >= 5) {
+    await TESS.setParameters({ tessedit_pageseg_mode: '7' });
+    const cards = [];
+    for (let i = 0; i < anchors.length; i++) {
+      const a = anchors[i], R = cardRegions(a), cs = bandCanvases(bmp, R.name), t = [];
+      for (const c of cs) { const { data } = await TESS.recognize(c); if (data.text && data.text.trim()) t.push(data.text.trim()); }
+      cards.push({ texts: t, text: t[0] || '', price: a.price, opp: oppFrom(words, a), captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0 });
+      onPct(40 + Math.round(60 * (i + 1) / anchors.length));
+    }
+    bmp.close?.();
+    return { text: texts.join('\n'), cards };
+  }
+  const more = [['otsu', '3'], ['otsu-inv', '3']];
+  for (let i = 0; i < more.length; i++) {
+    const [mode, psm] = more[i];
+    await TESS.setParameters({ tessedit_pageseg_mode: psm });
+    const { data } = await TESS.recognize(await preprocess(img.file, mode));
+    texts.push(data.text || '');
+    onPct(40 + Math.round(60 * (i + 1) / more.length));
+  }
+  bmp.close?.();
+  return { text: texts.join('\n'), cards: null };
 }
 /** προαιρετικό: μοντέλο όρασης στον server (μόνο αν έχει ρυθμιστεί και το επιλέξει ο χρήστης) */
 async function vision(img) {
@@ -105,14 +178,18 @@ async function processImages() {
     for (const img of S.images) {
       img.status = 'working'; render();
       if (S.useVision && X.vision) visions.push(await vision(img));
-      else texts.push(img.text ?? (img.text = await ocr(img, p => { img.pct = p; const el = app.querySelector(`[data-pct="${S.images.indexOf(img)}"]`); if (el) el.textContent = p + '%'; })));
+      else texts.push(img.res ?? (img.res = await ocr(img, p => { img.pct = p; const el = app.querySelector(`[data-pct="${S.images.indexOf(img)}"]`); if (el) el.textContent = p + '%'; })));
       img.status = 'done'; render();
     }
   } catch (e) {
     S.busy = false; S.msg = { k: 'err', t: (e && e.message) || L.err.ocr }; S.images.forEach(i => { if (i.status === 'working') i.status = 'error'; }); render(); return;
   }
   const opts = { teams: X.teamsEn, greek: X.greek };
-  const parts = [...texts.map(t => parseScan(t, D.players, opts)), ...visions.map(v => parseVision(v, D.players, opts))];
+  // κάρτες της επίσημης εφαρμογής (θέση, ομάδα από τον αντίπαλο, αρχηγός, 6ος/πάγκος) · αλλιώς ανάλυση κειμένου
+  const parts = [...texts.map(r => {
+    if (r.cards) { const c = parseCards(r.cards, D.players, COACHES, opts); if (c.sureCount >= 5) return c; const t = parseScan(r.text, D.players, opts); return t.sureCount > c.sureCount ? t : c; }
+    return parseScan(r.text, D.players, opts);
+  }), ...visions.map(v => parseVision(v, D.players, opts))];
   // πολλά screenshots της ίδιας ομάδας: ένωση χωρίς διπλοεγγραφές
   const rows = new Map();
   let bank = null, coach = null, captain = null; const unresolved = [];
