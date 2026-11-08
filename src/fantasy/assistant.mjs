@@ -358,6 +358,10 @@ export function parseCardText(t) {
   };
   for (let i = 0; i < Math.min(3, toks.length - 0); i++) {
     const k = toks[i];
+    // προπονητής: «HC» και οι συνηθισμένες παραναγνώσεις του («Hc», «HG», «HO», «NC», «IIC», «H C», «HCParker»)
+    if (/^(H[CcGO0(]|N[Cc]|[I1l]{1,2}C)$/.test(k) && i + 1 < toks.length) return mk('HC', toks.slice(i + 1));
+    if (k === 'H' && /^[CcGO]$/.test(toks[i + 1] || '') && i + 2 < toks.length) return mk('HC', toks.slice(i + 2));
+    const hcg = k.match(/^H[CcG]([A-Z][a-z]{2,}.*)$/); if (hcg) return mk('HC', [hcg[1], ...toks.slice(i + 1)]);
     if (/^(HC|[GFC6])$/.test(k) && i + 1 < toks.length) return mk(k, toks.slice(i + 1));
     const glued = k.match(/^(HC|[GFC])([A-Z][a-z]{2,}.*)$/);                 // «GFeliz» → G + Feliz
     if (glued) return mk(glued[1], [glued[2], ...toks.slice(i + 1)]);
@@ -383,7 +387,15 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
   const entries = [], seen = new Set();
   let coach = null, captain = null;
   // διάταξη: οι 5 πιο ψηλά κάρτες παικτών = πεντάδα· από τις υπόλοιπες, η πιο αριστερή = 6ος· οι άλλες = πάγκος
-  const pl = cards.filter(c => !(c.texts && c.texts.length ? c.texts : [c.text]).some(x => parseCardText(x).coach));
+  const isCoachText = c => (c.texts && c.texts.length ? c.texts : [c.text]).some(x => parseCardText(x).coach);
+  // προπονητής από τη διάταξη, αν το «HC» δεν διαβάστηκε: με 11 κάρτες, κάτω από τον 6ο, στην ίδια (αριστερή) στήλη
+  let geoCoach = null;
+  if (!cards.some(isCoachText) && cards.length === 11) {
+    const below = cards.slice().sort((a, b) => a.y - b.y).slice(5), xs = cards.map(c => c.x), tol = 0.12 * (Math.max(...xs) - Math.min(...xs) || 1);
+    const minX = Math.min(...below.map(c => c.x)), col = below.filter(c => c.x - minX <= tol).sort((a, b) => a.y - b.y);
+    if (col.length === 2) geoCoach = col[1];
+  }
+  const pl = cards.filter(c => c !== geoCoach && !isCoachText(c));
   const byY = pl.slice().sort((a, b) => a.y - b.y), start = new Set(byY.slice(0, 5)), rest = byY.slice(5);
   const sixth = rest.length >= 2 ? rest.slice().sort((a, b) => a.x - b.x)[0] : null;
   for (const c of cards) {
@@ -398,8 +410,11 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
       if (sc > best) { best = sc; t = q; }
     }
     c.text = texts.join(' / ');
+    if (c === geoCoach) t = { ...t, coach: true };
     if (t.coach) {
-      const ct = team || (c.opp ? [...new Set(coaches.filter(x => x.opp === c.opp.our).map(x => x.t))][0] : null);
+      // ομάδα προπονητή: από τον αντίπαλο (και εντός/εκτός) στη λίστα προπονητών, αλλιώς από τους παίκτες
+      const byCoach = c.opp ? [...new Set(coaches.filter(x => x.opp === c.opp.our && (c.opp.away == null || x.home == null || (c.opp.away ? !x.home : !!x.home))).map(x => x.t))] : [];
+      const ct = byCoach.length === 1 ? byCoach[0] : team;
       coach = ct ? { t: ct, raw: c.text, status: 'sure', price: c.price } : { t: null, raw: c.text, status: 'none', options: [] };
       continue;
     }

@@ -164,3 +164,15 @@ test('κείμενο κάρτας με θόρυβο OCR και αξίες χωρ
   // ακέραιος χωρίς «T1-3» δίπλα = νούμερο φανέλας, όχι αξία
   assert.equal(findAnchors([{ text: '10', x0: 100, y0: 100, x1: 120, y1: 120 }, { text: 'CR', x0: 100, y0: 125, x1: 120, y1: 135 }]).length, 0);
 });
+
+test('προπονητής χωρίς σωστό «HC»: παραναγνώσεις και διάταξη καρτών', () => {
+  for (const x of ['[ Hc Parker ]', '| HG Parker', 'H C Parker', 'HCParker', 'NC Parker']) assert.equal(parseCardText(x).coach, true, x);
+  const F = JSON.parse(fs.readFileSync(new URL('./fixtures/assistant-real-card.json', import.meta.url)));
+  const words = F.words.map(([text, x0, y0, x1, y1]) => ({ text, x0, y0, x1, y1 }));
+  const A = findAnchors(words);
+  const bands = F.bands.map(b => b.some(x => /HC/.test(x)) ? ['[ 4 Parker ]'] : b);   // το «HC» χάθηκε
+  const r = parseCards(A.map((a, i) => ({ texts: bands[i], price: a.price, opp: oppFrom(words, a), captain: false, x: a.x0, y: a.y0 })), F.players, F.coaches);
+  assert.equal(r.coach.t, 'ASV');
+  assert.equal(r.sureCount, 10);
+  assert.ok(!r.entries.some(e => /PARKER/.test(F.players.find(p => p.c === e.c)?.n || '')));
+});
