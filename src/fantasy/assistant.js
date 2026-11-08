@@ -181,7 +181,7 @@ async function ocr(img, onPct) {
           const { data } = await TESS.recognize(oc);
           await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'' });
           oppRaw = String(data.text || '');
-          const m = String(data.text || '').toUpperCase().match(/(@|VS|V5|YS)?\s*([A-Z]{3})\s*$/m);
+          const ms = [...String(data.text || '').toUpperCase().matchAll(/(@|VS|V5|YS)?\s*\b([A-Z]{3})\b/g)], m = ms.find(x => APP_CODES[fixCode(x[2])]) || ms.find(x => x[1]) || ms[0];
           if (m) { const code = fixCode(m[2]); opp = { code, away: m[1] === '@' ? true : m[1] ? false : null, our: APP_CODES[code] || code }; }
         }
       }
