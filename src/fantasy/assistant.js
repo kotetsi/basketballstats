@@ -12,7 +12,7 @@ const f1 = v => (v == null || Number.isNaN(+v) ? '–' : (+v).toFixed(1));
 const sg = v => (v == null ? '–' : `<b class="${v > 0 ? 'up' : v < 0 ? 'dn' : ''}">${v > 0 ? '+' : ''}${(+v).toFixed(1)}</b>`);
 const MAX_FILES = 4, MAX_MB = 10, TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 let D = null, P = new Map(), COACHES = [], READY = null;
-const S = { step: 1, images: [], busy: false, msg: null, rows: [], coach: null, coachSt: null, bank: null, bankSrc: null, trades: null, unlimited: false, useVision: false, result: null, inPrice: {}, unresolved: [], view: 0 };
+const S = { step: 1, images: [], busy: false, msg: null, rows: [], coach: null, coachSt: null, bank: null, bankSrc: null, total: null, totalSrc: null, trades: null, unlimited: false, useVision: false, result: null, inPrice: {}, unresolved: [], view: 0, repl: null, applied: [] };
 
 const nm = c => P.get(c)?.dn || c, tm = t => esc(X.teams[t] || t);
 const posL = p => esc(L.pos[p] || p);
@@ -200,9 +200,11 @@ async function processImages() {
   S.rows = [...rows.values()].map(e => ({ c: e.status === 'sure' ? e.c : null, status: e.status, score: e.score, options: e.options || [], raw: e.raw, price: e.price, priceSrc: e.price != null ? 'scan' : null, slot: e.slotHint || null, captain: false, locked: false }));
   // δεν επιτρέπεται η ίδια επιλογή δύο φορές: αμφίβολες εγγραφές χωρίς επιλογές που απομένουν φεύγουν
   if (captain) { const r = S.rows.find(x => x.c === captain); if (r) { r.captain = true; r.capHint = true; } }
-  S.bank = bank ? bank.value : null; S.bankSrc = bank ? 'scan' : null;
   S.coach = coach && coach.status === 'sure' ? coach.t : null; S.coachSt = coach ? coach.status : 'none'; S.coachPrice = coach && coach.status === 'sure' && coach.price != null ? coach.price : null;
   S.unresolved = [...new Set(unresolved)].slice(0, 10);
+  // συνολικά credits της ομάδας: αν διαβάστηκαν όλες οι αξίες (10 παίκτες + προπονητής), το άθροισμά τους (+ αδιάθετα αν φάνηκαν)
+  const tv = teamValue();
+  S.total = tv.n === 10 && !tv.est ? +(tv.v + (bank ? bank.value : 0)).toFixed(1) : null; S.totalSrc = S.total != null ? 'scan' : null;
   S.busy = false; S.step = 2;
   // οι εικόνες δεν κρατιούνται
   for (const i of S.images) URL.revokeObjectURL(i.url);
@@ -210,8 +212,18 @@ async function processImages() {
 }
 
 // ---------------------------------------------------------------- ομάδα
+/** αξία ομάδας: αξίες από την εικόνα ή όσες έγραψες, αλλιώς εκτίμηση του site (est = υπάρχει έστω μία εκτίμηση) */
+function teamValue() {
+  let v = 0, n = 0; const estOf = [];
+  for (const r of S.rows) { if (!r.c) continue; n++; if (r.price != null && r.price !== '') v += +r.price; else { v += +(P.get(r.c)?.price || 0); estOf.push(nm(r.c)); } }
+  let co = 0;
+  if (S.coach) { if (S.coachPrice != null) co = +S.coachPrice; else { co = +(COACHES.find(x => x.t === S.coach)?.price || 0); estOf.push(L.coach); } }
+  return { v: v + co, pl: v, co, n, est: estOf.length > 0, estOf };
+}
+/** αδιάθετα credits = συνολικά credits ομάδας − αξία παικτών και προπονητή */
+const bankOf = () => (S.total == null ? null : Math.round((S.total - teamValue().v) * 10) / 10);
 const fromRows = () => ({
-  roster: S.rows.map(r => r.c).filter(Boolean), coach: S.coach, bank: S.bank, trades: S.unlimited ? Infinity : S.trades,
+  roster: S.rows.map(r => r.c).filter(Boolean), coach: S.coach, bank: bankOf(), trades: S.unlimited ? Infinity : S.trades,
   locked: S.rows.filter(r => r.c && r.locked).map(r => r.c), prices: Object.fromEntries(S.rows.filter(r => r.c && r.price != null && r.price !== '').map(r => [r.c, +r.price])),
 });
 function loadManager() {
@@ -220,7 +232,7 @@ function loadManager() {
     if (!t?.roster?.length) return false;
     S.rows = t.roster.map(c => ({ c, status: P.get(c) ? 'sure' : 'none', options: [], raw: nm(c), price: null, priceSrc: null, slot: null, captain: c === t.captain, locked: false }));
     S.coach = t.coach || null; S.coachSt = t.coach ? 'sure' : 'none';
-    S.bank = t.bank ?? null; S.bankSrc = t.bank != null ? 'manager' : null;
+    S.total = t.bank != null ? +(teamValue().v + +t.bank).toFixed(1) : null; S.totalSrc = t.bank != null ? 'manager' : null;
     S.step = 2; return true;
   } catch { return false; }
 }
@@ -271,7 +283,7 @@ function rowHtml(r, k) {
 }
 function errText(e) {
   const t = L.verr[e.k] || e.k;
-  return t.replace('{n}', e.n ?? '').replace('{need}', e.need ?? '').replace('{pos}', L.pos[e.pos] || '').replace('{t}', X.teams[e.t] || e.t || '').replace('{max}', e.max ?? '').replace('{codes}', (e.codes || []).join(', ')).replace('{b}', f1(e.b)).replace('{v}', f1(e.v));
+  return t.replace('{n}', e.n ?? '').replace('{need}', e.need ?? '').replace('{pos}', L.pos[e.pos] || '').replace('{t}', X.teams[e.t] || e.t || '').replace('{max}', e.max ?? '').replace('{codes}', (e.codes || []).join(', ')).replace('{b}', f1(e.b)).replace('{v}', f1(e.v)).replace('{tot}', f1(S.total)).replace('{val}', f1(teamValue().v));
 }
 function step2() {
   const team = fromRows();
@@ -289,7 +301,7 @@ ${S.unresolved.length ? `<details class="asunres"><summary>${esc(L.unresolved.re
 <p><button type="button" data-act="add-row" ${S.rows.length >= 10 ? 'disabled' : ''}>＋ ${esc(L.addPlayer)}</button></p>
 <div class="asgrid">
 <label>${esc(L.coach)}${S.coachSt === 'ambiguous' || (S.coachSt === 'none' && S.step === 2) ? ` <small class="asneed">${esc(L.confirmCoach)}</small>` : ''} ${coachSel} <label class="ascheck"><input type="checkbox" data-act="lock-coach" ${S.lockCoach ? 'checked' : ''}> 🔒 ${esc(L.keepCoach)}</label></label>
-<label>${esc(L.bank)} <input type="number" step="0.1" min="0" max="100" inputmode="decimal" class="asnum" data-act="bank" value="${S.bank ?? ''}" placeholder="${esc(L.required)}" required aria-required="true">${S.bankSrc === 'scan' ? `<small class="asneed">${esc(L.bankFromImage)}</small>` : S.bank == null ? `<small class="asneed">${esc(L.bankHelp)}</small>` : ''}</label>
+<label>${esc(L.total)} <input type="number" step="0.1" min="0" max="200" inputmode="decimal" class="asnum" data-act="total" value="${S.total ?? ''}" placeholder="${esc(L.required)}" required aria-required="true">${(() => { const tv = teamValue(), b = bankOf(); return `<small>${esc(L.totalHelp)}</small>${S.totalSrc === 'scan' ? `<small class="asneed">${esc(L.totalFromImage)}</small>` : ''}<small class="asvalue">${esc(L.valueLine.replace('{pl}', f1(tv.pl)).replace('{co}', f1(tv.co)).replace('{v}', f1(tv.v)))}${b != null ? ` → <b>${esc(L.freeLine.replace('{b}', f1(b)))}</b>` : ''}</small>${tv.est ? `<small class="asneed">${esc(L.valueEst.replace('{p}', tv.estOf.join(', ')))}</small>` : ''}`; })()}</label>
 <label>${esc(L.trades)} <input type="number" min="0" max="10" step="1" class="asnum" data-act="trades" value="${S.unlimited ? '' : S.trades}" ${S.unlimited ? 'disabled' : ''}><label class="ascheck"><input type="checkbox" data-act="unlimited" ${S.unlimited ? 'checked' : ''}> ${esc(L.unlimited)}</label><small>${esc(L.tradesHelp)}</small></label>
 </div>
 ${v.errors.length || amb ? `<ul class="aserr">${amb ? `<li>${esc(L.verr.amb.replace('{n}', amb))}</li>` : ''}${v.errors.map(e => `<li>${esc(errText(e))}</li>`).join('')}</ul>` : ''}
@@ -346,7 +358,7 @@ function scenHtml(s, k) {
 ${s.trades.length || s.coach ? `<ul class="astrades">${tr}${coach}</ul>` : `<p>${esc(L.keepText)}</p>`}
 <ul class="fmkpi"><li>${esc(L.trades)} <b>${s.nTrades}</b></li><li>${esc(L.cost)} <b>${f1(s.cost)}</b></li><li>${esc(L.bankAfter)} <b class="${s.bankAfter < 0 ? 'dn' : ''}">${f1(s.bankAfter)}</b></li>
 <li title="${esc(L.dNextTip)}">${esc(L.dNext)} ${s.key === 'keep' ? `<b>${f1(s.after)}</b>` : sg(s.dNext)}</li>${s.key !== 'keep' ? `<li title="${esc(L.dHTip)}">${esc(L.dH)} ${sg(s.dHorizon)}</li>` : ''}</ul>
-${s.trades.length ? (() => { const so = s.trades.reduce((a, t) => a + t.priceOut, 0), bi = s.trades.reduce((a, t) => a + (S.inPrice[t.in] ?? t.priceIn), 0) + (s.coach && s.coach.cost > 0 ? s.coach.cost : 0) - (s.coach && s.coach.cost < 0 ? -s.coach.cost : 0); return `<p class="asbudget">${esc(L.budgetLine.replace('{b}', f1(S.bank)).replace('{s}', f1(so)).replace('{i}', f1(bi)).replace('{a}', f1(s.bankAfter)))}</p>`; })() : ''}${unc}
+${s.trades.length ? (() => { const so = s.trades.reduce((a, t) => a + t.priceOut, 0), bi = s.trades.reduce((a, t) => a + (S.inPrice[t.in] ?? t.priceIn), 0) + (s.coach && s.coach.cost > 0 ? s.coach.cost : 0) - (s.coach && s.coach.cost < 0 ? -s.coach.cost : 0); return `<p class="asbudget">${esc(L.budgetLine.replace('{b}', f1(bankOf())).replace('{s}', f1(so)).replace('{i}', f1(bi)).replace('{a}', f1(s.bankAfter)))}</p>`; })() : ''}${unc}
 ${s.priceEstimate ? `<p class="sub">* ${esc(L.priceNote)}</p>` : ''}
 ${s.key === 'keep' ? curCompare(s) : ''}${s.key !== 'keep' ? `<p><button type="button" data-act="save" data-k="${k}">💾 ${esc(L.saveTeam)}</button></p>` : ''}</article>`;
 }
@@ -356,6 +368,46 @@ function curCompare(s) {
   if (cap && cap !== s.lineup.captain) out.push(L.capChange.replace('{a}', nm(cap)).replace('{b}', nm(s.lineup.captain)));
   if (bench.length === 4) { const up = s.lineup.start.filter(c => bench.includes(c)); if (up.length) out.push(L.benchChange.replace('{p}', up.map(nm).join(', '))); }
   return out.length ? `<p class="asrisk">💡 ${out.map(esc).join(' ')}</p>` : '';
+}
+// ---------------------------------------------------------------- «ποιον να βάλω στη θέση του;»
+const rowPrice = c => { const r = S.rows.find(x => x.c === c); return r && r.price != null && r.price !== '' ? +r.price : +(P.get(c)?.price || 0); };
+const inPriceOf = c => (S.inPrice[c] != null ? +S.inPrice[c] : +(P.get(c)?.price || 0));
+/** οι καλύτεροι της ίδιας θέσης που χωράνε στα credits (αξία αυτού που φεύγει + αδιάθετα), με όριο 6 ανά ομάδα */
+function replacements(out, limit = 6) {
+  const po = P.get(out); if (!po) return { budget: 0, list: [] };
+  const roster = S.rows.map(r => r.c).filter(Boolean), budget = Math.round((rowPrice(out) + (bankOf() || 0)) * 10) / 10;
+  const clubs = {}; for (const c of roster) if (c !== out) { const t = P.get(c)?.t; clubs[t] = (clubs[t] || 0) + 1; }
+  const list = [...P.values()].filter(p => p.pos === po.pos && !roster.includes(p.c) && p.opp && p.status !== 'injured' && inPriceOf(p.c) <= budget + 1e-9 && (clubs[p.t] || 0) < CLASSIC_RULES.maxPerClub)
+    .map(p => ({ p, dN: (p.pp || 0) - (po.pp || 0), d3: (p.p3 || 0) - (po.p3 || 0) }))
+    .sort((a, b) => b.dN + 0.35 * b.d3 - (a.dN + 0.35 * a.d3)).slice(0, limit);
+  return { budget, list };
+}
+function replHtml() {
+  const roster = S.rows.map(r => r.c).filter(Boolean);
+  // προεπιλογή: ο παίκτης που η αντικατάστασή του δίνει το μεγαλύτερο κέρδος
+  const gainOf = c => { const x = replacements(c, 1).list[0]; return x ? x.dN + 0.35 * x.d3 : -Infinity; };
+  if (!S.repl || !roster.includes(S.repl)) S.repl = roster.slice().sort((a, b) => gainOf(b) - gainOf(a))[0] || null;
+  const chips = roster.map(c => `<button type="button" class="${c === S.repl ? 'on' : ''}" data-act="repl" data-c="${c}">${esc(POS1[P.get(c)?.pos] || '')} ${esc(surname(c))} <small>${f1(rowPrice(c))}</small></button>`).join('');
+  const left = S.unlimited ? Infinity : S.trades;
+  let body = '';
+  if (S.repl) {
+    const { budget, list } = replacements(S.repl), po = P.get(S.repl);
+    body = `<p class="sub">${esc(L.replBudget.replaceAll('{p}', nm(S.repl)).replace('{v}', f1(rowPrice(S.repl))).replace('{b}', f1(bankOf() || 0)).replace('{t}', f1(budget)).replace('{e}', f1(po?.pp)))}</p>` +
+      (list.length && list[0].dN + 0.35 * list[0].d3 <= 0 ? `<p class="fmwarn">${esc(L.replWorse.replace('{p}', nm(S.repl)))}</p>` : '') +
+      (list.length ? `<ol class="asrepl">${list.map(({ p, dN, d3 }) => `<li><div><b>${esc(nm(p.c))}</b> <small>${tm(p.t)} · ${p.home ? 'VS' : '@'} ${esc(p.opp)}${p.status === 'doubtful' ? ` · ⚠ ${esc(L.status.doubtful || 'doubtful')}` : ''}</small></div>
+<div class="asreplk"><span>${f1(inPriceOf(p.c))}${S.inPrice[p.c] == null ? '*' : ''} <small>CR</small></span><span>${f1(p.pp)} <small>${esc(L.estPts)}</small></span><span title="${esc(L.dNextTip)}">${sg(dN)} <small>${esc(L.replNext)}</small></span><span title="${esc(L.dHTip)}">${sg(d3)} <small>${esc(L.repl3)}</small></span>
+<button type="button" data-act="apply-repl" data-c="${p.c}" ${left < 1 ? 'disabled' : ''}>${esc(L.replApply)}</button></div></li>`).join('')}</ol>` : `<p class="fmwarn">${esc(L.replNone)}</p>`);
+  }
+  return `<section class="asreplbox"><h3>${esc(L.replH)}</h3><p class="sub">${esc(L.replHelp)}</p><div class="astabs repl">${chips}</div>${body}
+${left < 1 ? `<p class="fmwarn">${esc(L.replNoTrades)}</p>` : ''}<p class="sub">* ${esc(L.priceNote)}</p></section>`;
+}
+function applyRepl(inC) {
+  const r = S.rows.find(x => x.c === S.repl); if (!r) return;
+  S.applied.push({ out: S.repl, in: inC });
+  Object.assign(r, { c: inC, status: 'sure', options: [], raw: '', price: S.inPrice[inC] ?? null, priceSrc: S.inPrice[inC] != null ? 'user' : null, captain: false, capHint: false, locked: true });
+  if (!S.unlimited) S.trades = Math.max(0, S.trades - 1);
+  S.msg = { k: 'ok', t: L.replDone.replace('{a}', nm(S.applied.at(-1).out)).replace('{b}', nm(inC)).replace('{n}', S.unlimited ? '∞' : S.trades).replace('{c}', f1(bankOf())) };
+  S.repl = null; S.view = 0; analyze();
 }
 function step3() {
   const r = S.result;
@@ -367,6 +419,7 @@ ${r.recommendKeep ? `<p class="asok">✅ ${esc(L.recommendKeep)}</p>` : `<p clas
 <div class="astabs" role="tablist">${tabs}</div>
 ${courtHtml(cur)}
 <div class="asscens one">${scenHtml(cur, k)}</div>
+${replHtml()}
 <p class="note">${esc(L.method)} <a href="${X.perf}">${esc(L.perfLink)}</a></p>
 <p class="asbtns"><button type="button" data-act="back">← ${esc(L.edit)}</button></p></section>`;
 }
@@ -398,7 +451,7 @@ app.addEventListener('change', e => {
   if (a === 'cap') { S.rows.forEach((r, i) => { r.captain = i === k; r.capHint = false; }); }
   if (a === 'lock-coach') S.lockCoach = el.checked;
   if (a === 'coach') { S.coachPrice = null; S.coach = el.value || null; S.coachSt = el.value ? 'sure' : 'none'; }
-  if (a === 'bank') { S.bank = el.value === '' ? null : +el.value; S.bankSrc = 'user'; }
+  if (a === 'total') { S.total = el.value === '' ? null : +el.value; S.totalSrc = 'user'; }
   if (a === 'trades') S.trades = Math.max(0, Math.min(10, +el.value || 0));
   if (a === 'unlimited') S.unlimited = el.checked;
   if (a === 'inprice') { if (el.value === '') delete S.inPrice[el.dataset.c]; else S.inPrice[el.dataset.c] = +el.value; analyze(); return; }
@@ -416,6 +469,8 @@ app.addEventListener('click', e => {
   if (a === 'back') S.step = Math.max(1, S.step - 1);
   if (a === 'analyze') { S.view = 0; analyze(); return; }
   if (a === 'view') S.view = k;
+  if (a === 'repl') S.repl = b.dataset.c;
+  if (a === 'apply-repl') { applyRepl(b.dataset.c); return; }
   if (a === 'save') { S.result.chosen = S.result.scenarios[k]; saveManager(); return; }
   render();
 });
