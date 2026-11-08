@@ -165,6 +165,7 @@ async function ocr(img, onPct) {
     for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / 3, y0: w.bbox.y0 / 3, x1: w.bbox.x1 / 3, y1: w.bbox.y1 / 3 });
     anchors = findAnchors(words);
   }
+  if (window.__asDebug) window.__asDebug.push({ w: bmp.width, h: bmp.height, words: words.length, anchors: anchors.map(a => [a.price, Math.round(a.x0), Math.round(a.y0), Math.round(a.h)]), header });
   if (anchors.length >= 3) {
     await TESS.setParameters({ tessedit_pageseg_mode: '7' });
     const cards = [];
@@ -174,6 +175,7 @@ async function ocr(img, onPct) {
       cards.push({ texts: t, text: t[0] || '', price: a.price, opp: oppFrom(words, a), captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0 });
       onPct(40 + Math.round(60 * (i + 1) / anchors.length));
     }
+    if (window.__asDebug) window.__asDebug.push({ cards: cards.map(c => [c.texts, c.price, c.opp && c.opp.code, c.captain]) });
     bmp.close?.();
     return { text: texts.join('\n'), cards, header };
   }

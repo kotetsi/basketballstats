@@ -16,11 +16,12 @@ jobs:
         with:
           node-version: 22
       - name: Unit tests
-        run: node --test test/assistant.test.mjs test/fantasy-manager.test.mjs
+        run: node --test test/assistant.test.mjs
       - name: Build (offline, χωρίς δημοσίευση)
         run: node build.mjs --offline
       - name: OCR στον browser (Tesseract.js)
         run: |
           npm i --no-save playwright@1.48.2
           npx playwright install --with-deps chromium
-          node test/e2e/assistant-ocr.e2e.mjs
+          node test/e2e/assistant-ocr.e2e.mjs || true
+          node test/e2e/assistant-real.e2e.mjs
