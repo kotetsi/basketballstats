@@ -39,16 +39,24 @@ function addFiles(files) {
   }
   render();
 }
-/** προεπεξεργασία για OCR: ασπρόμαυρο, αντιστροφή σε σκούρο φόντο, αντίθεση, κατώφλι Otsu, μεγέθυνση μικρών εικόνων */
-async function preprocess(file) {
+/** προεπεξεργασία για OCR (μεγέθυνση μικρών εικόνων, ασπρόμαυρο). mode:
+ *  'otsu' = κατώφλι Otsu με αυτόματη αντιστροφή σε σκούρο φόντο · 'otsu-inv' = το ίδιο με την ανάποδη αντιστροφή
+ *  (λευκά γράμματα σε χρωματιστές κάρτες) · 'gray' = μόνο ασπρόμαυρο με τεντωμένη αντίθεση */
+async function preprocess(file, mode = 'otsu') {
   const bmp = await createImageBitmap(file);
   const k = bmp.width < 1000 ? 2 : 1, w = bmp.width * k, h = bmp.height * k;
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, 0, 0, w, h);
   const im = g.getImageData(0, 0, w, h), d = im.data, n = w * h, gray = new Uint8ClampedArray(n);
   let sum = 0; for (let i = 0; i < n; i++) { const v = 0.299 * d[4 * i] + 0.587 * d[4 * i + 1] + 0.114 * d[4 * i + 2]; gray[i] = v; sum += v; }
-  const inv = sum / n < 128;
+  const inv = (sum / n < 128) !== (mode === 'otsu-inv');
   const hist = new Array(256).fill(0); for (let i = 0; i < n; i++) { if (inv) gray[i] = 255 - gray[i]; hist[gray[i]]++; }
+  if (mode === 'gray') {
+    let lo = 255, hi = 0; for (let i = 0; i < n; i++) { if (gray[i] < lo) lo = gray[i]; if (gray[i] > hi) hi = gray[i]; }
+    const k2 = 255 / Math.max(1, hi - lo);
+    for (let i = 0; i < n; i++) { const v = (gray[i] - lo) * k2; d[4 * i] = d[4 * i + 1] = d[4 * i + 2] = v; d[4 * i + 3] = 255; }
+    g.putImageData(im, 0, 0); return cv;
+  }
   // Otsu
   let tot = 0; for (let i = 0; i < 256; i++) tot += i * hist[i];
   let sB = 0, wB = 0, best = 0, th = 128;
@@ -62,12 +70,21 @@ async function ocr(img, onPct) {
   if (!TESS) {
     const mod = await import('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.esm.min.js');
     const T = mod.default || mod;
-    TESS = await T.createWorker('eng', 1, { logger: m => { if (m.status === 'recognizing text') onPct(Math.round(100 * m.progress)); } });
+    TESS = await T.createWorker('eng', 1);
     await TESS.setParameters({ tessedit_pageseg_mode: '3', preserve_interword_spaces: '1' });
   }
-  const cv = await preprocess(img.file);
-  const { data } = await TESS.recognize(cv);
-  return data.text || '';
+  // πολλά περάσματα: κάθε εφαρμογή/θέμα έχει άλλα χρώματα· τα αποτελέσματα ενώνονται (οι διπλοεγγραφές φεύγουν στην αντιστοίχιση)
+  const passes = [['otsu', '3'], ['otsu-inv', '3'], ['gray', '11'], ['otsu', '11']];
+  const out = [];
+  for (let i = 0; i < passes.length; i++) {
+    const [mode, psm] = passes[i];
+    await TESS.setParameters({ tessedit_pageseg_mode: psm });
+    const cv = await preprocess(img.file, mode);
+    const { data } = await TESS.recognize(cv);
+    out.push(data.text || '');
+    onPct(Math.round(100 * (i + 1) / passes.length));
+  }
+  return out.join('\n');
 }
 /** προαιρετικό: μοντέλο όρασης στον server (μόνο αν έχει ρυθμιστεί και το επιλέξει ο χρήστης) */
 async function vision(img) {
