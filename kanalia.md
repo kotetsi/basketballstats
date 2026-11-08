@@ -30,3 +30,5 @@ Novasports (Ελλάδα), Movistar Plus+ (Ισπανία), Arena Sport (Σερ�
 10 | OLY | RED | Novasports Prime | Baloncesto por M+ | Arena Sport Premium 1 | S Sport 2
 10 | VIR | DUB | Novasports Start | M+ Vamos 3 | - | S Sport Plus
 10 | PAR | TEL | Novasports 4 | - | Arena Sport Premium 2 | S Sport Plus
+11 | PAR | BAS | Novasports Start | Baloncesto por M+ | - | -
+11 | PRS | ULK | Novasports 4 | Baloncesto por M+ 2 | - | S Sport
