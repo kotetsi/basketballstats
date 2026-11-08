@@ -96,11 +96,12 @@ function bandCanvases(bmp, r) {
   }
   if (be - bs < 10) return [];
   const th = otsuTh(gray.subarray(bs * W, be * W)), P = 20, out = [];
-  for (const bin of [false, true]) {
+  // εκδοχές: γκρι · δυαδική (Otsu) · μόνο τα πιο σκούρα (το όνομα χωρίς το γκρι γράμμα θέσης, που κολλάει στο όνομα: «GFeliz», «rTubelis»)
+  for (const bin of [false, true, 'dark']) {
     const c = document.createElement('canvas'); c.width = W + 2 * P; c.height = be - bs + 2 * P;
     const cg = c.getContext('2d'); cg.fillStyle = '#fff'; cg.fillRect(0, 0, c.width, c.height);
     const im = cg.createImageData(W, be - bs);
-    for (let y = bs; y < be; y++) for (let x = 0; x < W; x++) { const v = gray[y * W + x], o = 4 * ((y - bs) * W + x), q = bin ? (v > th ? 255 : 0) : v; im.data[o] = im.data[o + 1] = im.data[o + 2] = q; im.data[o + 3] = 255; }
+    for (let y = bs; y < be; y++) for (let x = 0; x < W; x++) { const v = gray[y * W + x], o = 4 * ((y - bs) * W + x), q = bin === 'dark' ? (v < 60 ? 0 : 255) : bin ? (v > th ? 255 : 0) : v; im.data[o] = im.data[o + 1] = im.data[o + 2] = q; im.data[o + 3] = 255; }
     cg.putImageData(im, P, P); out.push(c);
   }
   return out;
@@ -167,7 +168,7 @@ async function ocr(img, onPct) {
   }
   if (window.__asDebug) window.__asDebug.push({ w: bmp.width, h: bmp.height, words: words.length, anchors: anchors.map(a => [a.price, Math.round(a.x0), Math.round(a.y0), Math.round(a.h)]), header });
   if (anchors.length >= 3) {
-    await TESS.setParameters({ tessedit_pageseg_mode: '7' });
+    await TESS.setParameters({ tessedit_pageseg_mode: '7', tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'' });
     const cards = [];
     for (let i = 0; i < anchors.length; i++) {
       const a = anchors[i], R = cardRegions(a), cs = bandCanvases(bmp, R.name), t = [];
@@ -175,6 +176,7 @@ async function ocr(img, onPct) {
       cards.push({ texts: t, text: t[0] || '', price: a.price, opp: oppFrom(words, a), captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0 });
       onPct(40 + Math.round(60 * (i + 1) / anchors.length));
     }
+    await TESS.setParameters({ tessedit_char_whitelist: '' });
     if (window.__asDebug) window.__asDebug.push({ cards: cards.map(c => [c.texts, c.price, c.opp && c.opp.code, c.captain]) });
     bmp.close?.();
     return { text: texts.join('\n'), cards, header };

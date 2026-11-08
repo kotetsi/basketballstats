@@ -22,6 +22,8 @@ export function lev(a, b) {
   }
   return prev[n];
 }
+/** μήκος κοινής υποακολουθίας (γράμματα με τη σωστή σειρά) */
+export function lcs(a, b) { const d = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0)); for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = a[i - 1] === b[j - 1] ? d[i - 1][j - 1] + 1 : Math.max(d[i - 1][j], d[i][j - 1]); return d[a.length][b.length]; }
 export const sim = (a, b) => (a && b ? 1 - lev(a, b) / Math.max(a.length, b.length) : 0);
 const SUFFIX = new Set(['jr', 'sr', 'ii', 'iii', 'iv']);
 
@@ -369,6 +371,14 @@ export function cardRegions(a) {
     badge: { x0: right - 2.6 * h, y0: a.y0 - 7.6 * h, x1: right + 0.6 * h, y1: a.y0 - 2.6 * h },
   };
 }
+const VALID_CODES = [...new Set([...Object.keys(APP_CODES), ...Object.values(APP_CODES)])];
+/** κωδικός ομάδας με λάθος ενός γράμματος από το OCR («JIK» → BJK, «BIK» → BJK) */
+export function fixCode(c) {
+  if (!c || VALID_CODES.includes(c)) return c;
+  const near = VALID_CODES.filter(v => lev(v, c) === 1 || (v.slice(1) === c.slice(0, 2)) || (v.slice(0, 2) === c.slice(1)));
+  const exact1 = VALID_CODES.filter(v => lev(v, c) === 1);
+  return exact1.length === 1 ? exact1[0] : near.length === 1 ? near[0] : c;
+}
 /** αντίπαλος από τις λέξεις κάτω δεξιά της άγκυρας: «@ PAO» (εκτός) ή «VS DUB» (εντός) */
 export function oppFrom(words, a) {
   const r = cardRegions(a).opp;
@@ -376,7 +386,7 @@ export function oppFrom(words, a) {
   const txt = ws.map(w => w.text).join(' ').toUpperCase().replace(/[¥]/g, 'Y');
   const m = txt.match(/(@|V[S5]|Y[S5])?\s*([A-Z]{3})\b/g);
   if (!m) return null;
-  const last = m[m.length - 1].trim(), code = last.slice(-3), away = /@/.test(txt) ? true : /V[S5]|Y[S5]/.test(txt) ? false : null;
+  const last = m[m.length - 1].trim(), code = fixCode(last.slice(-3)), away = /@/.test(txt) ? true : /V[S5]|Y[S5]/.test(txt) ? false : null;
   return { code, away, our: APP_CODES[code] || code };
 }
 /** «G Brizuela» / «HC Parker» / «F Vezenkov» → θέση, προπονητής, όνομα.
@@ -446,7 +456,14 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
     if (t.coach) {
       // ομάδα προπονητή: από τον αντίπαλο (και εντός/εκτός) στη λίστα προπονητών, αλλιώς από τους παίκτες
       const byCoach = c.opp ? [...new Set(coaches.filter(x => x.opp === c.opp.our && (c.opp.away == null || x.home == null || (c.opp.away ? !x.home : !!x.home))).map(x => x.t))] : [];
-      const ct = byCoach.length === 1 ? byCoach[0] : team;
+      let ct = byCoach.length === 1 ? byCoach[0] : team;
+      // ο κωδικός αντιπάλου διαβάστηκε λάθος («JIK»): ο πιο κοντινός από τους αντιπάλους των προπονητών (ίδιο εντός/εκτός)
+      if (!ct && c.opp && c.opp.code) {
+        const inv = Object.entries(APP_CODES);
+        const opts = coaches.filter(x => x.opp && (c.opp.away == null || x.home == null || (c.opp.away ? !x.home : !!x.home)))
+          .map(x => ({ t: x.t, d: Math.min(...[x.opp, ...inv.filter(([, v]) => v === x.opp).map(([k]) => k)].map(code => 3 - lcs(code, c.opp.code) + lev(code, c.opp.code) / 10)) })).sort((a, b) => a.d - b.d);
+        if (opts[0] && opts[0].d < 2 && (!opts[1] || opts[1].d - opts[0].d >= 0.5)) ct = opts[0].t;
+      }
       coach = ct ? { t: ct, raw: c.text, status: 'sure', price: c.price } : { t: null, raw: c.text, status: 'none', options: [] };
       continue;
     }
@@ -457,14 +474,21 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
     const merged = new Map();
     for (const v of variants) for (const x of topFor(v, idx, 6)) if (!merged.has(x.c) || merged.get(x.c).score < x.score) merged.set(x.c, x);
     const cands = [...merged.values()].sort((a, b) => b.score - a.score).slice(0, 6);
-    if (!cands.length && !t.pos) continue;   // χωρίς όνομα και χωρίς θέση: όχι κάρτα (π.χ. νούμερο φανέλας)
+    if (!cands.length && !t.pos && !team) continue;   // χωρίς όνομα, θέση και ομάδα: όχι κάρτα (π.χ. νούμερο φανέλας)
     const P = c2 => players.find(p => p.c === c2.c);
     // περιορισμοί: ίδια ομάδα (αν βγαίνει από τον αντίπαλο), ίδια θέση (αν διαβάστηκε)
     let f = cands.filter(x => (!team || P(x)?.t === team) && (!t.pos || P(x)?.pos === t.pos));
     if (!f.length) f = cands.filter(x => !team || P(x)?.t === team);
     if (!f.length) f = cands;
     const boosted = f.map(x => ({ ...x, score: Math.min(1, +(x.score + (team && P(x)?.t === team ? 0.08 : 0) + (t.pos && P(x)?.pos === t.pos ? 0.02 : 0)).toFixed(3)) }));
-    const d = decide(boosted);
+    let d = decide(boosted);
+    // η ομάδα (από τον αντίπαλο) είναι αξιόπιστη: αν δεν βγήκε σίγουρος, ψάχνουμε μόνο στους παίκτες αυτής της ομάδας (και θέσης)
+    if (d.status !== 'sure' && team) {
+      const mates = players.filter(p => p.t === team && (!t.pos || p.pos === t.pos) && !seen.has(p.c));
+      const toks = [nn, nn.replace(/ /g, ''), ...longT];
+      const sc = mates.map(p => { const L = norm(p.n.split(',')[0]); const Ls = L.split(' '); return { c: p.c, score: +Math.max(...toks.flatMap(x => [sim(x, L), ...Ls.map(l => sim(x, l)), ...Ls.filter(l => l.length >= 4).map(l => sim(x.slice(-l.length), l))])).toFixed(3), how: 'team' }; }).sort((a, b) => b.score - a.score);
+      if (sc[0] && sc[0].score >= 0.6 && (!sc[1] || sc[0].score - sc[1].score >= 0.12)) d = { status: 'sure', c: sc[0].c, score: sc[0].score, how: 'team' };
+    }
     const key = d.status === 'sure' ? d.c : 'amb:' + boosted.map(x => x.c).join('|');
     if (seen.has(key)) continue;
     seen.add(key);
