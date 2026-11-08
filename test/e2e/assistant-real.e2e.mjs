@@ -9,10 +9,10 @@ const srv = http.createServer((q, r) => { let p = path.join('dist', decodeURICom
 const b = await chromium.launch();
 const truth = ['Diarra', 'Vezenkov', 'Brizuela', 'Madar', 'Feliz', 'Tubelis', 'Mitoglou', 'Hayes', 'Strazel', 'Ndiaye'];
 let fail = false;
-for (const [width, tall] of [[1080, 0], [1179, 0], [1290, 0], [1179, 2556], [1290, 2796]]) {
+for (const [width, tall, file] of [[1080, 0], [1179, 0], [1290, 0], [1179, 2556], [1290, 2796], [1600, 900, 'assistant-real-desktop.png']]) {
   // κλιμάκωση της εικόνας στον browser (όπως screenshot άλλου κινητού)
   const tool = await b.newPage();
-  const src = 'data:image/png;base64,' + fs.readFileSync('test/fixtures/assistant-real-app.png').toString('base64');
+  const src = 'data:image/png;base64,' + fs.readFileSync('test/fixtures/' + (file || 'assistant-real-app.png')).toString('base64');
   const out = await tool.evaluate(async ({ src, width, tall }) => { const im = new Image(); im.src = src; await im.decode(); const k = width / im.width, c = document.createElement('canvas'), ih = Math.round(im.height * k); c.width = width; c.height = tall || ih; const g = c.getContext('2d'); g.fillStyle = '#f0a040'; g.fillRect(0, 0, c.width, c.height); g.imageSmoothingQuality = 'high'; g.drawImage(im, 0, Math.round((c.height - ih) / 2), width, ih); return c.toDataURL('image/png'); }, { src, width, tall });
   fs.writeFileSync(`/tmp/real-${width}-${tall}.png`, Buffer.from(out.split(',')[1], 'base64'));
   await tool.close();
@@ -33,7 +33,7 @@ for (const [width, tall] of [[1080, 0], [1179, 0], [1290, 0], [1179, 2556], [129
   console.log(`[e2e ${width}x${tall || 'auto'}] ${Math.round((Date.now() - t0) / 1000)}s · σωστοί ${hit}/10 · προπονητής ${coach} · σύνολο ${total} · σφάλματα ${errs.length}`);
   for (const r of rows) console.log('   ', r.name, '|', r.price, '|', r.slot);
   console.log('   debug', JSON.stringify(dbg).slice(0, 4000));
-  if (hit < 10 || coach !== 'ASV' || errs.length) fail = true;
+  if (hit < 10 || (!file && coach !== 'ASV') || total !== '106.2' || errs.length) fail = true;
   await pg.close();
 }
 await b.close(); srv.close();

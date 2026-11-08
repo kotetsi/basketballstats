@@ -357,8 +357,10 @@ export function findAnchors(words) {
     const below = words.find(c => /^(@|V[S5]|[A-Z]{3})$/.test(String(c.text).trim()) && c.y0 > w.y1 - 0.2 * h && c.y0 < w.y1 + 1.6 * h && c.x0 > w.x1 + 0.8 * h && c.x0 < w.x1 + 6 * h);
     const decimal = /[.,]/.test(w.text);
     if (!(tier || (decimal && (cr || below)))) continue;
-    if (out.some(a => Math.abs(a.x0 - w.x0) < 2 * h && Math.abs(a.y0 - w.y0) < h)) continue;   // ίδια κάρτα από άλλο πέρασμα
-    out.push({ price, x0: w.x0, y0: w.y0, x1: w.x1, y1: w.y1, h, crY: cr ? cr.y1 : w.y1 + 1.45 * h });
+    const same = out.findIndex(a => Math.abs(a.x0 - w.x0) < 2 * h && Math.abs(a.y0 - w.y0) < h);   // ίδια κάρτα από άλλο πέρασμα
+    const A = { price, raw: String(w.text), x0: w.x0, y0: w.y0, x1: w.x1, y1: w.y1, h, crY: cr ? cr.y1 : w.y1 + 1.45 * h };
+    if (same >= 0) { if (decimal && !/[.,]/.test(out[same].raw)) out[same] = A; continue; }   // προτιμάται η ανάγνωση με τελεία
+    out.push(A);
   }
   return out;
 }
@@ -457,6 +459,7 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
       // ομάδα προπονητή: από τον αντίπαλο (και εντός/εκτός) στη λίστα προπονητών, αλλιώς από τους παίκτες
       const byCoach = c.opp ? [...new Set(coaches.filter(x => x.opp === c.opp.our && (c.opp.away == null || x.home == null || (c.opp.away ? !x.home : !!x.home))).map(x => x.t))] : [];
       let ct = byCoach.length === 1 ? byCoach[0] : team;
+      if (!ct && c.shirt) { const sh = APP_CODES[c.shirt] || c.shirt; if (coaches.some(x => x.t === sh)) ct = sh; }   // κωδικός στο πουκάμισο
       // ο κωδικός αντιπάλου διαβάστηκε λάθος («JIK»): ο πιο κοντινός από τους αντιπάλους των προπονητών (ίδιο εντός/εκτός)
       if (!ct && c.opp && c.opp.code) {
         const inv = Object.entries(APP_CODES);
@@ -516,4 +519,57 @@ export function parseHeader(text) {
   const tr = fr.find(m => +m[2] === 4) || nearTr;
   if (tr && +tr[2] >= 1 && +tr[2] <= 10 && +tr[1] <= +tr[2]) { tradesUsed = +tr[1]; tradesMax = +tr[2]; }
   return { bank, total, tradesUsed, tradesMax };
+}
+
+/**
+ * Κάρτες από τη γεωμετρία της εφαρμογής: κάθε κάρτα έχει πράσινη γραμμή κάτω από τη σκούρα λωρίδα του ονόματος.
+ * lines = [{x0,x1,y}] (οριζόντιες πράσινες γραμμές), anchors = άγκυρες από το OCR (για κάρτες χωρίς πράσινη γραμμή, π.χ. τραυματίας),
+ * isCard(x0,y,cw) = έλεγχος ότι κάτω από μια θέση υπάρχει λευκό κουτί αξίας (για κάρτες που λείπουν από το πλέγμα).
+ * Επιστρέφει [{x0, x1, y, cw}] (y = η πράσινη γραμμή).
+ */
+export function cardGeometry(lines, anchors = [], isCard = null) {
+  const ws = lines.map(l => l.x1 - l.x0).sort((a, b) => a - b);
+  let cw = ws.length ? ws[ws.length >> 1] : 0;
+  let geo = lines.filter(l => cw && Math.abs((l.x1 - l.x0) - cw) <= 0.15 * cw).map(l => ({ x0: l.x0, x1: l.x1, y: l.y, cw: l.x1 - l.x0 }));
+  if (!cw && anchors.length) { const hs = anchors.map(a => a.h).sort((a, b) => a - b); cw = hs[hs.length >> 1] * 8.2; }
+  if (!cw) return [];
+  // άγκυρες (αξία) που δεν ανήκουν σε κάρτα με γραμμή → κάρτα με την ίδια αναλογία (η αξία είναι ~0.087·πλάτος κάτω/δεξιά της γραμμής)
+  for (const a of anchors) {
+    const x0 = a.x0 - 0.087 * cw, y = a.y0 - 0.087 * cw;
+    if (!geo.some(g => Math.abs(g.x0 - x0) < 0.35 * cw && Math.abs(g.y - y) < 0.35 * cw)) geo.push({ x0, x1: x0 + cw, y, cw, from: 'ocr' });
+  }
+  // πλέγμα πάγκου: στήλες × γραμμές κάτω από την πεντάδα· θέση χωρίς κάρτα που έχει λευκό κουτί αξίας → κάρτα
+  if (isCard && geo.length >= 6 && geo.length < 11) {
+    const byY = geo.slice().sort((a, b) => a.y - b.y), lower = byY.slice(5);
+    const cl = (vals, tol) => { const out = []; for (const v of vals.sort((a, b) => a - b)) { const c = out.find(o => Math.abs(o.v - v) < tol); if (c) { c.n++; c.v = (c.v * (c.n - 1) + v) / c.n; } else out.push({ v, n: 1 }); } return out.map(o => o.v); };
+    const cols = cl(lower.map(g => g.x0), 0.4 * cw), rows = cl(lower.map(g => g.y), 0.4 * cw);
+    for (const x0 of cols) for (const y of rows) {
+      if (geo.length >= 11) break;
+      if (geo.some(g => Math.abs(g.x0 - x0) < 0.4 * cw && Math.abs(g.y - y) < 0.4 * cw)) continue;
+      if (isCard(x0, y, cw)) geo.push({ x0, x1: x0 + cw, y, cw, from: 'grid' });
+    }
+  }
+  return geo.sort((a, b) => a.y - b.y || a.x0 - b.x0);
+}
+/** περιοχές κάρτας από τη γεωμετρία (αναλογίες μετρημένες στην επίσημη εφαρμογή, κινητό και υπολογιστής) */
+export function geoRegions(g) {
+  const c = g.cw;
+  return {
+    name: { x0: g.x0, y0: g.y - 0.25 * c, x1: g.x1, y1: g.y - 0.01 * c },
+    price: { x0: g.x0 + 0.03 * c, y0: g.y + 0.04 * c, x1: g.x0 + 0.5 * c, y1: g.y + 0.24 * c },
+    opp: { x0: g.x0 + 0.48 * c, y0: g.y + 0.23 * c, x1: g.x1 - 0.02 * c, y1: g.y + 0.39 * c },   // η 2η γραμμή: «@ EFS» / «VS DUB»
+    badge: { x0: g.x1 - 0.32 * c, y0: g.y - 0.85 * c, x1: g.x1 + 0.08 * c, y1: g.y - 0.22 * c },
+  };
+}
+/** «T3 @ EFS» / «T2 VS DUB» → αντίπαλος */
+export function oppFromText(s) {
+  const ms = [...String(s || '').toUpperCase().replace(/¥/g, 'Y').matchAll(/(@|VS|V5|YS)?\s*\b([A-Z]{2,4})\b/g)].filter(m => !/^T[0-9]$/.test(m[2]) && !/^(VS|YS|V5)$/.test(m[2]));
+  const m = ms.find(x => x[2].length === 3 && APP_CODES[fixCode(x[2])]) || ms.find(x => x[1]) || ms[0];
+  if (!m) return null;
+  let code = fixCode(m[2]);
+  if (!VALID_CODES.includes(code)) {   // «BK» → BJK: ο έγκυρος κωδικός με τα περισσότερα κοινά γράμματα στη σωστή σειρά, αν είναι μοναδικός
+    const sc = VALID_CODES.map(v => [v, lcs(v, code)]).sort((a, b) => b[1] - a[1]);
+    if (sc[0][1] >= 2 && sc[0][1] > (sc[1] ? sc[1][1] : 0)) code = sc[0][0];
+  }
+  return { code, away: m[1] === '@' ? true : m[1] ? false : null, our: APP_CODES[code] || code };
 }

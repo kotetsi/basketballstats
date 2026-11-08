@@ -2,7 +2,7 @@
 // Η εικόνα διαβάζεται στη συσκευή σου (Tesseract.js, OCR ανοιχτού κώδικα) και δεν αποθηκεύεται πουθενά.
 // Αν έχει ρυθμιστεί endpoint μοντέλου όρασης (X.vision), ο χρήστης μπορεί να το επιλέξει· η εικόνα στέλνεται μόνο τότε.
 // Η αντιστοίχιση, οι κανόνες, το budget και τα σενάρια γίνονται από τον κώδικα του assistant.mjs, όχι από μοντέλο.
-import { parseScan, parseVision, parseCards, parseHeader, fixCode, APP_CODES, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
+import { parseScan, parseVision, parseCards, parseHeader, fixCode, APP_CODES, cardGeometry, geoRegions, oppFromText, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
 import { CLASSIC_RULES, tradesAllowed } from './rules.mjs';
 
 const X = JSON.parse(document.getElementById('asctx').textContent), L = X.L;
@@ -78,7 +78,7 @@ const wordsOf = data => (data.words && data.words.length ? data.words : (data.bl
 function bandCanvases(bmp, r) {
   const x0 = Math.max(0, Math.round(r.x0)), y0 = Math.max(0, Math.round(r.y0)), x1 = Math.min(bmp.width, Math.round(r.x1)), y1 = Math.min(bmp.height, Math.round(r.y1));
   const w = x1 - x0, h = y1 - y0; if (w < 10 || h < 6) return [];
-  const K = 3, W = w * K, H = h * K;
+  const K = Math.max(3, Math.min(6, Math.round(110 / h))), W = w * K, H = h * K;   // το ύψος της λωρίδας γίνεται ~110px όσο μικρή κι αν είναι η εικόνα
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const g = cv.getContext('2d', { willReadFrequently: true }); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, x0, y0, w, h, 0, 0, W, H);
   const d = g.getImageData(0, 0, W, H).data, n = W * H, gray = new Uint8ClampedArray(n);
@@ -86,11 +86,11 @@ function bandCanvases(bmp, r) {
   if (sum / n < 128) for (let i = 0; i < n; i++) gray[i] = 255 - gray[i];
   let lo = 255, hi = 0; for (const v of gray) { if (v < lo) lo = v; if (v > hi) hi = v; }
   const k2 = 255 / Math.max(1, hi - lo); for (let i = 0; i < n; i++) gray[i] = (gray[i] - lo) * k2;
-  // μόνο οι γραμμές της λωρίδας: η μεγαλύτερη συνεχής ζώνη με φωτεινό φόντο (διάμεσος ≥ 190)
+  // μόνο οι γραμμές της λωρίδας: η μεγαλύτερη συνεχής ζώνη με φωτεινό φόντο (≥ 40% φωτεινά pixel)
   let bs = 0, be = 0, st = -1;
   for (let y = 0; y <= H; y++) {
     let ok = false;
-    if (y < H) { const row = []; for (let x = 0; x < W; x += 2) row.push(gray[y * W + x]); row.sort((a, b) => a - b); ok = row[row.length >> 1] >= 190; }
+    if (y < H) { let k = 0, n = 0; for (let x = 0; x < W; x += 2) { n++; if (gray[y * W + x] >= 190) k++; } ok = k / n >= 0.4; }   // γραμμές με φωτεινό φόντο (και αυτές με γράμματα)
     if (ok && st < 0) st = y;
     if (!ok && st >= 0) { if (y - st > be - bs) { bs = st; be = y; } st = -1; }
   }
@@ -107,17 +107,51 @@ function bandCanvases(bmp, r) {
   return out;
 }
 /** κομμάτι εικόνας → ×3, κατώφλι Otsu, το κείμενο (η μειοψηφία των pixel) μαύρο σε λευκό */
-function headerCanvas(bmp, r) {
+function headerCanvas(bmp, r, trim = false) {
   const x0 = Math.max(0, Math.round(r.x0)), y0 = Math.max(0, Math.round(r.y0)), x1 = Math.min(bmp.width, Math.round(r.x1)), y1 = Math.min(bmp.height, Math.round(r.y1));
   const w = x1 - x0, h = y1 - y0; if (w < 20 || h < 8) return null;
-  const K = 3, W = w * K, H = h * K, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const K = Math.max(3, Math.min(6, Math.round(90 / h))), W = w * K, H = h * K, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const g = cv.getContext('2d', { willReadFrequently: true }); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, x0, y0, w, h, 0, 0, W, H);
   const im = g.getImageData(0, 0, W, H), d = im.data, n = W * H, gray = new Uint8ClampedArray(n);
   for (let i = 0; i < n; i++) gray[i] = 0.299 * d[4 * i] + 0.587 * d[4 * i + 1] + 0.114 * d[4 * i + 2];
+  if (trim) {   // μόνο οι γραμμές μέσα στο λευκό κουτί της κάρτας (όχι το σκούρο φόντο από κάτω/πάνω)
+    const rowOk = y => { let k = 0; for (let x = 0; x < W; x++) if (gray[y * W + x] > 200) k++; return k / W >= 0.5; };
+    let a = 0, b = H; while (a < H && !rowOk(a)) a++; while (b > a && !rowOk(b - 1)) b--;
+    if (b - a >= 8 && (a > 0 || b < H)) for (let y = 0; y < H; y++) if (y < a || y >= b) for (let x = 0; x < W; x++) gray[y * W + x] = 255;
+  }
   const th = otsuTh(gray); let hi = 0; for (const v of gray) if (v > th) hi++;
   const textHigh = hi < n / 2;
   for (let i = 0; i < n; i++) { const q = (gray[i] > th) === textHigh ? 0 : 255; d[4 * i] = d[4 * i + 1] = d[4 * i + 2] = q; d[4 * i + 3] = 255; }
   g.putImageData(im, 0, 0); return cv;
+}
+/** όλα τα pixel της εικόνας μία φορά (για τις γραμμές και τα λευκά κουτιά) */
+function pixels(bmp) {
+  const cv = document.createElement('canvas'); cv.width = bmp.width; cv.height = bmp.height;
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, 0, 0);
+  return { w: bmp.width, h: bmp.height, d: g.getImageData(0, 0, bmp.width, bmp.height).data };
+}
+/** οριζόντιες πράσινες γραμμές (κάτω από το όνομα κάθε κάρτας): συνεχόμενα πράσινα pixel ≥ 2.5% του πλάτους, ενωμένες ανά λίγες γραμμές */
+function greenLines({ w, h, d }) {
+  const minRun = Math.max(20, Math.round(w * 0.025)), segs = [];
+  for (let y = 0; y < h; y++) {
+    let x = 0;
+    while (x < w) {
+      const i = 4 * (y * w + x), r = d[i], g = d[i + 1], b = d[i + 2];
+      if (g > 150 && r < 90 && b > 60 && b < 160 && g - r > 90) {
+        const s0 = x;
+        while (x < w) { const j = 4 * (y * w + x), r2 = d[j], g2 = d[j + 1], b2 = d[j + 2]; if (!(g2 > 150 && r2 < 90 && b2 > 60 && b2 < 160 && g2 - r2 > 90)) break; x++; }
+        if (x - s0 >= minRun) { const o = segs.find(q => Math.abs(q.x0 - s0) < 6 && Math.abs(q.x1 - x) < 6 && y - q.yb <= 2); if (o) o.yb = y; else segs.push({ x0: s0, x1: x, y, yb: y }); }
+      }
+      x++;
+    }
+  }
+  return segs.map(q => ({ x0: q.x0, x1: q.x1, y: q.y }));
+}
+/** ποσοστό σχεδόν λευκών pixel σε ένα κουτί */
+function brightBox({ w, h, d }, x0, y0, x1, y1) {
+  x0 = Math.max(0, Math.round(x0)); y0 = Math.max(0, Math.round(y0)); x1 = Math.min(w, Math.round(x1)); y1 = Math.min(h, Math.round(y1));
+  let n = 0, k = 0; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const i = 4 * (y * w + x); n++; if (d[i] > 225 && d[i + 1] > 225 && d[i + 2] > 225) k++; }
+  return n ? k / n : 0;
 }
 /** σήμα αρχηγού: ποσοστό «λαχανί» pixel στην πάνω δεξιά γωνία της κάρτας */
 function limeRatio(bmp, r) {
@@ -126,7 +160,7 @@ function limeRatio(bmp, r) {
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, x0, y0, w, h, 0, 0, w, h);
   const d = g.getImageData(0, 0, w, h).data; let k = 0;
-  for (let i = 0; i < d.length; i += 4) if (d[i + 1] > 200 && d[i] > 170 && d[i + 2] < 90 && d[i + 1] - d[i + 2] > 130) k++;
+  for (let i = 0; i < d.length; i += 4) if (d[i + 1] > 200 && d[i] > 150 && d[i + 2] < 90 && d[i + 1] - d[i + 2] > 130 && d[i + 1] - d[i] > 25) k++;   // λαχανί, όχι κίτρινο (φανέλα Μακάμπι)
   return k / (w * h);
 }
 /** OCR μιας εικόνας. Πρώτα αραιά περάσματα με θέσεις λέξεων: αν βρεθούν κάρτες της επίσημης εφαρμογής (αξία + CR/T1-3),
@@ -158,40 +192,69 @@ async function ocr(img, onPct) {
     if (cv) { await TESS.setParameters({ tessedit_pageseg_mode: '6' }); const { data } = await TESS.recognize(cv); header = data.text || ''; }
   }
   let anchors = findAnchors(words);
-  // μικρά γράμματα (π.χ. ολόκληρη σελίδα σε υπολογιστή): ένα ακόμα πέρασμα σε ×3 μεγέθυνση
-  if (anchors.length < 11 && bmp.width <= 2000 && Math.sqrt(15e6 / (bmp.width * bmp.height)) >= 1.5) {
-    await TESS.setParameters({ tessedit_pageseg_mode: '11' });
-    // iPhone/Safari: όριο ~16 εκατ. pixel ανά canvas, αλλιώς βγαίνει κενό
+  // κάρτες από τη γεωμετρία (πράσινη γραμμή κάτω από το όνομα): δεν εξαρτάται από το πόσο καλά διαβάστηκαν τα μικρά γράμματα
+  const px = pixels(bmp), lines = greenLines(px);
+  let geo = cardGeometry(lines, anchors, (x0, y, cw) => brightBox(px, x0 + 0.1 * cw, y + 0.06 * cw, x0 + 0.9 * cw, y + 0.34 * cw) > 0.75);
+  if (geo.length < 5 && anchors.length < 11 && bmp.width <= 2000 && Math.sqrt(15e6 / (bmp.width * bmp.height)) >= 1.5) {
+    // λίγες κάρτες: ένα πέρασμα με μεγέθυνση (iPhone/Safari: όριο ~16 εκατ. pixel ανά canvas)
     const up = Math.max(1.5, Math.min(3, Math.sqrt(15e6 / (bmp.width * bmp.height))));
+    await TESS.setParameters({ tessedit_pageseg_mode: '11' });
     const { data } = await TESS.recognize(await preprocess(img.file, 'gray', up), {}, { text: true, blocks: true });
     texts.push(data.text || '');
     for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / up, y0: w.bbox.y0 / up, x1: w.bbox.x1 / up, y1: w.bbox.y1 / up });
     anchors = findAnchors(words);
+    geo = cardGeometry(lines, anchors, (x0, y, cw) => brightBox(px, x0 + 0.1 * cw, y + 0.06 * cw, x0 + 0.9 * cw, y + 0.34 * cw) > 0.75);
   }
-  if (window.__asDebug) window.__asDebug.push({ w: bmp.width, h: bmp.height, words: words.length, anchors: anchors.map(a => [a.price, Math.round(a.x0), Math.round(a.y0), Math.round(a.h)]), header });
-  if (anchors.length >= 3) {
-    await TESS.setParameters({ tessedit_pageseg_mode: '7', tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'' });
+  if (window.__asDebug) window.__asDebug.push({ w: bmp.width, h: bmp.height, words: words.length, lines: lines.length, geo: geo.map(g => [Math.round(g.x0), Math.round(g.y), Math.round(g.cw), g.from || 'line']), anchors: anchors.map(a => [a.price, Math.round(a.x0), Math.round(a.y0)]), header });
+  if (geo.length >= 3 && !header) {
+    // κεφαλίδα «0/106.2 CREDITS · 0/4 TRADES»: πάνω από την πρώτη κάρτα, σε σταθερή αναλογία με το μέγεθος της κάρτας
+    const top = geo[0], cx = top.x0 + top.cw / 2;
+    const hc = headerCanvas(bmp, { x0: cx - 2.4 * top.cw, y0: top.y - 1.56 * top.cw, x1: cx + 2.4 * top.cw, y1: top.y - 1.1 * top.cw });
+    if (hc) { await TESS.setParameters({ tessedit_pageseg_mode: '6', tessedit_char_whitelist: '' }); const { data } = await TESS.recognize(hc); header = data.text || ''; }
+  }
+  if (geo.length >= 3) {
+    const WL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'';
     const cards = [];
-    for (let i = 0; i < anchors.length; i++) {
-      const a = anchors[i], R = cardRegions(a), cs = bandCanvases(bmp, R.name), t = [];
-      for (const c of cs) { const { data } = await TESS.recognize(c); if (data.text && data.text.trim()) t.push(data.text.trim()); }
-      let opp = oppFrom(words, a), oppRaw = null;
-      if (!opp) {   // ο αντίπαλος δεν βγήκε στο γενικό πέρασμα: διαβάζουμε μόνο εκείνο το κομμάτι της κάρτας
-        const oc = headerCanvas(bmp, { x0: a.x1 + 0.3 * a.h, y0: a.y1 + 0.1 * a.h, x1: R.opp.x1 + 0.5 * a.h, y1: a.crY + 0.6 * a.h });
-        if (oc) {
-          await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ@ ' });
-          const { data } = await TESS.recognize(oc);
-          await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'' });
-          oppRaw = String(data.text || '');
-          const ms = [...String(data.text || '').toUpperCase().matchAll(/(@|VS|V5|YS)?\s*\b([A-Z]{3})\b/g)], m = ms.find(x => APP_CODES[fixCode(x[2])]) || ms.find(x => x[1]) || ms[0];
-          if (m) { const code = fixCode(m[2]); opp = { code, away: m[1] === '@' ? true : m[1] ? false : null, our: APP_CODES[code] || code }; }
+    for (let i = 0; i < geo.length; i++) {
+      const g = geo[i], R = geoRegions(g), t = [];
+      await TESS.setParameters({ tessedit_pageseg_mode: '7', tessedit_char_whitelist: WL });
+      for (const c of bandCanvases(bmp, R.name)) { const { data } = await TESS.recognize(c); if (data.text && data.text.trim()) t.push(data.text.trim()); }
+      // αξία: κοντινή ανάγνωση μόνο με ψηφία· αλλιώς η άγκυρα του γενικού περάσματος
+      const near = anchors.find(a => a.x0 >= g.x0 - 0.1 * g.cw && a.x0 <= g.x0 + 0.5 * g.cw && a.y0 >= g.y - 0.05 * g.cw && a.y0 <= g.y + 0.3 * g.cw);
+      let price = near && /[.,]/.test(near.raw || '') ? near.price : null;   // η άγκυρα με τελεία είναι η πιο αξιόπιστη
+      const pc = price == null ? headerCanvas(bmp, R.price, true) : null;
+      if (pc) {
+        await TESS.setParameters({ tessedit_char_whitelist: '0123456789.,', tessedit_pageseg_mode: '7' });
+        const { data } = await TESS.recognize(pc);
+        const m = String(data.text || '').match(/(\d{1,2})[.,](\d)/);
+        if (m) price = +`${m[1]}.${m[2]}`;
+      }
+      if (price == null && near) price = near.price;
+      // αντίπαλος: «T3 / @ EFS» στο δεξί μισό
+      let opp = null, oppRaw = null;
+      const oc = headerCanvas(bmp, R.opp, true);
+      if (oc) {
+        await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ@0123 ', tessedit_pageseg_mode: '6' });
+        const { data } = await TESS.recognize(oc);
+        oppRaw = String(data.text || ''); opp = oppFromText(oppRaw);
+      }
+      if (!opp && anchors.length) { const a = anchors.find(a => a.x0 >= g.x0 - 0.1 * g.cw && a.x0 <= g.x0 + 0.5 * g.cw && Math.abs(a.y0 - g.y) < 0.3 * g.cw); if (a) opp = oppFrom(words, a); }
+      // προπονητής: ο κωδικός ομάδας είναι τυπωμένος στο πουκάμισο πάνω από την κάρτα («ASV»)
+      let shirt = null;
+      if (t.some(x => /\bH\s?[CcG]\b|HC[A-Z]/.test(x))) {
+        const sc = headerCanvas(bmp, { x0: g.x0 + 0.2 * g.cw, y0: g.y - 0.8 * g.cw, x1: g.x1 - 0.2 * g.cw, y1: g.y - 0.3 * g.cw });
+        if (sc) {
+          await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tessedit_pageseg_mode: '11' });
+          const { data } = await TESS.recognize(sc);
+          const m = String(data.text || '').match(/\b[A-Z]{3}\b/g) || [];
+          shirt = m.map(fixCode).find(x => APP_CODES[x]) || null;
         }
       }
-      cards.push({ texts: t, text: t[0] || '', price: a.price, opp, captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0, oppRaw });
-      onPct(40 + Math.round(60 * (i + 1) / anchors.length));
+      cards.push({ texts: t, text: t[0] || '', price, opp, captain: limeRatio(bmp, R.badge) > 0.02, x: g.x0, y: g.y, oppRaw, shirt });
+      onPct(40 + Math.round(60 * (i + 1) / geo.length));
     }
     await TESS.setParameters({ tessedit_char_whitelist: '' });
-    if (window.__asDebug) window.__asDebug.push({ cards: cards.map(c => [c.texts, c.price, c.opp && c.opp.code, c.captain, c.oppRaw]) });
+    if (window.__asDebug) window.__asDebug.push({ header, cards: cards.map(c => [c.texts, c.price, c.opp && c.opp.code, c.captain, c.oppRaw, c.shirt]) });
     bmp.close?.();
     return { text: texts.join('\n'), cards, header };
   }
@@ -260,7 +323,7 @@ async function processImages() {
   // αξία προπονητή από τον λογαριασμό: σύνολο − αδιάθετα − παίκτες (αν έχουμε όλες τις αξίες των παικτών)
   const allPl = S.rows.filter(r => r.c).length && S.rows.filter(r => r.c).every(r => r.price != null);
   if (S.coach && S.coachPrice == null && H.total != null && H.bank != null && allPl) { const cv2 = Math.round((H.total - H.bank - teamValue().pl) * 10) / 10; if (cv2 >= 0.5 && cv2 <= 15) S.coachPrice = cv2; }
-  S.headerRead = H.total != null;
+  S.headerRead = H.total != null; S.headerBank = H.bank;
   S.busy = false; S.step = 2;
   // οι εικόνες δεν κρατιούνται
   for (const i of S.images) URL.revokeObjectURL(i.url);
@@ -515,7 +578,7 @@ app.addEventListener('change', e => {
   if (a === 'slot') S.rows[k].slot = el.value || null;
   if (a === 'cap') { S.rows.forEach((r, i) => { r.captain = i === k; r.capHint = false; }); }
   if (a === 'lock-coach') S.lockCoach = el.checked;
-  if (a === 'coach') { S.coachPrice = null; S.coach = el.value || null; S.coachSt = el.value ? 'sure' : 'none'; }
+  if (a === 'coach') { S.coachPrice = null; S.coach = el.value || null; if (S.coach && S.headerBank != null && S.total != null && S.rows.filter(r => r.c).every(r => r.price != null && r.price !== '')) { const v = Math.round((S.total - S.headerBank - teamValue().pl) * 10) / 10; if (v >= 0.5 && v <= 15) S.coachPrice = v; } S.coachSt = el.value ? 'sure' : 'none'; }
   if (a === 'coachprice') { S.coachPrice = el.value === '' ? null : +el.value; }
   if (a === 'total') { S.total = el.value === '' ? null : +el.value; S.totalSrc = 'user'; }
   if (a === 'trades') S.trades = Math.max(0, Math.min(10, +el.value || 0));
