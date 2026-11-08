@@ -271,7 +271,7 @@ function rowHtml(r, k) {
 }
 function errText(e) {
   const t = L.verr[e.k] || e.k;
-  return t.replace('{n}', e.n ?? '').replace('{need}', e.need ?? '').replace('{pos}', L.pos[e.pos] || '').replace('{t}', X.teams[e.t] || e.t || '').replace('{max}', e.max ?? '').replace('{codes}', (e.codes || []).join(', '));
+  return t.replace('{n}', e.n ?? '').replace('{need}', e.need ?? '').replace('{pos}', L.pos[e.pos] || '').replace('{t}', X.teams[e.t] || e.t || '').replace('{max}', e.max ?? '').replace('{codes}', (e.codes || []).join(', ')).replace('{b}', f1(e.b)).replace('{v}', f1(e.v));
 }
 function step2() {
   const team = fromRows();
@@ -346,7 +346,7 @@ function scenHtml(s, k) {
 ${s.trades.length || s.coach ? `<ul class="astrades">${tr}${coach}</ul>` : `<p>${esc(L.keepText)}</p>`}
 <ul class="fmkpi"><li>${esc(L.trades)} <b>${s.nTrades}</b></li><li>${esc(L.cost)} <b>${f1(s.cost)}</b></li><li>${esc(L.bankAfter)} <b class="${s.bankAfter < 0 ? 'dn' : ''}">${f1(s.bankAfter)}</b></li>
 <li title="${esc(L.dNextTip)}">${esc(L.dNext)} ${s.key === 'keep' ? `<b>${f1(s.after)}</b>` : sg(s.dNext)}</li>${s.key !== 'keep' ? `<li title="${esc(L.dHTip)}">${esc(L.dH)} ${sg(s.dHorizon)}</li>` : ''}</ul>
-${unc}
+${s.trades.length ? (() => { const so = s.trades.reduce((a, t) => a + t.priceOut, 0), bi = s.trades.reduce((a, t) => a + (S.inPrice[t.in] ?? t.priceIn), 0) + (s.coach && s.coach.cost > 0 ? s.coach.cost : 0) - (s.coach && s.coach.cost < 0 ? -s.coach.cost : 0); return `<p class="asbudget">${esc(L.budgetLine.replace('{b}', f1(S.bank)).replace('{s}', f1(so)).replace('{i}', f1(bi)).replace('{a}', f1(s.bankAfter)))}</p>`; })() : ''}${unc}
 ${s.priceEstimate ? `<p class="sub">* ${esc(L.priceNote)}</p>` : ''}
 ${s.key === 'keep' ? curCompare(s) : ''}${s.key !== 'keep' ? `<p><button type="button" data-act="save" data-k="${k}">💾 ${esc(L.saveTeam)}</button></p>` : ''}</article>`;
 }

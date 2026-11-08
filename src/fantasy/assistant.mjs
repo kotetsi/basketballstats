@@ -171,6 +171,12 @@ export function validateTeam(team, P, rules = CLASSIC_RULES) {
   if (!team.coach) errors.push({ k: 'coach' });
   if (team.bank == null || Number.isNaN(+team.bank)) errors.push({ k: 'bank' });
   else if (+team.bank < 0) errors.push({ k: 'bank_neg' });
+  else {
+    // τα «διαθέσιμα credits» είναι ό,τι ΔΕΝ έχεις ξοδέψει (συνήθως 0-5), όχι το σύνολο των 100: αξία 10άδας + credits δεν μπορεί να ξεπερνά πολύ το budget
+    const pr = c => (team.prices && team.prices[c] != null ? +team.prices[c] : +(P.get(c)?.price || 0));
+    const value = team.roster.reduce((a, c) => a + pr(c), 0);
+    if (team.roster.length === rules.players && value + +team.bank > rules.budget * 1.2) errors.push({ k: 'bank_high', b: +team.bank, v: Math.round(value * 10) / 10, max: Math.max(0, Math.round((rules.budget * 1.2 - value) * 10) / 10) });
+  }
   if (team.trades == null || Number.isNaN(+team.trades) || +team.trades < 0) errors.push({ k: 'trades' });
   for (const c of team.locked || []) if (!team.roster.includes(c)) warn.push({ k: 'lock_not_in', c });
   for (const p of ok) if (!p.opp) warn.push({ k: 'no_game', c: p.c });

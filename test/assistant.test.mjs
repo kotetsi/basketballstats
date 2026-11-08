@@ -115,7 +115,7 @@ test('μηδέν αλλαγές ή όλοι κλειδωμένοι → «κρά�
 test('όταν η ομάδα είναι ήδη η καλύτερη, δεν παράγονται σενάρια με το ζόρι', () => {
   const P = market();
   const best = [...P.filter(p => p.pos === 'Guard').sort((a, b) => b.pp - a.pp).slice(0, 4), ...P.filter(p => p.pos === 'Forward').sort((a, b) => b.pp - a.pp).slice(0, 4), ...P.filter(p => p.pos === 'Center').sort((a, b) => b.pp - a.pp).slice(0, 2)].map(p => p.c);
-  const r = assist({ roster: best, coach: 'AAA', bank: 50, trades: 4, locked: [] }, P, coaches);
+  const r = assist({ roster: best, coach: 'AAA', bank: 0, trades: 4, locked: [] }, P, coaches);
   assert.equal(r.scenarios.length, 0); assert.equal(r.recommendKeep, true);
 });
 
@@ -175,4 +175,13 @@ test('προπονητής χωρίς σωστό «HC»: παραναγνώσε�
   assert.equal(r.coach.t, 'ASV');
   assert.equal(r.sureCount, 10);
   assert.ok(!r.entries.some(e => /PARKER/.test(F.players.find(p => p.c === e.c)?.n || '')));
+});
+test('διαθέσιμα credits = αξόδευτα, όχι το σύνολο: μεγάλη τιμή μπλοκάρεται', () => {
+  const F = JSON.parse(fs.readFileSync(new URL('./fixtures/assistant-real-card.json', import.meta.url)));
+  const P = new Map(F.players.map(p => [p.c, p]));
+  const roster = ['014108', '003469', '009992', '011052', '011247', '008192', '007866', '010390', '008099', '012731'];
+  const prices = { '014108': 10.8, '003469': 18.9, '009992': 6.3, '011052': 10.5, '011247': 9.3, '008192': 12.6, '007866': 6.3, '010390': 8.3, '008099': 10.3, '012731': 8.3 };
+  const base = { roster, coach: 'ASV', trades: 4, prices, locked: [] };
+  assert.ok(validateTeam({ ...base, bank: 41 }, P).errors.some(e => e.k === 'bank_high'));
+  assert.ok(!validateTeam({ ...base, bank: 3.5 }, P).errors.some(e => e.k === 'bank_high'));
 });
