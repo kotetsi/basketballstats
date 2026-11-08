@@ -2,7 +2,7 @@
 // Η εικόνα διαβάζεται στη συσκευή σου (Tesseract.js, OCR ανοιχτού κώδικα) και δεν αποθηκεύεται πουθενά.
 // Αν έχει ρυθμιστεί endpoint μοντέλου όρασης (X.vision), ο χρήστης μπορεί να το επιλέξει· η εικόνα στέλνεται μόνο τότε.
 // Η αντιστοίχιση, οι κανόνες, το budget και τα σενάρια γίνονται από τον κώδικα του assistant.mjs, όχι από μοντέλο.
-import { parseScan, parseVision, parseCards, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
+import { parseScan, parseVision, parseCards, parseHeader, findAnchors, cardRegions, oppFrom, validateTeam, readiness, assist, norm } from './assistant.mjs';
 import { CLASSIC_RULES, tradesAllowed } from './rules.mjs';
 
 const X = JSON.parse(document.getElementById('asctx').textContent), L = X.L;
@@ -42,9 +42,9 @@ function addFiles(files) {
 /** προεπεξεργασία για OCR (μεγέθυνση μικρών εικόνων, ασπρόμαυρο). mode:
  *  'otsu' = κατώφλι Otsu με αυτόματη αντιστροφή σε σκούρο φόντο · 'otsu-inv' = το ίδιο με την ανάποδη αντιστροφή
  *  (λευκά γράμματα σε χρωματιστές κάρτες) · 'gray' = μόνο ασπρόμαυρο με τεντωμένη αντίθεση */
-async function preprocess(file, mode = 'otsu') {
+async function preprocess(file, mode = 'otsu', force = 0) {
   const bmp = await createImageBitmap(file);
-  const k = bmp.width < 1000 ? 2 : 1, w = bmp.width * k, h = bmp.height * k;
+  const k = force || (bmp.width < 1000 ? 2 : 1), w = bmp.width * k, h = bmp.height * k;
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, 0, 0, w, h);
   const im = g.getImageData(0, 0, w, h), d = im.data, n = w * h, gray = new Uint8ClampedArray(n);
@@ -105,6 +105,19 @@ function bandCanvases(bmp, r) {
   }
   return out;
 }
+/** κομμάτι εικόνας → ×3, κατώφλι Otsu, το κείμενο (η μειοψηφία των pixel) μαύρο σε λευκό */
+function headerCanvas(bmp, r) {
+  const x0 = Math.max(0, Math.round(r.x0)), y0 = Math.max(0, Math.round(r.y0)), x1 = Math.min(bmp.width, Math.round(r.x1)), y1 = Math.min(bmp.height, Math.round(r.y1));
+  const w = x1 - x0, h = y1 - y0; if (w < 20 || h < 8) return null;
+  const K = 3, W = w * K, H = h * K, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, x0, y0, w, h, 0, 0, W, H);
+  const im = g.getImageData(0, 0, W, H), d = im.data, n = W * H, gray = new Uint8ClampedArray(n);
+  for (let i = 0; i < n; i++) gray[i] = 0.299 * d[4 * i] + 0.587 * d[4 * i + 1] + 0.114 * d[4 * i + 2];
+  const th = otsuTh(gray); let hi = 0; for (const v of gray) if (v > th) hi++;
+  const textHigh = hi < n / 2;
+  for (let i = 0; i < n; i++) { const q = (gray[i] > th) === textHigh ? 0 : 255; d[4 * i] = d[4 * i + 1] = d[4 * i + 2] = q; d[4 * i + 3] = 255; }
+  g.putImageData(im, 0, 0); return cv;
+}
 /** σήμα αρχηγού: ποσοστό «λαχανί» pixel στην πάνω δεξιά γωνία της κάρτας */
 function limeRatio(bmp, r) {
   const x0 = Math.max(0, Math.round(r.x0)), y0 = Math.max(0, Math.round(r.y0)), w = Math.min(bmp.width, Math.round(r.x1)) - x0, h = Math.min(bmp.height, Math.round(r.y1)) - y0;
@@ -135,8 +148,24 @@ async function ocr(img, onPct) {
     for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / scale, y0: w.bbox.y0 / scale, x1: w.bbox.x1 / scale, y1: w.bbox.y1 / scale });
     onPct(Math.round(40 * (i + 1) / sparse.length));
   }
-  const anchors = findAnchors(words);
-  if (anchors.length >= 5) {
+  // κεφαλίδα της εφαρμογής (credits αδιάθετα/σύνολο, αλλαγές): μικρό λευκό κείμενο σε πορτοκαλί, διαβάζεται μόνο σε κομμένη μεγέθυνση
+  let header = '';
+  const rw = words.find(w => /^ROUND$/i.test(w.text)), tw = words.find(w => /^TURN$/i.test(w.text) && rw && Math.abs(w.y0 - rw.y0) < (rw.y1 - rw.y0) * 1.5 && w.x0 > rw.x1);
+  if (rw && tw) {
+    const h = Math.max(6, rw.y1 - rw.y0);
+    const cv = headerCanvas(bmp, { x0: rw.x0 - 10 * h, y0: rw.y1 + 1.5 * h, x1: tw.x1 + 2 * (tw.x0 - rw.x0), y1: rw.y1 + 7.5 * h });
+    if (cv) { await TESS.setParameters({ tessedit_pageseg_mode: '6' }); const { data } = await TESS.recognize(cv); header = data.text || ''; }
+  }
+  let anchors = findAnchors(words);
+  // μικρά γράμματα (π.χ. ολόκληρη σελίδα σε υπολογιστή): ένα ακόμα πέρασμα σε ×3 μεγέθυνση
+  if (anchors.length < 8 && bmp.width <= 2000) {
+    await TESS.setParameters({ tessedit_pageseg_mode: '11' });
+    const { data } = await TESS.recognize(await preprocess(img.file, 'gray', 3), {}, { text: true, blocks: true });
+    texts.push(data.text || '');
+    for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / 3, y0: w.bbox.y0 / 3, x1: w.bbox.x1 / 3, y1: w.bbox.y1 / 3 });
+    anchors = findAnchors(words);
+  }
+  if (anchors.length >= 3) {
     await TESS.setParameters({ tessedit_pageseg_mode: '7' });
     const cards = [];
     for (let i = 0; i < anchors.length; i++) {
@@ -146,7 +175,7 @@ async function ocr(img, onPct) {
       onPct(40 + Math.round(60 * (i + 1) / anchors.length));
     }
     bmp.close?.();
-    return { text: texts.join('\n'), cards };
+    return { text: texts.join('\n'), cards, header };
   }
   const more = [['otsu', '3'], ['otsu-inv', '3']];
   for (let i = 0; i < more.length; i++) {
@@ -157,7 +186,7 @@ async function ocr(img, onPct) {
     onPct(40 + Math.round(60 * (i + 1) / more.length));
   }
   bmp.close?.();
-  return { text: texts.join('\n'), cards: null };
+  return { text: texts.join('\n'), cards: null, header };
 }
 /** προαιρετικό: μοντέλο όρασης στον server (μόνο αν έχει ρυθμιστεί και το επιλέξει ο χρήστης) */
 async function vision(img) {
@@ -187,7 +216,7 @@ async function processImages() {
   const opts = { teams: X.teamsEn, greek: X.greek };
   // κάρτες της επίσημης εφαρμογής (θέση, ομάδα από τον αντίπαλο, αρχηγός, 6ος/πάγκος) · αλλιώς ανάλυση κειμένου
   const parts = [...texts.map(r => {
-    if (r.cards) { const c = parseCards(r.cards, D.players, COACHES, opts); if (c.sureCount >= 5) return c; const t = parseScan(r.text, D.players, opts); return t.sureCount > c.sureCount ? t : c; }
+    if (r.cards) { const c = parseCards(r.cards, D.players, COACHES, opts); if (c.sureCount >= 3) return c; const t = parseScan(r.text, D.players, opts); return t.sureCount > c.sureCount ? t : c; }
     return parseScan(r.text, D.players, opts);
   }), ...visions.map(v => parseVision(v, D.players, opts))];
   // πολλά screenshots της ίδιας ομάδας: ένωση χωρίς διπλοεγγραφές
@@ -205,6 +234,15 @@ async function processImages() {
   // συνολικά credits της ομάδας: αν διαβάστηκαν όλες οι αξίες (10 παίκτες + προπονητής), το άθροισμά τους (+ αδιάθετα αν φάνηκαν)
   const tv = teamValue();
   S.total = tv.n === 10 && !tv.est ? +(tv.v + (bank ? bank.value : 0)).toFixed(1) : null; S.totalSrc = S.total != null ? 'scan' : null;
+  // κεφαλίδα της εφαρμογής: «8.3/106.2 CREDITS», «1/4 TRADES»
+  let H = { bank: null, total: null, tradesUsed: null, tradesMax: null };
+  for (const r of texts) for (const src of [r.header, r.text]) { const h = parseHeader(src); for (const k in H) if (H[k] == null && h[k] != null) H[k] = h[k]; }
+  if (H.total != null) { S.total = H.total; S.totalSrc = 'scan'; }
+  if (H.tradesMax != null) { S.trades = Math.max(0, H.tradesMax - (H.tradesUsed || 0)); S.unlimited = false; S.tradesSrc = 'scan'; }
+  // αξία προπονητή από τον λογαριασμό: σύνολο − αδιάθετα − παίκτες (αν έχουμε όλες τις αξίες των παικτών)
+  const allPl = S.rows.filter(r => r.c).length && S.rows.filter(r => r.c).every(r => r.price != null);
+  if (S.coach && S.coachPrice == null && H.total != null && H.bank != null && allPl) { const cv2 = Math.round((H.total - H.bank - teamValue().pl) * 10) / 10; if (cv2 >= 0.5 && cv2 <= 15) S.coachPrice = cv2; }
+  S.headerRead = H.total != null;
   S.busy = false; S.step = 2;
   // οι εικόνες δεν κρατιούνται
   for (const i of S.images) URL.revokeObjectURL(i.url);
@@ -285,6 +323,15 @@ function errText(e) {
   const t = L.verr[e.k] || e.k;
   return t.replace('{n}', e.n ?? '').replace('{need}', e.need ?? '').replace('{pos}', L.pos[e.pos] || '').replace('{t}', X.teams[e.t] || e.t || '').replace('{max}', e.max ?? '').replace('{codes}', (e.codes || []).join(', ')).replace('{b}', f1(e.b)).replace('{v}', f1(e.v)).replace('{tot}', f1(S.total)).replace('{val}', f1(teamValue().v));
 }
+/** αξία προπονητή στο παιχνίδι (από την εικόνα ή γραμμένη)· αν λείπει, πρόταση από τον λογαριασμό: σύνολο − αξία παικτών */
+function coachValHtml() {
+  if (!S.coach) return '';
+  const tv = teamValue(), allPl = S.rows.filter(r => r.c).every(r => r.price != null && r.price !== '');
+  const implied = S.total != null && allPl ? Math.round((S.total - tv.pl) * 10) / 10 : null;
+  const hint = S.coachPrice == null && implied != null && implied >= 0.5 && implied <= 15
+    ? `<small class="asneed">${esc(L.coachImplied.replace('{v}', f1(implied)))} <button type="button" data-act="coach-implied" data-v="${implied}">${esc(L.useIt)}</button></small>` : '';
+  return `<span class="ascoachval">${esc(L.coachValue)} <input type="number" step="0.1" min="0" max="30" inputmode="decimal" class="asnum" data-act="coachprice" value="${S.coachPrice ?? ''}" placeholder="${esc(L.coachValuePh)}"></span>${hint}`;
+}
 function step2() {
   const team = fromRows();
   const v = validateTeam(team, P);
@@ -300,7 +347,7 @@ ${S.unresolved.length ? `<details class="asunres"><summary>${esc(L.unresolved.re
 <datalist id="asplayers">${playerOpts()}</datalist>
 <p><button type="button" data-act="add-row" ${S.rows.length >= 10 ? 'disabled' : ''}>＋ ${esc(L.addPlayer)}</button></p>
 <div class="asgrid">
-<label>${esc(L.coach)}${S.coachSt === 'ambiguous' || (S.coachSt === 'none' && S.step === 2) ? ` <small class="asneed">${esc(L.confirmCoach)}</small>` : ''} ${coachSel} <label class="ascheck"><input type="checkbox" data-act="lock-coach" ${S.lockCoach ? 'checked' : ''}> 🔒 ${esc(L.keepCoach)}</label></label>
+<label>${esc(L.coach)}${S.coachSt === 'ambiguous' || (S.coachSt === 'none' && S.step === 2) ? ` <small class="asneed">${esc(L.confirmCoach)}</small>` : ''} ${coachSel}${coachValHtml()} <label class="ascheck"><input type="checkbox" data-act="lock-coach" ${S.lockCoach ? 'checked' : ''}> 🔒 ${esc(L.keepCoach)}</label></label>
 <label>${esc(L.total)} <input type="number" step="0.1" min="0" max="200" inputmode="decimal" class="asnum" data-act="total" value="${S.total ?? ''}" placeholder="${esc(L.required)}" required aria-required="true">${(() => { const tv = teamValue(), b = bankOf(); return `<small>${esc(L.totalHelp)}</small>${S.totalSrc === 'scan' ? `<small class="asneed">${esc(L.totalFromImage)}</small>` : ''}<small class="asvalue">${esc(L.valueLine.replace('{pl}', f1(tv.pl)).replace('{co}', f1(tv.co)).replace('{v}', f1(tv.v)))}${b != null ? ` → <b>${esc(L.freeLine.replace('{b}', f1(b)))}</b>` : ''}</small>${tv.est ? `<small class="asneed">${esc(L.valueEst.replace('{p}', tv.estOf.join(', ')))}</small>` : ''}`; })()}</label>
 <label>${esc(L.trades)} <input type="number" min="0" max="10" step="1" class="asnum" data-act="trades" value="${S.unlimited ? '' : S.trades}" ${S.unlimited ? 'disabled' : ''}><label class="ascheck"><input type="checkbox" data-act="unlimited" ${S.unlimited ? 'checked' : ''}> ${esc(L.unlimited)}</label><small>${esc(L.tradesHelp)}</small></label>
 </div>
@@ -451,6 +498,7 @@ app.addEventListener('change', e => {
   if (a === 'cap') { S.rows.forEach((r, i) => { r.captain = i === k; r.capHint = false; }); }
   if (a === 'lock-coach') S.lockCoach = el.checked;
   if (a === 'coach') { S.coachPrice = null; S.coach = el.value || null; S.coachSt = el.value ? 'sure' : 'none'; }
+  if (a === 'coachprice') { S.coachPrice = el.value === '' ? null : +el.value; }
   if (a === 'total') { S.total = el.value === '' ? null : +el.value; S.totalSrc = 'user'; }
   if (a === 'trades') S.trades = Math.max(0, Math.min(10, +el.value || 0));
   if (a === 'unlimited') S.unlimited = el.checked;
@@ -469,6 +517,7 @@ app.addEventListener('click', e => {
   if (a === 'back') S.step = Math.max(1, S.step - 1);
   if (a === 'analyze') { S.view = 0; analyze(); return; }
   if (a === 'view') S.view = k;
+  if (a === 'coach-implied') S.coachPrice = +b.dataset.v;
   if (a === 'repl') S.repl = b.dataset.c;
   if (a === 'apply-repl') { applyRepl(b.dataset.c); return; }
   if (a === 'save') { S.result.chosen = S.result.scenarios[k]; saveManager(); return; }

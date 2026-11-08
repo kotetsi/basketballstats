@@ -341,7 +341,7 @@ export function fixPrice(t) {
   return v >= 2 && v <= 35 ? v : null;
 }
 const isCR = t => /^c[rn]\.?$/i.test(String(t).trim());
-const isTier = t => /^[T7][1-3]$/i.test(String(t).trim());
+const isTier = t => /^[T7Il1|][1-3]$/.test(String(t).trim());   // «T3», συχνά διαβάζεται «13» / «73»
 /** άγκυρες καρτών: αριθμός-αξία με «CR» ακριβώς από κάτω ή/και «T1-3» στην ίδια γραμμή δεξιά.
  * Ακέραιος (π.χ. «10») γίνεται δεκτός μόνο με «T» δίπλα: αλλιώς είναι συνήθως νούμερο φανέλας.
  * words = [{text,x0,y0,x1,y1}] (μπορεί από πολλά περάσματα) */
@@ -473,4 +473,23 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
     if (c.captain && d.status === 'sure') captain = d.c;
   }
   return { entries: entries.filter(e => e.status === 'sure' || e.options.length), bank: null, coach, captain, unresolved: entries.filter(e => e.status !== 'sure' && !e.options.length).map(e => e.raw), sureCount: entries.filter(e => e.status === 'sure').length };
+}
+
+/**
+ * Κεφαλίδα της επίσημης εφαρμογής: «8.3/106.2 CREDITS» (αδιάθετα / σύνολο) και «1/4 TRADES» (έγιναν / επιτρέπονται).
+ * Επιστρέφει { bank, total, tradesUsed, tradesMax } ή null για ό,τι δεν βρέθηκε.
+ */
+export function parseHeader(text) {
+  const t = String(text || '').replace(/[|]/g, ' ');
+  let bank = null, total = null, tradesUsed = null, tradesMax = null;
+  for (const m of t.matchAll(/(-?\d{1,3}(?:[.,]\d)?)\s*\/\s*(\d{2,3}[.,]\d)/g)) {
+    const a = +m[1].replace(',', '.'), b = +m[2].replace(',', '.');
+    if (b >= 80 && b <= 140 && a >= -5 && a <= b) { bank = a; total = b; break; }
+  }
+  // «x/4» (αλλαγές ανά αγωνιστική)· το «1/3» δίπλα είναι το turn της αγωνιστικής, όχι αλλαγές
+  const fr = [...t.matchAll(/(?:^|[^\d.,\/])([0-9])\s*\/\s*([1-9])(?![\d.,])/g)].map(m => [m[0], m[1], m[2], m.index]);
+  const nearTr = fr.find(m => /TRADES?/i.test(t.slice(m[3], m[3] + m[0].length + 12))) || fr.find(m => /TRADES?/i.test(t.slice(Math.max(0, m[3] - 12), m[3])));
+  const tr = fr.find(m => +m[2] === 4) || nearTr;
+  if (tr && +tr[2] >= 1 && +tr[2] <= 10 && +tr[1] <= +tr[2]) { tradesUsed = +tr[1]; tradesMax = +tr[2]; }
+  return { bank, total, tradesUsed, tradesMax };
 }
