@@ -223,7 +223,7 @@ function teamValue() {
 /** αδιάθετα credits = συνολικά credits ομάδας − αξία παικτών και προπονητή */
 const bankOf = () => (S.total == null ? null : Math.round((S.total - teamValue().v) * 10) / 10);
 const fromRows = () => ({
-  roster: S.rows.map(r => r.c).filter(Boolean), coach: S.coach, bank: bankOf(), trades: S.unlimited ? Infinity : S.trades,
+  roster: S.rows.map(r => r.c).filter(Boolean), coach: S.coach, coachPrice: S.coachPrice ?? null, bank: bankOf(), trades: S.unlimited ? Infinity : S.trades,
   locked: S.rows.filter(r => r.c && r.locked).map(r => r.c), prices: Object.fromEntries(S.rows.filter(r => r.c && r.price != null && r.price !== '').map(r => [r.c, +r.price])),
 });
 function loadManager() {
@@ -332,7 +332,7 @@ function pcard(c, s, isNew) {
 <div class="asinfo"><span><b>${f1(pr.v)}${pr.est ? '*' : ''}</b><small>CR</small></span><span title="${esc(L.estTip)}"><b>${f1(cap ? 2 * (p.pp || 0) : p.pp)}</b><small>${esc(L.estPts)}</small></span><span><small>${opp}</small></span></div></div>`;
 }
 function ccard(t, s) {
-  const co = COACHES.find(x => x.t === t) || {}, isNew = !!s.coach && s.coach.in === t;
+  const co0 = COACHES.find(x => x.t === t) || {}, co = { ...co0, price: S.result?.coachPrices?.[t] ?? co0.price }, isNew = !!s.coach && s.coach.in === t;
   const opp = co.opp ? `${co.home ? 'VS' : '@'} ${esc(co.opp)}` : '–';
   return `<div class="ascard coach${isNew ? ' new' : ''}">${isNew ? `<span class="asnew">${esc(L.newTag)}</span>` : ''}<span class="asteam">${esc(t || '')}</span>
 <div class="asband"><i>HC</i> ${tm(t)}</div><div class="asinfo"><span><b>${t === S.coach && S.coachPrice != null ? f1(S.coachPrice) : f1(co.price) + '*'}</b><small>CR</small></span><span><b>${f1(co.exp)}</b><small>${esc(L.estPts)}</small></span><span><small>${opp}</small></span></div></div>`;
@@ -371,7 +371,7 @@ function curCompare(s) {
 }
 // ---------------------------------------------------------------- «ποιον να βάλω στη θέση του;»
 const rowPrice = c => { const r = S.rows.find(x => x.c === c); return r && r.price != null && r.price !== '' ? +r.price : +(P.get(c)?.price || 0); };
-const inPriceOf = c => (S.inPrice[c] != null ? +S.inPrice[c] : +(P.get(c)?.price || 0));
+const inPriceOf = c => (S.inPrice[c] != null ? +S.inPrice[c] : S.result?.prices?.[c] != null ? +S.result.prices[c] : +(P.get(c)?.price || 0));
 /** οι καλύτεροι της ίδιας θέσης που χωράνε στα credits (αξία αυτού που φεύγει + αδιάθετα), με όριο 6 ανά ομάδα */
 function replacements(out, limit = 6) {
   const po = P.get(out); if (!po) return { budget: 0, list: [] };
@@ -415,7 +415,7 @@ function step3() {
   const all = [...r.scenarios, r.keep], v = Math.min(S.view, all.length - 1), cur = all[v], k = v < r.scenarios.length ? v : -1;
   const tabs = all.map((s, i) => `<button type="button" class="${i === v ? 'on' : ''} ${s.key}" data-act="view" data-k="${i}" aria-pressed="${i === v}">${esc(L.scen[s.key])}${s.key !== 'keep' ? ` <small>${s.dNext > 0 ? '+' : ''}${f1(s.dNext)}</small>` : ''}</button>`).join('');
   return `<section class="assec"><h2>${esc(L.s3h)}</h2>
-${r.recommendKeep ? `<p class="asok">✅ ${esc(L.recommendKeep)}</p>` : `<p class="sub">${esc(L.s3help.replace('{n}', r.scenarios.length))}</p>`}
+${r.fit ? `<p class="sub">* ${esc(L.calNote.replace('{n}', r.fit.n))}</p>` : ''}${r.recommendKeep ? `<p class="asok">✅ ${esc(L.recommendKeep)}</p>` : `<p class="sub">${esc(L.s3help.replace('{n}', r.scenarios.length))}</p>`}
 <div class="astabs" role="tablist">${tabs}</div>
 ${courtHtml(cur)}
 <div class="asscens one">${scenHtml(cur, k)}</div>

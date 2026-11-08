@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { parseScan, parseVision, segmentLine, nameIndex, decide, validateTeam, readiness, assist, MIN_GAIN, findAnchors, cardRegions, oppFrom, parseCards, parseCardText, fixPrice } from '../src/fantasy/assistant.mjs';
+import { parseScan, parseVision, segmentLine, nameIndex, decide, validateTeam, readiness, assist, MIN_GAIN, calibrate, findAnchors, cardRegions, oppFrom, parseCards, parseCardText, fixPrice } from '../src/fantasy/assistant.mjs';
 import { CLASSIC_RULES, tradesAllowed } from '../src/fantasy/rules.mjs';
 
 // ---------- συνθετική αγορά: 3 ομάδες × θέσεις, με γνωστές εκτιμήσεις
@@ -184,4 +184,14 @@ test('διαθέσιμα credits = αξόδευτα, όχι το σύνολο: �
   const base = { roster, coach: 'ASV', trades: 4, prices, locked: [] };
   assert.ok(validateTeam({ ...base, bank: 41 }, P).errors.some(e => e.k === 'bank_high'));
   assert.ok(!validateTeam({ ...base, bank: 3.5 }, P).errors.some(e => e.k === 'bank_high'));
+});
+test('βαθμονόμηση αξιών: εκτιμήσεις του site → κλίμακα του παιχνιδιού από τους δικούς σου παίκτες', () => {
+  const players = Array.from({ length: 12 }, (_, i) => ({ c: 'X' + i, n: 'P' + i, pos: 'Guard', t: 'AAA', price: 8 + i, price_src: 'estimate' }));
+  const prices = Object.fromEntries(players.slice(0, 10).map(p => [p.c, Math.round(p.price * 0.75 * 10) / 10]));
+  const { players: out, fit } = calibrate({ prices, roster: Object.keys(prices) }, players, []);
+  assert.ok(Math.abs(fit.b - 0.75) < 0.03);
+  const x = out.find(p => p.c === 'X11');
+  assert.equal(x.price_src, 'calibrated');
+  assert.ok(x.price >= 19 * 0.75 - 0.2 && x.price <= 19 * 0.75 + 1);   // κλίμακα παιχνιδιού + μικρό περιθώριο
+  assert.equal(out.find(p => p.c === 'X0').price, 8);                  // οι δικοί σου μένουν ανέγγιχτοι εδώ (τους αλλάζει το assist)
 });

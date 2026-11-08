@@ -249,7 +249,33 @@ export const MIN_GAIN = { next: 1.5, horizon: 3 };
  * team = { roster:[10 κωδικοί], coach:'PAN', bank: διαθέσιμα credits, trades: επιτρεπόμενες αλλαγές, locked:[κωδικοί], prices:{κωδικός: αξία πώλησης} }
  * players = εκτιμήσεις του site (latest), coaches = εκτιμήσεις προπονητών
  */
-export function assist(team, players, coaches, { rules = CLASSIC_RULES, horizonRounds = 3 } = {}) {
+/**
+ * Οι εκτιμήσεις αξίας του site δεν είναι στην ίδια κλίμακα με τις επίσημες τιμές του παιχνιδιού.
+ * Από τους παίκτες σου (επίσημη αξία από την εικόνα ↔ εκτίμηση site) βγαίνει γραμμική προσαρμογή επίσημη ≈ a + b·εκτίμηση,
+ * που εφαρμόζεται σε όσους δεν έχουν επίσημη αξία (price_src 'calibrated'). Ίδια ιδέα για τους προπονητές με την αξία του δικού σου.
+ */
+export function calibrate(team, players, coaches = []) {
+  const byC = new Map(players.map(p => [p.c, p]));
+  const pairs = Object.entries(team.prices || {}).map(([c, v]) => [byC.get(c), +v]).filter(([p, v]) => p && p.price > 0 && v > 0 && p.price_src !== 'official');
+  let fit = null;
+  if (pairs.length >= 5) {
+    const n = pairs.length, mx = pairs.reduce((s, [p]) => s + p.price, 0) / n, my = pairs.reduce((s, [, v]) => s + v, 0) / n;
+    const sxx = pairs.reduce((s, [p]) => s + (p.price - mx) ** 2, 0), sxy = pairs.reduce((s, [p, v]) => s + (p.price - mx) * (v - my), 0);
+    let b = sxx > 0 ? sxy / sxx : my / mx, a = my - b * mx;
+    if (!(b >= 0.3 && b <= 1.3)) { b = my / mx; a = 0; }
+    // συντηρητικά: + μία τυπική απόκλιση του σφάλματος, ώστε οι προτάσεις να χωράνε και αν η πραγματική τιμή είναι λίγο πιο ψηλή
+    const sd = Math.sqrt(pairs.reduce((s2, [p, v]) => s2 + (v - (a + b * p.price)) ** 2, 0) / Math.max(1, n - 2));
+    fit = { a: Math.round(a * 1000) / 1000, b: Math.round(b * 1000) / 1000, sd: Math.round(sd * 100) / 100, n, ratio: Math.round(my / mx * 1000) / 1000 };
+  }
+  const cal = v => Math.max(2, Math.round((fit.a + fit.b * v + fit.sd) * 10) / 10);
+  const outP = fit ? players.map(p => (team.prices && team.prices[p.c] != null) || p.price_src === 'official' ? p : { ...p, price: cal(p.price), price_src: 'calibrated', price_site: p.price }) : players;
+  const myCoach = coaches.find(c => c.t === team.coach);
+  const cr = team.coachPrice != null && myCoach && myCoach.price > 0 ? team.coachPrice / myCoach.price : fit ? fit.ratio : null;
+  const outC = coaches.map(c => (c.t === team.coach && team.coachPrice != null ? { ...c, price: +team.coachPrice, price_src: 'user' } : cr && c.price_src !== 'official' ? { ...c, price: Math.max(1, Math.round(c.price * cr * 10) / 10), price_src: 'calibrated' } : c));
+  return { players: outP, coaches: outC, fit };
+}
+export function assist(team, players0, coaches0, { rules = CLASSIC_RULES, horizonRounds = 3 } = {}) {
+  const { players, coaches, fit } = calibrate(team, players0, coaches0);
   // οι αξίες των δικών σου παικτών: ό,τι έδωσες (screenshot/χέρι) υπερισχύει της εκτίμησης του site
   const P = new Map(players.map(p => [p.c, team.prices && team.prices[p.c] != null ? { ...p, price: +team.prices[p.c], price_src: 'user' } : p]));
   const v = validateTeam(team, P, rules);
@@ -297,7 +323,7 @@ export function assist(team, players, coaches, { rules = CLASSIC_RULES, horizonR
     uncertainty: ro.flatMap(p => [p.status === 'doubtful' ? { k: 'doubtful', c: p.c } : null, minutesRisk(p) === 'high' ? { k: 'minutes', c: p.c } : null, OUT(p.status) ? { k: 'out', c: p.c } : null].filter(Boolean)) };
   // ταξινόμηση: η ισορροπημένη πρώτη· έως 3 σενάρια
   scen.sort((a, b) => MODES.findIndex(m => m.key === a.key) - MODES.findIndex(m => m.key === b.key));
-  return { scenarios: scen.slice(0, 3), keep, recommendKeep: scen.length === 0, warn: v.warn, base: r1(base) };
+  return { scenarios: scen.slice(0, 3), keep, recommendKeep: scen.length === 0, warn: v.warn, base: r1(base), fit, prices: Object.fromEntries(players.filter(p => p.price_src === 'calibrated').map(p => [p.c, p.price])), coachPrices: Object.fromEntries(coaches.map(c => [c.t, c.price])) };
 }
 
 // ---------------------------------------------------------------- διάταξη καρτών της επίσημης εφαρμογής (Classic Mode)
