@@ -722,3 +722,19 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 .astbl,.astbl tbody,.astbl tr,.astbl td{display:block;width:100%}.astbl thead{display:none}.astbl tr{border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;position:relative}
 .astbl td{border:0;padding:3px 0;text-align:left}.astbl td[data-l]{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.astbl td[data-l]::before{content:attr(data-l);min-width:90px;font-size:12px;color:var(--muted)}
 .astbl td.asrm{position:absolute;top:6px;right:6px;width:auto}.astbl .asname{min-width:0;width:calc(100% - 40px)}}
+
+/* AI Assistant: η προτεινόμενη ομάδα στο γήπεδο */
+.astabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 10px}.astabs button{border:1px solid var(--line);background:var(--surface);color:inherit;border-radius:999px;padding:6px 12px;font-weight:600;cursor:pointer}.astabs button small{font-weight:700;opacity:.8}.astabs button.on{background:#14123a;color:#fff;border-color:#14123a}
+.ascourt{position:relative;border-radius:14px;padding:12px 8px 14px;background:radial-gradient(ellipse 46% 22% at 50% 0,transparent 96%,rgba(255,255,255,.55) 97%,transparent 99%),linear-gradient(180deg,#e8c48c,#d9a96a 55%,#f2a23c 56%,#e9532e);color:#14123a;overflow:hidden}
+.ascl{margin:6px 0 4px;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(20,18,58,.75)}.aslower .ascl{color:rgba(255,255,255,.85)}
+.ascrow{display:flex;justify-content:center;gap:8px;margin:8px 0}.ascrow>.ascard{flex:0 1 118px}
+.aslower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:8px;margin-top:10px;align-items:start}.ascol{display:flex;flex-direction:column;align-items:center}.asbenchbox{background:rgba(255,255,255,.14);border-radius:12px;padding:0 6px 8px}.asbench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;justify-items:center}
+.ascard{position:relative;width:100%;max-width:118px;box-sizing:border-box;min-width:0;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.18);text-align:center;padding-top:22px;font-size:.8rem}
+.ascard .asteam{position:absolute;top:4px;left:0;right:0;font-size:.68rem;font-weight:800;color:#6b6890;letter-spacing:.05em}
+.ascard .asband{background:#14123a;color:#fff;padding:4px 4px;border-bottom:3px solid #1db86a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}.ascard .asband i{font-style:normal;color:#a9a6d6;font-weight:400;margin-right:2px}
+.ascard .asinfo{display:grid;grid-template-columns:1fr 1fr;padding:4px 2px 5px;gap:0 2px;line-height:1.15}.ascard .asinfo span{display:flex;flex-direction:column}.ascard .asinfo span:last-child{grid-column:1/-1;margin-top:2px}.ascard .asinfo b{font-size:.95rem}.ascard .asinfo small{color:#6b6890;font-size:.66rem}
+.ascard .ascap{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;background:#c6f432;color:#14123a;font-weight:900;font-size:.8rem;line-height:22px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.ascard.new{outline:3px solid #1db86a;outline-offset:1px}.ascard .asnew{position:absolute;top:-8px;left:-6px;background:#1db86a;color:#fff;font-size:.6rem;font-weight:800;padding:2px 5px;border-radius:6px}
+.ascard.coach .asband{font-size:.74rem}.ascard.empty{padding:20px 0;color:#999}
+.asouts{margin:8px 2px 0;font-size:.85rem;color:var(--muted,#666)}.asscens.one{grid-template-columns:1fr;margin-top:10px}
+@media (max-width:420px){.ascard{font-size:.72rem}.ascard .asinfo b{font-size:.85rem}.ascrow{gap:5px}}

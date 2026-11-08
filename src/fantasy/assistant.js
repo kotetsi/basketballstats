@@ -12,7 +12,7 @@ const f1 = v => (v == null || Number.isNaN(+v) ? '–' : (+v).toFixed(1));
 const sg = v => (v == null ? '–' : `<b class="${v > 0 ? 'up' : v < 0 ? 'dn' : ''}">${v > 0 ? '+' : ''}${(+v).toFixed(1)}</b>`);
 const MAX_FILES = 4, MAX_MB = 10, TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 let D = null, P = new Map(), COACHES = [], READY = null;
-const S = { step: 1, images: [], busy: false, msg: null, rows: [], coach: null, coachSt: null, bank: null, bankSrc: null, trades: null, unlimited: false, useVision: false, result: null, inPrice: {}, unresolved: [] };
+const S = { step: 1, images: [], busy: false, msg: null, rows: [], coach: null, coachSt: null, bank: null, bankSrc: null, trades: null, unlimited: false, useVision: false, result: null, inPrice: {}, unresolved: [], view: 0 };
 
 const nm = c => P.get(c)?.dn || c, tm = t => esc(X.teams[t] || t);
 const posL = p => esc(L.pos[p] || p);
@@ -201,7 +201,7 @@ async function processImages() {
   // δεν επιτρέπεται η ίδια επιλογή δύο φορές: αμφίβολες εγγραφές χωρίς επιλογές που απομένουν φεύγουν
   if (captain) { const r = S.rows.find(x => x.c === captain); if (r) { r.captain = true; r.capHint = true; } }
   S.bank = bank ? bank.value : null; S.bankSrc = bank ? 'scan' : null;
-  S.coach = coach && coach.status === 'sure' ? coach.t : null; S.coachSt = coach ? coach.status : 'none';
+  S.coach = coach && coach.status === 'sure' ? coach.t : null; S.coachSt = coach ? coach.status : 'none'; S.coachPrice = coach && coach.status === 'sure' && coach.price != null ? coach.price : null;
   S.unresolved = [...new Set(unresolved)].slice(0, 10);
   S.busy = false; S.step = 2;
   // οι εικόνες δεν κρατιούνται
@@ -301,6 +301,41 @@ const riskText = w => (L.risk[w.k] || w.k).replace('{level}', L.lvl[w.level] || 
 function lineupHtml(lu) {
   return `<p class="aslu"><b>${esc(L.formation)} ${esc(lu.formation)}</b> · ${esc(L.captain)}: <b>${esc(nm(lu.captain))}</b></p><p class="sub">${esc(L.startFive)}: ${lu.start.map(c => esc(nm(c)) + (c === lu.captain ? ' (C)' : '')).join(', ')} · ${esc(L.sixth)}: ${esc(nm(lu.sixth))} · ${esc(L.bench)}: ${lu.bench.map(c => esc(nm(c))).join(', ')}</p>`;
 }
+const surname = c => { const n = String(P.get(c)?.n || c).split(',')[0].trim().toLowerCase(); return n.replace(/(^|[\s-])\p{L}/gu, m => m.toUpperCase()); };
+const POS1 = { Guard: 'G', Forward: 'F', Center: 'C' };
+/** τιμή για την κάρτα: ό,τι έδωσες/διαβάστηκε > τιμή αγοράς του σεναρίου > εκτίμηση site */
+function priceOf(c, s) {
+  if (S.inPrice[c] != null) return { v: +S.inPrice[c], est: false };
+  const r = S.rows.find(x => x.c === c); if (r && r.price != null && r.price !== '') return { v: +r.price, est: false };
+  const t = s.trades.find(x => x.in === c); if (t) return { v: t.priceIn, est: t.priceSrcIn !== 'official' };
+  return { v: P.get(c)?.price, est: true };
+}
+/** κάρτα παίκτη όπως στην εφαρμογή: θέση + επώνυμο, αξία, αντίπαλος, εκτίμηση, σήμα αρχηγού / νέου */
+function pcard(c, s, isNew) {
+  const p = P.get(c) || {}, pr = priceOf(c, s), cap = c === s.lineup.captain;
+  const opp = p.opp ? `${p.home ? 'VS' : '@'} ${esc(p.opp)}` : '–';
+  return `<div class="ascard${isNew ? ' new' : ''}">${cap ? '<span class="ascap">C</span>' : ''}${isNew ? `<span class="asnew">${esc(L.newTag)}</span>` : ''}
+<span class="asteam">${esc(p.t || '')}</span>
+<div class="asband"><i>${POS1[p.pos] || ''}</i> ${esc(surname(c))}</div>
+<div class="asinfo"><span><b>${f1(pr.v)}${pr.est ? '*' : ''}</b><small>CR</small></span><span title="${esc(L.estTip)}"><b>${f1(cap ? 2 * (p.pp || 0) : p.pp)}</b><small>${esc(L.estPts)}</small></span><span><small>${opp}</small></span></div></div>`;
+}
+function ccard(t, s) {
+  const co = COACHES.find(x => x.t === t) || {}, isNew = !!s.coach && s.coach.in === t;
+  const opp = co.opp ? `${co.home ? 'VS' : '@'} ${esc(co.opp)}` : '–';
+  return `<div class="ascard coach${isNew ? ' new' : ''}">${isNew ? `<span class="asnew">${esc(L.newTag)}</span>` : ''}<span class="asteam">${esc(t || '')}</span>
+<div class="asband"><i>HC</i> ${tm(t)}</div><div class="asinfo"><span><b>${t === S.coach && S.coachPrice != null ? f1(S.coachPrice) : f1(co.price) + '*'}</b><small>CR</small></span><span><b>${f1(co.exp)}</b><small>${esc(L.estPts)}</small></span><span><small>${opp}</small></span></div></div>`;
+}
+/** η προτεινόμενη ομάδα στο «γήπεδο»: πεντάδα ανά θέση (C πάνω, F, G κάτω), από κάτω 6ος + προπονητής και πάγκος */
+function courtHtml(s) {
+  const lu = s.lineup, isNew = new Set(s.trades.map(t => t.in));
+  const coachT = s.coach ? s.coach.in : S.coach;
+  const row = pos => { const cs = lu.start.filter(c => P.get(c)?.pos === pos); return cs.length ? `<div class="ascrow">${cs.map(c => pcard(c, s, isNew.has(c))).join('')}</div>` : ''; };
+  return `<div class="ascourt" role="group" aria-label="${esc(L.courtAria)}">
+<div class="asfive"><p class="ascl">${esc(L.startFive)} · ${esc(lu.formation)}</p>${row('Center')}${row('Forward')}${row('Guard')}</div>
+<div class="aslower"><div class="ascol"><p class="ascl">${esc(L.sixthPct)}</p>${lu.sixth ? pcard(lu.sixth, s, isNew.has(lu.sixth)) : ''}<p class="ascl">${esc(L.coach)}</p>${coachT ? ccard(coachT, s) : '<div class="ascard empty">–</div>'}</div>
+<div class="asbenchbox"><p class="ascl">${esc(L.benchPct)}</p><div class="asbench">${lu.bench.map(c => pcard(c, s, isNew.has(c))).join('')}</div></div></div></div>
+${s.trades.length || s.coach ? `<p class="asouts">${esc(L.outH)}: ${[...s.trades.map(t => esc(nm(t.out))), ...(s.coach ? [esc(L.coach) + ' ' + tm(s.coach.out)] : [])].join(', ')}</p>` : ''}`;
+}
 function scenHtml(s, k) {
   const tr = s.trades.map(t => { const pin = S.inPrice[t.in]; return `<li><div class="astr"><span class="out">− ${esc(nm(t.out))} <small>${f1(t.priceOut)}${t.priceSrcOut === 'estimate' ? '*' : ''}</small></span> → <span class="in">+ ${esc(nm(t.in))} <small>${tm(P.get(t.in).t)} · ${f1(pin ?? t.priceIn)}${pin == null && t.priceSrcIn !== 'official' ? '*' : ''}</small></span></div>
 <p class="sub">${t.why.map(whyText).map(esc).join(' · ')}</p>${t.risk.filter(r => r.k !== 'price_estimate').length ? `<p class="asrisk">⚠ ${t.risk.filter(r => r.k !== 'price_estimate').map(riskText).map(esc).join(' · ')}</p>` : ''}
@@ -311,7 +346,7 @@ function scenHtml(s, k) {
 ${s.trades.length || s.coach ? `<ul class="astrades">${tr}${coach}</ul>` : `<p>${esc(L.keepText)}</p>`}
 <ul class="fmkpi"><li>${esc(L.trades)} <b>${s.nTrades}</b></li><li>${esc(L.cost)} <b>${f1(s.cost)}</b></li><li>${esc(L.bankAfter)} <b class="${s.bankAfter < 0 ? 'dn' : ''}">${f1(s.bankAfter)}</b></li>
 <li title="${esc(L.dNextTip)}">${esc(L.dNext)} ${s.key === 'keep' ? `<b>${f1(s.after)}</b>` : sg(s.dNext)}</li>${s.key !== 'keep' ? `<li title="${esc(L.dHTip)}">${esc(L.dH)} ${sg(s.dHorizon)}</li>` : ''}</ul>
-${lineupHtml(s.lineup)}${unc}
+${unc}
 ${s.priceEstimate ? `<p class="sub">* ${esc(L.priceNote)}</p>` : ''}
 ${s.key === 'keep' ? curCompare(s) : ''}${s.key !== 'keep' ? `<p><button type="button" data-act="save" data-k="${k}">💾 ${esc(L.saveTeam)}</button></p>` : ''}</article>`;
 }
@@ -325,10 +360,13 @@ function curCompare(s) {
 function step3() {
   const r = S.result;
   if (r.errors) return `<section class="assec"><ul class="aserr">${r.errors.map(e => `<li>${esc(errText(e))}</li>`).join('')}</ul><p><button type="button" data-act="back">← ${esc(L.back)}</button></p></section>`;
-  const cards = r.scenarios.map((s, k) => scenHtml(s, k)).join('');
+  const all = [...r.scenarios, r.keep], v = Math.min(S.view, all.length - 1), cur = all[v], k = v < r.scenarios.length ? v : -1;
+  const tabs = all.map((s, i) => `<button type="button" class="${i === v ? 'on' : ''} ${s.key}" data-act="view" data-k="${i}" aria-pressed="${i === v}">${esc(L.scen[s.key])}${s.key !== 'keep' ? ` <small>${s.dNext > 0 ? '+' : ''}${f1(s.dNext)}</small>` : ''}</button>`).join('');
   return `<section class="assec"><h2>${esc(L.s3h)}</h2>
 ${r.recommendKeep ? `<p class="asok">✅ ${esc(L.recommendKeep)}</p>` : `<p class="sub">${esc(L.s3help.replace('{n}', r.scenarios.length))}</p>`}
-<div class="asscens">${cards}${scenHtml(r.keep, -1)}</div>
+<div class="astabs" role="tablist">${tabs}</div>
+${courtHtml(cur)}
+<div class="asscens one">${scenHtml(cur, k)}</div>
 <p class="note">${esc(L.method)} <a href="${X.perf}">${esc(L.perfLink)}</a></p>
 <p class="asbtns"><button type="button" data-act="back">← ${esc(L.edit)}</button></p></section>`;
 }
@@ -359,7 +397,7 @@ app.addEventListener('change', e => {
   if (a === 'slot') S.rows[k].slot = el.value || null;
   if (a === 'cap') { S.rows.forEach((r, i) => { r.captain = i === k; r.capHint = false; }); }
   if (a === 'lock-coach') S.lockCoach = el.checked;
-  if (a === 'coach') { S.coach = el.value || null; S.coachSt = el.value ? 'sure' : 'none'; }
+  if (a === 'coach') { S.coachPrice = null; S.coach = el.value || null; S.coachSt = el.value ? 'sure' : 'none'; }
   if (a === 'bank') { S.bank = el.value === '' ? null : +el.value; S.bankSrc = 'user'; }
   if (a === 'trades') S.trades = Math.max(0, Math.min(10, +el.value || 0));
   if (a === 'unlimited') S.unlimited = el.checked;
@@ -376,7 +414,8 @@ app.addEventListener('click', e => {
   if (a === 'add-row') S.rows.push({ c: null, status: 'none', options: [], raw: '', price: null, priceSrc: null, locked: false });
   if (a === 'rm-row') S.rows.splice(k, 1);
   if (a === 'back') S.step = Math.max(1, S.step - 1);
-  if (a === 'analyze') { analyze(); return; }
+  if (a === 'analyze') { S.view = 0; analyze(); return; }
+  if (a === 'view') S.view = k;
   if (a === 'save') { S.result.chosen = S.result.scenarios[k]; saveManager(); return; }
   render();
 });
