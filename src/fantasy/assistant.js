@@ -44,7 +44,7 @@ function addFiles(files) {
  *  (λευκά γράμματα σε χρωματιστές κάρτες) · 'gray' = μόνο ασπρόμαυρο με τεντωμένη αντίθεση */
 async function preprocess(file, mode = 'otsu', force = 0) {
   const bmp = await createImageBitmap(file);
-  const k = force || (bmp.width < 1000 ? 2 : 1), w = bmp.width * k, h = bmp.height * k;
+  const k = force || (bmp.width < 1000 ? 2 : 1), w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, 0, 0, w, h);
   const im = g.getImageData(0, 0, w, h), d = im.data, n = w * h, gray = new Uint8ClampedArray(n);
@@ -159,11 +159,13 @@ async function ocr(img, onPct) {
   }
   let anchors = findAnchors(words);
   // μικρά γράμματα (π.χ. ολόκληρη σελίδα σε υπολογιστή): ένα ακόμα πέρασμα σε ×3 μεγέθυνση
-  if (anchors.length < 8 && bmp.width <= 2000) {
+  if (anchors.length < 8 && bmp.width <= 2000 && Math.sqrt(15e6 / (bmp.width * bmp.height)) >= 1.5) {
     await TESS.setParameters({ tessedit_pageseg_mode: '11' });
-    const { data } = await TESS.recognize(await preprocess(img.file, 'gray', 3), {}, { text: true, blocks: true });
+    // iPhone/Safari: όριο ~16 εκατ. pixel ανά canvas, αλλιώς βγαίνει κενό
+    const up = Math.max(1.5, Math.min(3, Math.sqrt(15e6 / (bmp.width * bmp.height))));
+    const { data } = await TESS.recognize(await preprocess(img.file, 'gray', up), {}, { text: true, blocks: true });
     texts.push(data.text || '');
-    for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / 3, y0: w.bbox.y0 / 3, x1: w.bbox.x1 / 3, y1: w.bbox.y1 / 3 });
+    for (const w of wordsOf(data)) if (w.text && w.text.trim() && w.bbox) words.push({ text: w.text.trim(), x0: w.bbox.x0 / up, y0: w.bbox.y0 / up, x1: w.bbox.x1 / up, y1: w.bbox.y1 / up });
     anchors = findAnchors(words);
   }
   if (window.__asDebug) window.__asDebug.push({ w: bmp.width, h: bmp.height, words: words.length, anchors: anchors.map(a => [a.price, Math.round(a.x0), Math.round(a.y0), Math.round(a.h)]), header });
