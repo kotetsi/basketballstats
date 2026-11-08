@@ -173,22 +173,23 @@ async function ocr(img, onPct) {
     for (let i = 0; i < anchors.length; i++) {
       const a = anchors[i], R = cardRegions(a), cs = bandCanvases(bmp, R.name), t = [];
       for (const c of cs) { const { data } = await TESS.recognize(c); if (data.text && data.text.trim()) t.push(data.text.trim()); }
-      let opp = oppFrom(words, a);
+      let opp = oppFrom(words, a), oppRaw = null;
       if (!opp) {   // ο αντίπαλος δεν βγήκε στο γενικό πέρασμα: διαβάζουμε μόνο εκείνο το κομμάτι της κάρτας
         const oc = headerCanvas(bmp, { x0: a.x1 + 0.3 * a.h, y0: a.y1 + 0.1 * a.h, x1: R.opp.x1 + 0.5 * a.h, y1: a.crY + 0.6 * a.h });
         if (oc) {
           await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ@ ' });
           const { data } = await TESS.recognize(oc);
           await TESS.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'' });
+          oppRaw = String(data.text || '');
           const m = String(data.text || '').toUpperCase().match(/(@|VS|V5|YS)?\s*([A-Z]{3})\s*$/m);
           if (m) { const code = fixCode(m[2]); opp = { code, away: m[1] === '@' ? true : m[1] ? false : null, our: APP_CODES[code] || code }; }
         }
       }
-      cards.push({ texts: t, text: t[0] || '', price: a.price, opp, captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0 });
+      cards.push({ texts: t, text: t[0] || '', price: a.price, opp, captain: limeRatio(bmp, R.badge) > 0.02, x: a.x0, y: a.y0, oppRaw });
       onPct(40 + Math.round(60 * (i + 1) / anchors.length));
     }
     await TESS.setParameters({ tessedit_char_whitelist: '' });
-    if (window.__asDebug) window.__asDebug.push({ cards: cards.map(c => [c.texts, c.price, c.opp && c.opp.code, c.captain]) });
+    if (window.__asDebug) window.__asDebug.push({ cards: cards.map(c => [c.texts, c.price, c.opp && c.opp.code, c.captain, c.oppRaw]) });
     bmp.close?.();
     return { text: texts.join('\n'), cards, header };
   }
