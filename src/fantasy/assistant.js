@@ -159,7 +159,7 @@ async function ocr(img, onPct) {
   }
   let anchors = findAnchors(words);
   // μικρά γράμματα (π.χ. ολόκληρη σελίδα σε υπολογιστή): ένα ακόμα πέρασμα σε ×3 μεγέθυνση
-  if (anchors.length < 8 && bmp.width <= 2000 && Math.sqrt(15e6 / (bmp.width * bmp.height)) >= 1.5) {
+  if (anchors.length < 11 && bmp.width <= 2000 && Math.sqrt(15e6 / (bmp.width * bmp.height)) >= 1.5) {
     await TESS.setParameters({ tessedit_pageseg_mode: '11' });
     // iPhone/Safari: όριο ~16 εκατ. pixel ανά canvas, αλλιώς βγαίνει κενό
     const up = Math.max(1.5, Math.min(3, Math.sqrt(15e6 / (bmp.width * bmp.height))));
