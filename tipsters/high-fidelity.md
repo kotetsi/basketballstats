@@ -66,3 +66,31 @@ Crvena zvezda igra najzatvoreniju košarku u Evroligi: prima **75,0 poena** po u
 Real Madrid je druga strana: 97,8 postignutih i 90,7 primljenih poena, a njegove utakmice su prešle 175,5 u 7 od 10. Pitanje je ko će nametnuti ritam. Zvezda je u tome uspela u većini utakmica, čak i protiv jakih napada, a prosek lige (173,7) je već ispod granice.
 
 Rizik: u Madridu je Real prelazio 200 ukupnih poena protiv Asvela (203) i Panatinaikosa (227).
+
+11 | PAR-BAS | Tanaskovic πόντοι+ριμπάουντ over 13.5 | 1.74
+Ο Νίκολα Τανάσκοβιτς πήρε μεγάλο ρόλο τις δύο τελευταίες αγωνιστικές: **27-29 λεπτά**, με **19 πόντους και 5 ριμπάουντ** (24) και **11 πόντους και 7 ριμπάουντ** (18). Μέχρι τότε έπαιζε 9-23 λεπτά και δεν είχε περάσει τα 13 στο άθροισμα.
+
+Απέναντι έχει την Μπασκόνια, που δέχεται **93.1 πόντους** ανά αγώνα, την τρίτη χειρότερη άμυνα της EuroLeague. Αν κρατήσει τα λεπτά των τελευταίων αγώνων, το 14+ σε πόντους και ριμπάουντ είναι ρεαλιστικό, και η παράταση μετράει.
+
+Το ρίσκο: στα 10 ματς της σεζόν το έχει πιάσει μόνο δύο φορές (μέσος όρος 11.8). Όλα κρέμονται από το αν ο νέος του ρόλος είναι μόνιμος.
+
+EN:
+Nikola Tanaskovic has taken on a big role over the last two rounds: **27-29 minutes**, with **19 points and 5 rebounds** (24) and **11 points and 7 rebounds** (18). Before that he played 9-23 minutes and had not gone past 13 combined.
+
+He faces Baskonia, who allow **93.1 points** per game, the third-worst defense in the EuroLeague. If he keeps the minutes of his recent games, 14+ points and rebounds is realistic, and overtime counts.
+
+The risk: in 10 games this season he has reached it only twice (average 11.8). It all depends on whether his new role is permanent.
+
+ES:
+Nikola Tanaskovic ha asumido un papel importante en las dos últimas jornadas: **27-29 minutos**, con **19 puntos y 5 rebotes** (24) y **11 puntos y 7 rebotes** (18). Antes jugaba 9-23 minutos y no había pasado de 13 en la suma.
+
+Enfrente tiene al Baskonia, que recibe **93,1 puntos** por partido, la tercera peor defensa de la Euroliga. Si mantiene los minutos de sus últimos partidos, el 14+ en puntos y rebotes es realista, y la prórroga cuenta.
+
+El riesgo: en los 10 partidos de la temporada solo lo ha logrado dos veces (media de 11,8). Todo depende de si su nuevo papel es permanente.
+
+SR:
+Nikola Tanasković je u poslednja dva kola dobio veliku ulogu: **27-29 minuta**, sa **19 poena i 5 skokova** (24) i **11 poena i 7 skokova** (18). Pre toga je igrao 9-23 minuta i nije prelazio 13 u zbiru.
+
+Protivnik je Baskonija, koja prima **93,1 poen** po utakmici, treća najlošija odbrana Evrolige. Ako zadrži minutažu iz poslednjih utakmica, 14+ poena i skokova je realno, a produžetak se računa.
+
+Rizik: u 10 utakmica ove sezone to je postigao samo dva puta (prosek 11,8). Sve zavisi od toga da li je njegova nova uloga trajna.
