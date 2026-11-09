@@ -1,0 +1,29 @@
+{
+  "_note": "Μητρώο ελληνικών sportsbooks για την ελληνική έκδοση. Στην Ελλάδα μετράνε ΜΟΝΟ τα feeds με greek_prices = confirmed. Ό,τι δεν έχει ελεγχθεί στο μητρώο της ΕΕΕΠ μένει null/unverified: δεν συμπληρώνεται από υποθέσεις.",
+  "register": "https://certifications.gamingcommission.gov.gr/publicRecordsOnline/SitePages/KatoxoiAdeiasOnline.aspx",
+  "license_type": "Τύπου 1 (στοιχηματισμός μέσω διαδικτύου)",
+  "checked": "2026-11-09",
+  "provider": "oddspapi",
+  "greek_prices_values": {
+    "confirmed": "το feed είναι αποκλειστικά της ελληνικής αγοράς (ξεχωριστό .gr feed ή μάρκα που λειτουργεί μόνο σε Ελλάδα/Κύπρο)",
+    "unconfirmed": "γενικό/διεθνές feed της μάρκας: δεν έχει επιβεβαιωθεί ότι οι τιμές είναι αυτές του .gr — δεν χρησιμοποιείται",
+    "none": "ο πάροχος δεν δίνει feed για αυτή τη μάρκα"
+  },
+  "brands": {
+    "stoiximan":    { "brand": "Stoiximan",     "domain": "stoiximan.gr",    "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": ["stoiximan"],       "greek_prices": "confirmed",   "why": "η μάρκα Stoiximan λειτουργεί μόνο σε Ελλάδα και Κύπρο (διεθνώς: Betano)" },
+    "bet365":       { "brand": "bet365",        "domain": "bet365.gr",       "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": ["bet365.gr"],       "greek_prices": "confirmed",   "why": "ξεχωριστό feed «bet365 GR» στον πάροχο· τα «bet365» και «bet365 NJ» αποκλείονται" },
+    "pamestoixima": { "brand": "Pamestoixima",  "domain": "pamestoixima.gr", "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": ["pamestoixima.gr"], "greek_prices": "confirmed",   "why": "ξεχωριστό feed «pamestoixima.gr» στον πάροχο" },
+    "novibet":      { "brand": "Novibet",       "domain": "novibet.gr",      "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "none" },
+    "betsson":      { "brand": "Betsson",       "domain": "betsson.gr",      "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "unconfirmed", "excluded_feeds": ["betsson"] },
+    "bwin":         { "brand": "Bwin",          "domain": "bwin.gr",         "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "unconfirmed", "excluded_feeds": ["bwin"] },
+    "sportingbet":  { "brand": "Sportingbet",   "domain": "sportingbet.gr",  "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "unconfirmed", "excluded_feeds": ["sportingbet"] },
+    "vistabet":     { "brand": "Vistabet",      "domain": "vistabet.gr",     "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "none" },
+    "netbet":       { "brand": "NetBet",        "domain": "netbet.gr",       "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "unconfirmed", "excluded_feeds": ["netbet"] },
+    "winmasters":   { "brand": "Winmasters",    "domain": "winmasters.gr",   "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "none" },
+    "interwetten":  { "brand": "Interwetten",   "domain": "interwetten.gr",  "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "none" },
+    "fonbet":       { "brand": "Fonbet",        "domain": "fonbet.gr",       "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "unconfirmed", "excluded_feeds": ["fonbet"] },
+    "efbet":        { "brand": "Efbet",         "domain": "efbet.gr",        "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "none" },
+    "elabet":       { "brand": "Elabet",        "domain": "elabet.gr",       "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "none" },
+    "superbet":     { "brand": "Superbet",      "domain": "superbet.gr",     "license_no": null, "license_status": "unverified", "sportsbook": null, "feeds": [],                  "greek_prices": "unconfirmed", "excluded_feeds": ["superbet"], "why": "το γενικό feed «superbet» έχει τα ίδια outcome IDs με το superbet.ro" }
+  }
+}

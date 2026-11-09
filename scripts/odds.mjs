@@ -14,6 +14,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appendChanges } from '../src/odds/core.mjs';
 import { extractProps } from '../src/odds/props.mjs';
+import { confirmedFeeds } from '../src/odds/value.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'data', 'odds');
@@ -153,14 +154,22 @@ let LIC = null;
 const JUR = ['gr', 'uk', 'es', 'rs'];
 const clean = s => norm(s).replace(/[^a-z0-9 _]/g, '').trim();
 // εκδόσεις χωρών (π.χ. «maxbet.rs», «Admiral IT», «betfair_es»): μετρούν μόνο για τη χώρα τους
-const SUFFIX = { gr: 'gr', rs: 'rs', es: 'es', uk: 'uk', gb: 'uk', it: 'xx', dk: 'xx', ro: 'xx', me: 'xx', ba: 'xx', fr: 'xx', de: 'xx', se: 'xx', nl: 'xx', pt: 'xx', at: 'xx', be: 'xx', ch: 'xx', bg: 'xx', hr: 'xx', si: 'xx', mk: 'xx', cy: 'xx', pl: 'xx', cz: 'xx', sk: 'xx', hu: 'xx', ie: 'xx', us: 'xx', ca: 'xx', br: 'xx', co: 'xx', mx: 'xx', pe: 'xx', ar: 'xx', au: 'xx', fi: 'xx', no: 'xx', ee: 'xx', lv: 'xx', lt: 'xx', ua: 'xx', ru: 'xx', tr: 'xx', ng: 'xx', ke: 'xx', za: 'xx', in: 'xx' };
+const SUFFIX = { gr: 'gr', rs: 'rs', es: 'es', uk: 'uk', gb: 'uk', it: 'xx', dk: 'xx', ro: 'xx', me: 'xx', ba: 'xx', fr: 'xx', de: 'xx', se: 'xx', nl: 'xx', pt: 'xx', at: 'xx', be: 'xx', ch: 'xx', bg: 'xx', hr: 'xx', si: 'xx', mk: 'xx', cy: 'xx', pl: 'xx', cz: 'xx', sk: 'xx', hu: 'xx', ie: 'xx', us: 'xx', ca: 'xx', br: 'xx', co: 'xx', mx: 'xx', pe: 'xx', ar: 'xx', au: 'xx', fi: 'xx', no: 'xx', ee: 'xx', lv: 'xx', lt: 'xx', ua: 'xx', ru: 'xx', tr: 'xx', ng: 'xx', ke: 'xx', za: 'xx', in: 'xx',
+  // πολιτείες ΗΠΑ (π.χ. «bet365-nj»): δεν είναι ευρωπαϊκές εκδόσεις
+  nj: 'xx', pa: 'xx', ny: 'xx', az: 'xx', mi: 'xx', va: 'xx', il: 'xx', oh: 'xx', tn: 'xx', ia: 'xx', ks: 'xx', ky: 'xx', la: 'xx', md: 'xx', ma: 'xx', nc: 'xx', wy: 'xx', ct: 'xx', dc: 'xx', nv: 'xx', wv: 'xx', vt: 'xx', nh: 'xx' };
 const countryOf = (key, title) => { const m = /(?:^|[\s._\-(])([a-z]{2})\)?$/.exec(norm(String(key)).trim()) || /(?:^|[\s._\-(])([a-z]{2})\)?$/.exec(norm(String(title)).trim()); return m && SUFFIX[m[1]] ? SUFFIX[m[1]] : null; };
-export const jurisdictions = (key, title, lic = LIC) => {
+// Ελλάδα: μόνο τα feeds με επιβεβαιωμένες ελληνικές τιμές του μητρώου (data/odds/bookmakers-gr.json), με ακριβές όνομα
+let GRREG = null;
+export const jurisdictions = (key, title, lic = LIC, gr = GRREG) => {
   const n = clean(key + ' ' + title), c = countryOf(key, title);
-  return JUR.filter(j => (!c || c === j) && Object.values(lic?.[j]?.brands || {}).some(al => al.some(a => { const x = clean(a); return x.length >= 3 && n.includes(x); })));
+  return JUR.filter(j => {
+    if (j === 'gr' && gr) return confirmedFeeds(gr).has(key);
+    return (!c || c === j) && Object.values(lic?.[j]?.brands || {}).some(al => al.some(a => { const x = clean(a); return x.length >= 3 && n.includes(x); }));
+  });
 };
 async function main() {
   LIC = await readJSON(path.join(DIR, 'licensed.json'), null);
+  GRREG = await readJSON(path.join(DIR, 'bookmakers-gr.json'), null);
   if (!LIC) { console.log('Odds: λείπει το data/odds/licensed.json — δεν αποθηκεύεται καμία απόδοση'); return 0; }
   await fs.mkdir(DIR, { recursive: true });
   const status = await readJSON(path.join(DIR, 'status.json'), {});
