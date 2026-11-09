@@ -13,6 +13,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appendChanges } from '../src/odds/core.mjs';
+import { extractProps } from '../src/odds/props.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'data', 'odds');
@@ -106,6 +107,8 @@ const ADAPTERS = {
       const hrs = (new Date(f.start) - now) / 3600e3;
       if (hrs < -1 || hrs > 96) continue;
       const WINS = (process.env.ODDSPAPI_WINDOWS || 'open,close').split(',');
+      // player props συνήθως ανεβαίνουν ~1 μέρα πριν: αν η πρώτη λήψη δεν είχε props, παίρνουμε και το «mid» παράθυρο
+      if ((st.props ||= {})[f.id] === 0 && !WINS.includes('mid')) WINS.push('mid');
       const win = hrs <= 4 ? 'close' : hrs <= 30 ? 'mid' : 'open';
       if (!WINS.includes(win)) continue;
       const done = (st.done[f.id] ||= []);
@@ -127,12 +130,14 @@ const ADAPTERS = {
         const ml = two('111'); if (ml) m.ml = ml;
         if (hMid) { const p = two(hMid); if (p) m.spread = { line: meta.markets[hMid]?.line != null ? +meta.markets[hMid].line : null, h: p[0], a: p[1] }; }
         if (tMid) { const p = two(tMid); if (p) m.total = { line: meta.markets[tMid]?.line != null ? +meta.markets[tMid].line : null, over: p[0], under: p[1] }; }
+        const pr = extractProps(M, meta); if (pr.length) m.props = pr;
         if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, markets: m });
       }
+      st.props[f.id] = books.reduce((n, b) => n + (b.markets.props?.length || 0), 0);
       events.push({ eventId: f.id, home: meta.parts[f.p1] || '', away: meta.parts[f.p2] || '', commence: f.start, books });
     }
     // καθαρισμός παλιών αγώνων από τη μνήμη κατάστασης
-    for (const id of Object.keys(st.done)) if (!st.fixtures.some(f => f.id === id)) delete st.done[id];
+    for (const id of Object.keys(st.done)) if (!st.fixtures.some(f => f.id === id)) { delete st.done[id]; delete st.props?.[id]; }
     return { quota: { used: st.calls, cap: CAP, month }, events };
   },
   // γενικός adapter: ένα JSON στο ίδιο σχήμα με το παραπάνω (π.χ. από άλλον αδειοδοτημένο πάροχο μέσω proxy)
