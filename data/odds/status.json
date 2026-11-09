@@ -1,8 +1,8 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 64
+  "calls": 65
  },
- "lastError": "2026-11-09T16:27:04.645Z",
- "error": "OddsPapi /participants 401: {\"error\":{\"message\":\"Invalid API key\",\"code\":\"INVALID_API_KEY\",\"details\":\"The provided API key is invalid or does not exist.\"}}"
+ "lastError": "2026-11-09T16:37:37.526Z",
+ "error": "OddsPapi /participants 500: {\"error\":{\"message\":\"Authentication error occurred.\",\"code\":\"INTERNAL_ERROR\",\"details\":\"An error occurred while fetching user data.\"}}"
 }
