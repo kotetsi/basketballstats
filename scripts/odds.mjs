@@ -63,12 +63,18 @@ const ADAPTERS = {
     const month = new Date().toISOString().slice(0, 7), st = (ctx.status.oddspapi ||= {});
     if (st.month !== month) { st.month = month; st.calls = 0; }
     const CAP = +(process.env.ODDS_MONTHLY_CAP || 240);
+    const lastCall = {};
     const call = async (p, o) => {
       if (st.calls >= CAP) throw new Error(`μηνιαίο όριο ${CAP} κλήσεων`);
-      st.calls++;
-      const r = await fetch(`${BASE}/${p}?${new URLSearchParams({ apiKey: KEY, ...o })}`, { signal: AbortSignal.timeout(30000) });
-      if (!r.ok) throw new Error(`OddsPapi /${p} ${r.status}: ${(await r.text()).slice(0, 200)}`);
-      return r.json();
+      // ρυθμός: το OddsPapi δέχεται ~1 κλήση το δευτερόλεπτο ανά endpoint· σε 429 περιμένουμε όσο λέει και ξαναδοκιμάζουμε μία φορά
+      for (let attempt = 0; ; attempt++) {
+        const wait = 1100 - (Date.now() - (lastCall[p] || 0)); if (wait > 0) await new Promise(res => setTimeout(res, wait));
+        st.calls++; lastCall[p] = Date.now();
+        const r = await fetch(`${BASE}/${p}?${new URLSearchParams({ apiKey: KEY, ...o })}`, { signal: AbortSignal.timeout(30000) });
+        if (r.status === 429 && attempt < 2) { const t = await r.text(); const sec = +(t.match(/wait ([\d.]+) seconds/)?.[1] || 1); await new Promise(res => setTimeout(res, Math.ceil(sec * 1000) + 1200)); continue; }
+        if (!r.ok) throw new Error(`OddsPapi /${p} ${r.status}: ${(await r.text()).slice(0, 200)}`);
+        return r.json();
+      }
     };
     const arr = x => (Array.isArray(x) ? x : x && typeof x === 'object' ? Object.entries(x).map(([k, v]) => (typeof v === 'object' ? { _k: k, ...v } : { _k: k, name: v })) : []);
     const pick = (o, ks) => { for (const k of ks) if (o[k] != null) return o[k]; return null; };
