@@ -4,6 +4,8 @@
 // Γραμμή αγώνα παίκτη (όπως στο data/cache.json):
 // [αγωνιστική, ημερομηνία, αντίπαλος, εντός(1/0), σκορ ομάδας, σκορ αντιπάλου, βασικός, δευτερόλεπτα, πόντοι,
 //  2πM, 2πA, 3πM, 3πA, βολέςM, βολέςA, OREB, DREB, AST, STL, TOV, BLK, BLKκατά, φάουλ, φάουλ που δέχτηκε, +/-, PIR]
+import { LOWER_PLAYER } from './catalog.mjs';
+
 export const R = { round: 0, date: 1, opp: 2, home: 3, ts: 4, os: 5, start: 6, sec: 7, pts: 8, m2: 9, a2: 10, m3: 11, a3: 12, ftm: 13, fta: 14, oreb: 15, dreb: 16, ast: 17, stl: 18, tov: 19, blk: 20, blka: 21, pf: 22, pfd: 23, pm: 24, pir: 25 };
 // Σύνολα ομάδας ανά αγώνα: [λεπτά·5 (δευτ.), FGM, FGA, FTA, TOV, OREB, DREB, κατοχές] και ίδια για τον αντίπαλο
 export const TG = { sec: 0, fgm: 1, fga: 2, fta: 3, tov: 4, oreb: 5, dreb: 6, poss: 7 };
@@ -44,7 +46,7 @@ export function playerMetrics(rows, teamTot, teamGames) {
     ts: div(S('pts'), 2 * tsa), efg: div(fgm + 0.5 * S('m3'), fga), tsa36: per36(tsa, min),
     a3rate: div(S('a3'), fga), ftr: div(S('fta'), fga),
     avail: teamGames ? Math.min(1, G / teamGames) : null,
-    pm: div(S('pm'), G), starts: div(g.filter(r => r[R.start]).length, G),
+    pm: div(S('pm'), G), starts: div(g.filter(r => r[R.start]).length, G), astto: div(S('ast'), S('tov')),
   };
   // usage, AST%, TOV%, rebound rate (τύποι Basketball-Reference, με τα σύνολα ομάδας)
   if (tMin > 0 && min > 0) {
@@ -73,7 +75,8 @@ export function percentileRank(values, v, lowerBetter = false) {
   return Math.round((100 * (below + 0.5 * Math.max(0, eq - 1))) / (xs.length - 1));
 }
 
-export const LOWER_BETTER = new Set(['tov', 'tov36', 'tov100', 'tovp', 'pf', 'pf36', 'drtg']);
+// από τον κεντρικό κατάλογο (catalog.mjs): λάθη, φάουλ, TOV%, DRtg
+export const LOWER_BETTER = LOWER_PLAYER;
 
 // Ομάδες θέσεων για το baseline
 export const posGroup = pos => (/guard/i.test(pos || '') ? 'G' : /center/i.test(pos || '') ? 'C' : /forward/i.test(pos || '') ? 'F' : '');

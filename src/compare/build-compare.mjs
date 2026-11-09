@@ -1,7 +1,7 @@
 // Δεδομένα για το Comparison Tool (build): μετρικές όλων των παικτών/ομάδων ανά σεζόν, παρόμοιοι παίκτες.
 import { playerMetrics, teamTotals, teamOfRow, similarPlayers, posGroup, R } from './metrics.mjs';
 
-export const ALL_KEYS = ['G', 'mpg', 'pir', 'pir36', 'pirmin', 'pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'pf', 'fg', 'p3', 'ft', 'ts', 'efg', 'usg', 'astp', 'tovp', 'rebp', 'tsa36', 'ortg', 'drtg', 'net', 'avail', 'pts36', 'reb36', 'ast36', 'stl36', 'blk36', 'tov36'];
+export const ALL_KEYS = ['G', 'mpg', 'pir', 'pir36', 'pirmin', 'pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'pf', 'fg', 'p3', 'ft', 'ts', 'efg', 'usg', 'astp', 'tovp', 'rebp', 'tsa36', 'ortg', 'drtg', 'net', 'avail', 'pts36', 'reb36', 'ast36', 'stl36', 'blk36', 'tov36', 'p2', 'astto', 'pm'];
 export const DEFAULT_KEYS = ['pir', 'pir36', 'pirmin', 'pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'mpg', 'ts', 'efg', 'usg', 'astp', 'tovp', 'ortg', 'drtg', 'net'];
 export const PER36 = { pts: 'pts36', reb: 'reb36', ast: 'ast36', stl: 'stl36', blk: 'blk36', tov: 'tov36', pir: 'pir36', pf: 'pf36' };
 export const PER100 = { pts: 'pts100', reb: 'reb100', ast: 'ast100', stl: 'stl100', blk: 'blk100', tov: 'tov100', pir: 'pir100' };

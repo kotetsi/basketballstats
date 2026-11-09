@@ -744,3 +744,12 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 .asrepl{list-style:none;margin:8px 0 0;padding:0;counter-reset:r}.asrepl li{counter-increment:r;border-top:1px solid var(--line);padding:8px 0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}.asrepl li>div:first-child::before{content:counter(r) ". ";font-weight:700;color:var(--muted,#888)}
 .asreplk{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.asreplk span{white-space:nowrap}.asreplk button{border:0;background:#1db86a;color:#fff;font-weight:700;border-radius:8px;padding:6px 12px;cursor:pointer}.asreplk button:disabled{opacity:.4}
 .ascoachval{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:.85rem}.asneed button{margin-left:6px;font-size:.78rem;padding:2px 8px;border-radius:6px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+/* Σύγκριση: κάρτες, κενή κατάσταση, σφάλμα, skeleton */
+.cmpcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0}.cmpcard{border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;padding:10px 12px;background:var(--surface)}.cmpcard h3{margin:0 0 4px;font-size:16px}.cmpcard .big{font-size:22px;font-weight:800;margin:2px 0}.cmpcard p{margin:2px 0;font-size:13px}
+.cmpempty,.cmperr{border:1px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--muted);margin:10px 0}.cmperr{border-style:solid;border-color:#c0392b;color:#c0392b}
+.cmpskel{display:grid;gap:8px;margin:10px 0}.cmpskel i{display:block;height:18px;border-radius:6px;background:linear-gradient(90deg,var(--line) 25%,var(--surface) 50%,var(--line) 75%);background-size:200% 100%;animation:cmpsk 1.2s infinite}.cmpskel i:nth-child(odd){width:85%}@keyframes cmpsk{to{background-position:-200% 0}}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cmptbl th.l{text-align:left;font-weight:600}.cmpadd{min-width:180px}.chip a{color:inherit}
+.cmppairs{columns:2 220px;padding-left:18px}.cmppairs li{margin:2px 0}
+.cmpssr td,.cmpssr th{text-align:center}.cmpssr th.l{text-align:left}
+@media (prefers-reduced-motion:reduce){.cmpskel i{animation:none}}
