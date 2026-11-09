@@ -42,6 +42,14 @@ import * as PAIR from './src/compare/pairs.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), 'utf8').catch(() => '{}'));
+// δήλωση υπεύθυνου παιχνιδιού (PRO): ίδια σε footer, σελίδα PRO και κάθε pick
+const PRO_DISC = {
+  el: '21+. Το περιεχόμενο είναι στατιστική ανάλυση και όχι συμβουλή στοιχήματος. Παίζουμε υπεύθυνα, με χρήματα που αντέχουμε να χάσουμε. Κανένα σημείο δεν είναι σίγουρο.',
+  en: '18+ (21+ in Greece). This content is statistical analysis, not betting advice. Play responsibly, only with money you can afford to lose. No pick is ever certain.',
+  es: '18+ (21+ en Grecia). Este contenido es análisis estadístico, no consejo de apuestas. Juega con responsabilidad y solo con dinero que puedas perder. Ningún pronóstico es seguro.',
+  sr: '18+ (21+ u Grčkoj). Sadržaj je statistička analiza, a ne savet za klađenje. Igraj odgovorno, samo novcem koji možeš da izgubiš. Nijedan tip nije siguran.',
+  tr: '18+ (Yunanistan’da 21+). Bu içerik istatistiksel analizdir, bahis tavsiyesi değildir. Sorumlu oyna, yalnızca kaybetmeyi göze alabileceğin parayla. Hiçbir tahmin kesin değildir.',
+};
 const SITE_URL = (process.env.SITE_URL || CONF.siteUrl || 'https://example.gr').replace(/\/$/, '');
 let BASE = process.env.SITE_BASE || CONF.base || '/';
 if (!BASE.endsWith('/')) BASE += '/';
@@ -1020,6 +1028,7 @@ async function main() {
     const api = (p, o) => fs.mkdir(path.dirname(path.join(OUT, 'api', p)), { recursive: true }).then(() => fs.writeFile(path.join(OUT, 'api', p), JSON.stringify(o)));
     await fs.mkdir(path.join(OUT, 'assets', 'compare'), { recursive: true });
     for (const f of ['metrics.mjs', 'ui.js', 'catalog.mjs', 'pairs.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'compare', f), path.join(OUT, 'assets', 'compare', f));
+    await fs.mkdir(path.join(OUT, 'assets', 'pro'), { recursive: true }); await fs.copyFile(path.join(ROOT, 'src', 'pro', 'pro.js'), path.join(OUT, 'assets', 'pro', 'pro.js'));
     await api('compare/players/metrics.json', { current: SEASON, defaultKeys: CB.DEFAULT_KEYS, allKeys: CB.ALL_KEYS, per36: CB.PER36, per100: CB.PER100, seasons: CMP.seasons, similar: CMP.similar });
     for (const [id, L] of Object.entries(CMP.similar[SEASON])) await api(`compare/players/similar/${id}.json`, { player: id, season: SEASON, similar: L });
     // ομάδες
@@ -1128,6 +1137,12 @@ async function main() {
     if (k === 'oddspir') return B(lg) + P.odds + '/pir/';
     if (k === 'oddsprops') return B(lg) + P.odds + '/props/';
     if (k === 'oddsvalue') return B(lg) + P.odds + '/value/';
+    // BasketballStats PRO: μόνο στα ελληνικά
+    if (k === 'pro') return '/pro/';
+    if (k === 'checkout') return '/checkout/';
+    if (k === 'welcomepro') return '/welcome-pro/';
+    if (k === 'account') return '/my-account/';
+    if (k === 'proterms') return '/terms/';
     if (k === 'cmpt') return B(lg) + P.compare + '/' + CMP_TM[lg] + '/';
     if (k === 'cmpe') return B(lg) + P.compare + '/embed/';
     if (k === 'cmpp') return B(lg) + P.compare + '/' + CMP_PL[lg] + '/';
@@ -1248,7 +1263,10 @@ ${pwaStyle}`;
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const shellB = shellB0.replace(/(<a href="[^"]*" data-v="stand">[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'today')}" data-v="today" class="navtoday">📅 ${T('Οι αγώνες σήμερα', 'Today', 'Hoy', 'Danas', 'Bugün')}</a>`)
       // «Σύγκριση» (ομάδων και παικτών) μετά τα Shot Charts
-      .replace(/(<a href="[^"]*" data-v="shots"[^>]*>[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'compare')}" data-v="compare">${T('Σύγκριση', 'Compare', 'Comparar', 'Poređenje', 'Karşılaştır')}</a>`);
+      .replace(/(<a href="[^"]*" data-v="shots"[^>]*>[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'compare')}" data-v="compare">${T('Σύγκριση', 'Compare', 'Comparar', 'Poređenje', 'Karşılaştır')}</a>`)
+      // υπεύθυνο παιχνίδι σε κάθε σελίδα (footer) και σύνδεσμος PRO
+      .replace(/<\/footer>(?![\s\S]*<\/footer>)/, `<p class="footdisc">${esc(PRO_DISC[LG])}</p></footer>`)
+      .replace(/(<nav class="foot">)/, LG === 'el' ? `$1<a href="/pro/">PRO</a>` : '$1');
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
     const LNAME = { el: ['ΕΛ', 'Ελληνικά'], en: ['EN', 'English'], es: ['ES', 'Español'], sr: ['SR', 'Srpski'], tr: ['TR', 'Türkçe'] };
@@ -1364,9 +1382,9 @@ ${low ? `<p><b>${esc(low)}</b></p>` : ''}
 <div class="gcols"><div><h3>${T('Οι κρίσιμες φάσεις', 'Key moments', 'Momentos clave', 'Ključni trenuci', 'Kritik anlar')}</h3><ol class="wpkm">${km}</ol></div>
 <div><h3>${T('Ποιος έκρινε τον αγώνα', 'Who decided the game', 'Quién decidió el partido', 'Ko je odlučio utakmicu', 'Maçı kim belirledi')}</h3><p class="sub">${T('Άθροισμα της αλλαγής στην πιθανότητα νίκης από τους πόντους κάθε παίκτη (WPA)', 'Sum of the change in win probability from each player’s points (WPA)', 'Suma del cambio en la probabilidad de victoria por los puntos de cada jugador (WPA)', 'Zbir promene verovatnoće pobede od poena svakog igrača (WPA)', 'Her oyuncunun sayılarıyla kazanma ihtimalinde yarattığı değişimin toplamı (WPA)')}</p><ol class="wpkm">${dec}</ol></div></div></section>`;
     }
-    async function simplePage(key, { title, desc, view, main, id = '', ld = null, noindex = false }) {
+    async function simplePage(key, { title, desc, view, main, id = '', ld = null, noindex = false, alts = null }) {
       if (CATS[key]) { main = main + catFaq(key).replace('<section class="wrap catfaq">', '<section class="catfaq">'); ld = withLd(ld, key); }
-      const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); if (!noindex) urls.push(SITE_URL + url);
+      const url = urlFor(LG, key), alt = alts ?? Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); if (!noindex) urls.push(SITE_URL + url);
       let hd = head(title, desc, url, alt); if (noindex) hd = hd.replace('</head>', '<meta name="robots" content="noindex,follow"></head>');
       await write(url, `${hd}
 <body ${bodyAttrs(view, id)}>
@@ -3122,6 +3140,52 @@ ${rgBlock()}
 <details class="anmeth"><summary>Μεθοδολογία</summary><p>Πιθανότητα νίκης: Game Predictor (LightGBM), με walk-forward backtest. Χάντικαπ και σύνολο: κανονική κατανομή γύρω από την προβλεπόμενη διαφορά/σύνολο, με το τυπικό σφάλμα του backtest (${SIG.margin.toFixed(1)} και ${SIG.total.toFixed(1)} πόντοι). Δίκαιη απόδοση = 1/πιθανότητα. EV% = (πιθανότητα × απόδοση − 1) × 100· εμφανίζεται μόνο όταν υπάρχει πρόβλεψη μοντέλου και πραγματική τιμή από τη λήψη. «Διαφορά τιμής vs αγορά» = καλύτερη τιμή × μέση πιθανότητα χωρίς περιθώριο των ελληνικών εταιρειών − 1: δείχνει ποια εταιρεία πληρώνει περισσότερο, όχι αν το στοίχημα έχει αξία. Αποδόσεις από τον πάροχο OddsPapi· δεν συλλέγονται από sites στοιχηματικών. Οι σύνδεσμοι προς τις εταιρείες είναι απλοί (όχι affiliate).</p></details>
 </article><script>(()=>{const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)],f={};const run=()=>{for(const k of ['b','g','m','ev'])f[k]=q('[data-vf="'+k+'"]').value;let shown=0;for(const s of qa('.vbgame')){let ok=!f.g||s.dataset.g===f.g;if(ok&&f.ev!==''&&+s.dataset.ev<+f.ev)ok=false;s.hidden=!ok;if(!ok)continue;let any=false;for(const m of s.querySelectorAll('.vbm')){const okm=!f.m||m.dataset.m===f.m;m.hidden=!okm;for(const r of m.querySelectorAll('tr[data-b]')){const okr=(!f.b||r.dataset.b===f.b)&&(f.ev===''||+(r.dataset.ev??-999)>=+f.ev);r.hidden=!okr;if(okm&&okr)any=true;}}if(!any&&(f.b||f.ev!==''))s.hidden=true;if(!s.hidden)shown++;}q('.vbnone').hidden=shown>0;};qa('[data-vf]').forEach(e=>e.addEventListener('input',run));})();</script>`,
           ld: crumbs([[SITE_NAME, B(LG)], ['Betting Insights', urlFor(LG, 'odds')], ['Odds & Value Bets', urlFor(LG, 'oddsvalue')]]) });
+      }
+      // ---- BasketballStats PRO (μόνο ελληνικά). Καμία PRO πληροφορία στο HTML: όλα από το PRO API, μόνο για ενεργό PRO.
+      if (LG === 'el') {
+        const PAPI = String(process.env.PRO_API ?? CONF.proApi ?? '').replace(/\/$/, ''), SELLER = CONF.proSeller || null;
+        const PR = { monthly: 14.9, season_eb: 49, season: 59, ...(CONF.proPrices || {}) };
+        const e2 = n => n.toFixed(2).replace('.', ',') + ' €';
+        const proCfg = pg => `<div id="proApp" data-page="${pg}"><script type="application/json">${JSON.stringify({ api: PAPI }).replace(/</g, '\\u003c')}</script>`;
+        const proJs = `<script type="module" src="${BASE}assets/pro/pro.js?v=${ver}"></script>`;
+        const off = `<div class="probox prooff" hidden><p><b>Οι εγγραφές PRO ανοίγουν σύντομα.</b> Μέχρι τότε όλα τα στατιστικά και τα προγνωστικά του μοντέλου μένουν ελεύθερα.</p></div>`;
+        const disc = `<p class="prodisc"><span class="age21">21+</span> ${esc(PRO_DISC.el)}</p>`;
+        const cards = [['monthly', 'PRO Μηνιαίο', PR.monthly, '/ μήνα, αυτόματη ανανέωση· ακύρωση με 1 κλικ'], ['season_eb', 'PRO Σεζόν · Early Bird', PR.season_eb, 'εφάπαξ, έως το τέλος της EuroLeague 2026-27'], ['season', 'PRO Σεζόν', PR.season, 'εφάπαξ, έως το τέλος της EuroLeague 2026-27']];
+        await simplePage('pro', { view: 'lead', alts: {}, title: `BasketballStats PRO: High Fidelity Picks, Ανάλυση Αγώνα, PRO Telegram | ${SITE_NAME}`,
+          desc: 'Σταμάτα να μαντεύεις. Δες τι λένε οι αριθμοί. High Fidelity Picks με εξήγηση, πλήρης Ανάλυση Αγώνα, όλα τα Shot Charts και ιδιωτικό PRO Telegram. 21+.',
+          main: `<article class="article lead wide propage">${proCfg('pro')}<h1>Σταμάτα να μαντεύεις. Δες τι λένε οι αριθμοί.</h1>
+<p class="lede2">Κάθε αγωνιστική, το μοντέλο μας αναλύει επίθεση/άμυνα ανά 100 κατοχές, ρυθμό, έδρα και φόρμα παικτών. Στο PRO βλέπεις και τα High Fidelity Picks με εξήγηση.</p>
+${disc}
+<h2>Τι παίρνεις στο PRO</h2><ul class="prolist"><li>Όλα τα High Fidelity Picks, με εξήγηση</li><li>Πλήρη Ανάλυση Αγώνα για κάθε ματς</li><li>Όλα τα Shot Charts</li><li>Πρόσβαση στο ιδιωτικό PRO Telegram - ειδοποίηση αμέσως μόλις βγει pick</li><li>Weekly email Τετάρτη: Τα 3 πιο δυνατά spots της αγωνιστικής</li></ul>
+<p class="sub">Ελεύθερα για όλους μένουν: τα προγνωστικά του μοντέλου (σκορ, πιθανότητα νίκης, σύνολο πόντων), η βασική σύγκριση ομάδων και όλα τα άρθρα.</p>
+<h2>Πακέτα</h2>${off}<div class="procards" data-needs-api>${cards.map(([k, n, p, d]) => `<div class="procard${k === 'season_eb' ? ' hi' : ''}" data-plan="${k}"><h3>${n}</h3><p class="proprice">${e2(p)}</p><p class="sub">${d}</p><p class="sub">Η τιμή περιλαμβάνει ΦΠΑ 24%.</p><a class="probtn" href="/checkout/?plan=${k}">Γίνε PRO</a></div>`).join('')}</div>
+<h2>Συχνές ερωτήσεις</h2><dl class="profaq"><dt>Είναι σίγουρα τα picks;</dt><dd>Όχι. Κανένα σημείο δεν είναι σίγουρο. Δείχνουμε δημόσια το αρχείο μας με όλες τις νίκες και τις ήττες.</dd><dt>Πώς ακυρώνω;</dt><dd>Από το My Account, με 1 κλικ. Η πρόσβαση ισχύει μέχρι τέλος πληρωμένης περιόδου.</dd><dt>Πώς παίρνω το pick;</dt><dd>Μόλις πληρώσεις, σου στέλνουμε link για το ιδιωτικό PRO Telegram. Εκεί στέλνουμε κάθε pick αμέσως.</dd></dl>
+<p><a href="/my-account/">Έχεις ήδη PRO; Σύνδεση →</a> · <a href="/terms/">Όροι συνδρομής</a></p>
+${rgBlock()}</div></article>${proJs}` });
+        await simplePage('checkout', { view: 'lead', alts: {}, noindex: true, title: `Γίνε PRO: επιλογή πακέτου | ${SITE_NAME}`, desc: 'Επιλογή πακέτου BasketballStats PRO και ασφαλής πληρωμή μέσω Stripe.',
+          main: `<article class="article lead propage">${proCfg('checkout')}<h1>Γίνε PRO</h1>${off}
+<form class="procheckout" data-needs-api><fieldset><legend>Πακέτο</legend>${cards.map(([k, n, p, d], i) => `<label class="proopt"><input type="radio" name="plan" value="${k}"${i === 0 ? ' checked' : ''}><span><b>${n}</b> · ${e2(p)}<br><small>${d}</small></span></label>`).join('')}</fieldset>
+<p class="sub">Όλες οι τιμές περιλαμβάνουν ΦΠΑ 24%. Πληρωμή με κάρτα, Apple Pay ή Google Pay στην ασφαλή σελίδα της Stripe· δεν βλέπουμε ούτε αποθηκεύουμε στοιχεία κάρτας.</p>
+<label class="procheck"><input type="checkbox" name="terms" required><span>Είμαι 21 ετών και άνω και αποδέχομαι τους <a href="/terms/" target="_blank">όρους συνδρομής</a> και την <a href="${urlFor(LG, 'legal')}" target="_blank">πολιτική απορρήτου</a>.</span></label>
+<label class="procheck"><input type="checkbox" name="waive" required><span>Ζητώ να αποκτήσω πρόσβαση αμέσως και αναγνωρίζω ότι, μόλις ξεκινήσει η πρόσβαση στο ψηφιακό περιεχόμενο, χάνω το δικαίωμα υπαναχώρησης 14 ημερών.</span></label>
+<button class="probtn" type="submit">Συνέχεια στην πληρωμή</button></form><div class="proout" aria-live="polite"></div>
+${disc}</div></article>${proJs}` });
+        await simplePage('welcomepro', { view: 'lead', alts: {}, noindex: true, title: `Καλώς ήρθες στο PRO | ${SITE_NAME}`, desc: 'Ολοκλήρωση συνδρομής BasketballStats PRO.',
+          main: `<article class="article lead propage">${proCfg('welcome')}<h1>Καλώς ήρθες στο PRO</h1>${off}<div class="proout" aria-live="polite" data-needs-api></div>${disc}</div></article>${proJs}` });
+        await simplePage('account', { view: 'lead', alts: {}, noindex: true, title: `My Account | ${SITE_NAME}`, desc: 'Η συνδρομή σου στο BasketballStats PRO.',
+          main: `<article class="article lead propage">${proCfg('account')}<h1>My Account</h1>${off}<div class="proout" aria-live="polite" data-needs-api></div>${disc}</div></article>${proJs}` });
+        await simplePage('proterms', { view: 'lead', alts: {}, title: `Όροι συνδρομής BasketballStats PRO | ${SITE_NAME}`, desc: 'Όροι συνδρομής BasketballStats PRO: πακέτα, πληρωμή, ακύρωση, υπαναχώρηση, περιεχόμενο, υπεύθυνο παιχνίδι.',
+          main: `<article class="article lead propage"><h1>Όροι συνδρομής BasketballStats PRO</h1>
+<h2>Πωλητής</h2><p>${SELLER ? esc(SELLER) : 'Τα πλήρη στοιχεία του πωλητή (επωνυμία, ΑΦΜ, διεύθυνση, email επικοινωνίας) θα αναγράφονται εδώ πριν ανοίξουν οι εγγραφές.'}</p>
+<h2>Τι αγοράζεις</h2><p>Πρόσβαση σε ψηφιακό περιεχόμενο: High Fidelity Picks με ανάλυση, πλήρη Ανάλυση Αγώνα, όλα τα Shot Charts, ιδιωτικό κανάλι Telegram και εβδομαδιαίο email. Το περιεχόμενο είναι στατιστική ανάλυση και όχι συμβουλή στοιχήματος. Δεν δεχόμαστε στοιχήματα και δεν μεσολαβούμε σε στοιχηματικές εταιρείες.</p>
+<h2>Πακέτα και τιμές</h2><ul>${cards.map(([, n, p, d]) => `<li>${n}: ${e2(p)} (${d})</li>`).join('')}</ul><p>Όλες οι τιμές περιλαμβάνουν ΦΠΑ 24%. Τα πακέτα σεζόν λήγουν με το τέλος της EuroLeague 2026-27 και δεν ανανεώνονται αυτόματα.</p>
+<h2>Πληρωμή και ανανέωση</h2><p>Η πληρωμή γίνεται μέσω Stripe. Το μηνιαίο πακέτο ανανεώνεται αυτόματα κάθε μήνα μέχρι να το ακυρώσεις. Για κάθε πληρωμή εκδίδεται παραστατικό με περιγραφή «Συνδρομή πρόσβασης σε ψηφιακό περιεχόμενο - BasketballStats PRO».</p>
+<h2>Ακύρωση</h2><p>Ακυρώνεις από το My Account με 1 κλικ. Η πρόσβαση συνεχίζει μέχρι το τέλος της περιόδου που έχεις πληρώσει. Δεν γίνεται επιστροφή χρημάτων για περίοδο που έχει ήδη χρησιμοποιηθεί.</p>
+<h2>Δικαίωμα υπαναχώρησης</h2><p>Η πρόσβαση ξεκινά αμέσως μετά την πληρωμή, μετά από ρητή συναίνεσή σου. Με αυτή τη συναίνεση αναγνωρίζεις ότι χάνεις το δικαίωμα υπαναχώρησης 14 ημερών για το ψηφιακό περιεχόμενο.</p>
+<h2>Προσωπική χρήση</h2><p>Η συνδρομή είναι προσωπική. Το link του PRO Telegram ισχύει για ένα άτομο. Η αναδημοσίευση των picks ή των αναλύσεων απαγορεύεται και μπορεί να οδηγήσει σε διακοπή της πρόσβασης.</p>
+<h2>Υπεύθυνο παιχνίδι</h2><p>${esc(PRO_DISC.el)} Αν το παιχνίδι γίνεται πρόβλημα, ζήτησε βοήθεια: <a href="https://www.gamingcommission.gov.gr" rel="noopener" target="_blank">ΕΕΕΠ</a>.</p>
+<h2>Προσωπικά δεδομένα</h2><p>Κρατάμε μόνο το email σου, τα στοιχεία της συνδρομής και τα στοιχεία πληρωμής που χρειάζονται για το παραστατικό. Τα στοιχεία της κάρτας τα διαχειρίζεται η Stripe. Δες την <a href="${urlFor(LG, 'legal')}">πολιτική απορρήτου</a>.</p>
+</article>` });
       }
     }
     // ---- «Μάντεψε τον παίκτη»

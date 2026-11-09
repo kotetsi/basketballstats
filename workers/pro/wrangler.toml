@@ -1,0 +1,20 @@
+# BasketballStats PRO API. Το deploy γίνεται από το GitHub Actions (.github/workflows/pro-worker.yml):
+# δημιουργεί τη βάση D1 αν δεν υπάρχει, βάζει το id της εδώ, εφαρμόζει το schema.sql και ανεβάζει τον Worker.
+name = "bs-pro"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+SITE_ORIGIN = "https://basketballstats.eu"
+SEASON_END = "2027-06-01T00:00:00Z"     # τα πάσα σεζόν λήγουν εδώ (μετά το Final Four 2027)
+EARLY_BIRD_UNTIL = ""                  # π.χ. "2026-12-01T00:00:00Z"· κενό = διαθέσιμο
+PRICE_MONTHLY_CENTS = "1490"           # με ΦΠΑ 24%
+PRICE_SEASON_EB_CENTS = "4900"
+PRICE_SEASON_CENTS = "5900"
+MAIL_FROM = "pro@basketballstats.eu"
+# ADMIN_EMAILS, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, BREVO_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_PRO_CHAT_ID: secrets
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bs-pro"
+database_id = "D1_DATABASE_ID"

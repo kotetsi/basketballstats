@@ -761,3 +761,16 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 /* EuroLeague Odds & Value Bets */
 .vbfilters{display:flex;flex-wrap:wrap;gap:8px 14px;margin:8px 0 14px}.vbfilters label{display:flex;flex-direction:column;font-size:.8rem;gap:3px}.vbfilters select,.vbfilters input{font:inherit;padding:6px 8px;border:1px solid var(--line,#ccc);border-radius:6px;background:var(--card,#fff);color:inherit;min-width:120px}.vbfilters input{width:90px;min-width:0}
 .vbgame{border:1px solid var(--line,#ddd);border-radius:10px;padding:12px;margin:0 0 16px}.vbhead{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}.vbdate{font-size:.8rem;opacity:.75}.vbm h4{margin:12px 0 4px;font-size:.9rem}.vbt{width:100%;table-layout:fixed}.vbt th:first-child,.vbt td:first-child{width:46%;white-space:normal}.vbt td,.vbt th{white-space:normal;overflow-wrap:break-word}.vbt th{font-size:.72rem}.vbgame .tbl{overflow-x:visible}@media(max-width:600px){.vbgame{padding:10px 8px}.vbt td,.vbt th{padding:6px 4px;font-size:.85rem}}.vbsum td{background:var(--soft,rgba(0,0,0,.03))}
+/* BasketballStats PRO */
+.footdisc{font-size:.78rem;opacity:.8;margin:8px 0 0}
+.propage .prodisc{font-size:.85rem;background:var(--soft,rgba(0,0,0,.04));border-radius:8px;padding:10px 12px;display:flex;gap:8px;align-items:flex-start}
+.prolist{line-height:1.7}.procards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 18px}
+.procard{border:1px solid var(--line,#ddd);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:2px}.procard.hi{border-color:#e4572e;box-shadow:0 0 0 1px #e4572e inset}.procard h3{margin:0 0 4px;font-size:1rem}.proprice{font-size:1.6rem;font-weight:800;margin:2px 0}.procard .probtn{margin-top:auto}
+.probtn{display:inline-block;background:#e4572e;color:#fff!important;text-decoration:none;border:0;border-radius:8px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer;text-align:center;min-height:44px}.probtn.ghost{background:transparent;color:inherit!important;border:1px solid var(--line,#ccc)}.probtn:disabled{opacity:.6}
+.linkbtn{background:none;border:0;padding:0;font:inherit;text-decoration:underline;cursor:pointer;color:inherit}
+.profaq dt{font-weight:700;margin-top:10px}.profaq dd{margin:2px 0 0}
+.procheckout fieldset{border:0;padding:0;margin:0 0 8px;display:grid;gap:8px}.proopt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line,#ddd);border-radius:10px;padding:12px;cursor:pointer}.proopt input{margin-top:4px;width:20px;height:20px}.prodis{opacity:.5}
+.procheck{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:.9rem}.procheck input{width:20px;height:20px;flex:none;margin-top:2px}
+.prologin{display:grid;gap:10px;max-width:420px}.prologin label{display:grid;gap:4px}.prologin input{font:inherit;padding:12px;border:1px solid var(--line,#ccc);border-radius:8px;background:var(--card,#fff);color:inherit}
+.probox{border:1px solid var(--line,#ddd);border-radius:12px;padding:14px;margin:10px 0}.probox h2{margin:4px 0 8px}.proacts{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.promsg{padding:10px 12px;border-radius:8px;background:var(--soft,rgba(0,0,0,.04))}.promsg.err{background:rgba(228,87,46,.12)}

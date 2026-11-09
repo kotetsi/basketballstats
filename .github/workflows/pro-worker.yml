@@ -1,0 +1,49 @@
+# BasketballStats PRO API → Cloudflare Workers (χειροκίνητα από την καρτέλα Actions).
+# Secrets στο GitHub (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID                        (υποχρεωτικά)
+#   PRO_ADMIN_EMAILS, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+#   BREVO_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_PRO_CHAT_ID             (όσα υπάρχουν· τα κενά παραλείπονται)
+name: PRO API (Cloudflare Worker)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/pro
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tests του PRO API πριν από το deploy
+        working-directory: .
+        run: node --test test/pro/worker.test.mjs
+      - name: Βάση D1 (δημιουργία μία φορά) και schema (μόνο προσθήκες)
+        run: |
+          ID=$(npx -y wrangler@3 d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const x=JSON.parse(s).find(d=>d.name==="bs-pro");process.stdout.write(x?x.uuid:"")})')
+          if [ -z "$ID" ]; then npx -y wrangler@3 d1 create bs-pro >/dev/null; ID=$(npx -y wrangler@3 d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{process.stdout.write(JSON.parse(s).find(d=>d.name==="bs-pro").uuid)})'); fi
+          sed -i "s/D1_DATABASE_ID/$ID/" wrangler.toml
+          npx -y wrangler@3 d1 execute bs-pro --remote --file=schema.sql
+      - name: Deploy
+        run: npx -y wrangler@3 deploy
+      - name: Secrets (μόνο όσα έχουν οριστεί στο GitHub)
+        env:
+          ADMIN_EMAILS: ${{ secrets.PRO_ADMIN_EMAILS }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_PRO_CHAT_ID: ${{ secrets.TELEGRAM_PRO_CHAT_ID }}
+        run: |
+          for k in ADMIN_EMAILS STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET BREVO_API_KEY TELEGRAM_BOT_TOKEN TELEGRAM_PRO_CHAT_ID; do
+            v="${!k}"; if [ -n "$v" ]; then printf '%s' "$v" | npx -y wrangler@3 secret put "$k" >/dev/null && echo "secret $k: οκ"; else echo "secret $k: δεν ορίστηκε"; fi
+          done
+      - name: Έλεγχος
+        run: npx -y wrangler@3 deployments list | head -5
