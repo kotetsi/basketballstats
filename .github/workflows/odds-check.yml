@@ -1,0 +1,18 @@
+name: Έλεγχος κλειδιού αποδόσεων
+# Χειροκίνητος γρήγορος έλεγχος του ODDS_API_KEY (μία-δύο κλήσεις στον πάροχο). Δεν αλλάζει το site.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Κλήση στο OddsPapi
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          K="$(printf '%s' "$ODDS_API_KEY" | tr -d '[:space:]')"
+          echo "μήκος κλειδιού: ${#K} χαρακτήρες (αναμένονται 36)"
+          code=$(curl -s -o /tmp/r.json -w '%{http_code}' "https://api.oddspapi.io/v4/sports?apiKey=$K")
+          echo "HTTP $code"; head -c 300 /tmp/r.json; echo
