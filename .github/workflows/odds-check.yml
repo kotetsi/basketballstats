@@ -1,18 +1,47 @@
 name: Έλεγχος κλειδιού αποδόσεων
-# Χειροκίνητος γρήγορος έλεγχος του ODDS_API_KEY (μία-δύο κλήσεις στον πάροχο). Δεν αλλάζει το site.
+# Χειροκίνητος γρήγορος έλεγχος του ODDS_API_KEY και της δομής των player props (1-2 κλήσεις). Δεν αλλάζει το site.
 on:
   workflow_dispatch:
+    inputs:
+      fixture:
+        description: "OddsPapi fixtureId για δείγμα player props (προαιρετικό)"
+        required: false
+        default: ""
 permissions:
   contents: read
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Κλήση στο OddsPapi
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          FIX: ${{ github.event.inputs.fixture }}
         run: |
           K="$(printf '%s' "$ODDS_API_KEY" | tr -d '[:space:]')"
           echo "μήκος κλειδιού: ${#K} χαρακτήρες (αναμένονται 36)"
           code=$(curl -s -o /tmp/r.json -w '%{http_code}' "https://api.oddspapi.io/v4/sports?apiKey=$K")
-          echo "HTTP $code"; head -c 300 /tmp/r.json; echo
+          echo "HTTP $code"; head -c 200 /tmp/r.json; echo
+          if [ -n "$FIX" ]; then
+            sleep 2
+            curl -s -o /tmp/o.json "https://api.oddspapi.io/v4/odds?apiKey=$K&fixtureId=$FIX&oddsFormat=decimal"
+            node -e '
+              const o = JSON.parse(require("fs").readFileSync("/tmp/o.json","utf8"));
+              const meta = JSON.parse(require("fs").readFileSync("data/odds/oddspapi_meta.json","utf8"));
+              const bo = o.bookmakerOdds || {};
+              console.log("top keys:", Object.keys(o).join(","));
+              for (const [b, v] of Object.entries(bo)) {
+                const pm = Object.entries(v.markets || {}).filter(([m]) => /Player/i.test(meta.markets[m]?.name || ""));
+                if (!pm.length) continue;
+                console.log("BOOK", b, "player markets:", pm.length);
+                if (/superbet|stoiximan|bet365.gr|novibet|fonbet/.test(b)) {
+                  const [mid, mk] = pm[0];
+                  console.log("  sample market", mid, meta.markets[mid]?.name, "line", meta.markets[mid]?.line, "outcomeIds", Object.keys(mk.outcomes||{}).join(","));
+                  const oc = Object.values(mk.outcomes||{})[0];
+                  console.log("  outcome keys", Object.keys(oc||{}).join(","), "players keys sample", Object.keys(oc?.players||{}).slice(0,3).join(","));
+                  console.log("  player entry", JSON.stringify(Object.values(oc?.players||{})[0]).slice(0,400));
+                  console.log("  names", pm.slice(0,12).map(([m]) => meta.markets[m]?.name + " @" + meta.markets[m]?.line).join(" | "));
+                }
+              }'
+          fi
