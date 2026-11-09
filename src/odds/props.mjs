@@ -23,6 +23,7 @@ export const PARAMS = {
   rateHalf: 8,     // ρυθμός ανά λεπτό: μισή ζωή 8 αγώνες
   prior: 40,       // shrinkage του ρυθμού προς τον μέσο όρο της λίγκας: «ψεύτικα» λεπτά
   minSd: 8,        // αβεβαιότητα λεπτών (λεπτά)
+  blend: 0.5,      // τελική πιθανότητα = blend·μοντέλο + (1−blend)·αγορά χωρίς vig (η αγορά ξέρει πράγματα που δεν ξέρουμε)
   share: 0.45,     // ποσοστό των λεπτών μιας νέας απουσίας που πάει στους συμπαίκτες (backtest)
   disp: { pts: 3, reb: 1, ast: 1, fg3: 1.15, pr: 2, pa: 2, pra: 2, ar: 1 },  // υπερδιασπορά (var/mean) για δεδομένα λεπτά
 };
@@ -180,11 +181,14 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
   for (const r of rows) for (const side of ['over', 'under']) {
     const price = r[side]; if (!price) continue;
     const k = `${r.c}|${r.stat}|${r.line}|${side}`, e = side === 'over' ? r.evO : r.evU;
-    if (!best[k] || price > best[k].price) best[k] = { ...r, side, price, ev: e, pm: side === 'over' ? r.p : 1 - r.p, books: [] };
+    if (!best[k] || price > best[k].price) best[k] = { ...r, side, price, evModel: e, pm: side === 'over' ? r.p : 1 - r.p, books: [] };
   }
   for (const r of rows) for (const side of ['over', 'under']) { const b = best[`${r.c}|${r.stat}|${r.line}|${side}`]; if (b && r[side]) b.books.push([r.title, r[side]]); }
   const all = Object.values(best);
   for (const b of all) {
+    const pmk = b.mkt == null ? null : b.side === 'over' ? b.mkt : 1 - b.mkt;
+    b.pb = pmk == null ? b.pm : PARAMS.blend * b.pm + (1 - PARAMS.blend) * pmk;   // συντηρητική πιθανότητα
+    b.ev = +ev(b.pb, b.price).toFixed(4);
     b.flags = [];
     if (b.st === 'doubtful') b.flags.push('doubtful');
     if (b.gp < 5) b.flags.push('sample');
@@ -194,4 +198,44 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
   const value = all.filter(b => b.ev >= minEv && !b.flags.includes('doubtful')).sort((x, y) => y.ev - x.ev);
   const shifts = Object.entries(teams).flatMap(([t, T]) => T.roster.filter(p => !p.isOut && T.M[p.c] - p.min >= 0.5).map(p => ({ c: p.c, n: p.n, t, base: +p.min.toFixed(1), adj: +T.M[p.c].toFixed(1) }))).sort((x, y) => (y.adj - y.base) - (x.adj - x.base));
   return { rows, best: all, value, absences, shifts };
+}
+
+// ---- παρακολούθηση: κάθε γραμμή που είδαμε (τελευταία τιμή πριν από τον αγώνα) και το αποτέλεσμα μετά τον αγώνα.
+// Έτσι μετράμε ποιος είχε δίκιο, το μοντέλο ή η αγορά, και πόσο θα είχαν αποδώσει οι επιλογές value.
+// γραμμή: [gid, round, code, stat, line, overPrice, underPrice, pModelOver, pMarketOver, firstSeen, lastSeen, actual|null|'void']
+export function trackUpdate(track, gid, round, best, ts) {
+  const L = (track.lines ||= {});
+  for (const b of best) {
+    const k = `${gid}|${b.c}|${b.stat}|${b.line}`, x = (L[k] ||= [gid, round, b.c, b.stat, b.line, null, null, null, null, ts, ts, null]);
+    if (b.side === 'over') x[5] = b.price; else x[6] = b.price;
+    x[7] = +(b.side === 'over' ? b.pm : 1 - b.pm).toFixed(4); x[8] = b.mkt; x[10] = ts;
+  }
+  return track;
+}
+/** αποτέλεσμα: η τιμή του stat στον αγώνα της αγωνιστικής (void αν δεν έπαιξε) */
+export function trackSettle(track, players, doneRounds) {
+  const P = Object.fromEntries(players.map(p => [p.c, p]));
+  for (const x of Object.values(track.lines || {})) {
+    if (x[11] != null || !doneRounds.has(x[1])) continue;
+    const row = P[x[2]]?.g.find(r => r[0] === x[1]);
+    x[11] = row && row[7] > 0 ? STATS[x[3]](row) : 'void';
+  }
+  return track;
+}
+/** σύνοψη: βαθμονόμηση μοντέλου/αγοράς και απόδοση των επιλογών value (1 μονάδα ανά επιλογή) */
+export function trackSummary(track, P = PARAMS, minEv = 0.08) {
+  const S = { lines: 0, overRate: 0, model: 0, market: 0, brierModel: 0, brierMarket: 0, picks: 0, won: 0, profit: 0, pending: 0 };
+  for (const x of Object.values(track.lines || {})) {
+    const [, , , , line, po, pu, pm, mk, , , y] = x;
+    const pb = mk == null ? pm : P.blend * pm + (1 - P.blend) * mk;
+    const side = po && pb * po - 1 >= minEv ? 'over' : pu && (1 - pb) * pu - 1 >= minEv ? 'under' : null;
+    if (y == null) { if (side) S.pending++; continue; }
+    if (y === 'void') continue;
+    const o = y > line ? 1 : 0;
+    if (mk != null) { S.lines++; S.overRate += o; S.model += pm; S.market += mk; S.brierModel += (pm - o) ** 2; S.brierMarket += (mk - o) ** 2; }
+    if (side) { S.picks++; const w = side === 'over' ? o : 1 - o; S.won += w; S.profit += w ? (side === 'over' ? po : pu) - 1 : -1; }
+  }
+  if (S.lines) for (const k of ['overRate', 'model', 'market', 'brierModel', 'brierMarket']) S[k] /= S.lines;
+  S.roi = S.picks ? S.profit / S.picks : null;
+  return S;
 }
