@@ -38,3 +38,31 @@ Majls Noris je u poslednja dva kola dobio ulogu: više od 22 minuta u startnoj p
 Asvel ima jednu od najotvorenijih odbrana u ligi: prima 92,3 poena po utakmici, peti najlošiji učinak. Ako Noris zadrži minutažu, 10+ je realan cilj po kvoti 2,77.
 
 Rizik: u 7 utakmica ove sezone samo je dva puta stigao do 10 poena.
+
+11 | MAD-RED | under 175.5 | 1.73
+Ο Ερυθρός Αστέρας παίζει το πιο «κλειστό» μπάσκετ της EuroLeague: δέχεται **75.0 πόντους** ανά αγώνα, την καλύτερη άμυνα της λίγκας, και σκοράρει 83.2. Σε **8 από τα 10** ματς του το σύνολο έμεινε κάτω από τους 175.5 πόντους, και εκτός έδρας κάτω σε όλα (135, 166, 167, 119).
+
+Η Ρεάλ είναι η άλλη όψη: 97.8 πόντους υπέρ και 90.7 κατά, με τα ματς της να ξεπερνούν το 175.5 στα 7 από τα 10. Το ερώτημα είναι ποιος θα επιβάλει τον ρυθμό. Ο Ερυθρός το έχει καταφέρει στα περισσότερα παιχνίδια του, ακόμα και απέναντι σε δυνατές επιθέσεις, και ο μέσος όρος της λίγκας (173.7) είναι ήδη κάτω από τη γραμμή.
+
+Το ρίσκο: στη Μαδρίτη η Ρεάλ έχει περάσει τους 200 συνολικούς πόντους με ΑΣΒΕΛ (203) και Παναθηναϊκό (227).
+
+EN:
+Crvena Zvezda play the tightest basketball in the EuroLeague: they allow **75.0 points** per game, the best defense in the league, and score 83.2. In **8 of their 10** games the total stayed under 175.5, and on the road it has been under every time (135, 166, 167, 119).
+
+Real Madrid are the opposite: 97.8 points scored and 90.7 allowed, with their games going over 175.5 in 7 of 10. The question is who sets the pace. Zvezda have done it in most of their games, even against strong offenses, and the league average total (173.7) is already below the line.
+
+The risk: in Madrid, Real have gone past 200 total points against ASVEL (203) and Panathinaikos (227).
+
+ES:
+El Estrella Roja juega el baloncesto más cerrado de la Euroliga: recibe **75,0 puntos** por partido, la mejor defensa de la liga, y anota 83,2. En **8 de sus 10** partidos el total se quedó por debajo de 175,5, y a domicilio siempre por debajo (135, 166, 167, 119).
+
+El Real Madrid es la otra cara: 97,8 puntos a favor y 90,7 en contra, con sus partidos por encima de 175,5 en 7 de 10. La pregunta es quién impone el ritmo. El Estrella Roja lo ha logrado en la mayoría de sus partidos, incluso ante grandes ataques, y la media de la liga (173,7) ya está por debajo de la línea.
+
+El riesgo: en Madrid, el Real ha superado los 200 puntos totales ante el ASVEL (203) y el Panathinaikos (227).
+
+SR:
+Crvena zvezda igra najzatvoreniju košarku u Evroligi: prima **75,0 poena** po utakmici, najbolja odbrana lige, a postiže 83,2. U **8 od 10** utakmica ukupan zbir je ostao ispod 175,5, a na gostovanjima svaki put ispod (135, 166, 167, 119).
+
+Real Madrid je druga strana: 97,8 postignutih i 90,7 primljenih poena, a njegove utakmice su prešle 175,5 u 7 od 10. Pitanje je ko će nametnuti ritam. Zvezda je u tome uspela u većini utakmica, čak i protiv jakih napada, a prosek lige (173,7) je već ispod granice.
+
+Rizik: u Madridu je Real prelazio 200 ukupnih poena protiv Asvela (203) i Panatinaikosa (227).
