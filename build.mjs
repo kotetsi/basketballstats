@@ -1342,6 +1342,20 @@ ${ldTag(ld)}${script}
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
         .replace('{{PLAYER_H1}}', esc(h1p)).replace('{{PLAYER_LEDE}}', ledep ? `<p class="lede">${esc(ledep)}</p>` : '')
         .replace('{{TEAM_H1}}', esc(h1t)).replace('{{TEAM_LEDE}}', ledet ? `<p class="lede">${esc(ledet)}</p>` : '');
+      // The core table is readable before JavaScript, with the same cached data
+      // and team URLs used by the interactive view. app.js progressively enhances it.
+      if (view === 'stand') {
+        const heading = T(`Βαθμολογία EuroLeague ${SEASON_LABEL}`, `EuroLeague standings ${SEASON_LABEL}`, `Clasificación de la Euroliga ${SEASON_LABEL}`, `Tabela Evrolige ${SEASON_LABEL}`, `EuroLeague puan durumu ${SEASON_LABEL}`);
+        body = body.replace(/(<div id="vStand"[^>]*>[\s\S]*?<h1>)[\s\S]*?(<\/h1>)/, (_, before, after) => before + esc(heading) + after);
+        const labels = ['#', T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım'), T('Αγ.', 'GP', 'PJ', 'U', 'O'), T('Ν', 'W', 'V', 'P', 'G'), T('Η', 'L', 'D', 'I', 'M'), '%', T('Υπέρ', 'For', 'A favor', 'Dati', 'Atılan'), T('Κατά', 'Against', 'En contra', 'Primljeni', 'Yenen'), T('Διαφ.', 'Diff.', 'Dif.', 'Razl.', 'Fark'), T('Έδρα', 'Home', 'Casa', 'Kod kuće', 'İç saha'), T('Εκτός', 'Away', 'Fuera', 'U gostima', 'Deplasman'), T('Φόρμα', 'Form', 'Racha', 'Forma', 'Form'), T('Επόμενος', 'Next', 'Próximo', 'Sledeći', 'Sonraki')];
+        const rows = league.stand.map(([pos, c, w, l, pf, pa, hr, ar, form]) => {
+          const next = league.games.find(g => !g[6] && (g[2] === c || g[3] === c));
+          const opponent = next ? next[2] === c ? next[3] : next[2] : null;
+          const values = [pos, `<a href="${urlFor(LG, 'team:' + c)}">${esc(tName(c))}</a>`, w + l, w, l, w + l ? Math.round(100 * w / (w + l)) : 0, pf, pa, (pf - pa > 0 ? '+' : '') + (pf - pa), esc(hr), esc(ar), esc(form), opponent ? `<a href="${urlFor(LG, 'team:' + opponent)}">${esc(tName(opponent))}</a>` : '–'];
+          return `<tr>${values.map((v, i) => `<td${i === 1 || i === 12 ? ' class="l"' : ''}>${v}</td>`).join('')}</tr>`;
+        }).join('');
+        body = body.replace('<table id="standTbl" class="stand"></table>', `<table id="standTbl" class="stand"><thead><tr>${labels.map(label => `<th scope="col">${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`);
+      }
       if (top) { const vid = { stand: 'vStand', team: 'vTeam', player: 'vPlayer' }[view]; const vp = vid ? body.indexOf(`<div id="${vid}"`) : -1, ms = vp > -1 ? body.indexOf('<main class="wrap', vp) : -1; if (ms > -1) { const k = body.indexOf('>', ms) + 1; body = body.slice(0, k) + (view === 'stand' ? top : `<div class="shtopw">${top}</div>`) + body.slice(k); } }
       if (extra && view === 'team') { const vp = body.indexOf('<div id="vTeam"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
       if (extra && view === 'player') { const vp = body.indexOf('<div id="vPlayer"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
@@ -2942,7 +2956,7 @@ ${Object.entries(byDay).sort().map(([d, L]) => `<h2>${esc(new Date(d + 'T12:00:0
         await simplePage(`mcu:${x.r}|${x.h}|${x.a}`, { view: 'game', title: T(`${H} - ${A} πρόβλεψη EuroCup (${x.r}η αγωνιστική) | ${SITE_NAME}`, `${H} vs ${A} EuroCup prediction (round ${x.r}) | ${SITE_NAME}`, `${H} - ${A} pronóstico EuroCup (jornada ${x.r}) | ${SITE_NAME}`, `${H} - ${A} prognoza Evrokup (${x.r}. kolo) | ${SITE_NAME}`, `${H} - ${A} EuroCup tahmini (${x.r}. hafta) | ${SITE_NAME}`),
           desc: T(`${H} - ${A} (${when}): πιθανότητα νίκης, προβλεπόμενο σκορ ${Math.round(x.hs)}-${Math.round(x.as)}, σύνολο, pace και παίκτες να προσέξεις.`, `${H} vs ${A} (${when}): win probability, projected score ${Math.round(x.hs)}-${Math.round(x.as)}, total, pace and players to watch.`, `${H} - ${A} (${when}): probabilidad, marcador proyectado ${Math.round(x.hs)}-${Math.round(x.as)}, total, ritmo y jugadores a seguir.`, `${H} - ${A} (${when}): verovatnoća, projektovani rezultat ${Math.round(x.hs)}-${Math.round(x.as)}, ukupno, tempo i igrači.`, `${H} - ${A} (${when}): kazanma ihtimali, tahmini skor ${Math.round(x.hs)}-${Math.round(x.as)}, toplam sayı, tempo ve takip edilecek oyuncular.`),
           main: `<article class="game"><p class="kicker">EuroCup · ${esc(T(`${x.r}η αγωνιστική`, `Round ${x.r}`, `Jornada ${x.r}`, `${x.r}. kolo`, `${x.r}. hafta`))}</p><h1>${esc(H)} – ${esc(A)}</h1><p class="lede">${esc(when)} ${T('(ώρα Ελλάδας)', '(Athens time)', '(hora de Atenas)', '(po atinskom vremenu)', '(Atina saati)')}</p>${matchupCenter('U', x)}<p><a class="pread" href="${urlFor(LG, 'mc')}">Matchup Center →</a> · <a class="pread" href="${urlFor(LG, 'ec')}">EuroCup →</a></p></article>`,
-          ld: [crumbs([[SITE_NAME, B(LG)], ['Matchup Center', urlFor(LG, 'mc')], [`${H} - ${A}`, urlFor(LG, `mcu:${x.r}|${x.h}|${x.a}`)]]), { '@context': 'https://schema.org', '@type': 'SportsEvent', name: `${H} - ${A}`, sport: 'Basketball', startDate: x.t, eventStatus: 'https://schema.org/EventScheduled', homeTeam: { '@type': 'SportsTeam', name: H }, awayTeam: { '@type': 'SportsTeam', name: A }, location: { '@type': 'Place', name: H }, superEvent: { '@type': 'SportsEvent', name: `EuroCup ${SEASON_LABEL}` } }] });
+          ld: [crumbs([[SITE_NAME, B(LG)], ['Matchup Center', urlFor(LG, 'mc')], [`${H} - ${A}`, urlFor(LG, `mcu:${x.r}|${x.h}|${x.a}`)]]), { '@context': 'https://schema.org', '@type': 'SportsEvent', name: `${H} - ${A}`, sport: 'Basketball', startDate: x.t, eventStatus: 'https://schema.org/EventScheduled', homeTeam: { '@type': 'SportsTeam', name: H }, awayTeam: { '@type': 'SportsTeam', name: A }, location: { '@type': 'Place', name: H } }] });
       }
     }
     // ---- Betting Insights: hub, CLV, εσωτερικές γραμμές PIR
@@ -3180,7 +3194,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
         : T(`${vs} (${dt}): εκτίμηση σκορ, πιθανότητα νίκης, φόρμα, τέσσερις παράγοντες, απουσίες και βασικοί παίκτες με τις γραμμές τους.`, `${vs} (${dt}): projected score, win probability, form, four factors, injuries and key players with their lines.`, `${vs} (${dt}): marcador estimado, probabilidad de victoria, forma, cuatro factores, bajas y jugadores clave con sus líneas.`, `${vs} (${dt}): procenjeni rezultat, verovatnoća pobede, forma, četiri faktora, povrede i ključni igrači sa linijama.`, `${vs} (${dt}): tahmini skor, kazanma ihtimali, form, four factors, sakatlıklar ve kilit oyuncuların barajları.`);
       const ld = { '@context': 'https://schema.org', '@type': 'SportsEvent', name: vs, sport: 'Basketball', startDate: d.toISOString(),
         eventStatus: 'https://schema.org/EventScheduled', homeTeam: { '@type': 'SportsTeam', name: H }, awayTeam: { '@type': 'SportsTeam', name: A },
-        superEvent: { '@type': 'SportsEvent', name: S }, url: SITE_URL + urlFor(LG, `game:${r}|${h}|${a}`), description: PV.join(' ') };
+        url: SITE_URL + urlFor(LG, `game:${r}|${h}|${a}`), description: PV.join(' ') };
       const vn = VENUE[`${r}|${h}|${a}`];
       ld.location = { '@type': 'Place', name: vn || H };
       ld.endDate = new Date(d.getTime() + 2 * 3600e3).toISOString();

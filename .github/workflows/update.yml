@@ -88,6 +88,8 @@ jobs:
         run: python predictor/run.py || echo "Game Predictor - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
         run: node build.mjs --offline
+      - name: Έλεγχος SEO (στατική βαθμολογία και δεδομένα αγώνων)
+        run: node --test test/seo.test.mjs
       - name: "Έλεγχος σελίδας Σύγκρισης στον browser (επιλογές, φίλτρα, URLs, SEO, κινητό)"
         # δεν μπλοκάρει την ημερήσια ενημέρωση δεδομένων· μια αποτυχία φαίνεται ως κόκκινο βήμα στο run
         continue-on-error: true
