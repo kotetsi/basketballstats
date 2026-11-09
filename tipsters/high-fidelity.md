@@ -94,3 +94,31 @@ Nikola Tanasković je u poslednja dva kola dobio veliku ulogu: **27-29 minuta**,
 Protivnik je Baskonija, koja prima **93,1 poen** po utakmici, treća najlošija odbrana Evrolige. Ako zadrži minutažu iz poslednjih utakmica, 14+ poena i skokova je realno, a produžetak se računa.
 
 Rizik: u 10 utakmica ove sezone to je postigao samo dva puta (prosek 11,8). Sve zavisi od toga da li je njegova nova uloga trajna.
+
+11 | OLY-DUB | under 170.5 | 1.85
+Στο ΣΕΦ ο Ολυμπιακός παίζει άλλο παιχνίδι: και στα **4 εντός έδρας** ματς του το σύνολο έμεινε κάτω από 170.5 (155, 125, 162, 119). Στον Πειραιά δέχεται μόλις **67.5 πόντους** ανά αγώνα, ενώ συνολικά δέχεται 81.6, την πέμπτη καλύτερη άμυνα της λίγκας.
+
+Η Ντουμπάι σκοράρει 88.0 και δέχεται 84.1, όμως οι δύο πιο «κλειστές» άμυνες που βρήκε φέτος, Φενέρμπαχτσε (66) και Ερυθρό Αστέρα (58), την κράτησαν πολύ χαμηλά. Αν ο Ολυμπιακός επιβάλει τον ρυθμό του όπως στα εντός έδρας παιχνίδια, το under στο 1.85 έχει αξία.
+
+Το ρίσκο: εκτός έδρας η Ντουμπάι έχει παίξει δύο ματς με 198 συνολικούς πόντους (Μιλάνο, Μπάγερν).
+
+EN:
+At home Olympiacos play a different game: in all **4 home games** the total stayed under 170.5 (155, 125, 162, 119). In Piraeus they allow just **67.5 points** per game, and 81.6 overall, the fifth-best defense in the league.
+
+Dubai score 88.0 and allow 84.1, but the two tightest defenses they have met this season, Fenerbahce (66) and Crvena Zvezda (58), held them very low. If Olympiacos set their pace as they have at home, the under at 1.85 has value.
+
+The risk: on the road Dubai have played two games with 198 total points (Milan, Bayern).
+
+ES:
+En casa el Olympiacos juega otro partido: en sus **4 partidos como local** el total se quedó por debajo de 170,5 (155, 125, 162, 119). En El Pireo recibe solo **67,5 puntos** por partido, y 81,6 en total, la quinta mejor defensa de la liga.
+
+El Dubai anota 88,0 y recibe 84,1, pero las dos defensas más cerradas que ha encontrado esta temporada, Fenerbahçe (66) y Estrella Roja (58), lo dejaron muy bajo. Si el Olympiacos impone su ritmo como en casa, el under a 1,85 tiene valor.
+
+El riesgo: a domicilio el Dubai ha jugado dos partidos con 198 puntos totales (Milán, Bayern).
+
+SR:
+Kod kuće Olimpijakos igra drugačiju igru: u sve **4 domaće utakmice** ukupan zbir je ostao ispod 170,5 (155, 125, 162, 119). U Pireju prima samo **67,5 poena** po utakmici, a ukupno 81,6, peta najbolja odbrana lige.
+
+Dubai postiže 88,0 i prima 84,1, ali dve najzatvorenije odbrane na koje je naišao ove sezone, Fenerbahče (66) i Crvena zvezda (58), zadržale su ga veoma nisko. Ako Olimpijakos nametne svoj ritam kao kod kuće, under po kvoti 1,85 ima vrednost.
+
+Rizik: na gostovanjima Dubai je odigrao dve utakmice sa 198 ukupnih poena (Milano, Bajern).
