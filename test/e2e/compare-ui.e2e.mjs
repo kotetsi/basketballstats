@@ -72,6 +72,26 @@ let ok = 0; const step = (n) => { ok++; console.log('  ✓', n); };
   assert.equal(await pg.evaluate(() => document.documentElement.scrollWidth > innerWidth), false); step('κινητό χωρίς οριζόντια κύλιση σελίδας');
   await pg.close();
 }
+// EuroCup: σύνδεσμος κοινοποίησης στη μόνιμη σελίδα EuroCup
+{
+  const pg = await open('/sygkrisi/omades/?comp=U');
+  const opts = await pg.$$eval('.cmpadd option', os => os.map(o => o.value).filter(Boolean));
+  for (const v of opts.slice(0, 2)) await pg.selectOption('.cmpadd', v);
+  await pg.click('[data-x="copy"]');
+  const u = await pg.evaluate(() => navigator.clipboard.readText());
+  assert.match(u, /\/sygkrisi\/omades\/eurocup\/[a-z0-9-]+-vs-[a-z0-9-]+\/$/); step('EuroCup copy link: ' + u.replace(/^https?:\/\/[^/]+/, ''));
+  assert.equal((await fetch(u.replace(/^https?:\/\/[^/]+/, U))).status, 200); step('η σελίδα EuroCup υπάρχει');
+  await pg.close();
+}
+// σύνδεσμοι από σελίδες ομάδων και παικτών προς τις μόνιμες συγκρίσεις
+{
+  const t = await (await fetch(U + '/omada/olympiakos/')).text();
+  assert.match(t, /href="\/sygkrisi\/omades\/olympiakos-vs-panathinaikos\/"/); step('σελίδα ομάδας → σύγκριση');
+  const lst = fs.readdirSync('dist/sygkrisi/paiktes').filter(f => f.includes('-vs-'));
+  const a = lst[0].split('-vs-')[0];
+  const html = fs.readFileSync(`dist/paiktis/${a}/index.html`, 'utf8');
+  assert.ok(lst.filter(f => f.startsWith(a + '-vs-') || f.endsWith('-vs-' + a)).some(f => html.includes(`/sygkrisi/paiktes/${f}/`))); step('σελίδα παίκτη → σύγκριση');
+}
 // παίκτες
 {
   const pg = await open('/sygkrisi/');

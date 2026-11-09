@@ -68,7 +68,7 @@ export function formatMetric(k, v, kind = 'player') {
   const m = metaOf(k, kind) || M('num', 1, 'none', '');
   if (m.format === 'pct') return (100 * v).toFixed(m.precision) + '%';
   if (m.format === 'int') return String(Math.round(v));
-  if (m.format === 'signed') return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(m.precision);
+  if (m.format === 'signed') { const t = Math.abs(v).toFixed(m.precision), z = +t === 0; return (z ? '' : v > 0 ? '+' : '−') + t; }
   return v.toFixed(m.precision);
 }
 

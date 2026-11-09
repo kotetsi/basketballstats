@@ -88,6 +88,13 @@ jobs:
         run: python predictor/run.py || echo "Game Predictor - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
         run: node build.mjs --offline
+      - name: "Έλεγχος σελίδας Σύγκρισης στον browser (επιλογές, φίλτρα, URLs, SEO, κινητό)"
+        # δεν μπλοκάρει την ημερήσια ενημέρωση δεδομένων· μια αποτυχία φαίνεται ως κόκκινο βήμα στο run
+        continue-on-error: true
+        run: |
+          npm i --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+          node test/e2e/compare-ui.e2e.mjs
       - name: Αναρτήσεις στο κανάλι Telegram (μόνο αν υπάρχουν τα secrets)
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}

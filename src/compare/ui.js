@@ -240,6 +240,8 @@ async function initTeams(root) {
     // μόνιμη σελίδα ζευγαριού (EuroLeague, 2 ομάδες)· αλλιώς η γενική σελίδα με τις επιλογές στο query
     const slugs = st.ids.map(id => cfg.slugs?.[id]);
     if (st.comp === 'E' && st.ids.length === 2 && cfg.pairBase && slugs.every(Boolean)) return new URL(cfg.pairBase + pairSlug(slugs) + '/' + (p.toString() ? '?' + p : ''), location.href).href;
+    const slugsU = st.ids.map(id => cfg.slugsU?.[id]);
+    if (st.comp === 'U' && st.ids.length === 2 && cfg.pairBaseU && slugsU.every(Boolean)) { p.delete('comp'); return new URL(cfg.pairBaseU + pairSlug(slugsU) + '/' + (p.toString() ? '?' + p : ''), location.href).href; }
     if (st.ids.length) p.set('ids', st.ids.join(','));
     return new URL((cfg.baseUrl || location.pathname) + (p.toString() ? '?' + p : ''), location.href).href;
   };

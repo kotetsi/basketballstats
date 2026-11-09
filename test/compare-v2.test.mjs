@@ -40,6 +40,7 @@ test('μορφοποίηση: ποσοστά, πρόσημο, ακέραιοι, 
   assert.equal(formatMetric('net', 7.42, 'team'), '+7.4');
   assert.equal(formatMetric('net', -2.4, 'team'), '−2.4');
   assert.equal(formatMetric('gp', 10, 'team'), '10');
+  assert.equal(formatMetric('net', -0.01, 'team'), '0.0');
   assert.equal(formatMetric('astto', 1.4254, 'team'), '1.43');
   assert.equal(formatMetric('ortg', null, 'team'), '–');
   assert.equal(formatMetric('ortg', NaN, 'team'), '–');
