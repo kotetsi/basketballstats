@@ -1,8 +1,8 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 65
+  "calls": 66
  },
- "lastError": "2026-11-09T16:37:37.526Z",
+ "lastError": "2026-11-09T16:42:51.532Z",
  "error": "OddsPapi /participants 500: {\"error\":{\"message\":\"Authentication error occurred.\",\"code\":\"INTERNAL_ERROR\",\"details\":\"An error occurred while fetching user data.\"}}"
 }
