@@ -753,3 +753,8 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 .cmppairs{columns:2 220px;padding-left:18px}.cmppairs li{margin:2px 0}
 .cmpssr td,.cmpssr th{text-align:center}.cmpssr th.l{text-align:left}
 @media (prefers-reduced-motion:reduce){.cmpskel i{animation:none}}
+/* Παρολί: «Έχει value;» */
+.valbox{border:1px solid var(--line);border-left:4px solid var(--accent,#c8501e);border-radius:10px;padding:12px 14px;margin:14px 0;background:var(--surface)}.valbox h2{margin:0 0 6px}.valbox h3{margin:12px 0 6px;font-size:15px}
+.valin{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}.valin label{display:flex;flex-direction:column;gap:4px;font-size:13px}.valin input{font-size:16px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;max-width:140px;background:var(--bg,#fff);color:inherit}
+.valout{margin:6px 0;padding:8px 10px;border-radius:8px;background:rgba(127,127,127,.08)}.valout.ok{background:rgba(29,184,106,.15)}.valout.mid{background:rgba(230,170,30,.18)}.valout.ko{background:rgba(192,57,43,.13)}
+.vb.ok{color:#14874d}.vb.mid{color:#a86d00}.vb.ko{color:#c0392b}
