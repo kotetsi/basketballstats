@@ -1,6 +1,6 @@
 // BasketballStats PRO από άκρη σε άκρη στον browser (κινητό): /pro → /checkout → «Stripe» → /welcome-pro → /my-account.
 // Ο πραγματικός Worker τρέχει τοπικά (D1 πάνω σε SQLite)· Stripe/Telegram/Brevo είναι ψεύτικοι (κανένα δίκτυο, καμία χρέωση).
-//   PRO_API=http://localhost:8787 node build.mjs --offline && node test/e2e/pro.e2e.mjs
+//   PRO_LOCK=1 PRO_API=http://localhost:8787 node build.mjs --offline && node test/e2e/pro.e2e.mjs
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -10,7 +10,7 @@ import worker from '../../workers/pro/src/index.js';
 import { makeD1 } from '../pro/d1-shim.mjs';
 
 const SITE = 'http://localhost:8200', API = 'http://localhost:8787';
-const env = { DB: makeD1(new URL('../../workers/pro/schema.sql', import.meta.url).pathname), SITE_ORIGIN: SITE, STRIPE_SECRET_KEY: 'sk_test_e2e', STRIPE_WEBHOOK_SECRET: 'whsec_e2e', BREVO_API_KEY: 'brevo_e2e', TELEGRAM_BOT_TOKEN: '1:x', TELEGRAM_PRO_CHAT_ID: '-1001', SEASON_END: '2027-06-01T00:00:00Z' };
+const env = { DB: makeD1(new URL('../../workers/pro/schema.sql', import.meta.url).pathname), SITE_ORIGIN: SITE, STRIPE_SECRET_KEY: 'sk_test_e2e', STRIPE_WEBHOOK_SECRET: 'whsec_e2e', BREVO_API_KEY: 'brevo_e2e', TELEGRAM_BOT_TOKEN: '1:x', TELEGRAM_PRO_CHAT_ID: '-1001', ADMIN_EMAILS: 'owner@example.com', SEASON_END: '2027-06-01T00:00:00Z' };
 const S = { sessions: {}, mails: [], n: 0 };
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init = {}) => {
@@ -29,6 +29,11 @@ globalThis.fetch = async (url, init = {}) => {
   if (u.host === 'api.brevo.com') { S.mails.push(JSON.parse(init.body)); return new Response('{}', { status: 201 }); }
   return realFetch(url, init);
 };
+const now = new Date().toISOString();
+await env.DB.prepare("INSERT INTO picks (game_id, round, match_label, starts_at, player, market, odds, stake, analysis, published_at, created_at, updated_at) VALUES ('E-11-PAR-BAS', 11, 'Παρτιζάν - Μπασκόνια', '2026-11-11T19:45:00Z', 'Nikola Tanaskovic', 'Over 13.5 Πόντοι + Ριμπάουντ', 1.75, 1, 'ΚΡΥΦΗ_ΑΝΑΛΥΣΗ με **έντονα**', ?, ?, ?)").bind(now, now, now).run();
+await env.DB.prepare("INSERT INTO analyses (game_id, body, published_at, created_at, updated_at) VALUES ('E-11-PAN-BAR', 'ΚΡΥΦΟ_ΜΑΤΣ η Μπαρτσελόνα χωρίς Πάντερ', ?, ?, ?)").bind(now, now, now).run();
+const SECRETS = ['Tanaskovic', 'ΚΡΥΦΗ_ΑΝΑΛΥΣΗ', 'Over 13.5 Πόντοι', 'ΚΡΥΦΟ_ΜΑΤΣ', 'Πάντερ'];
+const findPage = gid => { const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]); const f = walk('dist/agonas').find(f => f.endsWith('index.html') && fs.readFileSync(f, 'utf8').includes(`data-gid="${gid}"`)); return '/' + path.relative('dist', path.dirname(f)) + '/'; };
 const apiSrv = http.createServer(async (q, r) => {
   const chunks = []; for await (const c of q) chunks.push(c);
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
@@ -42,6 +47,19 @@ const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile
 const pg = await ctx.newPage(); pg.on('pageerror', e => errs.push(e.message)); await pg.route(/google|incrowd/, r => r.abort());
 const noScroll = async () => assert.equal(await pg.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
 try {
+  // FREE: κλειδωμένα κουτιά, και καμία απάντηση δικτύου δεν περιέχει το pick ή την ανάλυση
+  const seen = []; const rec = async r => { try { seen.push(await r.text()); } catch { } };
+  pg.on('response', rec);
+  await pg.goto(SITE + '/tipsters/'); await pg.waitForSelector('.prolocked');
+  assert.match(await pg.textContent('.prolock'), /Παρτιζάν - Μπασκόνια[\s\S]*Δες το με PRO/);
+  const gpage = findPage('E-11-PAN-BAR');
+  await pg.goto(SITE + gpage); await pg.waitForSelector('.prolock .prolocked');
+  assert.match(await pg.textContent('.prolock'), /Ανάλυση Αγώνα/);
+  seen.push(await pg.content());
+  pg.off('response', rec);
+  for (const x of SECRETS) assert.ok(!seen.some(t => t.includes(x)), `FREE είδε «${x}»`);
+  step(`FREE: κλειδωμένο pick και Ανάλυση Αγώνα· τίποτα σε HTML/δίκτυο (${seen.length} απαντήσεις ελέγχθηκαν)`);
+
   await pg.goto(SITE + '/pro/');
   assert.match(await pg.textContent('h1'), /Σταμάτα να μαντεύεις\. Δες τι λένε οι αριθμοί\./);
   assert.equal(await pg.$$eval('.procard', x => x.filter(e => !e.hidden).length), 3);
@@ -86,6 +104,13 @@ try {
   await pg.waitForSelector('.probox h2');
   assert.match(await pg.textContent('.probox h2'), /PRO ενεργό/);
   assert.doesNotMatch(pg.url(), /login=/); step('αποσύνδεση → σύνδεση με link στο email');
+  await pg.goto(SITE + '/tipsters/'); await pg.waitForSelector('.propick');
+  assert.match(await pg.textContent('.propick'), /Nikola Tanaskovic[\s\S]*Over 13\.5 Πόντοι \+ Ριμπάουντ[\s\S]*@1\.75[\s\S]*1 μονάδα[\s\S]*ΚΡΥΦΗ_ΑΝΑΛΥΣΗ/);
+  assert.equal(await pg.$eval('.propicka b', b => b.textContent), 'έντονα');
+  assert.match(await pg.textContent('.propick'), /21\+\. Το περιεχόμενο είναι στατιστική ανάλυση/);
+  await pg.goto(SITE + findPage('E-11-PAN-BAR')); await pg.waitForSelector('.proanalysis');
+  assert.match(await pg.textContent('.proanalysis'), /ΚΡΥΦΟ_ΜΑΤΣ/);
+  await noScroll(); step('PRO: πλήρες pick (παίκτης, αγορά, απόδοση, stake, ανάλυση, 21+) και Ανάλυση Αγώνα');
   await pg.evaluate(() => localStorage.clear()); await pg.goto('about:blank'); await pg.goto(link);
   await pg.waitForSelector('.promsg.err');
   assert.match(await pg.textContent('.proout'), /έληξε ή χρησιμοποιήθηκε/); step('το link σύνδεσης δεν ξαναχρησιμοποιείται');

@@ -42,6 +42,12 @@ import * as PAIR from './src/compare/pairs.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), 'utf8').catch(() => '{}'));
+// BasketballStats PRO. proLock (site.config.json) = false: τα tips μένουν ανοιχτά όπως πάντα.
+// proLock = true: οι επιλογές που δεν έχουν κριθεί των PRO tipsters ΔΕΝ μπαίνουν στο στατικό site (HTML, JSON, sitemap)·
+// τις δίνει μόνο το PRO API, μόνο σε ενεργό PRO, και οι FREE βλέπουν κλειδωμένο κουτί.
+const PRO_API_URL = String(process.env.PRO_API ?? CONF.proApi ?? '').replace(/\/$/, '');
+const PRO_LOCK = (process.env.PRO_LOCK ?? (CONF.proLock ? '1' : '0')) === '1';
+const PRO_TIPSTERS = CONF.proTipsters || ['high-fidelity'];
 // δήλωση υπεύθυνου παιχνιδιού (PRO): ίδια σε footer, σελίδα PRO και κάθε pick
 const PRO_DISC = {
   el: '21+. Το περιεχόμενο είναι στατιστική ανάλυση και όχι συμβουλή στοιχήματος. Παίζουμε υπεύθυνα, με χρήματα που αντέχουμε να χάσουμε. Κανένα σημείο δεν είναι σίγουρο.',
@@ -485,6 +491,11 @@ async function loadTipsters(games, players) {
       }
       delete x.text; delete x.lang;
     });
+    if (PRO_LOCK && PRO_TIPSTERS.includes(slug)) {
+      // PRO: οι ανοιχτές επιλογές δεν δημοσιεύονται στο στατικό site (μπαίνουν από το admin του PRO API)
+      const n = picks.length; for (let i = picks.length - 1; i >= 0; i--) if (picks[i].res === 'pending') picks.splice(i, 1);
+      if (n !== picks.length) console.warn(`Tipster ${name}: ${n - picks.length} ανοιχτές επιλογές ΔΕΝ δημοσιεύτηκαν (PRO κλείδωμα). Βάλ' τες από το admin του PRO.`);
+    }
     if (errors.length) console.warn(`Tipster ${name}: ${errors.length} γραμμές με πρόβλημα:`, errors);
     const settled = picks.filter(x => x.res === 'W' || x.res === 'L');
     const W = settled.filter(x => x.res === 'W').length, L = settled.length - W;
@@ -1028,7 +1039,7 @@ async function main() {
     const api = (p, o) => fs.mkdir(path.dirname(path.join(OUT, 'api', p)), { recursive: true }).then(() => fs.writeFile(path.join(OUT, 'api', p), JSON.stringify(o)));
     await fs.mkdir(path.join(OUT, 'assets', 'compare'), { recursive: true });
     for (const f of ['metrics.mjs', 'ui.js', 'catalog.mjs', 'pairs.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'compare', f), path.join(OUT, 'assets', 'compare', f));
-    await fs.mkdir(path.join(OUT, 'assets', 'pro'), { recursive: true }); await fs.copyFile(path.join(ROOT, 'src', 'pro', 'pro.js'), path.join(OUT, 'assets', 'pro', 'pro.js'));
+    await fs.mkdir(path.join(OUT, 'assets', 'pro'), { recursive: true }); for (const f of ['pro.js', 'lock.js']) await fs.copyFile(path.join(ROOT, 'src', 'pro', f), path.join(OUT, 'assets', 'pro', f));
     await api('compare/players/metrics.json', { current: SEASON, defaultKeys: CB.DEFAULT_KEYS, allKeys: CB.ALL_KEYS, per36: CB.PER36, per100: CB.PER100, seasons: CMP.seasons, similar: CMP.similar });
     for (const [id, L] of Object.entries(CMP.similar[SEASON])) await api(`compare/players/similar/${id}.json`, { player: id, season: SEASON, similar: L });
     // ομάδες
@@ -1272,6 +1283,8 @@ ${pwaStyle}`;
     const LNAME = { el: ['ΕΛ', 'Ελληνικά'], en: ['EN', 'English'], es: ['ES', 'Español'], sr: ['SR', 'Srpski'], tr: ['TR', 'Türkçe'] };
     const langSw = alts => `<span class="langs">${OTHERS.map(o => `<a class="langsw" href="${alts[o] || B(o)}" hreflang="${o}" lang="${o}" title="${LNAME[o][1]}">${LNAME[o][0]}</a>`).join('')}</span>`;
     const script = `<script src="${BASE}assets/${LG === 'el' ? 'app.js' : 'app.' + LG + '.js'}?v=${ver}" defer></script>`;
+    // PRO κλείδωμα: κουτί που γεμίζει από το PRO API (FREE: κλειδωμένο, PRO: πλήρες). Μόνο όταν proLock = true.
+    const proLockBox = (kind, attrs = '') => (PRO_LOCK && LG === 'el' ? `<div class="prolock" data-kind="${kind}" data-api="${esc(PRO_API_URL)}"${attrs}></div><script type="module" src="${BASE}assets/pro/lock.js?v=${ver}"></script>` : '');
     const bodyAttrs = (view, id) => `data-view="${view}"${id ? ` data-id="${esc(id)}"` : ''} data-base="${BL}" data-root="${BASE}"`;
 
     function head(title, desc, url, altsMap) {
@@ -2548,6 +2561,7 @@ ${tipsters.map((t, i) => `<tr><td>${i + 1}</td><td class="l"><a class="tlink" hr
 </tbody></table></div>` : `<p class="sub">${T('Δεν υπάρχουν ακόμη tipsters.', 'No tipsters yet.', 'Todavía no hay tipsters.', 'Još nema tipstera.', 'Henüz tipster yok.')}</p>`}
 </section>
 <section class="article wide"><h2>${T('Οι επιλογές για τους επόμενους αγώνες', 'Picks for the upcoming games', 'Apuestas para los próximos partidos', 'Tipovi za naredne utakmice', 'Yaklaşan maçlar için seçimler')}</h2>
+${proLockBox('picks')}
 ${Object.keys(byGame).length ? `<div class="tipgames">${Object.values(byGame).map(ps => `<div class="fx"><span class="when">${roundTxt(ps[0].round)}</span><div class="row"><b>${gameTxt(ps[0])}</b></div>${ps.map(p => `<a class="row tippick" href="${p.url[LG]}"><span class="tn">${esc(p.t.name)}</span><span class="tl">${esc(p.label[LG])}${p.odds ? ` @ ${p.odds.toFixed(2)}` : ''}${p.html[LG] ? ` <i>${T('Ανάλυση', 'Analysis', 'Análisis', 'Analiza', 'Analiz')} →</i>` : ''}</span></a>`).join('')}</div>`).join('')}</div>` : `<p class="sub">${T('Δεν έχουν δηλωθεί ακόμη επιλογές για τους επόμενους αγώνες.', 'No picks for the upcoming games yet.', 'Todavía no hay apuestas para los próximos partidos.', 'Još nema tipova za naredne utakmice.', 'Yaklaşan maçlar için henüz seçim yok.')}</p>`}
 ${disclaimer}</section>` });
     for (const t of tipsters) {
@@ -2556,7 +2570,7 @@ ${disclaimer}</section>` });
         title: T(`${t.name}: επιλογές και βαθμολογία tipster EuroLeague | ${SITE_NAME}`, `${t.name}: EuroLeague tipster picks and record | ${SITE_NAME}`, `${t.name}: apuestas y balance del tipster en la EuroLeague | ${SITE_NAME}`, `${t.name}: tipovi i učinak tipstera u Evroligi | ${SITE_NAME}`, `${t.name}: EuroLeague tipster seçimleri ve performansı | ${SITE_NAME}`),
         desc: T(`${t.name}: ${t.W}-${t.L} στις επιλογές EuroLeague, ποσοστό επιτυχίας ${pctTxt(t.pct)}, ${unitsTxt(t.units)} μονάδες.`,
           `${t.name}: ${t.W}-${t.L} on EuroLeague picks, ${pctTxt(t.pct)} hit rate, ${unitsTxt(t.units)} units.`, `${t.name}: ${t.W}-${t.L} en sus apuestas de la EuroLeague, ${pctTxt(t.pct)} de acierto, ${unitsTxt(t.units)} unidades.`, `${t.name}: ${t.W}-${t.L} na tipovima za Evroligu, uspešnost ${pctTxt(t.pct)}, ${unitsTxt(t.units)} jedinica.`, `${t.name}: EuroLeague seçimlerinde ${t.W}-${t.L}, isabet oranı ${pctTxt(t.pct)}, ${unitsTxt(t.units)} birim.`),
-        main: `<section class="article wide"><p class="sub"><a href="${urlFor(LG, 'tipsters')}">Tipsters</a></p><h1>${esc(t.name)}</h1>${bio ? `<p class="lede2">${esc(bio)}</p>` : ''}
+        main: `<section class="article wide"><p class="sub"><a href="${urlFor(LG, 'tipsters')}">Tipsters</a></p><h1>${esc(t.name)}</h1>${bio ? `<p class="lede2">${esc(bio)}</p>` : ''}${PRO_TIPSTERS.includes(t.slug) ? proLockBox('picks') : ''}
 <div class="adv tipstats"><div><span>${T('Επιλογές', 'Picks', 'Apuestas', 'Tipovi', 'Seçimler')}</span><b>${t.W + t.L + t.P}</b></div><div><span>${T('Ν-Η', 'W-L', 'V-D', 'P-I', 'G-M')}</span><b>${t.W}-${t.L}</b></div><div><span>${T('Επιτυχία', 'Hit rate', 'Acierto', 'Uspešnost', 'İsabet oranı')}</span><b>${pctTxt(t.pct)}</b></div><div><span>${T('Μονάδες', 'Units', 'Unidades', 'Jedinice', 'Birim')}</span><b>${unitsTxt(t.units)}</b></div></div>
 <div class="tbl"><table class="tiptbl"><thead><tr><th>${T('Αγ.', 'Rd', 'Jor.', 'Kolo', 'Hft')}</th><th>${T('Αγώνας', 'Game', 'Partido', 'Utakmica', 'Maç')}</th><th>${T('Επιλογή', 'Pick', 'Apuesta', 'Tip', 'Seçim')}</th><th>${T('Απόδοση', 'Odds', 'Cuota', 'Kvota', 'Oran')}</th><th>${T('Σκορ', 'Score', 'Marcador', 'Rezultat', 'Skor')}</th><th>${T('Αποτέλεσμα', 'Result', 'Resultado', 'Ishod', 'Sonuç')}</th></tr></thead><tbody>
 ${t.picks.map(p => `<tr><td>${p.round}</td><td class="l">${gameTxt(p)}</td><td class="l"><a class="pklink" href="${p.url[LG]}">${esc(p.label[LG])}</a>${p.html[LG] ? ` <span class="rk">· ${T('ανάλυση', 'analysis', 'análisis', 'analiza', 'analiz')}</span>` : ''}</td><td>${p.odds ? p.odds.toFixed(2) : '–'}</td><td>${scoreTxt(p) || '–'}</td><td>${p.res === 'unknown' ? `<span class="res q" title="${T('Δεν βρέθηκε ο αγώνας', 'Game not found', 'Partido no encontrado', 'Utakmica nije pronađena', 'Maç bulunamadı')}">?</span>` : resChip(p.res === 'pending' ? 'Q' : p.res)}</td></tr>`).join('')}
@@ -3143,7 +3157,7 @@ ${rgBlock()}
       }
       // ---- BasketballStats PRO (μόνο ελληνικά). Καμία PRO πληροφορία στο HTML: όλα από το PRO API, μόνο για ενεργό PRO.
       if (LG === 'el') {
-        const PAPI = String(process.env.PRO_API ?? CONF.proApi ?? '').replace(/\/$/, ''), SELLER = CONF.proSeller || null;
+        const PAPI = PRO_API_URL, SELLER = CONF.proSeller || null;
         const PR = { monthly: 14.9, season_eb: 49, season: 59, ...(CONF.proPrices || {}) };
         const e2 = n => n.toFixed(2).replace('.', ',') + ' €';
         const proCfg = pg => `<div id="proApp" data-page="${pg}"><script type="application/json">${JSON.stringify({ api: PAPI }).replace(/</g, '\\u003c')}</script>`;
@@ -3406,7 +3420,7 @@ ${pl ? '' : `<section class="glive" id="gLive" hidden><div class="lq tbl"></div>
 <section><h2>${T('Σύγκριση ομάδων', 'Team comparison', 'Comparativa de equipos', 'Poređenje timova', 'Takım karşılaştırması')}</h2><p class="sub">${T('Ανά αγώνα και ανά 100 κατοχές · σε παρένθεση η θέση στη λίγκα · με έντονα το καλύτερο', 'Per game and per 100 possessions · league rank in brackets · better value in bold', 'Por partido y por 100 posesiones · entre paréntesis, el puesto en la liga · en negrita, el mejor', 'Po utakmici i na 100 poseda · u zagradi mesto u ligi · podebljano bolje', 'Maç başına ve 100 hücum başına · parantez içinde lig sırası · daha iyi değer kalın')}</p><div class="tbl"><table id="gFactors"></table></div></section>
 <section><h2>${T('Άμυνα ανά θέση', 'Defense by position', 'Defensa por posición', 'Odbrana po pozicijama', 'Pozisyona göre savunma')}</h2><p class="sub">${T('PIR που δίνει κάθε ομάδα ανά αγώνα σε κάθε θέση · σε παρένθεση η θέση στη λίγκα (1η = δίνει τα περισσότερα)', 'PIR each team allows per game at each position · league rank in brackets (1st = allows the most)', 'PIR que concede cada equipo por partido en cada posición · entre paréntesis, el puesto en la liga (1.º = el que más concede)', 'PIR koji svaki tim prima po utakmici na svakoj poziciji · u zagradi mesto u ligi (1. = prima najviše)', 'Her takımın her pozisyonda maç başına izin verdiği PIR · parantez içinde lig sırası (1. = en çok izin veren)')}</p><div class="tbl"><table id="gPos"></table></div></section>
 <section><h2>${T('Μεταξύ τους φέτος', 'Head-to-head this season', 'Enfrentamientos esta temporada', 'Međusobni dueli ove sezone', 'Bu sezon aralarındaki maçlar')}</h2><div id="gH2H"></div></section>
-<section id="gTipsSec" hidden><h2>${T('Τα προγνωστικά μας', 'Our predictions', 'Nuestros pronósticos', 'Naše prognoze', 'Tahminlerimiz')}</h2><div id="gTips"></div></section>
+${proLockBox('analysis', ` data-gid="E-${r}-${h}-${a}"`)}<section id="gTipsSec" hidden><h2>${T('Τα προγνωστικά μας', 'Our predictions', 'Nuestros pronósticos', 'Naše prognoze', 'Tahminlerimiz')}</h2><div id="gTips"></div></section>
 <p class="note">${T('Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.', 'The projections are statistical and are not betting advice. Betting is for adults only (21+ in Greece, 18+ in most countries). Please gamble responsibly.', 'Las estimaciones son estadísticas y no son un consejo de apuestas. Las apuestas son solo para adultos (+21 en Grecia, +18 en España y la mayoría de países). Juega con responsabilidad.', 'Procene su statističke i nisu savet za klađenje. Klađenje je dozvoljeno samo punoletnim osobama (21+ u Grčkoj, 18+ u Srbiji i većini zemalja). Igrajte odgovorno.', 'Tahminler istatistikseldir ve bahis tavsiyesi değildir. Bahis yalnızca yetişkinler içindir (Yunanistan’da 21+, çoğu ülkede 18+). Sorumlu oyna.')}</p>
 ${doneRounds.includes(r) ? `<p><a class="pread" href="${urlFor(LG, 'recap:' + r)}">${esc(recapTitle(r))} →</a></p>` : ''}<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Όλα τα προγνωστικά της αγωνιστικής →', 'All predictions for the round →', 'Todos los pronósticos de la jornada →', 'Sve prognoze za kolo →', 'Haftanın tüm tahminleri →')}</a></p>
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>

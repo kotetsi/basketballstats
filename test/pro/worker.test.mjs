@@ -220,3 +220,105 @@ test('ADMIN από τη λίστα ADMIN_EMAILS· χωρίς Stripe key δεν �
   const H2 = harness({ STRIPE_SECRET_KEY: '' });
   try { assert.equal((await H2.call('POST', '/v1/checkout', { body: { plan: 'monthly', accept_terms: true, waive_withdrawal: true } })).status, 503); } finally { H2.restore(); }
 });
+
+// ---------------- Βήμα 2: κλείδωμα PRO περιεχομένου (server-side)
+const PICK = { game_id: 'E-11-PAR-BAS', round: 11, match_label: 'Παρτιζάν - Μπασκόνια', starts_at: '2026-11-11T19:45:00Z', player: 'Nikola Tanaskovic', market: 'Over 13.5 Πόντοι + Ριμπάουντ', odds: 1.75, stake: 1, analysis: 'ΜΥΣΤΙΚΗ_ΑΝΑΛΥΣΗ: 29 και 27 λεπτά στους δύο τελευταίους αγώνες.' };
+const SECRET = ['Tanaskovic', '13.5', '1.75', 'ΜΥΣΤΙΚΗ_ΑΝΑΛΥΣΗ', 'Ριμπάουντ'];
+async function adminAndPick(H) {
+  const adm = await login(H, 'owner@example.com');
+  const r = await H.call('POST', '/v1/admin/picks', { token: adm, body: PICK });
+  assert.equal(r.status, 201);
+  return { adm, id: (await r.json()).id };
+}
+async function proToken(H, email = 'pro@example.com') {
+  await fulfillCheckout(H.env, H.env.DB, seasonSession('cs_test_' + email.length, email));
+  return login(H, email);
+}
+
+test('FREE (χωρίς σύνδεση ή συνδεδεμένος FREE) δεν λαμβάνει ΤΙΠΟΤΑ από το pick: ούτε παίκτη, αγορά, απόδοση, μονάδες, ανάλυση', async () => {
+  const H = harness();
+  try {
+    await adminAndPick(H);
+    for (const token of [undefined, await login(H, 'free@example.com'), 'not-a-real-session-token-xxxxxxxx']) {
+      const r = await H.call('GET', '/v1/picks', { token }), raw = await r.text();
+      assert.equal(r.status, 200);
+      for (const s of SECRET) assert.ok(!raw.includes(s), `διέρρευσε «${s}»`);
+      const j = JSON.parse(raw);
+      assert.equal(j.pro, false); assert.equal(j.picks.length, 1);
+      assert.deepEqual(Object.keys(j.picks[0]).sort(), ['game_id', 'id', 'locked', 'match_label', 'published_at', 'result', 'round', 'settled_at', 'starts_at']);
+      assert.equal(j.picks[0].locked, true); assert.equal(j.picks[0].match_label, 'Παρτιζάν - Μπασκόνια');
+    }
+  } finally { H.restore(); }
+});
+
+test('PRO βλέπει παίκτη, αγορά, απόδοση, μονάδες, ανάλυση, ώρα δημοσίευσης· η λήξη τα ξανακλειδώνει', async () => {
+  const H = harness();
+  try {
+    await adminAndPick(H);
+    const tok = await proToken(H);
+    const j = await (await H.call('GET', '/v1/picks', { token: tok })).json();
+    const p = j.picks[0];
+    assert.equal(j.pro, true); assert.equal(p.locked, false);
+    assert.equal(p.player, 'Nikola Tanaskovic'); assert.equal(p.market, 'Over 13.5 Πόντοι + Ριμπάουντ'); assert.equal(p.odds, 1.75); assert.equal(p.stake, 1);
+    assert.match(p.analysis, /ΜΥΣΤΙΚΗ_ΑΝΑΛΥΣΗ/); assert.ok(p.published_at);
+    // λήξη: ο ίδιος χρήστης ξαναγίνεται FREE
+    await H.env.DB.prepare("UPDATE subscriptions SET current_period_end = '2020-01-01T00:00:00Z'").run();
+    const raw = await (await H.call('GET', '/v1/picks', { token: tok })).text();
+    for (const s of SECRET) assert.ok(!raw.includes(s), `μετά τη λήξη διέρρευσε «${s}»`);
+  } finally { H.restore(); }
+});
+
+test('προγραμματισμένο pick (μελλοντική δημοσίευση) δεν φαίνεται σε κανέναν πριν την ώρα του· διαγραμμένο ποτέ', async () => {
+  const H = harness();
+  try {
+    const adm = await login(H, 'owner@example.com');
+    await H.call('POST', '/v1/admin/picks', { token: adm, body: { ...PICK, published_at: new Date(Date.now() + 3600e3).toISOString() } });
+    const tok = await proToken(H);
+    assert.equal((await (await H.call('GET', '/v1/picks', { token: tok })).json()).picks.length, 0);
+    assert.equal((await (await H.call('GET', '/v1/admin/picks', { token: adm })).json()).picks.length, 1, 'ο admin το βλέπει');
+    const { id } = await adminAndPick(H);
+    await H.call('DELETE', `/v1/admin/picks/${id}`, { token: adm });
+    assert.equal((await (await H.call('GET', '/v1/picks', { token: tok })).json()).picks.length, 0);
+  } finally { H.restore(); }
+});
+
+test('Ανάλυση Αγώνα: FREE = μόνο «κλειδωμένο», PRO = πλήρες κείμενο', async () => {
+  const H = harness();
+  try {
+    const adm = await login(H, 'owner@example.com');
+    assert.equal((await H.call('PUT', '/v1/admin/analyses/E-11-PAN-BAR', { token: adm, body: { body: 'ΚΡΥΦΟ: η Μπαρτσελόνα χωρίς Πάντερ.' } })).status, 200);
+    const free = await H.call('GET', '/v1/analyses/E-11-PAN-BAR'), raw = await free.text();
+    assert.ok(!raw.includes('ΚΡΥΦΟ') && !raw.includes('Πάντερ')); assert.equal(JSON.parse(raw).locked, true);
+    const pro = await (await H.call('GET', '/v1/analyses/E-11-PAN-BAR', { token: await proToken(H) })).json();
+    assert.equal(pro.locked, false); assert.match(pro.body, /ΚΡΥΦΟ/);
+    assert.equal((await H.call('GET', '/v1/analyses/E-11-OLY-PAN')).status, 404);
+    assert.equal((await H.call('GET', '/v1/analyses/..%2Fx')).status, 404);
+  } finally { H.restore(); }
+});
+
+test('admin: μόνο ο ADMIN γράφει· επικύρωση φόρμας· κρίση → δημόσιο Track Record (χωρίς ανάλυση) με ήττες', async () => {
+  const H = harness();
+  try {
+    assert.equal((await H.call('POST', '/v1/admin/picks', { body: PICK })).status, 401);
+    const pro = await proToken(H);
+    assert.equal((await H.call('POST', '/v1/admin/picks', { token: pro, body: PICK })).status, 403, 'PRO δεν είναι admin');
+    const { adm, id } = await adminAndPick(H);
+    const bad = await H.call('POST', '/v1/admin/picks', { token: adm, body: { ...PICK, odds: 0.5, game_id: 'x; DROP TABLE picks' } });
+    assert.equal(bad.status, 400); assert.deepEqual((await bad.json()).fields.sort(), ['game_id', 'odds']);
+    const r2 = await (await H.call('POST', '/v1/admin/picks', { token: adm, body: { ...PICK, market: 'Under 175.5', player: null, odds: 1.73, stake: 2 } })).json();
+    await H.call('POST', `/v1/admin/picks/${id}/settle`, { token: adm, body: { result: 'won' } });
+    await H.call('POST', `/v1/admin/picks/${r2.id}/settle`, { token: adm, body: { result: 'lost' } });
+    const tr = await (await H.call('GET', '/v1/track-record')).json();
+    assert.equal(tr.summary.total, 2); assert.equal(tr.summary.won, 1); assert.equal(tr.summary.lost, 1);
+    assert.equal(tr.summary.net_units, 0.75 - 2); assert.ok(Math.abs(tr.summary.roi - (-1.25 / 3)) < 1e-9);
+    assert.ok(tr.picks.every(p => !('analysis' in p)), 'ανάλυση μόνο για PRO');
+    assert.ok(tr.picks.some(p => p.result === 'lost' && p.profit === -2), 'οι ήττες φαίνονται');
+    // διόρθωση από τον admin → η σύνοψη ξαναϋπολογίζεται
+    await H.call('PATCH', `/v1/admin/picks/${r2.id}`, { token: adm, body: { odds: 2.0, nonsense: 'x' } });
+    await H.call('POST', `/v1/admin/picks/${r2.id}/settle`, { token: adm, body: { result: 'void' } });
+    const tr2 = await (await H.call('GET', '/v1/track-record')).json();
+    assert.equal(tr2.summary.void, 1); assert.equal(tr2.summary.net_units, 0.75);
+    const log = (await H.env.DB.prepare("SELECT action FROM audit_log WHERE actor = 'owner@example.com'").all()).results.map(x => x.action);
+    assert.ok(log.includes('pick_create') && log.includes('pick_settle') && log.includes('pick_edit'));
+  } finally { H.restore(); }
+});

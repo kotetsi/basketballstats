@@ -102,3 +102,32 @@ CREATE TABLE IF NOT EXISTS audit_log (
   action TEXT NOT NULL,
   detail TEXT
 );
+
+-- ---- Βήμα 2: PRO περιεχόμενο (ΜΟΝΟ εδώ, ποτέ στο δημόσιο repo/site)
+CREATE TABLE IF NOT EXISTS picks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  game_id TEXT NOT NULL,                -- π.χ. E-11-PAR-BAS (ίδια μορφή με το site)
+  round INTEGER NOT NULL,
+  match_label TEXT NOT NULL,            -- π.χ. «Παρτιζάν - Μπασκόνια»
+  starts_at TEXT,
+  player TEXT,                          -- κενό για αγορές ομάδας (π.χ. under)
+  market TEXT NOT NULL,                 -- π.χ. «Over 13.5 Πόντοι + Ριμπάουντ»
+  odds REAL NOT NULL,                   -- απόδοση αναφοράς
+  stake REAL NOT NULL DEFAULT 1,        -- μονάδες
+  analysis TEXT NOT NULL DEFAULT '',
+  published_at TEXT NOT NULL,
+  result TEXT NOT NULL DEFAULT 'pending' CHECK (result IN ('pending','won','lost','void')),
+  settled_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  deleted_at TEXT
+);
+CREATE INDEX IF NOT EXISTS picks_pub ON picks(published_at);
+
+CREATE TABLE IF NOT EXISTS analyses (
+  game_id TEXT PRIMARY KEY,
+  body TEXT NOT NULL,
+  published_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);

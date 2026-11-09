@@ -9,8 +9,13 @@
 //   POST /v1/checkout/claim {session_id}       → σύνδεση μετά την πληρωμή (μία φορά ανά checkout)
 //   POST /v1/portal                            → {url} Stripe Customer Portal (ακύρωση με 1 κλικ, κάρτα, αποδείξεις)
 //   POST /v1/stripe/webhook                    → υπογεγραμμένα events της Stripe
+//   GET  /v1/picks                             → picks: PRO = όλα τα πεδία· FREE = μόνο αγώνας/ώρα (κλειδωμένο) για όσα δεν κρίθηκαν
+//   GET  /v1/analyses/:game_id                 → Ανάλυση Αγώνα: μόνο PRO· FREE = {locked:true}
+//   GET  /v1/track-record                      → δημόσιο: όλα τα κριμένα picks (με τις ήττες) + σύνοψη
+//   POST/PATCH/DELETE /v1/admin/picks[/:id], POST /v1/admin/picks/:id/settle, PUT /v1/admin/analyses/:game_id  (μόνο ADMIN)
 import { plans, planAvailable, roleOf, normEmail, randomToken, sha256, verifyStripeSignature, stripeForm, vatSplit, invoiceDescription, monthLabel } from './lib.js';
 import { sendEmail } from './emails.js';
+import { viewPick, trackSummary, validatePick } from './content.js';
 
 const iso = (t = Date.now()) => new Date(t).toISOString();
 const DAY = 864e5;
@@ -236,6 +241,71 @@ async function route(req, env, H) {
     if (!user.stripe_customer) return json({ error: 'no_customer' }, 400, H);
     const s = await stripe(env, 'POST', 'billing_portal/sessions', { customer: user.stripe_customer, return_url: `${site(env)}/my-account/` });
     return json({ url: s.url }, 200, H);
+  }
+  // ---- PRO περιεχόμενο
+  const livePicks = async (where = '', args = []) => (await db.prepare(`SELECT * FROM picks WHERE deleted_at IS NULL AND published_at <= ? ${where} ORDER BY published_at DESC LIMIT 500`).bind(iso(), ...args).all()).results || [];
+  if (p === '/v1/picks' && M === 'GET') {
+    const user = await authUser(req, db), A = await accessOf(env, db, user);
+    const rows = await livePicks(url.searchParams.get('status') === 'open' ? "AND result = 'pending'" : '');
+    return json({ pro: A.pro, picks: rows.map(r => viewPick(r, A.pro)) }, 200, H);
+  }
+  let m = /^\/v1\/analyses\/([EU]-\d{1,2}-[A-Z]{3}-[A-Z]{3})$/.exec(p);
+  if (m && M === 'GET') {
+    const user = await authUser(req, db), A = await accessOf(env, db, user);
+    const a = await db.prepare('SELECT * FROM analyses WHERE game_id = ? AND published_at <= ?').bind(m[1], iso()).first();
+    if (!a) return json({ game_id: m[1], exists: false }, 404, H);
+    return json(A.pro ? { game_id: a.game_id, exists: true, locked: false, body: a.body, published_at: a.published_at } : { game_id: a.game_id, exists: true, locked: true }, 200, H);
+  }
+  if (p === '/v1/track-record' && M === 'GET') {
+    const rows = (await livePicks("AND result != 'pending'")).map(r => viewPick(r, false));
+    return json({ summary: trackSummary(rows), picks: rows }, 200, H);
+  }
+  if (p.startsWith('/v1/admin/')) {
+    const user = await authUser(req, db), A = await accessOf(env, db, user);
+    if (A.role !== 'ADMIN') return json({ error: 'forbidden' }, user ? 403 : 401, H);
+    const actor = user.email, now = iso();
+    if (p === '/v1/admin/picks' && M === 'GET') return json({ picks: ((await db.prepare('SELECT * FROM picks WHERE deleted_at IS NULL ORDER BY published_at DESC').all()).results || []).map(r => viewPick(r, true)) }, 200, H);
+    if (p === '/v1/admin/picks' && M === 'POST') {
+      const v = validatePick(await readJson(req)); if (!v.ok) return json({ error: 'invalid', fields: v.errors }, 400, H);
+      const x = v.value;
+      const r = await db.prepare('INSERT INTO picks (game_id, round, match_label, starts_at, player, market, odds, stake, analysis, published_at, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+        .bind(x.game_id, x.round, x.match_label, x.starts_at, x.player || null, x.market, x.odds, x.stake, x.analysis, x.published_at, now, now).run();
+      await audit(db, actor, 'pick_create', { id: r.meta.last_row_id });
+      return json({ id: r.meta.last_row_id }, 201, H);
+    }
+    m = /^\/v1\/admin\/picks\/(\d+)(\/settle)?$/.exec(p);
+    if (m) {
+      const id = +m[1], cur = await db.prepare('SELECT * FROM picks WHERE id = ? AND deleted_at IS NULL').bind(id).first();
+      if (!cur) return json({ error: 'not_found' }, 404, H);
+      if (m[2] && M === 'POST') {
+        const res = (await readJson(req)).result;
+        if (!['won', 'lost', 'void', 'pending'].includes(res)) return json({ error: 'result' }, 400, H);
+        await db.prepare('UPDATE picks SET result = ?, settled_at = ?, updated_at = ? WHERE id = ?').bind(res, res === 'pending' ? null : now, now, id).run();
+        await audit(db, actor, 'pick_settle', { id, from: cur.result, to: res });
+        return json({ ok: true }, 200, H);
+      }
+      if (!m[2] && M === 'PATCH') {
+        const v = validatePick(await readJson(req), true); if (!v.ok) return json({ error: 'invalid', fields: v.errors }, 400, H);
+        const ks = Object.keys(v.value); if (!ks.length) return json({ ok: true }, 200, H);
+        await db.prepare(`UPDATE picks SET ${ks.map(k => `${k} = ?`).join(', ')}, updated_at = ? WHERE id = ?`).bind(...ks.map(k => v.value[k]), now, id).run();
+        await audit(db, actor, 'pick_edit', { id, fields: ks });
+        return json({ ok: true }, 200, H);
+      }
+      if (!m[2] && M === 'DELETE') {
+        await db.prepare('UPDATE picks SET deleted_at = ?, updated_at = ? WHERE id = ?').bind(now, now, id).run();
+        await audit(db, actor, 'pick_delete', { id, was: { market: cur.market, result: cur.result } });
+        return json({ ok: true }, 200, H);
+      }
+    }
+    m = /^\/v1\/admin\/analyses\/([EU]-\d{1,2}-[A-Z]{3}-[A-Z]{3})$/.exec(p);
+    if (m && M === 'PUT') {
+      const b = await readJson(req), body = typeof b.body === 'string' ? b.body.trim().slice(0, 20000) : '';
+      if (!body) return json({ error: 'body' }, 400, H);
+      const pub = b.published_at && !isNaN(Date.parse(b.published_at)) ? b.published_at : now;
+      await db.prepare('INSERT INTO analyses (game_id, body, published_at, created_at, updated_at) VALUES (?,?,?,?,?) ON CONFLICT(game_id) DO UPDATE SET body = excluded.body, published_at = excluded.published_at, updated_at = excluded.updated_at').bind(m[1], body, pub, now, now).run();
+      await audit(db, actor, 'analysis_put', { game_id: m[1] });
+      return json({ ok: true }, 200, H);
+    }
   }
   return json({ error: 'not_found' }, 404, H);
 }

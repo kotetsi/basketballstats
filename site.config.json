@@ -8,5 +8,10 @@
   "adsenseClient": "",
   "adsenseSlot": "",
   "gaId": "G-HVXPNP3173",
-  "fantasyVisionEndpoint": ""
+  "fantasyVisionEndpoint": "",
+  "proApi": "",
+  "proLock": false,
+  "proTipsters": [
+    "high-fidelity"
+  ]
 }

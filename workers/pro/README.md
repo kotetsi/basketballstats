@@ -33,3 +33,13 @@ node --test test/pro/worker.test.mjs                                   # Worker 
 PRO_API=http://localhost:8787 node build.mjs --offline && node test/e2e/pro.e2e.mjs   # browser, κινητό, από άκρη σε άκρη
 ```
 Χρειάζεται Node 22+ (node:sqlite).
+
+## Κλείδωμα περιεχομένου (Βήμα 2) — ΑΝΕΝΕΡΓΟ μέχρι να το αποφασίσεις
+`site.config.json` → `"proLock": false`: τα tips μένουν ανοιχτά όπως πάντα. Με `true`:
+- οι **ανοιχτές** επιλογές των tipsters του `proTipsters` δεν μπαίνουν πουθενά στο στατικό site (HTML, JSON, sitemap)·
+  οι κριμένες μένουν δημόσιες. Τα νέα picks μπαίνουν από το admin του PRO API (`POST /v1/admin/picks`), όχι στο `tipsters/*.md`
+  (το repo είναι δημόσιο).
+- Tipsters και σελίδες αγώνων δείχνουν κλειδωμένο κουτί που γεμίζει από το API: FREE → «High Fidelity Pick - Δες το με PRO»
+  (μόνο αγώνας/ώρα), PRO → παίκτης, αγορά, απόδοση, μονάδες, ανάλυση, ώρα δημοσίευσης.
+- Απόδειξη: `node test/e2e/pro-lock.e2e.mjs` (σαρώνει όλο το dist/ σε ανοιχτό και κλειδωμένο build) και
+  `PRO_LOCK=1 PRO_API=http://localhost:8787 node build.mjs --offline && node test/e2e/pro.e2e.mjs` (ελέγχει κάθε απάντηση δικτύου του FREE).
