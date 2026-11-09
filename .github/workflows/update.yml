@@ -120,3 +120,5 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 1800000   # ~16.000 σελίδες: ο συγχρονισμός αρχείων μπορεί να ξεπεράσει τα 10 λεπτά (προεπιλογή)
