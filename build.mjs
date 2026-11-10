@@ -1134,6 +1134,8 @@ async function main() {
     if (k === 'cmptp') return B(lg) + P.compare + '/' + CMP_TM[lg] + '/' + PAIR.pairSlug(v.split('|').map(c => TEAMS[c][TEAM_IDX[lg][1]])) + '/';
     if (k === 'cmptu') return B(lg) + P.compare + '/' + CMP_TM[lg] + '/eurocup/' + PAIR.pairSlug(v.split('|').map(c => ECSLUG[c])) + '/';
     if (k === 'cmppp') return B(lg) + P.compare + '/' + CMP_PL[lg] + '/' + PAIR.pairSlug(v.split('|').map(id => PSLUG[id])) + '/';
+    if (k === 'fxcap' || k === 'fxtotr') return B(lg) + PATHS[lg].fantasy + '/' + ({ el: 'agonistiki-', en: 'round-', es: 'jornada-', sr: 'kolo-', tr: 'hafta-' })[lg] + v + '/' + (k === 'fxcap' ? { el: 'arxigoi', en: 'captains', es: 'capitanes', sr: 'kapiteni', tr: 'kaptanlar' } : { el: 'omada-tis-agonistikis', en: 'team-of-the-round', es: 'equipo-de-la-jornada', sr: 'tim-kola', tr: 'haftanin-takimi' })[lg] + '/';
+    if (k === 'fxrounds') return B(lg) + PATHS[lg].fantasy + '/' + ({ el: 'agonistikes', en: 'rounds', es: 'jornadas', sr: 'kola', tr: 'haftalar' })[lg] + '/';
     if (k === 'fxrules') return B(lg) + PATHS[lg].fantasy + '/' + ({ el: 'odigos', en: 'how-to-play', es: 'como-jugar', sr: 'vodic', tr: 'nasil-oynanir' })[lg] + '/';
     if (k === 'mvp') return B(lg) + ({ el: 'mvp-euroleague', en: 'euroleague-mvp', es: 'mvp-euroliga', sr: 'mvp-evrolige', tr: 'euroleague-mvp' })[lg] + '/';
     if (k === 'inj') return B(lg) + ({ el: 'traumaties', en: 'injury-report', es: 'lesionados', sr: 'povrede', tr: 'sakatlik-raporu' })[lg] + '/';
@@ -2312,7 +2314,8 @@ ${notes}</article>`;
 <li><a href="${urlFor(LG, 'sched')}">${T('Πρόγραμμα', 'Schedule', 'Calendario', 'Raspored', 'Fikstür')}</a>: ${T('οι διπλές εβδομάδες δίνουν δύο αγώνες άρα διπλή ευκαιρία για πόντους.', 'double-round weeks mean two games and twice the scoring chances.', 'las semanas dobles son dos partidos y el doble de opciones de puntuar.', 'duple nedelje znače dve utakmice i duplo više šansi za bodove.', 'çift maç haftaları iki maç, yani iki kat puan şansı demek.')}</li></ol>
 </article>`,
       ld: crumbs([[SITE_NAME, B(LG)], ['EuroLeague Fantasy', urlFor(LG, 'fantasy')], [T('Οδηγός', 'Guide', 'Guía', 'Vodič', 'Rehber'), urlFor(LG, 'fxrules')]]) });
-    await page('fantasy', { view: 'fantasy', extra: fxInj + FXDASH,
+    const fxRoundStrip = `<section class="fxdash"><p class="leadnav">${FXD?.players?.length ? `<a href="${urlFor(LG, 'fxcap:' + FXD.round)}">👑 ${T(`Αρχηγοί ${FXD.round}ης αγωνιστικής`, `Round ${FXD.round} captains`, `Capitanes jornada ${FXD.round}`, `Kapiteni ${FXD.round}. kola`, `${FXD.round}. hafta kaptanları`)}</a>` : ''}${doneRounds.length ? `<a href="${urlFor(LG, 'fxtotr:' + doneRounds[0])}">⭐ ${T(`Ομάδα της ${doneRounds[0]}ης αγωνιστικής`, `Team of Round ${doneRounds[0]}`, `Equipo de la jornada ${doneRounds[0]}`, `Tim ${doneRounds[0]}. kola`, `${doneRounds[0]}. haftanın takımı`)}</a>` : ''}<a href="${urlFor(LG, 'fxrounds')}">📅 ${T('Όλες οι αγωνιστικές', 'All rounds', 'Todas las jornadas', 'Sva kola', 'Tüm haftalar')}</a></p></section>`;
+    await page('fantasy', { view: 'fantasy', extra: fxRoundStrip + fxInj + FXDASH,
       title: T(`EuroLeague Fantasy προτάσεις ${lastRound + 1}ης αγωνιστικής (tips): ποιους να βάλεις | ${SITE_NAME}`, `EuroLeague Fantasy tips & picks for Round ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy consejos jornada ${lastRound + 1}: a quién fichar | ${SITE_NAME}`, `Evroliga Fantazi (Fantasy) saveti za ${lastRound + 1}. kolo: koga izabrati | ${SITE_NAME}`, `${lastRound + 1}. hafta EuroLeague Fantasy tavsiyeleri ve seçimler | ${SITE_NAME}`),
       desc: T(`Εκτιμήσεις PIR ανά θέση, δυσκολία προγράμματος, διπλές εβδομάδες και η πεντάδα της αγωνιστικής για το EuroLeague Fantasy.`,
         `Projected PIR by position, schedule difficulty, double weeks and the team of the round for EuroLeague Fantasy.`, `PIR estimado por posición, dificultad del calendario, semanas dobles y el quinteto de la jornada para el EuroLeague Fantasy.`, `Procena PIR-a po poziciji, težina rasporeda, duple nedelje i idealna petorka kola za EuroLeague Fantasy.`, `EuroLeague Fantasy için pozisyona göre tahmini PIR, fikstür zorluğu, çift maç haftaları ve haftanın kadrosu.`) });
@@ -2375,10 +2378,131 @@ ${Object.keys(POSF).map(ps => `<h2>${esc(POSF[ps])}</h2>${tbl(picks[ps])}`).join
 ${gems.length ? `<h2>${T('Κρυφά διαμάντια', 'Hidden gems', 'Joyas ocultas', 'Skriveni biseri', 'Gizli cevherler')}</h2><p class="sub">${T('Παίκτες με χαμηλότερο μέσο όρο αλλά με ματς απέναντι σε άμυνα που δίνει πολλά στη θέση τους', 'Players with lower averages but a matchup against a defense that gives up a lot at their position', 'Jugadores con menos promedio pero ante una defensa que concede mucho en su posición', 'Igrači sa nižim prosekom, ali protiv odbrane koja mnogo prima na njihovoj poziciji', 'Ortalaması daha düşük ama kendi pozisyonunda çok şey veren bir savunmayla eşleşen oyuncular')}</p>${tbl(gems)}` : ''}
 ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: tough matchup', 'Cuidado: rival difícil', 'Oprez: težak meč', 'Dikkat: zor eşleşme')}</h2><p class="sub">${T('Μεγάλα ονόματα που παίζουν με άμυνα που δίνει λίγα στη θέση τους', 'Big names facing a defense that gives up little at their position', 'Grandes nombres ante una defensa que concede poco en su posición', 'Velika imena protiv odbrane koja malo prima na njihovoj poziciji', 'Kendi pozisyonunda az şey veren bir savunmaya karşı oynayan büyük isimler')}</p>${tbl(avoid)}` : ''}
 <p class="note">${T('Η εκτίμηση συνδυάζει τον μέσο όρο PIR της σεζόν, τη φόρμα των 3 τελευταίων αγώνων, το PIR που δίνει ο αντίπαλος στη θέση του παίκτη και την έδρα. Μετράνε όσοι έχουν τουλάχιστον 3 αγώνες και 15 λεπτά μέσο όρο· οι τραυματίες δεν προτείνονται.', 'The projection combines season PIR average, form over the last 3 games, the PIR the opponent allows at the player’s position and home court. Players with at least 3 games and 15 minutes per game; injured players are excluded.', 'La estimación combina el PIR medio de la temporada, la forma de los 3 últimos partidos, el PIR que concede el rival en la posición del jugador y el factor cancha. Cuentan los jugadores con al menos 3 partidos y 15 minutos de media; los lesionados no se recomiendan.', 'Procena kombinuje prosečan PIR sezone, formu u poslednje 3 utakmice, PIR koji protivnik prima na poziciji igrača i domaći teren. Računaju se igrači sa najmanje 3 utakmice i 15 minuta u proseku; povređeni se ne predlažu.', 'Tahmin; sezonun PIR ortalamasını, son 3 maçtaki formu, rakibin oyuncunun pozisyonunda izin verdiği PIR değerini ve iç saha faktörünü birleştirir. En az 3 maç ve maç başına 15 dakika oynamış oyuncular dahildir; sakat oyuncular önerilmez.')}</p>
-<p class="leadnav">${prevNext[1] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[1])}">← ${esc(rdTxt0(prevNext[1]))}</a>` : ''}<a href="${urlFor(LG, 'fantasy')}">Fantasy</a>${prevNext[0] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[0])}">${esc(rdTxt0(prevNext[0]))} →</a>` : ''}</p>
+<p class="leadnav">${prevNext[1] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[1])}">← ${esc(rdTxt0(prevNext[1]))}</a>` : ''}<a href="${urlFor(LG, 'fantasy')}">Fantasy</a><a href="${urlFor(LG, 'fxrounds')}">${T('Όλες οι αγωνιστικές', 'All rounds', 'Todas las jornadas', 'Sva kola', 'Tüm haftalar')}</a>${prevNext[0] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[0])}">${esc(rdTxt0(prevNext[0]))} →</a>` : ''}</p>
 </article>`;
       await simplePage('fpick:' + r, { view: 'articles', title: `${fTitle(r)} | ${SITE_NAME}`, desc: intro.slice(0, 300), main,
         ld: [{ '@context': 'https://schema.org', '@type': 'Article', headline: fTitle(r), inLanguage: LG, datePublished: data.fetchedAt.slice(0, 10), dateModified: data.fetchedAt.slice(0, 10), author: { '@type': 'Organization', name: SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME } }, crumbs([[SITE_NAME, B(LG)], [T('Άρθρα', 'Articles', 'Artículos', 'Članci', 'Makaleler'), urlFor(LG, 'articles')], [fTitle(r), urlFor(LG, 'fpick:' + r)]])] });
+    }
+
+    // ---- Fantasy ανά αγωνιστική: αρχηγοί (από τις πραγματικές εκτιμήσεις του μοντέλου), ομάδα της αγωνιστικής
+    // (από τα επίσημα PIR) και σελίδα με όλες τις αγωνιστικές. Μόνο πραγματικά δεδομένα: όπου λείπουν, η σελίδα δεν βγαίνει.
+    {
+      const pByC = Object.fromEntries(players.map(p => [p.c, p]));
+      const pn = q => (LG === 'el' && GRN[q.n]) || niceName(q.n);
+      const pA = q => `<a href="${urlFor(LG, 'player:' + q.s)}">${esc(pn(q))}</a>`;
+      const tmOf = q => q.t.split(';').pop();
+      const actOf = (q, r) => { const x = q.g.find(z => z[0] === r); return x ? (x[7] > 0 ? x[25] : 0) : null; };   // null = δεν έχει παίξει ακόμα / δεν βρέθηκε
+      const gameOf = (c, r) => league.games.find(g => g[0] === r && (g[2] === c || g[3] === c));
+      const LOCR = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG];
+      const mtA = (c, r) => { const g = gameOf(c, r); if (!g) return '–'; const home = g[2] === c, o = home ? g[3] : g[2]; return `${home ? 'vs' : '@'} <a href="${urlFor(LG, `game:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(o))}</a>`; };
+      const OUT = new Set(['injured', 'out', 'rest']);
+      // εκτιμήσεις ανά αγωνιστική: η τρέχουσα από το latest.json, οι προηγούμενες από το τελευταίο στιγμιότυπο πριν από την αγωνιστική
+      const CAP = {};
+      try {
+        const hdir = path.join(ROOT, 'data', 'fantasy', 'history');
+        const files = (await fs.readdir(hdir)).filter(f => /^r\d+_.*\.json$/.test(f)).sort();
+        for (const f of files) {
+          const h = JSON.parse(await fs.readFile(path.join(hdir, f), 'utf8'));
+          if (!h?.p?.length) continue;
+          CAP[h.round] = { gen: h.generated, model: h.model, rows: h.p.filter(x => pByC[x[0]]).map(x => ({ q: pByC[x[0]], pp: x[2], p10: x[3], p90: x[5], st: x[6], day: null })) };
+        }
+      } catch { }
+      if (FXD?.players?.length) CAP[FXD.round] = { gen: FXD.generated, model: FXD.model, days: FXD.days, rows: FXD.players.filter(x => pByC[x.c]).map(x => ({ q: pByC[x.c], pp: x.pp, p10: x.p10, p90: x.p90, st: x.status, day: x.day })) };
+      const capRounds = Object.keys(CAP).map(Number).filter(r => CAP[r].rows.length >= 20).sort((a, b) => b - a);
+      const totrRounds = doneRounds.filter(r => players.filter(q => actOf(q, r) > 0).length >= 40);
+      const capT = r => T(`Ποιον να βάλω αρχηγό στο EuroLeague Fantasy: ${r}η αγωνιστική`, `EuroLeague Fantasy Round ${r} captain picks`, `EuroLeague Fantasy jornada ${r}: a quién hacer capitán`, `Evroliga Fantasy ${r}. kolo: koga za kapitena`, `EuroLeague Fantasy ${r}. hafta: kim kaptan olmalı`);
+      const totrT = r => T(`Η ομάδα της ${r}ης αγωνιστικής στο EuroLeague Fantasy`, `EuroLeague Fantasy Team of the Round ${r}`, `El equipo de la jornada ${r} del EuroLeague Fantasy`, `Tim ${r}. kola u Evroliga Fantasy`, `EuroLeague Fantasy ${r}. haftanın takımı`);
+      const roundsT = T('EuroLeague Fantasy ανά αγωνιστική: αρχηγοί, ομάδα της αγωνιστικής, προτάσεις', 'EuroLeague Fantasy round by round: captains, team of the round, tips', 'EuroLeague Fantasy jornada a jornada: capitanes, equipo de la jornada, consejos', 'Evroliga Fantasy po kolima: kapiteni, tim kola, saveti', 'Hafta hafta EuroLeague Fantasy: kaptanlar, haftanın takımı, tavsiyeler');
+      const navR = r => `<p class="leadnav"><a href="${urlFor(LG, 'fxrounds')}">${T('Όλες οι αγωνιστικές', 'All rounds', 'Todas las jornadas', 'Sva kola', 'Tüm haftalar')}</a>${fRounds.includes(r) ? `<a href="${urlFor(LG, 'fpick:' + r)}">${T('Προτάσεις', 'Tips', 'Consejos', 'Saveti', 'Tavsiyeler')} · ${esc(rdTxt0(r))}</a>` : ''}${capRounds.includes(r) ? `<a href="${urlFor(LG, 'fxcap:' + r)}">${T('Αρχηγοί', 'Captains', 'Capitanes', 'Kapiteni', 'Kaptanlar')} · ${esc(rdTxt0(r))}</a>` : ''}${totrRounds.includes(r) ? `<a href="${urlFor(LG, 'fxtotr:' + r)}">${T('Ομάδα της αγωνιστικής', 'Team of the round', 'Equipo de la jornada', 'Tim kola', 'Haftanın takımı')}</a>` : ''}${doneRounds.includes(r) ? `<a href="${urlFor(LG, 'recap:' + r)}">${esc(rdTxt0(r))} · ${T('σε αριθμούς', 'in numbers', 'en cifras', 'u brojkama', 'rakamlarla')}</a>` : ''}<a href="${urlFor(LG, 'fantasy')}">Fantasy</a></p>`;
+      const artLd = (h, key, d) => [{ '@context': 'https://schema.org', '@type': 'Article', headline: h, inLanguage: LG, datePublished: d, dateModified: data.fetchedAt.slice(0, 10), author: { '@type': 'Organization', name: SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME } },
+        crumbs([[SITE_NAME, B(LG)], ['Fantasy', urlFor(LG, 'fantasy')], [T('Αγωνιστικές', 'Rounds', 'Jornadas', 'Kola', 'Haftalar'), urlFor(LG, 'fxrounds')], [h, urlFor(LG, key)]])];
+      const H = { pl: T('Παίκτης', 'Player', 'Jugador', 'Igrač', 'Oyuncu'), g: T('Αγώνας', 'Game', 'Partido', 'Utakmica', 'Maç'), pp: T('Εκτ. PIR', 'Proj. PIR', 'PIR est.', 'Proc. PIR', 'Tahmini PIR'), cap: T('Ως αρχηγός', 'As captain', 'Como capitán', 'Kao kapiten', 'Kaptan olarak'), fl: T('Κάτω όριο', 'Floor', 'Suelo', 'Donja granica', 'Taban'), ce: T('Ταβάνι', 'Ceiling', 'Techo', 'Plafon', 'Tavan'), act: T('Έφερε (PIR)', 'Scored (PIR)', 'Hizo (PIR)', 'Ostvario (PIR)', 'Gerçekleşen (PIR)') };
+
+      // -- αρχηγοί
+      for (const r of capRounds) {
+        const C = CAP[r], cur = FXD && r === FXD.round;
+        const pool = C.rows.filter(x => !OUT.has(x.st) && gameOf(tmOf(x.q), r)).sort((a, b) => b.pp - a.pp);
+        const anyAct = pool.some(x => actOf(x.q, r) != null);
+        const head = `<tr><th class="l">${H.pl}</th><th class="l">${H.g}</th><th>${H.pp}</th><th>${H.cap}</th><th>${H.fl}</th><th>${H.ce}</th>${anyAct ? `<th>${H.act}</th>` : ''}</tr>`;
+        const row = x => { const a = actOf(x.q, r); return `<tr><td class="l">${pA(x.q)} <small>${esc(tName(tmOf(x.q)))}${x.st === 'doubtful' ? ' · ' + T('αμφίβολος', 'doubtful', 'duda', 'neizvestan', 'şüpheli') : ''}</small></td><td class="l">${mtA(tmOf(x.q), r)}</td><td><b>${f1(x.pp)}</b></td><td>${f1(2 * x.pp)}</td><td>${f1(x.p10)}</td><td>${f1(x.p90)}</td>${anyAct ? `<td><b>${a == null ? '–' : a}</b></td>` : ''}</tr>`; };
+        const tbl = arr => `<div class="tbl"><table><thead>${head}</thead><tbody>${arr.map(row).join('')}</tbody></table></div>`;
+        let body = '';
+        if (cur && C.days?.length > 1 && pool.some(x => x.day != null)) {
+          body = C.days.map((d, i) => { const L = pool.filter(x => x.day === i + 1).slice(0, 5); if (!L.length) return ''; const dl = new Date(d + 'T12:00:00Z').toLocaleDateString(LOCR, { weekday: 'long', day: 'numeric', month: 'long' }); return `<h2>${T('Μέρα', 'Day', 'Día', 'Dan', 'Gün')} ${i + 1} · ${esc(dl)}</h2>${tbl(L)}`; }).join('');
+        } else body = `<h2>${T('Οι 10 καλύτερες επιλογές', 'Top 10 picks', 'Las 10 mejores opciones', '10 najboljih izbora', 'En iyi 10 seçenek')}</h2>${tbl(pool.slice(0, 10))}`;
+        const best = pool[0], top = pool.slice(1, 25), safe = top.slice().sort((a, b) => b.p10 - a.p10)[0], ceil = top.filter(x => x !== safe).sort((a, b) => b.p90 - a.p90)[0];
+        if (!best || !safe || !ceil) continue;
+        const trio = `<h2>${T('Τρεις τρόποι να διαλέξεις', 'Three ways to choose', 'Tres formas de elegir', 'Tri načina izbora', 'Seçmenin üç yolu')}</h2><ul>
+<li><b>${T('Η καλύτερη αναμενόμενη επιλογή', 'Best expected pick', 'La mejor opción esperada', 'Najbolji očekivani izbor', 'En yüksek beklenen')}:</b> ${pA(best.q)}, ${f1(best.pp)} ${T('εκτιμώμενο PIR', 'projected PIR', 'de PIR estimado', 'procenjenog PIR-a', 'tahmini PIR')} (${f1(2 * best.pp)} ${T('ως αρχηγός', 'as captain', 'como capitán', 'kao kapiten', 'kaptan olarak')}).</li>
+<li><b>${T('Η πιο ασφαλής εναλλακτική', 'The safest alternative', 'La alternativa más segura', 'Najsigurnija alternativa', 'En güvenli alternatif')}:</b> ${pA(safe.q)}, ${T('το υψηλότερο κάτω όριο μετά τον πρώτο', 'the highest floor after the top pick', 'el suelo más alto tras la primera opción', 'najviša donja granica posle prvog izbora', 'ilk tercihten sonra en yüksek taban')} (${f1(safe.p10)} PIR).</li>
+<li><b>${T('Ρίσκο με μεγάλο ταβάνι', 'High-ceiling gamble', 'Apuesta de techo alto', 'Rizik sa visokim plafonom', 'Yüksek tavanlı risk')}:</b> ${pA(ceil.q)}, ${T('μπορεί να φτάσει', 'can reach', 'puede llegar a', 'može da dostigne', 'ulaşabileceği')} ${f1(ceil.p90)} PIR.</li></ul>`;
+        let review = '';
+        if (anyAct) {
+          const fin = doneRounds.includes(r);
+          const bestAct = players.map(q => ({ q })).filter(x => actOf(x.q, r) != null).sort((a, b) => actOf(b.q, r) - actOf(a.q, r))[0];
+          const played = fin ? pool : [];
+          const a0 = actOf(best.q, r);
+          review = `<h2>${T('Πώς πήγε', 'How it went', 'Cómo salió', 'Kako je prošlo', 'Nasıl geçti')}</h2><p>${a0 != null ? T(`Ο πρώτος μας αρχηγός, ${esc(pn(best.q))}, έφερε ${a0} PIR (εκτίμηση ${f1(best.pp)}).`, `Our top captain, ${esc(pn(best.q))}, scored ${a0} PIR (projection ${f1(best.pp)}).`, `Nuestro primer capitán, ${esc(pn(best.q))}, hizo ${a0} de PIR (estimación ${f1(best.pp)}).`, `Naš prvi kapiten, ${esc(pn(best.q))}, ostvario je ${a0} PIR (procena ${f1(best.pp)}).`, `İlk kaptan önerimiz ${esc(pn(best.q))} ${a0} PIR yaptı (tahmin ${f1(best.pp)}).`) + ' ' : ''}${bestAct ? T(`Τα περισσότερα PIR ${played.length < pool.length ? 'μέχρι τώρα ' : ''}έφερε ο ${esc(pn(bestAct.q))}: ${actOf(bestAct.q, r)}.`, `The highest PIR ${played.length < pool.length ? 'so far ' : ''}came from ${esc(pn(bestAct.q))}: ${actOf(bestAct.q, r)}.`, `El PIR más alto ${played.length < pool.length ? 'hasta ahora ' : ''}fue de ${esc(pn(bestAct.q))}: ${actOf(bestAct.q, r)}.`, `Najviši PIR ${played.length < pool.length ? 'do sada ' : ''}ostvario je ${esc(pn(bestAct.q))}: ${actOf(bestAct.q, r)}.`, `${played.length < pool.length ? 'Şu ana kadar ' : ''}en yüksek PIR ${esc(pn(bestAct.q))} oyuncusundan geldi: ${actOf(bestAct.q, r)}.`) : ''}</p>`;
+        }
+        const genD = (C.gen || data.fetchedAt).slice(0, 10);
+        const intro = T(`Ποιον να βάλεις αρχηγό (διπλοί πόντοι) στην ${r}η αγωνιστική του EuroLeague Fantasy: οι παίκτες με το μεγαλύτερο εκτιμώμενο PIR${cur && C.days?.length > 1 ? ', χωρισμένοι ανά μέρα αγώνων' : ''}, με κάτω όριο και ταβάνι. Πρώτη επιλογή: ${pn(best.q)} (${f1(best.pp)} PIR).`,
+          `Who to captain (double points) in EuroLeague Fantasy Round ${r}: the players with the highest projected PIR${cur && C.days?.length > 1 ? ', split by game day' : ''}, with floor and ceiling. Top pick: ${pn(best.q)} (${f1(best.pp)} PIR).`,
+          `A quién hacer capitán (puntos dobles) en la jornada ${r} del EuroLeague Fantasy: los jugadores con más PIR estimado${cur && C.days?.length > 1 ? ', por día de partido' : ''}, con suelo y techo. Primera opción: ${pn(best.q)} (${f1(best.pp)} de PIR).`,
+          `Koga za kapitena (dupli poeni) u ${r}. kolu Evroliga Fantasy: igrači sa najvišim procenjenim PIR-om${cur && C.days?.length > 1 ? ', po danima' : ''}, sa donjom granicom i plafonom. Prvi izbor: ${pn(best.q)} (${f1(best.pp)} PIR).`,
+          `EuroLeague Fantasy ${r}. haftada kimi kaptan yapmalı (çift puan): en yüksek tahmini PIR’a sahip oyuncular${cur && C.days?.length > 1 ? ', maç günlerine göre' : ''}, taban ve tavanla. İlk tercih: ${pn(best.q)} (${f1(best.pp)} PIR).`);
+        const main = `<article class="article fpick lead">
+<p class="kicker">Fantasy · ${esc(rdTxt0(r))}</p>
+<h1>${esc(capT(r))}</h1>
+<p class="lede2">${esc(intro)}</p>
+${navR(r)}${review}${trio}${body}
+<p class="note">${T(`Εκτιμήσεις του μοντέλου μας (${C.model}) στις ${genD}. Κάτω όριο και ταβάνι = 10ο και 90ό εκατοστημόριο. Οι τραυματίες και όσοι ξεκουράζονται δεν προτείνονται. Στατιστικές εκτιμήσεις, όχι εγγύηση απόδοσης.`, `Projections from our model (${C.model}) on ${genD}. Floor and ceiling = 10th and 90th percentile. Injured and rested players are excluded. Statistical estimates, not a guarantee of performance.`, `Estimaciones de nuestro modelo (${C.model}) del ${genD}. Suelo y techo = percentiles 10 y 90. Se excluyen lesionados y jugadores en descanso. Estimaciones estadísticas, no garantía de rendimiento.`, `Procene našeg modela (${C.model}) od ${genD}. Donja granica i plafon = 10. i 90. percentil. Povređeni i odmorni igrači nisu uključeni. Statističke procene, ne garancija učinka.`, `Modelimizin (${C.model}) ${genD} tarihli tahminleri. Taban ve tavan = 10. ve 90. yüzdelik. Sakatlar ve dinlendirilenler dahil değildir. İstatistiksel tahminlerdir, performans garantisi değildir.`)} <a href="${urlFor(LG, 'fx:captain-advisor')}">Captain Advisor →</a></p>
+</article>`;
+        await simplePage('fxcap:' + r, { view: 'articles', title: `${capT(r)} | ${SITE_NAME}`, desc: intro.slice(0, 300), main, ld: artLd(capT(r), 'fxcap:' + r, genD) });
+      }
+
+      // -- ομάδα της αγωνιστικής: 4 γκαρντ, 4 φόργουορντ, 2 σέντερ με τα περισσότερα PIR (οι κανόνες της σύνθεσης του Fantasy)
+      const SLOTS = { Guard: 4, Forward: 4, Center: 2 };
+      for (const r of totrRounds) {
+        const all = players.map(q => ({ q, a: actOf(q, r), x: q.g.find(z => z[0] === r) })).filter(o => o.a != null && o.x && o.x[7] > 0);
+        const team = Object.entries(SLOTS).flatMap(([ps, n]) => all.filter(o => o.q.pos === ps).sort((a, b) => b.a - a.a).slice(0, n).map(o => ({ ...o, ps })));
+        if (team.length < 10) continue;
+        const capt = team.slice().sort((a, b) => b.a - a.a)[0];
+        const sum = team.reduce((s, o) => s + o.a, 0);
+        const C = CAP[r]; let pp = C ? Object.fromEntries(C.rows.map(x => [x.q.c, x.pp])) : null; if (pp && team.filter(o => pp[o.q.c] != null).length < 6) pp = null;
+        const head = `<tr><th class="l">${H.pl}</th><th class="l">${H.g}</th><th>${T('Λεπτά', 'Min', 'Min', 'Min', 'Dk')}</th><th>${T('Πόντοι', 'Pts', 'Pts', 'Poeni', 'Sayı')}</th><th>${T('Ριμπ.', 'Reb', 'Reb', 'Sk', 'Rib')}</th><th>${T('Ασίστ', 'Ast', 'Asis', 'Asist', 'Asist')}</th><th>PIR</th>${pp ? `<th>${H.pp}</th>` : ''}</tr>`;
+        const POSG = { Guard: T('Γκαρντ', 'Guards', 'Bases y escoltas', 'Bekovi', 'Guard’lar'), Forward: T('Φόργουορντ', 'Forwards', 'Aleros', 'Krila', 'Forvetler'), Center: T('Σέντερ', 'Centers', 'Pívots', 'Centri', 'Pivotlar') };
+        const body = Object.keys(SLOTS).map(ps => `<h2>${esc(POSG[ps])}</h2><div class="tbl"><table><thead>${head}</thead><tbody>${team.filter(o => o.ps === ps).map(o => `<tr><td class="l">${o === capt ? '©️ ' : ''}${pA(o.q)} <small>${esc(tName(tmOf(o.q)))}</small></td><td class="l">${mtA(tmOf(o.q), r)}</td><td>${Math.round(o.x[7] / 60)}</td><td>${o.x[8]}</td><td>${o.x[15] + o.x[16]}</td><td>${o.x[17]}</td><td><b>${o.a}</b></td>${pp ? `<td>${pp[o.q.c] != null ? f1(pp[o.q.c]) : '–'}</td>` : ''}</tr>`).join('')}</tbody></table></div>`).join('');
+        const intro = T(`Η ιδανική σύνθεση της ${r}ης αγωνιστικής στο EuroLeague Fantasy, με τα επίσημα PIR: 4 γκαρντ, 4 φόργουορντ και 2 σέντερ. Σύνολο ${sum} PIR, με αρχηγό τον ${pn(capt.q)} (${capt.a} PIR).`,
+          `The ideal EuroLeague Fantasy lineup of Round ${r}, from the official PIR: 4 guards, 4 forwards and 2 centers. ${sum} PIR in total, with ${pn(capt.q)} (${capt.a} PIR) as captain.`,
+          `La alineación ideal de la jornada ${r} del EuroLeague Fantasy, con el PIR oficial: 4 bases/escoltas, 4 aleros y 2 pívots. ${sum} de PIR en total, con ${pn(capt.q)} (${capt.a} de PIR) como capitán.`,
+          `Idealna postava ${r}. kola Evroliga Fantasy, po zvaničnom PIR-u: 4 beka, 4 krila i 2 centra. Ukupno ${sum} PIR, kapiten ${pn(capt.q)} (${capt.a} PIR).`,
+          `EuroLeague Fantasy ${r}. haftanın resmi PIR’a göre ideal kadrosu: 4 guard, 4 forvet ve 2 pivot. Toplam ${sum} PIR, kaptan ${pn(capt.q)} (${capt.a} PIR).`);
+        const gw = gameOf(tmOf(capt.q), r)?.[1], dDone = gw ? new Date(Date.UTC(2020 + (+gw[8]), +gw.slice(0, 2) - 1, +gw.slice(2, 4))).toISOString().slice(0, 10) : data.fetchedAt.slice(0, 10);
+        const main = `<article class="article fpick lead">
+<p class="kicker">Fantasy · ${esc(rdTxt0(r))}</p>
+<h1>${esc(totrT(r))}</h1>
+<p class="lede2">${esc(intro)}</p>
+${navR(r)}${body}
+<p class="note">${T('Πηγή: επίσημα box score της EuroLeague. Η θέση κάθε παίκτη είναι αυτή της EuroLeague. ©️ = ο αρχηγός (τα περισσότερα PIR της αγωνιστικής). Η στήλη «Εκτ. PIR» είναι η εκτίμηση του μοντέλου μας πριν από την αγωνιστική, όπου υπάρχει.', 'Source: official EuroLeague box scores. Positions as listed by the EuroLeague. ©️ = captain (highest PIR of the round). “Proj. PIR” is our model’s projection before the round, where available.', 'Fuente: box scores oficiales de la EuroLeague. Posiciones según la EuroLeague. ©️ = capitán (el PIR más alto de la jornada). «PIR est.» es la estimación de nuestro modelo antes de la jornada, si existe.', 'Izvor: zvanični box score Evrolige. Pozicije prema Evroligi. ©️ = kapiten (najviši PIR kola). „Proc. PIR“ je procena našeg modela pre kola, gde postoji.', 'Kaynak: resmi EuroLeague kutu skorları. Pozisyonlar EuroLeague’e göre. ©️ = kaptan (haftanın en yüksek PIR’ı). “Tahmini PIR”, varsa modelimizin hafta öncesi tahminidir.')}</p>
+</article>`;
+        await simplePage('fxtotr:' + r, { view: 'articles', title: `${totrT(r)} | ${SITE_NAME}`, desc: intro.slice(0, 300), main, ld: artLd(totrT(r), 'fxtotr:' + r, dDone) });
+      }
+
+      // -- όλες οι αγωνιστικές
+      const allR = [...new Set([...fRounds, ...capRounds, ...totrRounds])].sort((a, b) => b - a);
+      const rows = allR.map(r => `<tr><td class="l"><b>${esc(rdTxt0(r))}</b></td><td class="l">${[
+        fRounds.includes(r) ? `<a href="${urlFor(LG, 'fpick:' + r)}">${T('Προτάσεις', 'Tips', 'Consejos', 'Saveti', 'Tavsiyeler')}</a>` : '',
+        capRounds.includes(r) ? `<a href="${urlFor(LG, 'fxcap:' + r)}">${T('Αρχηγοί', 'Captains', 'Capitanes', 'Kapiteni', 'Kaptanlar')}</a>` : '',
+        totrRounds.includes(r) ? `<a href="${urlFor(LG, 'fxtotr:' + r)}">${T('Ομάδα της αγωνιστικής', 'Team of the round', 'Equipo de la jornada', 'Tim kola', 'Haftanın takımı')}</a>` : '',
+        doneRounds.includes(r) ? `<a href="${urlFor(LG, 'recap:' + r)}">${T('Σε αριθμούς', 'In numbers', 'En cifras', 'U brojkama', 'Rakamlarla')}</a>` : ''].filter(Boolean).join(' · ')}</td></tr>`).join('');
+      const rIntro = T('Όλο το EuroLeague Fantasy ανά αγωνιστική: οι προτάσεις πριν από κάθε αγωνιστική, ποιον να βάλεις αρχηγό, η ιδανική ομάδα με τα επίσημα PIR και η αγωνιστική σε αριθμούς.', 'All of EuroLeague Fantasy round by round: tips before every round, who to captain, the ideal team from the official PIR and the round in numbers.', 'Todo el EuroLeague Fantasy jornada a jornada: consejos antes de cada jornada, a quién hacer capitán, el equipo ideal con el PIR oficial y la jornada en cifras.', 'Ceo Evroliga Fantasy po kolima: saveti pre svakog kola, koga za kapitena, idealni tim po zvaničnom PIR-u i kolo u brojkama.', 'Hafta hafta tüm EuroLeague Fantasy: her hafta öncesi tavsiyeler, kim kaptan olmalı, resmi PIR’a göre ideal takım ve rakamlarla hafta.');
+      await simplePage('fxrounds', { view: 'articles', title: `${roundsT} | ${SITE_NAME}`, desc: rIntro, main: `<article class="article fpick lead">
+<p class="kicker">Fantasy</p>
+<h1>${esc(roundsT)}</h1>
+<p class="lede2">${esc(rIntro)}</p>
+<p class="leadnav"><a href="${urlFor(LG, 'fantasy')}">Fantasy</a><a href="${urlFor(LG, 'fx:captain-advisor')}">Captain Advisor</a><a href="${urlFor(LG, 'fxrules')}">${T('Οδηγός', 'How to play', 'Cómo jugar', 'Vodič', 'Nasıl oynanır')}</a></p>
+<div class="tbl"><table><thead><tr><th class="l">${T('Αγωνιστική', 'Round', 'Jornada', 'Kolo', 'Hafta')}</th><th class="l">${T('Σελίδες', 'Pages', 'Páginas', 'Stranice', 'Sayfalar')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+</article>`, ld: crumbs([[SITE_NAME, B(LG)], ['Fantasy', urlFor(LG, 'fantasy')], [T('Αγωνιστικές', 'Rounds', 'Jornadas', 'Kola', 'Haftalar'), urlFor(LG, 'fxrounds')]]) });
     }
 
     // ---- Το παρολί της αγωνιστικής: οι πιο σίγουρες εκτιμήσεις του μοντέλου, με δεδομένα μόνο πριν από την αγωνιστική
