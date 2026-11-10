@@ -326,7 +326,8 @@ async function processImages() {
   S.unresolved = [...new Set(unresolved)].slice(0, 10);
   // συνολικά credits της ομάδας: αν διαβάστηκαν όλες οι αξίες (10 παίκτες + προπονητής), το άθροισμά τους (+ αδιάθετα αν φάνηκαν)
   const tv = teamValue();
-  S.total = tv.n === 10 && !tv.est ? +(tv.v + (bank ? bank.value : 0)).toFixed(1) : null; S.totalSrc = S.total != null ? 'scan' : null;
+  // χωρίς προπονητή με αξία από την εικόνα το άθροισμα είναι μισό (έβγαινε σύνολο χωρίς τον προπονητή και μετά, όταν τον διάλεγες, η αξία του μετρούσε δεύτερη φορά)
+  S.total = tv.n === 10 && !tv.est && S.coach && S.coachPrice != null ? +(tv.v + (bank ? bank.value : 0)).toFixed(1) : null; S.totalSrc = S.total != null ? 'scan' : null;
   // κεφαλίδα της εφαρμογής: «8.3/106.2 CREDITS», «1/4 TRADES»
   let H = { bank: null, total: null, tradesUsed: null, tradesMax: null };
   for (const r of texts) for (const src of [r.header, r.text]) { const h = parseHeader(src); for (const k in H) if (H[k] == null && h[k] != null) H[k] = h[k]; }
