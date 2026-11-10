@@ -195,3 +195,26 @@ test('βαθμονόμηση αξιών: εκτιμήσεις του site → κ
   assert.ok(x.price >= 19 * 0.75 - 0.2 && x.price <= 19 * 0.75 + 1);   // κλίμακα παιχνιδιού + μικρό περιθώριο
   assert.equal(out.find(p => p.c === 'X0').price, 8);                  // οι δικοί σου μένουν ανέγγιχτοι εδώ (τους αλλάζει το assist)
 });
+
+// ---------- 11η αγωνιστική: πράσινο «Trades Open» στην κεφαλίδα και παίκτες εκτός βάσης
+import { cardGeometry } from '../src/fantasy/assistant.mjs';
+test('cardGeometry: πράσινη γραμμή χωρίς κουτί αξίας (Trades Open) δεν είναι κάρτα· διπλή γραμμή = μία κάρτα', () => {
+  const lines = [{ x0: 792, x1: 857, y: 154 }, { x0: 791, x1: 858, y: 169 }, { x0: 696, x1: 768, y: 309 }, { x0: 696, x1: 768, y: 312 }, { x0: 578, x1: 649, y: 501 }];
+  const isCard = (x0, y) => y > 200;   // κουτί αξίας μόνο κάτω από τις πραγματικές κάρτες
+  const g = cardGeometry(lines, [], isCard);
+  assert.deepEqual(g.map(x => Math.round(x.y)), [309, 501]);
+});
+test('parseCards: παίκτης που λείπει από τη βάση δεν αντικαθίσταται από παίκτη άλλης ομάδας', () => {
+  const players = [
+    { c: 'a1', n: 'NOWELL, JAYLEN', dn: 'Jaylen Nowell', t: 'BES', pos: 'Guard', opp: 'ZAL', home: 1, price: 10 },
+    { c: 'a2', n: 'BALDWIN IV, WADE', dn: 'Wade Baldwin IV', t: 'ULK', pos: 'Guard', opp: 'PRS', home: 0, price: 12 },
+    { c: 'a3', n: 'BINGHAM, MARCUS', dn: 'Marcus Bingham', t: 'ULK', pos: 'Center', opp: 'PRS', home: 0, price: 8 },
+  ];
+  const r = parseCards([{ texts: ['C Powell'], price: 8.7, opp: { code: 'PBB', away: true, our: 'PRS' }, captain: false, x: 780, y: 680 }], players, []);
+  assert.equal(r.entries.length, 1);
+  assert.equal(r.entries[0].status, 'unlisted');
+  assert.equal(r.entries[0].teamHint, 'ULK');
+  assert.equal(r.entries[0].posHint, 'Center');
+  assert.equal(r.entries[0].price, 8.7);
+  assert.equal(r.entries[0].raw, 'Powell');
+});

@@ -16,6 +16,17 @@ const S = { step: 1, images: [], busy: false, msg: null, rows: [], coach: null, 
 
 const nm = c => P.get(c)?.dn || c, tm = t => esc(X.teams[t] || t);
 const posL = p => esc(L.pos[p] || p);
+/** παίκτης της εικόνας που δεν υπάρχει στη βάση μας (π.χ. δεν έχει παίξει φέτος): μπαίνει με όνομα, ομάδα, θέση και αξία από την εικόνα.
+ * Δεν έχουμε εκτίμηση γι' αυτόν (0 πόντοι), γι' αυτό κλειδώνεται: το assistant δεν προτείνει να τον πουλήσεις λόγω έλλειψης δεδομένων. */
+function addUnlisted(e) {
+  if (P.has(e.c)) return;
+  const m = D.players.find(p => p.t === e.teamHint && p.opp) || {};
+  const p = { c: e.c, n: String(e.raw).toUpperCase(), dn: e.raw, t: e.teamHint, pos: e.posHint, price: e.price, price_src: 'official', status: 'playing', unlisted: 1,
+    pp: 0, pp0: 0, p10: 0, p50: 0, p90: 0, p3: 0, pm: 0, pm0: 0, ppm: 0, pirpm: 0, l3: 0, l5: 0, l10: 0, m3: 0, m10: 0, conf: 0, start: 0, gp: 0, small: 1, vpc: 0,
+    opp: m.opp ?? null, home: m.home ?? 0, day: m.day ?? 0, pwin: m.pwin ?? 0.5, rest: m.rest ?? 7, b2b: m.b2b ?? 0, odrtg: m.odrtg, gpace: m.gpace,
+    nx: (m.nx || []).map(x => [x[0], x[1], x[2], 0, x[4], x[5]]), f: [], h: [], ph: [], mcv: null, hcap: 0, hhit: 0, hneg: 0 };
+  D.players.push(p); P.set(p.c, p);
+}
 
 async function init() {
   try { D = await fetch(X.api, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }); }
@@ -307,7 +318,8 @@ async function processImages() {
     for (const e of r.entries) { const key = e.c || 'amb:' + e.options.map(o => o.c).join('|'); const prev = rows.get(key); if (!prev || (prev.price == null && e.price != null)) rows.set(key, e); }
     bank = bank || r.bank; coach = coach && coach.status === 'sure' ? coach : r.coach || coach; captain = captain || r.captain; unresolved.push(...r.unresolved);
   }
-  S.rows = [...rows.values()].map(e => ({ c: e.status === 'sure' ? e.c : null, status: e.status, score: e.score, options: e.options || [], raw: e.raw, price: e.price, priceSrc: e.price != null ? 'scan' : null, slot: e.slotHint || null, captain: false, locked: false }));
+  for (const e of rows.values()) if (e.status === 'unlisted') addUnlisted(e);
+  S.rows = [...rows.values()].map(e => ({ c: e.status === 'sure' || e.status === 'unlisted' ? e.c : null, status: e.status, score: e.score, options: e.options || [], raw: e.raw, price: e.price, priceSrc: e.price != null ? 'scan' : null, slot: e.slotHint || null, captain: false, locked: e.status === 'unlisted' }));
   // δεν επιτρέπεται η ίδια επιλογή δύο φορές: αμφίβολες εγγραφές χωρίς επιλογές που απομένουν φεύγουν
   if (captain) { const r = S.rows.find(x => x.c === captain); if (r) { r.captain = true; r.capHint = true; } }
   S.coach = coach && coach.status === 'sure' ? coach.t : null; S.coachSt = coach ? coach.status : 'none'; S.coachPrice = coach && coach.status === 'sure' && coach.price != null ? coach.price : null;
@@ -318,7 +330,7 @@ async function processImages() {
   // κεφαλίδα της εφαρμογής: «8.3/106.2 CREDITS», «1/4 TRADES»
   let H = { bank: null, total: null, tradesUsed: null, tradesMax: null };
   for (const r of texts) for (const src of [r.header, r.text]) { const h = parseHeader(src); for (const k in H) if (H[k] == null && h[k] != null) H[k] = h[k]; }
-  if (H.total != null) { S.total = H.total; S.totalSrc = 'scan'; }
+  if (H.total != null) { S.total = H.total; S.totalSrc = 'header'; }   // «0.6/106.2 CREDITS»: επίσημο σύνολο, δεν χρειάζεται διόρθωση
   if (H.tradesMax != null) { S.trades = Math.max(0, H.tradesMax - (H.tradesUsed || 0)); S.unlimited = false; S.tradesSrc = 'scan'; }
   // αξία προπονητή από τον λογαριασμό: σύνολο − αδιάθετα − παίκτες (αν έχουμε όλες τις αξίες των παικτών)
   const allPl = S.rows.filter(r => r.c).length && S.rows.filter(r => r.c).every(r => r.price != null);
@@ -359,7 +371,7 @@ function saveManager() {
   const r = S.result?.chosen; if (!r) return;
   let st; try { st = JSON.parse(localStorage.getItem('fmt-v1')) || { teams: [], active: 0 }; } catch { st = { teams: [], active: 0 }; }
   const team = fromRows();
-  const ro = team.roster.map(c => (r.trades.find(t => t.out === c)?.in) || c);
+  const ro = team.roster.map(c => (r.trades.find(t => t.out === c)?.in) || c).filter(c => !String(c).startsWith('u:'));
   st.teams.push({ id: 'as' + Date.now(), name: L.savedName.replace('{r}', D.round), roster: ro, coach: r.coach ? r.coach.in : team.coach, formation: r.lineup.formation, captain: r.lineup.captain, transfers: 0, bank: r.bankAfter });
   st.active = st.teams.length - 1;
   try { localStorage.setItem('fmt-v1', JSON.stringify(st)); S.msg = { k: 'ok', t: L.saved }; } catch { S.msg = { k: 'err', t: L.err.save }; }
@@ -390,9 +402,10 @@ function rowHtml(r, k) {
   const pick = r.status === 'ambiguous' && !r.c
     ? `<div class="asamb"><p>${esc(L.ambiguous.replace('{raw}', r.raw))}</p>${r.options.map(o => `<label><input type="radio" name="amb${k}" data-act="amb" data-k="${k}" value="${o.c}"> ${esc(nm(o.c))} · ${tm(P.get(o.c)?.t)} · ${posL(P.get(o.c)?.pos)}${P.get(o.c)?.price != null ? ' · ~' + f1(P.get(o.c).price) : ''}</label>`).join('')}<label><input type="radio" name="amb${k}" data-act="amb" data-k="${k}" value=""> ${esc(L.noneOfThese)}</label></div>`
     : `<input list="asplayers" class="asname" data-act="name" data-k="${k}" value="${p ? esc(p.dn) + ' · ' + esc(p.t) + ' · ' + esc(L.posS[p.pos]) : ''}" placeholder="${esc(L.searchPlayer)}" aria-label="${esc(L.player)}">`;
+  const unl = p && p.unlisted ? `<small class="asst st-doubtful">${esc(L.unlisted)}</small>` : '';
   const conf = r.status === 'sure' && r.raw && r.score != null && r.score < 0.95 ? `<small class="asraw">${esc(L.readAs)} «${esc(r.raw)}»</small>` : '';
   const priceSrc = r.priceSrc === 'scan' ? L.fromImage : r.priceSrc === 'user' ? L.byYou : p ? L.siteEstimate : '';
-  return `<tr class="${r.status === 'ambiguous' && !r.c ? 'amb' : ''}"><td class="l">${pick}${conf}${p && p.status !== 'playing' && p.status ? `<small class="asst st-${esc(p.status)}">${esc(L.status[p.status] || p.status)}</small>` : ''}</td>
+  return `<tr class="${r.status === 'ambiguous' && !r.c ? 'amb' : ''}"><td class="l">${pick}${unl}${conf}${p && p.status !== 'playing' && p.status ? `<small class="asst st-${esc(p.status)}">${esc(L.status[p.status] || p.status)}</small>` : ''}</td>
 <td data-l="${esc(L.position)}">${p ? posL(p.pos) : '–'}</td><td data-l="${esc(L.team)}">${p ? tm(p.t) : '–'}</td>
 <td data-l="${esc(L.value)}"><input type="number" step="0.1" min="0" max="40" inputmode="decimal" class="asnum" data-act="price" data-k="${k}" value="${r.price ?? ''}" placeholder="${p?.price != null ? '~' + f1(p.price) : ''}" aria-label="${esc(L.value)}"><small>${esc(priceSrc)}</small></td>
 <td data-l="${esc(L.slot)}"><select data-act="slot" data-k="${k}" aria-label="${esc(L.slot)}"><option value="">–</option>${['start', 'sixth', 'bench'].map(x => `<option value="${x}" ${r.slot === x ? 'selected' : ''}>${esc(L.slots[x])}</option>`).join('')}</select></td>
@@ -429,7 +442,7 @@ ${S.unresolved.length ? `<details class="asunres"><summary>${esc(L.unresolved.re
 <p><button type="button" data-act="add-row" ${S.rows.length >= 10 ? 'disabled' : ''}>＋ ${esc(L.addPlayer)}</button></p>
 <div class="asgrid">
 <label>${esc(L.coach)}${S.coachSt === 'ambiguous' || (S.coachSt === 'none' && S.step === 2) ? ` <small class="asneed">${esc(L.confirmCoach)}</small>` : ''} ${coachSel}${coachValHtml()} <label class="ascheck"><input type="checkbox" data-act="lock-coach" ${S.lockCoach ? 'checked' : ''}> 🔒 ${esc(L.keepCoach)}</label></label>
-<label>${esc(L.total)} <input type="number" step="0.1" min="0" max="200" inputmode="decimal" class="asnum" data-act="total" value="${S.total ?? ''}" placeholder="${esc(L.required)}" required aria-required="true">${(() => { const tv = teamValue(), b = bankOf(); return `<small>${esc(L.totalHelp)}</small>${S.totalSrc === 'scan' ? `<small class="asneed">${esc(L.totalFromImage)}</small>` : ''}<small class="asvalue">${esc(L.valueLine.replace('{pl}', f1(tv.pl)).replace('{co}', f1(tv.co)).replace('{v}', f1(tv.v)))}${b != null ? ` → <b>${esc(L.freeLine.replace('{b}', f1(b)))}</b>` : ''}</small>${tv.est ? `<small class="asneed">${esc(L.valueEst.replace('{p}', tv.estOf.join(', ')))}</small>` : ''}`; })()}</label>
+<label>${esc(L.total)} <input type="number" step="0.1" min="0" max="200" inputmode="decimal" class="asnum" data-act="total" value="${S.total ?? ''}" placeholder="${esc(L.required)}" required aria-required="true">${(() => { const tv = teamValue(), b = bankOf(); return `<small>${esc(L.totalHelp)}</small>${S.totalSrc === 'scan' ? `<small class="asneed">${esc(L.totalFromImage)}</small>` : ''}<small class="asvalue">${esc(L.valueLine.replace('{pl}', f1(tv.pl)).replace('{co}', f1(tv.co)).replace('{v}', f1(tv.v)))}${b != null ? ` → <b>${esc(L.freeLine.replace('{b}', f1(b)))}</b>` : ''}</small>${tv.est ? `<small class="asneed">${esc(L.valueEst.replace('{p}', tv.estOf.join(', ')))}</small>` : ''}${S.headerBank != null && b != null && !tv.est && Math.abs(b - S.headerBank) > 0.05 ? `<small class="asneed">⚠ ${esc(L.bankMismatch.replace('{a}', f1(b)).replace('{h}', f1(S.headerBank)))}</small>` : ''}`; })()}</label>
 <label>${esc(L.trades)} <input type="number" min="0" max="10" step="1" class="asnum" data-act="trades" value="${S.unlimited ? '' : S.trades}" ${S.unlimited ? 'disabled' : ''}><label class="ascheck"><input type="checkbox" data-act="unlimited" ${S.unlimited ? 'checked' : ''}> ${esc(L.unlimited)}</label><small>${esc(L.tradesHelp)}</small></label>
 </div>
 ${v.errors.length || amb ? `<ul class="aserr">${amb ? `<li>${esc(L.verr.amb.replace('{n}', amb))}</li>` : ''}${v.errors.map(e => `<li>${esc(errText(e))}</li>`).join('')}</ul>` : ''}

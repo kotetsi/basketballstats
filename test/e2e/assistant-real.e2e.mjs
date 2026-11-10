@@ -7,9 +7,11 @@ import { chromium } from 'playwright';
 
 const srv = http.createServer((q, r) => { let p = path.join('dist', decodeURIComponent(q.url.split('?')[0])); if (fs.existsSync(p) && fs.statSync(p).isDirectory()) p += '/index.html'; if (!fs.existsSync(p)) { r.statusCode = 404; return r.end(); } r.setHeader('content-type', /\.m?js$/.test(p) ? 'text/javascript' : p.endsWith('.css') ? 'text/css' : p.endsWith('.json') ? 'application/json' : p.endsWith('.png') ? 'image/png' : 'text/html'); r.end(fs.readFileSync(p)); }).listen(8198);
 const b = await chromium.launch();
-const truth = ['Diarra', 'Vezenkov', 'Brizuela', 'Madar', 'Feliz', 'Tubelis', 'Mitoglou', 'Hayes', 'Strazel', 'Ndiaye'];
+const truth0 = ['Diarra', 'Vezenkov', 'Brizuela', 'Madar', 'Feliz', 'Tubelis', 'Mitoglou', 'Hayes', 'Strazel', 'Ndiaye'];
+// 11η αγωνιστική: πράσινο «Trades Open» στην κεφαλίδα, Powell και Llull εκτός βάσης (δεν έχουν παίξει φέτος), προπονητής Παρτιζάν 6.2
+const truth11 = ['Diarra', 'Vezenkov', 'Brizuela', 'Madar', 'Feliz', 'Tubelis', 'Malcolm', 'Powell', 'ul', 'Ndiaye'];
 let fail = false;
-for (const [width, tall, file] of [[1080, 0], [1179, 0], [1290, 0], [1179, 2556], [1290, 2796], [1600, 900, 'assistant-real-desktop.png']]) {
+for (const [width, tall, file] of [[1080, 0], [1179, 0], [1290, 0], [1179, 2556], [1290, 2796], [1600, 900, 'assistant-real-desktop.png'], [1600, 900, 'assistant-real-desktop-r11.png']]) {
   // κλιμάκωση της εικόνας στον browser (όπως screenshot άλλου κινητού)
   const tool = await b.newPage();
   const src = 'data:image/png;base64,' + fs.readFileSync('test/fixtures/' + (file || 'assistant-real-app.png')).toString('base64');
@@ -29,11 +31,12 @@ for (const [width, tall, file] of [[1080, 0], [1179, 0], [1290, 0], [1179, 2556]
   const coach = await pg.$eval('[data-act="coach"]', e => e.value);
   const total = await pg.$eval('[data-act="total"]', e => e.value).catch(() => '');
   const dbg = await pg.evaluate(() => window.__asDebug);
+  const truth = file && file.includes('r11') ? truth11 : truth0;
   const hit = truth.filter(t => rows.some(r => r.name.includes(t))).length;
   console.log(`[e2e ${width}x${tall || 'auto'}] ${Math.round((Date.now() - t0) / 1000)}s · σωστοί ${hit}/10 · προπονητής ${coach} · σύνολο ${total} · σφάλματα ${errs.length}`);
   for (const r of rows) console.log('   ', r.name, '|', r.price, '|', r.slot);
   console.log('   debug', JSON.stringify(dbg).slice(0, 4000));
-  if (hit < 10 || (!file && coach !== 'ASV') || total !== '106.2' || errs.length) fail = true;
+  if (hit < 10 || (!file && coach !== 'ASV') || (file && file.includes('r11') && coach !== 'PAR') || total !== '106.2' || errs.length) fail = true;
   await pg.close();
 }
 await b.close(); srv.close();

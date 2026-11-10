@@ -492,6 +492,18 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
       const sc = mates.map(p => { const L = norm(p.n.split(',')[0]); const Ls = L.split(' '); return { c: p.c, score: +Math.max(...toks.flatMap(x => [sim(x, L), ...Ls.map(l => sim(x, l)), ...Ls.filter(l => l.length >= 4).map(l => sim(x.slice(-l.length), l))])).toFixed(3), how: 'team' }; }).sort((a, b) => b.score - a.score);
       if (sc[0] && sc[0].score >= 0.6 && (!sc[1] || sc[0].score - sc[1].score >= 0.12)) d = { status: 'sure', c: sc[0].c, score: sc[0].score, how: 'team' };
     }
+    // παίκτης που δεν υπάρχει (ακόμα) στη βάση μας (π.χ. δεν έχει παίξει φέτος): η ομάδα του βγαίνει από τον αντίπαλο,
+    // αλλά κανείς συμπαίκτης δεν ταιριάζει και κανείς άλλος δεν ταιριάζει σίγουρα. Δεν τον αντικαθιστούμε με παίκτη άλλης ομάδας·
+    // τον κρατάμε με το όνομα, τη θέση και την αξία της εικόνας, ώστε να μετρήσει σωστά στα credits.
+    if (d.status !== 'sure' && team && t.pos && c.price != null && longT.length
+      && !boosted.some(x => P(x)?.t === team && x.score >= 0.6) && !(cands[0] && cands[0].score >= SURE)) {
+      const raw = longT.slice(-1)[0], key = `u:${team}:${raw}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const slot = start.has(c) ? 'start' : c === sixth ? 'sixth' : rest.includes(c) ? 'bench' : null;
+      entries.push({ status: 'unlisted', c: key, raw: raw.charAt(0).toUpperCase() + raw.slice(1), line: c.text, options: [], price: c.price, slotHint: slot, captainHint: !!c.captain, teamHint: team, posHint: t.pos });
+      continue;
+    }
     const key = d.status === 'sure' ? d.c : 'amb:' + boosted.map(x => x.c).join('|');
     if (seen.has(key)) continue;
     seen.add(key);
@@ -499,7 +511,7 @@ export function parseCards(cards, players, coaches = [], { greek = {} } = {}) {
     entries.push({ raw: t.name, line: c.text, ...(d.status === 'none' ? { status: 'ambiguous', options: [] } : d), price: c.price ?? null, slotHint: slot, captainHint: !!c.captain, teamHint: team, posHint: t.pos });
     if (c.captain && d.status === 'sure') captain = d.c;
   }
-  return { entries: entries.filter(e => e.status === 'sure' || e.options.length), bank: null, coach, captain, unresolved: entries.filter(e => e.status !== 'sure' && !e.options.length).map(e => e.raw), sureCount: entries.filter(e => e.status === 'sure').length };
+  return { entries: entries.filter(e => e.status === 'sure' || e.status === 'unlisted' || e.options.length), bank: null, coach, captain, unresolved: entries.filter(e => e.status !== 'sure' && e.status !== 'unlisted' && !e.options.length).map(e => e.raw), sureCount: entries.filter(e => e.status === 'sure').length };
 }
 
 /**
@@ -531,6 +543,10 @@ export function cardGeometry(lines, anchors = [], isCard = null) {
   const ws = lines.map(l => l.x1 - l.x0).sort((a, b) => a - b);
   let cw = ws.length ? ws[ws.length >> 1] : 0;
   let geo = lines.filter(l => cw && Math.abs((l.x1 - l.x0) - cw) <= 0.15 * cw).map(l => ({ x0: l.x0, x1: l.x1, y: l.y, cw: l.x1 - l.x0 }));
+  // πράσινη γραμμή χωρίς λευκό κουτί αξίας από κάτω δεν είναι κάρτα (π.χ. το πράσινο «Trades Open» στην κεφαλίδα)
+  if (isCard) geo = geo.filter(g => isCard(g.x0, g.y, g.cw));
+  // ίδια κάρτα διπλή (δύο πράσινες γραμμές λίγα pixel η μία από την άλλη): κρατάμε μία
+  geo = geo.filter((g, i) => !geo.some((o, j) => j < i && Math.abs(o.x0 - g.x0) < 0.35 * cw && Math.abs(o.y - g.y) < 0.35 * cw));
   if (!cw && anchors.length) { const hs = anchors.map(a => a.h).sort((a, b) => a - b); cw = hs[hs.length >> 1] * 8.2; }
   if (!cw) return [];
   // άγκυρες (αξία) που δεν ανήκουν σε κάρτα με γραμμή → κάρτα με την ίδια αναλογία (η αξία είναι ~0.087·πλάτος κάτω/δεξιά της γραμμής)
