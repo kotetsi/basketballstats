@@ -3280,7 +3280,10 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
         P.push(T(`Τελικό: ${H} – ${A} ${hs}-${as} (${rdTxt(r)}, ${S}). Νικητής: ${W}.`, `Final: ${H} ${hs}-${as} ${A} (${S}, ${rdTxt(r)}). ${W} beat ${L}.`, `Final: ${H} ${hs}-${as} ${A} (${S}, ${rdTxt(r).toLowerCase()}). Ganador: ${W}.`, `Konačan rezultat: ${H} - ${A} ${hs}:${as} (${S}, ${rdTxt(r)}). Pobednik: ${W}.`, `Maç sonucu: ${H} ${hs}-${as} ${A} (${S}, ${rdTxt(r)}). Kazanan: ${W}, kaybeden: ${L}.`));
         const box = players.flatMap(p => p.g.filter(x => x[0] === r && (p.t.split(';').includes(h) || p.t.split(';').includes(a)) && (x[2] === h || x[2] === a)).map(x => ({ p, x }))).sort((u, v) => v.x[25] - u.x[25]);
         const m = box[0];
-        if (m) { const tm = m.x[2] === h ? A : H; P.push(T(`Κορυφαίος του αγώνα: ${niceName(m.p.n)} (${tm}) με ${m.x[8]} πόντους, ${m.x[15] + m.x[16]} ριμπάουντ, ${m.x[17]} ασίστ και ${m.x[25]} PIR.`, `Top performer: ${niceName(m.p.n)} (${tm}) with ${m.x[8]} points, ${m.x[15] + m.x[16]} rebounds, ${m.x[17]} assists and ${m.x[25]} PIR.`, `El mejor del partido fue ${niceName(m.p.n)} (${tm}), con ${m.x[8]} puntos, ${m.x[15] + m.x[16]} rebotes, ${m.x[17]} asistencias y ${m.x[25]} de PIR.`, `Najbolji igrač utakmice: ${niceName(m.p.n)} (${tm}) sa ${m.x[8]} poena, ${m.x[15] + m.x[16]} skokova, ${m.x[17]} asistencija i ${m.x[25]} PIR-a.`, `Maçın yıldızı: ${niceName(m.p.n)} (${tm}) – ${m.x[8]} sayı, ${m.x[15] + m.x[16]} ribaund, ${m.x[17]} asist ve ${m.x[25]} PIR.`)); }
+        const pn = q => (LG === 'el' && GRN[q.n]) || niceName(q.n);
+        if (m) { const tm = m.x[2] === h ? A : H; P.push(T(`Κορυφαίος του αγώνα: ${pn(m.p)} (${tm}) με ${m.x[8]} πόντους, ${m.x[15] + m.x[16]} ριμπάουντ, ${m.x[17]} ασίστ και ${m.x[25]} PIR.`, `Top performer: ${pn(m.p)} (${tm}) with ${m.x[8]} points, ${m.x[15] + m.x[16]} rebounds, ${m.x[17]} assists and ${m.x[25]} PIR.`, `El mejor del partido fue ${pn(m.p)} (${tm}), con ${m.x[8]} puntos, ${m.x[15] + m.x[16]} rebotes, ${m.x[17]} asistencias y ${m.x[25]} de PIR.`, `Najbolji igrač utakmice: ${pn(m.p)} (${tm}) sa ${m.x[8]} poena, ${m.x[15] + m.x[16]} skokova, ${m.x[17]} asistencija i ${m.x[25]} PIR-a.`, `Maçın yıldızı: ${pn(m.p)} (${tm}) – ${m.x[8]} sayı, ${m.x[15] + m.x[16]} ribaund, ${m.x[17]} asist ve ${m.x[25]} PIR.`)); }
+        const m2 = m && box.find(u => (u.x[2] === h) !== (m.x[2] === h));
+        if (m2) { const t2 = m2.x[2] === h ? A : H; P.push(T(`${t2}: ξεχώρισε ο ${pn(m2.p)} με ${m2.x[8]} πόντους και ${m2.x[25]} PIR.`, `For ${t2}, ${pn(m2.p)} led with ${m2.x[8]} points and ${m2.x[25]} PIR.`, `En ${t2} destacó ${pn(m2.p)}, con ${m2.x[8]} puntos y ${m2.x[25]} de PIR.`, `Za ${t2} se istakao ${pn(m2.p)} sa ${m2.x[8]} poena i ${m2.x[25]} PIR-a.`, `${t2} tarafında ${pn(m2.p)} ${m2.x[8]} sayı ve ${m2.x[25]} PIR ile öne çıktı.`)); }
         return P;
       }
       P.push(T(`Ο αγώνας ${H} – ${A} για την ${rdTxt(r)} της ${S} γίνεται ${dt} (ώρα Ελλάδας)${VENUE[`${r}|${h}|${a}`] ? `, γήπεδο: ${VENUE[`${r}|${h}|${a}`]}` : ''}.`, `${H} vs ${A}: the ${S} ${rdTxt(r)} game tips off ${dt} (Athens time)${VENUE[`${r}|${h}|${a}`] ? ` at ${VENUE[`${r}|${h}|${a}`]}` : ''}.`, `${H} - ${A}: el partido de la ${rdTxt(r).toLowerCase()} de la ${S} se juega el ${dt} (hora de Atenas)${VENUE[`${r}|${h}|${a}`] ? ` en ${VENUE[`${r}|${h}|${a}`]}` : ''}.`, `${H} - ${A}: utakmica ${rdTxt(r)} ${S} igra se ${dt} (po atinskom vremenu)${VENUE[`${r}|${h}|${a}`] ? `, ${VENUE[`${r}|${h}|${a}`]}` : ''}.`, `${H} – ${A}: ${S} ${rdTxt(r)} maçı ${dt} (Atina saati) başlıyor${VENUE[`${r}|${h}|${a}`] ? `, salon: ${VENUE[`${r}|${h}|${a}`]}` : ''}.`));
@@ -3307,7 +3310,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
       const PV = previewText(g, H, A, dt);
       const sc = LG === 'sr' ? `${hs}:${as}` : `${hs}-${as}`;
       const title = pl
-        ? T(`${vs} ${sc}: στατιστικά αγώνα (${rdTxt(r)} EuroLeague)`, `${vs} ${sc}: game stats (EuroLeague ${rdTxt(r)})`, `${vs} ${sc}: estadísticas del partido (${rdTxt(r).toLowerCase()} de la EuroLeague)`, `${vs} ${sc}: statistika utakmice (${rdTxt(r)} Evrolige)`, `${vs} ${sc}: maç istatistikleri (EuroLeague ${rdTxt(r)})`)
+        ? T(`${vs} ${sc}: στατιστικά & box score αγώνα (${rdTxt(r)} EuroLeague)`, `${vs} ${sc}: box score & game stats (EuroLeague ${rdTxt(r)})`, `${vs} ${sc}: estadísticas y box score (${rdTxt(r).toLowerCase()} de la EuroLeague)`, `${vs} ${sc}: statistika i box score (${rdTxt(r)} Evrolige)`, `${vs} ${sc}: maç istatistikleri ve box score (EuroLeague ${rdTxt(r)})`)
         : T(`${vs} πρόβλεψη (${dS}): ώρα, κανάλι, απουσίες | EuroLeague`, `${vs} prediction (${dS}): tip-off time, TV, injuries | EuroLeague`, `${vs} pronóstico (${dS}): horario, TV, bajas | EuroLeague`, `${vs} prognoza (${dS}): satnica, TV, povrede | Evroliga`, `${vs} maçı ne zaman, saat kaçta, hangi kanalda? (${dS}) Tahmin ve sakatlıklar | EuroLeague`);
       const desc = pl
         ? T(`${vs} ${sc} στην ${rdTxt(r)} της ${S}: οι κορυφαίοι του αγώνα, η φόρμα, οι τέσσερις παράγοντες και τα μεταξύ τους.`, `${vs} ${sc} in ${rdTxt(r)} of the ${S}: top performers, form, four factors and head-to-head.`, `${vs} ${sc} en la ${rdTxt(r).toLowerCase()} de la ${S}: los mejores del partido, la forma, los cuatro factores y los enfrentamientos.`, `${vs} ${sc} u ${rdTxt(r)} ${S}: najbolji igrači utakmice, forma, četiri faktora i međusobni dueli.`, `${vs} ${sc} – ${S}, ${rdTxt(r)}: maçın yıldızları, form, four factors ve aralarındaki maçlar.`)
@@ -3983,10 +3986,24 @@ ${wBlock('widget:rd', 1230, T('Προγνωστικά EuroLeague', 'EuroLeague p
   const lmNew = {};
   for (const u of urls) { const h = PAGE_HASH.get(u) || ''; const o = lmOld[u]; lmNew[u] = o && o[0] === h ? o : [h, today]; }
   await fs.writeFile(LM_FILE, JSON.stringify(lmNew));
-  await fs.writeFile(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+  // sitemap index (sitemap.xml) + ένα sitemap ανά γλώσσα: μικρότερα αρχεία που η Google διαβάζει
+  // πιο εύκολα, και ξεχωριστή αναφορά ευρετηρίασης ανά γλώσσα στο Search Console.
+  const smGroups = {};
+  for (const u of urls) { const m = u.slice((SITE_URL + BASE).length).match(/^(en|es|sr|tr)\//); (smGroups[m ? m[1] : 'el'] ||= []).push(u); }
+  const smIdx = [];
+  for (const [lg, list] of Object.entries(smGroups)) {
+    const name = `sitemap-${lg}.xml`, last = list.reduce((a, u) => lmNew[u][1] > a ? lmNew[u][1] : a, '');
+    await fs.writeFile(path.join(OUT, name), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => `  <url><loc>${esc(u)}</loc><lastmod>${lmNew[u][1]}</lastmod></url>`).join('\n')}
+${list.map(u => `  <url><loc>${esc(u)}</loc><lastmod>${lmNew[u][1]}</lastmod></url>`).join('\n')}
 </urlset>
+`);
+    smIdx.push(`  <sitemap><loc>${SITE_URL}${BASE}${name}</loc><lastmod>${last}</lastmod></sitemap>`);
+  }
+  await fs.writeFile(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${smIdx.join('\n')}
+</sitemapindex>
 `);
   if (AD_CLIENT) await fs.writeFile(path.join(OUT, 'ads.txt'), `google.com, ${AD_CLIENT.replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`);
   await fs.writeFile(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}${BASE}sitemap.xml\n`);
