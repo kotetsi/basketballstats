@@ -8,10 +8,10 @@ const cache = JSON.parse(fs.readFileSync(new URL('../../data/cache.json', import
 const P = cache.players.map(p => { const [last, first = ''] = p.n.split(','); return { c: p.c, t: p.t, last: norm(last), first: norm(first), n: p.n }; });
 const out = [], miss = [];
 for (const line of fs.readFileSync(new URL(`./raw-r${R}.txt`, import.meta.url), 'utf8').split('\n').filter(Boolean)) {
-  const [name, pos, gt, cr, plus] = line.split('|');
+  const [name, pos, gt, cr, plus, pop = ''] = line.split('|');   // pop = ποσοστό επιλογής σε ‰
   const t = TM[gt];
   if (!t) { miss.push(line + '  (άγνωστη ομάδα)'); continue; }
-  if (pos === 'HC') { out.push([`COACH-${t}`, cr, plus, name]); continue; }
+  if (pos === 'HC') { out.push([`COACH-${t}`, cr, plus, name, pop]); continue; }
   const m = name.match(/^(\S+)\.\s+(.+)$/);
   const ini = norm(m[1])[0], last = norm(m[2]);
   const ok = p => p.last === last || p.last.replace(/ /g, '') === last.replace(/ /g, '') || p.last.startsWith(last + ' ') || (p.last.split(' ').includes(last.split(' ')[0]) && last.split(' ').length > 1);
@@ -19,7 +19,7 @@ for (const line of fs.readFileSync(new URL(`./raw-r${R}.txt`, import.meta.url), 
   if (c.length > 1) c = c.filter(p => p.t === t);
   if (!c.length) c = P.filter(p => ok(p) && p.t === t);   // άλλο μικρό όνομα (π.χ. Olek/Aleksander Balcerowski)
   if (c.length !== 1) { miss.push(`${line}  (${c.length} υποψήφιοι)`); continue; }
-  out.push([c[0].c, cr, plus, c[0].n]);
+  out.push([c[0].c, cr, plus, c[0].n, pop]);
 }
-fs.writeFileSync(new URL(`./prices-r${R}.csv`, import.meta.url), `# Επίσημες τιμές EuroLeague Fantasy πριν από την ${R}η αγωνιστική: code,price,change,name\n` + out.map(r => r.map(x => /,/.test(x) ? `"${x}"` : x).join(',')).join('\n') + '\n');
+fs.writeFileSync(new URL(`./prices-r${R}.csv`, import.meta.url), `# Επίσημες τιμές EuroLeague Fantasy πριν από την ${R}η αγωνιστική: code,price,change,name,pop‰\n` + out.map(r => r.map(x => /,/.test(x) ? `"${x}"` : x).join(',')).join('\n') + '\n');
 console.log('ok', out.length, 'χωρίς αντιστοίχιση', miss.length); miss.forEach(x => console.log('  ' + x));
