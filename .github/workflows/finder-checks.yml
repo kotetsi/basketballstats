@@ -1,0 +1,31 @@
+name: Advanced Player Finder checks
+on:
+  pull_request:
+    paths:
+      - 'src/finder/**'
+      - 'scripts/build-finder.mjs'
+      - 'test/finder.test.mjs'
+      - '.github/workflows/finder-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  finder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Unit tests
+        run: node --test test/finder.test.mjs
+      - name: Build site offline
+        run: node build.mjs --offline
+      - name: Generate Finder page
+        run: node scripts/build-finder.mjs
+      - name: Validate generated assets
+        run: |
+          test -s dist/player-finder/index.html
+          test -s dist/assets/finder-metrics.mjs
+          test -s dist/assets/data.json
+          grep -q 'Advanced Player Finder' dist/player-finder/index.html
