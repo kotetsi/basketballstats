@@ -46,6 +46,18 @@ def read_overrides(name: str) -> dict:
     return res
 
 
+def official_prices(rnd: int) -> dict:
+    """Επίσημες τιμές του EuroLeague Fantasy για τη συγκεκριμένη αγωνιστική (fantasy/official/prices-rNN.csv).
+    Χρησιμοποιούνται μόνο για την ίδια αγωνιστική: οι τιμές αλλάζουν μετά από κάθε αγωνιστική."""
+    f = ROOT / "fantasy" / "official" / f"prices-r{rnd}.csv"
+    res = {}
+    if f.exists():
+        for row in csv.reader(l for l in f.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")):
+            if len(row) >= 2:
+                res[row[0].strip().upper()] = row[1].strip()
+    return res
+
+
 def coach_points(margin: float) -> float:
     if margin > 0:
         return 10 if margin <= 10 else 20 if margin <= 20 else 25
@@ -126,7 +138,8 @@ def main():
             team_game[team] = {"opp": opp, "home": home, "day": days.index(game_date(g[1]).isoformat()), "date": g[1],
                                "pwin": round(ncdf(m / SD_MARGIN), 3), "margin": round(m, 1)}
 
-    prices_over = read_overrides("prices.csv")
+    prices_over = {**official_prices(target), **read_overrides("prices.csv")}
+    log("επίσημες τιμές:", len(prices_over))
     status_over = read_overrides("status.csv")
     pos_of = {p["c"]: p.get("pos") or "Forward" for p in cache["players"]}
     pl_by = {p["c"]: p for p in cache["players"]}
