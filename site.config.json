@@ -8,5 +8,12 @@
   "adsenseClient": "",
   "adsenseSlot": "",
   "gaId": "G-HVXPNP3173",
-  "fantasyVisionEndpoint": ""
+  "fantasyVisionEndpoint": "",
+  "social": {
+    "facebook": "https://www.facebook.com/profile.php?id=61596308549910",
+    "instagram": {
+      "url": "https://www.instagram.com/sportarena/",
+      "sameAs": false
+    }
+  }
 }
