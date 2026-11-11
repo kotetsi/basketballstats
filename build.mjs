@@ -1648,13 +1648,15 @@ ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) 
           const day = FXD.days.indexOf(at.slice(0, 10));
           games[g[2]] = { opp: g[3], home: 1, at, day: day >= 0 ? day : null }; games[g[3]] = { opp: g[2], home: 0, at, day: day >= 0 ? day : null };
         }
+        const pByAll = Object.fromEntries(players.map(q => [q.c, q]));
         const askPlayers = players.map(q => {
           const x = fxBy[q.c], pl = q.g.filter(r => r[7] > 0), inj = INJ[LG][q.c], t = q.t.split(';').pop();
           return { c: q.c, n: (LG === 'el' && GRN[q.n]) || niceName(q.n), alt: [niceName(q.n), GRN[q.n]].filter(Boolean), t,
             st: x ? x.status : (inj ? (inj.m === 1 ? 'injured' : 'doubtful') : 'playing'), why: inj?.t || '', miss: inj && inj.m === 0 ? 1 : 0,
             pp: x && x.status !== 'injured' ? +x.pp.toFixed(1) : null, p10: x ? +x.p10.toFixed(1) : null, p90: x ? +x.p90.toFixed(1) : null, day: x ? x.day : (games[t]?.day ?? null),
             avg: pl.length ? +(pl.reduce((a, r) => a + r[25], 0) / pl.length).toFixed(1) : null, l3: pl.slice(-3).map(r => r[25]),
-            u: urlFor(LG, 'player:' + q.s), fu: pBy[q.c] ? fxp(q.c) : '' };
+            u: urlFor(LG, 'player:' + q.s), fu: pBy[q.c] ? fxp(q.c) : '',
+            ...(x?.vx ? { vx: { ...x.vx, a: x.vx.a.map(c => (LG === 'el' && GRN[pByAll[c]?.n]) || niceName(pByAll[c]?.n || c)) } } : {}) };
         });
         await fs.mkdir(path.join(OUT, 'api', 'ask'), { recursive: true });
         await fs.writeFile(path.join(OUT, 'api', 'ask', LG + '.json'), JSON.stringify({ round: FXD.round, generated: FXD.generated, days: FXD.days, loc: { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG], caps: urlFor(LG, 'fxcap:' + FXD.round), teams, games, players: askPlayers }));

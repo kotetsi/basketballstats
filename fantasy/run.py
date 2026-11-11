@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from features import build_rows, game_date, team_tables, team_ratings_before, SECS, PIR  # noqa: E402
 from model import FEATSET, MODEL_VERSION, PirModel, backtest, ncdf  # noqa: E402
 import features2 as F2  # noqa: E402
+import vacated as VAC  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "fantasy"
@@ -161,6 +162,42 @@ def main():
             "conf": int(r["confidence"]) if mult else 0, "opp": tg_.get("opp"), "home": tg_.get("home"), "day": tg_.get("day"), "pwin": tg_.get("pwin"),
             "f": facts[i][:4], "h": [[x[0], round(x[SECS] / 60, 1), x[PIR]] for x in p["g"][-12:]],
         })
+    # ---- απόντες συμπαίκτες (fantasy/vacated.py, ελεγμένο με vac_backtest.py): λεπτά στα ματς χωρίς αυτούς,
+    #      αλλιώς μοίρασμα των λεπτών τους στους διαθέσιμους
+    tg_rounds = {}
+    for g in games:
+        if g[6]:
+            for tm in (g[2], g[3]):
+                tg_rounds.setdefault(tm, []).append(g[0])
+    by_team, logs = {}, {}
+    for p in players:
+        g_ = pl_by[p["c"]]["g"]
+        logs[p["c"]] = {x[0]: x[SECS] / 60 for x in g_}
+        played5 = [x for x in g_ if x[SECS] > 0][-5:]
+        have = {x[0] for x in g_ if x[SECS] > 0}
+        last5 = sorted(tg_rounds.get(p["t"], []))[-5:]
+        by_team.setdefault(p["t"], []).append({
+            "c": p["c"], "pos": p["pos"], "pm": p["pm0"], "out": p["status"] in ("injured", "rest"),
+            "mplay": float(np.mean([x[SECS] / 60 for x in played5])) if played5 else 0.0,
+            "miss5": (sum(1 for r_ in last5 if r_ not in have) / len(last5)) if last5 else 0.0})
+    vac_n = 0
+    pidx = {p["c"]: p for p in players}
+    for team, tp in by_team.items():
+        res = VAC.adjust(tp, logs, sorted(set(tg_rounds.get(team, []))))
+        for c, (dm, info) in res.items():
+            p = pidx[c]
+            mult = {"playing": 1.0, "doubtful": 0.4}.get(p["status"], 0.0)
+            d = dm * p["ppm"] * mult
+            p["pm"] = round(max(0.0, p["pm"] + dm * mult), 1)
+            p["pp"] = round(max(0.0, p["pp"] + d), 1)
+            for k in ("p10", "p50", "p90"):
+                p[k] = round(p[k] + d, 1)
+            if info["k"] == "ww":
+                p["vx"] = {"k": "ww", "n": info["n"], "m": info["m"], "a": info["a"], "dm": round(dm, 1), "dp": round(d, 1)}
+            else:
+                p["vx"] = {"k": "vac", "a": [c_ for c_, m_ in info["src"] if m_ >= 0.3], "dm": round(dm, 1), "dp": round(d, 1)}
+            vac_n += 1
+    log(f"vacated minutes: {vac_n} players gained minutes from absent teammates")
     players.sort(key=lambda x: -x["pp"])
 
     # ---- Transfer Market Analyzer: προβολή για τις επόμενες 3 αγωνιστικές, εκτιμώμενη τιμή ανά αγωνιστική, σήματα

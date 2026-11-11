@@ -45,7 +45,7 @@ test('καταλαβαίνει το είδος της ερώτησης', () => {
 });
 test('οι απαντήσεις βγαίνουν από τα δεδομένα', () => {
   const a = ask('να βάλω σήμερα τον Ιφή;').html;
-  assert.match(a, /14,9 PIR/); assert.match(a, /σήμερα/); assert.match(a, /21:45/); assert.match(a, /2η καλύτερη άμυνα/);
+  assert.match(a, /14,9 PIR/); assert.match(a, /σήμερα/); assert.match(a, /21:45/); assert.match(a, /2η καλύτερη άμυνα/); assert.match(a, /αντίπαλος: Φενέρμπαχτσε/);
   assert.match(ask('Ιφί ή Χέις').html, /εκτός/);
   assert.match(ask('παίζει ο Χέις;').html, /εκτός/);
   assert.match(ask('Βεζένκοφ αρχηγός;').html, /κορυφαία επιλογή αρχηγού/);
