@@ -433,6 +433,29 @@ async function loadInjuries(players, games) {
   return out;
 }
 
+// Μεταγραφές και αλλαγές προπονητών μέσα στη σεζόν (metagrafes.md)
+async function loadTransfers(players) {
+  let txt = '';
+  try { txt = await fs.readFile(path.join(ROOT, 'metagrafes.md'), 'utf8'); } catch { return []; }
+  const nrm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const out = [];
+  for (const line of txt.split(/\r?\n/)) {
+    if (!/^\s*\d{4}-\d{2}-\d{2}\s*\|/.test(line)) continue;
+    const [d, k, name, team, other, st, el, en, es, sr, src] = line.split('|').map(x => x.trim());
+    if (!['+', '-', 'c+', 'c-'].includes(k) || !TEAMS[team]) { console.warn('Μεταγραφές: λάθος γραμμή', line.slice(0, 60)); continue; }
+    let pl = null;
+    if (!k.startsWith('c')) {
+      const full = nrm(name), last = full.split(' ').slice(1).join(' ');
+      const cand = players.filter(q => { const [ln, fn = ''] = q.n.split(','); return nrm(fn + ' ' + ln) === full || (nrm(ln) === last && nrm(fn)[0] === full[0]); });
+      pl = cand.find(q => q.t.split(';').includes(team)) || (cand.length === 1 ? cand[0] : null);
+    }
+    out.push({ d, k, name, team, other: other || '', ok: st !== '?', txt: { el, en, es, sr, tr: en }, src: /^https?:\/\//.test(src || '') ? src : '', pl });
+  }
+  out.sort((a, b) => b.d.localeCompare(a.d));
+  console.log('Μεταγραφές:', out.length, '· με σελίδα παίκτη:', out.filter(x => x.pl).length);
+  return out;
+}
+
 async function loadTipsters(games, players) {
   const dir = path.join(ROOT, 'tipsters');
   let files = [];
@@ -907,6 +930,7 @@ async function main() {
   const articles = await loadArticles();
   const tipsters = await loadTipsters(league.games, players);
   const INJ = await loadInjuries(players, league.games);
+  const TRF = await loadTransfers(players);
   // player props: μοντέλο (λεπτά × ρυθμός, με ανακατανομή λεπτών για νέες απουσίες) vs αποδόσεις αδειοδοτημένων bookmakers ανά χώρα
   const PROPSJ = {};
   {
@@ -934,6 +958,57 @@ async function main() {
     PROPSJ._track = PROPM.trackSummary(TR);
     const n = Object.values(PROPSJ.gr || {}).reduce((s, g) => s + g.value.length, 0);
     if (Object.keys(PROPSJ.gr || {}).length) console.log('Player props (gr):', Object.keys(PROPSJ.gr).length, 'αγώνες,', n, 'με value');
+  }
+  // ---- στοίχημα της ημέρας: το πιο σίγουρο σημείο, το αουτσάιντερ και ένα combo (νίκη + πόντοι παίκτη), μόνο από το μοντέλο.
+  // Οι επιλογές κάθε μέρας «κλειδώνουν» με το πρώτο τζάμπολ και μετά βαθμολογούνται από τα αποτελέσματα (data/odds/daytips.json).
+  const DAYT = { day: null, picks: [], hist: {} };
+  {
+    const TF = path.join(ROOT, 'data', 'odds', 'daytips.json');
+    try { DAYT.hist = JSON.parse(await fs.readFile(TF, 'utf8')); } catch { }
+    const now = Date.now(), dAth = ms => new Date(ms).toLocaleDateString('sv-SE', { timeZone: 'Europe/Athens' });
+    const played = new Map(league.games.map(g => [`${g[0]}|${g[2]}|${g[3]}`, g]));
+    const up = (MPRED?.games || []).filter(g => g.comp === 'E' && TEAMS[g.h] && TEAMS[g.a] && Date.parse(g.t) > now && !played.get(`${g.r}|${g.h}|${g.a}`)?.[6]);
+    const day = up.length ? up.map(g => dAth(Date.parse(g.t))).sort()[0] : null;
+    if (day) {
+      const G = up.filter(g => dAth(Date.parse(g.t)) === day);
+      const sides = G.flatMap(g => [{ g, side: 'h', team: g.h, opp: g.a, p: g.p_home }, { g, side: 'a', team: g.a, opp: g.h, p: g.p_away }]);
+      const safe = sides.slice().sort((a, b) => b.p - a.p)[0];
+      const dogs = sides.filter(x => x.p < 0.5 && (G.length < 2 || x.g !== safe.g)).sort((a, b) => b.p - a.p);
+      const dog = dogs[0] || null;
+      // combo: η ομάδα του σίγουρου σημείου + ο παίκτης της με την υψηλότερη γραμμή πόντων που περνάει με ≥ 72%
+      const solo = players.filter(q => !q.t.includes(';')), pri = PROPM.leaguePriors(solo);
+      const fxBy = Object.fromEntries((FXD?.players || []).map(x => [x.c, x]));
+      let combo = null;
+      for (const q of solo.filter(q => q.t.split(';').pop() === safe.team)) {
+        const fx = fxBy[q.c]; if (INJ.el[q.c]?.m === 1 || ['injured', 'rest', 'doubtful'].includes(fx?.status)) continue;
+        const rows = q.g.filter(r => r[7] > 0).sort((x, y) => x[0] - y[0]); if (rows.length < 5) continue;
+        const pr = PROPM.project(rows, 'pts', { prior: pri.pts, minutes: fx?.pm0 || null }); if (!pr || pr.mu < 8) continue;
+        let line = Math.floor(pr.mu) + 0.5, po = PROPM.pOver(pr.mu, pr.var, line);
+        while (line > 2 && po < 0.72) { line -= 1; po = PROPM.pOver(pr.mu, pr.var, line); }
+        if (po < 0.72) continue;
+        if (!combo || line > combo.line || (line === combo.line && po > combo.po)) combo = { c: q.c, line, po: +po.toFixed(3), mu: +pr.mu.toFixed(1) };
+      }
+      const rec = x => ({ gid: `${x.g.r}|${x.g.h}|${x.g.a}`, t: x.g.t, side: x.side, team: x.team, opp: x.opp, p: +x.p.toFixed(3) });
+      const picks = [{ k: 'safe', ...rec(safe) }];
+      if (dog) picks.push({ k: 'dog', ...rec(dog) });
+      if (combo) picks.push({ k: 'combo', ...rec(safe), pl: combo.c, line: combo.line, pp: combo.po, mu: combo.mu, p: +(safe.p * combo.po).toFixed(3) });
+      const first = Math.min(...G.map(g => Date.parse(g.t)));
+      // πριν από το πρώτο τζάμπολ οι επιλογές ανανεώνονται· μετά μένουν όπως ήταν
+      if (!DAYT.hist[day] || now < first) DAYT.hist[day] = { made: new Date().toISOString(), picks };
+      DAYT.day = day; DAYT.picks = DAYT.hist[day].picks;
+    }
+    // βαθμολόγηση: ok = true/false όταν τελειώσει ο αγώνας
+    for (const [, H] of Object.entries(DAYT.hist)) for (const x of H.picks) {
+      if (x.ok != null) continue;
+      const [r, h, a] = x.gid.split('|'), g = played.get(`${+r}|${h}|${a}`); if (!g?.[6]) continue;
+      const won = x.side === 'h' ? g[4] > g[5] : g[5] > g[4];
+      if (x.k !== 'combo') { x.ok = won; continue; }
+      const q = players.find(z => z.c === x.pl), row = q?.g.find(z => z[0] === +r && z[7] > 0);
+      if (!row) { x.ok = won ? 'void' : false; continue; }   // δεν έπαιξε: άκυρο το σκέλος του παίκτη
+      x.ok = won && PROPM.STATS.pts(row) > x.line; x.v = PROPM.STATS.pts(row);
+    }
+    if (Object.keys(DAYT.hist).length) await fs.writeFile(TF, JSON.stringify(DAYT.hist));
+    if (DAYT.day) console.log('Στοίχημα της ημέρας:', DAYT.day, DAYT.picks.map(x => `${x.k}:${x.team}${x.pl ? '+' + x.pl + '>' + x.line : ''} ${x.p}`).join(' · '));
   }
   // για τον Game Predictor (Python): απουσίες και επερχόμενοι αγώνες με ISO ημερομηνία
   {
@@ -1160,6 +1235,8 @@ async function main() {
     if (k === 'fxrounds') return B(lg) + PATHS[lg].fantasy + '/' + ({ el: 'agonistikes', en: 'rounds', es: 'jornadas', sr: 'kola', tr: 'haftalar' })[lg] + '/';
     if (k === 'fxrules') return B(lg) + PATHS[lg].fantasy + '/' + ({ el: 'odigos', en: 'how-to-play', es: 'como-jugar', sr: 'vodic', tr: 'nasil-oynanir' })[lg] + '/';
     if (k === 'mvp') return B(lg) + ({ el: 'mvp-euroleague', en: 'euroleague-mvp', es: 'mvp-euroliga', sr: 'mvp-evrolige', tr: 'euroleague-mvp' })[lg] + '/';
+    if (k === 'daytip') return B(lg) + ({ el: 'stoixima-tis-imeras', en: 'bet-of-the-day', es: 'apuesta-del-dia', sr: 'tip-dana', tr: 'gunun-bahsi' })[lg] + '/';
+    if (k === 'transfers') return B(lg) + ({ el: 'metagrafes', en: 'transfers', es: 'fichajes', sr: 'transferi', tr: 'transferler' })[lg] + '/';
     if (k === 'inj') return B(lg) + ({ el: 'traumaties', en: 'injury-report', es: 'lesionados', sr: 'povrede', tr: 'sakatlik-raporu' })[lg] + '/';
     if (k === 'sched') return B(lg) + ({ el: 'programma', en: 'schedule', es: 'calendario', sr: 'raspored', tr: 'fikstur' })[lg] + '/' + (v ? ({ el: 'agonistiki-', en: 'round-', es: 'jornada-', sr: 'kolo-', tr: 'hafta-' })[lg] + v + '/' : '');
     if (k === 'shp') return urlFor(lg, 'player:' + v) + 'shot-chart/';
@@ -1270,7 +1347,7 @@ ${pwaStyle}`;
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>', 'Gizlilik politikası</a>');
-    const shellB0 = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'sched')}">${T('Πρόγραμμα & αποτελέσματα', 'Schedule & results', 'Calendario y resultados', 'Raspored i rezultati', 'Fikstür ve sonuçlar')}</a><a href="${urlFor(LG, 'inj')}">🩹 Injury Report</a>${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija', 'Tarihçe')}</a>` : ''}<a href="${urlFor(LG, 'guess')}">🎯 ${T('Μάντεψε τον παίκτη', 'Guess the player', 'Adivina el jugador', 'Pogodi igrača', 'Oyuncuyu tahmin et')}</a><a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi', 'Liderler ve rekorlar')}</a>${MPRED?.games?.length ? `<a href="${urlFor(LG, 'mc')}">Matchup Center</a>` : ''}<a href="${urlFor(LG, 'odds')}">Betting Insights (${LG === 'el' ? 21 : 18}+)</a>${AN.E ? `<a href="${urlFor(LG, 'ana')}">Team Analytics</a><a href="${urlFor(LG, 'onoff')}">On/Off</a>` : ''}${REFROWS.length ? `<a href="${urlFor(LG, 'ref')}">${T('Διαιτητές', 'Referees', 'Árbitros', 'Sudije', 'Hakemler')}</a>` : ''}<a href="${urlFor(LG, 'awards')}">${T('Βραβεία', 'Awards', 'Premios', 'Nagrade', 'Ödüller')}</a><a href="${urlFor(LG, 'mvp')}">${T('MVP ανά χρονιά', 'MVP by year', 'MVP por año', 'MVP po godinama', 'Yıllara göre MVP')}</a><a href="${urlFor(LG, 'nat')}">${T('Εθνικότητες', 'Nationalities', 'Nacionalidades', 'Nacionalnosti', 'Uyruklar')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija', 'Uygulama')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača', 'Oyuncu karşılaştır')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela', 'Model isabeti')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt', 'Siten için widget’lar')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića', 'Çerez ayarları')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL).replace(/(<nav class="foot">[\s\S]*?<\/nav>)/, m => m + (SOCIAL.length ? `<p class="social">${T('Ακολούθησέ μας', 'Follow us', 'Síguenos', 'Prati nas', 'Bizi takip edin')}: ${SOCIAL.map(x => `<a href="${esc(x.u)}" rel="me noopener" target="_blank">${esc(x.n)}</a>`).join('')}</p>` : ''))
+    const shellB0 = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'sched')}">${T('Πρόγραμμα & αποτελέσματα', 'Schedule & results', 'Calendario y resultados', 'Raspored i rezultati', 'Fikstür ve sonuçlar')}</a><a href="${urlFor(LG, 'inj')}">🩹 Injury Report</a>${TRF.length ? `<a href="${urlFor(LG, 'transfers')}">🔄 ${T('Μεταγραφές', 'Transfers', 'Fichajes', 'Transferi', 'Transferler')}</a>` : ''}${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija', 'Tarihçe')}</a>` : ''}<a href="${urlFor(LG, 'guess')}">🎯 ${T('Μάντεψε τον παίκτη', 'Guess the player', 'Adivina el jugador', 'Pogodi igrača', 'Oyuncuyu tahmin et')}</a><a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi', 'Liderler ve rekorlar')}</a>${MPRED?.games?.length ? `<a href="${urlFor(LG, 'mc')}">Matchup Center</a>` : ''}<a href="${urlFor(LG, 'odds')}">Betting Insights (${LG === 'el' ? 21 : 18}+)</a>${DAYT.day || Object.keys(DAYT.hist).length ? `<a href="${urlFor(LG, 'daytip')}">🎯 ${T('Στοίχημα της ημέρας', 'Bet of the day', 'Apuesta del día', 'Tip dana', 'Günün bahsi')}</a>` : ''}${AN.E ? `<a href="${urlFor(LG, 'ana')}">Team Analytics</a><a href="${urlFor(LG, 'onoff')}">On/Off</a>` : ''}${REFROWS.length ? `<a href="${urlFor(LG, 'ref')}">${T('Διαιτητές', 'Referees', 'Árbitros', 'Sudije', 'Hakemler')}</a>` : ''}<a href="${urlFor(LG, 'awards')}">${T('Βραβεία', 'Awards', 'Premios', 'Nagrade', 'Ödüller')}</a><a href="${urlFor(LG, 'mvp')}">${T('MVP ανά χρονιά', 'MVP by year', 'MVP por año', 'MVP po godinama', 'Yıllara göre MVP')}</a><a href="${urlFor(LG, 'nat')}">${T('Εθνικότητες', 'Nationalities', 'Nacionalidades', 'Nacionalnosti', 'Uyruklar')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija', 'Uygulama')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača', 'Oyuncu karşılaştır')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela', 'Model isabeti')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt', 'Siten için widget’lar')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića', 'Çerez ayarları')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL).replace(/(<nav class="foot">[\s\S]*?<\/nav>)/, m => m + (SOCIAL.length ? `<p class="social">${T('Ακολούθησέ μας', 'Follow us', 'Síguenos', 'Prati nas', 'Bizi takip edin')}: ${SOCIAL.map(x => `<a href="${esc(x.u)}" rel="me noopener" target="_blank">${esc(x.n)}</a>`).join('')}</p>` : ''))
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const shellB = shellB0.replace(/(<a href="[^"]*" data-v="stand">[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'today')}" data-v="today" class="navtoday">📅 ${T('Οι αγώνες σήμερα', 'Today', 'Hoy', 'Danas', 'Bugün')}</a>`)
       // «Σύγκριση» (ομάδων και παικτών) μετά τα Shot Charts
@@ -1543,7 +1620,7 @@ ${deeps.length ? `<h2 class="tdh">🔎 ${T('Οι σε βάθος αναλύσε�
     await simplePage('today', { view: 'today', title: T(`Αγώνες μπάσκετ σήμερα: EuroLeague και EuroCup, ώρες και προγνωστικά | ${SITE_NAME}`, `Today's games: EuroLeague and EuroCup times, predictions and previews | ${SITE_NAME}`, `Euroliga hoy: partidos de Euroliga y Eurocup, horarios, TV y pronósticos | ${SITE_NAME}`, `Evroliga danas: utakmice Evrolige i Evrokupa uživo, satnica, TV i prognoze | ${SITE_NAME}`, `Bugünkü maçlar: EuroLeague ve EuroCup maç saatleri, tahminler ve analizler | ${SITE_NAME}`),
       desc: T('Όλοι οι σημερινοί αγώνες της EuroLeague και του EuroCup: ώρα Ελλάδας, πιθανότητα νίκης, εκτιμώμενο σκορ, αποτελέσματα και σε βάθος ανάλυση κάθε αγώνα.', 'All of today’s EuroLeague and EuroCup games: tip-off times, win probability, projected score, results and an in-depth preview of every game.', 'Todos los partidos de hoy de la EuroLeague y la EuroCup: horario, probabilidad de victoria, marcador estimado, resultados y análisis en profundidad.', 'Sve današnje utakmice Evrolige i Evrokupa: satnica, verovatnoća pobede, procenjeni rezultat, rezultati i detaljna analiza svake utakmice.', 'Bugünkü tüm EuroLeague ve EuroCup maçları: başlama saatleri, kazanma ihtimali, tahmini skor, sonuçlar ve her maçın detaylı analizi.'),
       main: `<article class="article lead wide anpage todaypage"><h1>${T('Οι αγώνες σήμερα', 'Today’s games', 'Los partidos de hoy', 'Današnje utakmice', 'Bugünkü maçlar')}</h1><p class="lede2">${esc(T('Ώρες Ελλάδας · πιθανότητες από το μοντέλο μας · τα αποτελέσματα ενημερώνονται σε κάθε ανανέωση του site.', 'Athens time · probabilities from our model · results refresh with every site update.', 'Hora de Atenas · probabilidades de nuestro modelo · los resultados se actualizan con cada actualización.', 'Atinsko vreme · verovatnoće iz našeg modela · rezultati se osvežavaju pri svakom ažuriranju.', 'Atina saati · ihtimaller modelimizden · sonuçlar sitenin her güncellemesinde yenilenir.'))}</p>
-<div class="todaybox"><p class="tdnone sub" hidden>${noneTxt}</p>${todayBlocks(true)}</div>${todayJS}
+${DAYT.day ? `<p class="leadnav"><a href="${urlFor(LG, 'daytip')}">🎯 ${T('Στοίχημα της ημέρας', 'Bet of the day', 'Apuesta del día', 'Tip dana', 'Günün bahsi')}</a></p>` : ''}<div class="todaybox"><p class="tdnone sub" hidden>${noneTxt}</p>${todayBlocks(true)}</div>${todayJS}
 <p class="note">${T('Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος ή εγγύηση αποτελέσματος. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των 21 ετών. Παίξτε υπεύθυνα.', 'Projections are statistical estimates, not betting advice or a guarantee of any result. Gambling is for adults (18+) only. Please play responsibly.', 'Las estimaciones son estadísticas y no constituyen consejo de apuestas ni garantía de resultado. Apuestas solo para mayores de 18 años. Juega con responsabilidad.', 'Procene su statističke i nisu savet za klađenje niti garancija rezultata. Klađenje samo za punoletne (18+). Igrajte odgovorno.', 'Tahminler istatistiksel hesaplamalardır; bahis tavsiyesi ya da herhangi bir sonucun garantisi değildir. Bahis yalnızca yetişkinler (18+) içindir. Sorumlu oyna.')}</p></article>`,
       ld: crumbs([[SITE_NAME, B(LG)], [T('Οι αγώνες σήμερα', 'Today’s games', 'Los partidos de hoy', 'Današnje utakmice', 'Bugünkü maçlar'), urlFor(LG, 'today')]]) });
     // ---- Injury Report: τραυματίες (traumaties.md) και απόντες (αυτόματα) ανά ομάδα
@@ -1591,6 +1668,104 @@ ${latestHtml}
 ${faqHtml}
 <p class="note">${T('Πηγές: επίσημα box score της EuroLeague (για τις απουσίες) και ειδήσεις από τις ομάδες (για τους τραυματισμούς). Ενημερώνεται καθημερινά· ένας παίκτης φεύγει από τη λίστα μόλις ξαναπαίξει.', 'Sources: official EuroLeague box scores (absences) and team news (injuries). Updated daily; a player drops off the list as soon as he plays again.', 'Fuentes: actas oficiales de la EuroLeague (bajas) y noticias de los clubes (lesiones). Se actualiza a diario; un jugador sale de la lista en cuanto vuelve a jugar.', 'Izvori: zvanični zapisnici Evrolige (odsustva) i vesti klubova (povrede). Ažurira se svakog dana; igrač nestaje sa liste čim ponovo zaigra.', 'Kaynaklar: resmi EuroLeague maç istatistikleri (eksikler) ve kulüp haberleri (sakatlıklar). Her gün güncellenir; bir oyuncu yeniden oynadığı anda listeden çıkar.')} ${esc(UPD[LG])}.</p></article>`,
         ld: [crumbs([[SITE_NAME, B(LG)], ['Injury Report', urlFor(LG, 'inj')]]), faqLd] });
+    }
+
+    // ---- Στοίχημα της ημέρας
+    if (DAYT.day || Object.keys(DAYT.hist).length) {
+      const JUR = JUR_OF[LG], AGEd = OB.licensed?.[JUR]?.age || (LG === 'el' ? 21 : 18);
+      const LOCD = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG];
+      const dTxt = d => new Date(d + 'T12:00:00Z').toLocaleDateString(LOCD, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+      const dShort = d => new Date(d + 'T12:00:00Z').toLocaleDateString(LOCD, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+      const tm = t => new Date(t).toLocaleTimeString(LOCD, { timeZone: 'Europe/Athens', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+      const pc = p => Math.round(100 * p) + '%', fo = p => (1 / p).toFixed(2);
+      const plOf = c => players.find(z => z.c === c);
+      const plA = c => { const q = plOf(c); return q ? `<a href="${urlFor(LG, 'player:' + q.s)}">${esc((LG === 'el' && GRN[q.n]) || niceName(q.n))}</a>` : ''; };
+      const plN = c => { const q = plOf(c); return q ? ((LG === 'el' && GRN[q.n]) || niceName(q.n)) : ''; };
+      const gLink = x => { const [r, h, a] = x.gid.split('|'); return `<a href="${urlFor(LG, `game:${r}|${h}|${a}`)}">${esc(tName(h))} – ${esc(tName(a))}</a>`; };
+      const ln = v => String(v).replace('.', LG === 'en' ? '.' : ',');
+      const bestMl = x => {
+        const [r, h, a] = x.gid.split('|'), G = OB.latest?.games?.[`E-${r}-${h}-${a}`]; if (!G) return null;
+        let best = null;
+        for (const b of Object.values(G.books || {})) { if (!(b.lic || []).includes(JUR) || !b.ml) continue; const pr = b.ml[x.side === 'h' ? 0 : 1]; if (pr > 1 && (!best || pr > best.pr)) best = { pr, t: b.title }; }
+        return best;
+      };
+      const KT = { safe: T('Το σημείο της ημέρας', 'Pick of the day', 'La apuesta del día', 'Tip dana', 'Günün bahsi'), dog: T('Το αουτσάιντερ της ημέρας', 'Underdog of the day', 'La sorpresa del día', 'Autsajder dana', 'Günün sürprizi'), combo: T('Το combo της ημέρας', 'Combo of the day', 'La combinada del día', 'Kombinacija dana', 'Günün kombinesi') };
+      const sel = x => x.k === 'combo'
+        ? T(`Νίκη ${tName(x.team)} και ${plN(x.pl)} πάνω από ${ln(x.line)} πόντους`, `${tName(x.team)} to win and ${plN(x.pl)} over ${ln(x.line)} points`, `Gana ${tName(x.team)} y ${plN(x.pl)} más de ${ln(x.line)} puntos`, `Pobeda ${tName(x.team)} i ${plN(x.pl)} preko ${ln(x.line)} poena`, `${tName(x.team)} kazanır ve ${plN(x.pl)} ${ln(x.line)} sayı üstü`)
+        : T(`Νίκη ${tName(x.team)}`, `${tName(x.team)} to win`, `Gana ${tName(x.team)}`, `Pobeda ${tName(x.team)}`, `${tName(x.team)} kazanır`);
+      const why = x => x.k === 'safe' ? T(`Η μεγαλύτερη πιθανότητα νίκης της ημέρας σύμφωνα με το μοντέλο μας.`, `The highest win probability of the day according to our model.`, `La mayor probabilidad de victoria del día según nuestro modelo.`, `Najveća verovatnoća pobede dana po našem modelu.`, `Modelimize göre günün en yüksek galibiyet olasılığı.`)
+        : x.k === 'dog' ? T(`Το αουτσάιντερ με τις περισσότερες πιθανότητες να κερδίσει: το μοντέλο του δίνει ${pc(x.p)}.`, `The underdog most likely to win: our model gives it ${pc(x.p)}.`, `El no favorito con más opciones: nuestro modelo le da un ${pc(x.p)}.`, `Autsajder sa najvećim šansama: model mu daje ${pc(x.p)}.`, `Kazanma şansı en yüksek sürpriz: model ${pc(x.p)} veriyor.`)
+        : T(`Νίκη με ${pc(x.p / x.pp)} και ${plN(x.pl)} πάνω από ${ln(x.line)} με ${pc(x.pp)} (εκτίμηση ${ln(x.mu)} πόντοι). Τα δύο συνήθως πάνε μαζί, οπότε η πραγματική πιθανότητα είναι λίγο μεγαλύτερη.`, `Win at ${pc(x.p / x.pp)} and ${plN(x.pl)} over ${ln(x.line)} at ${pc(x.pp)} (projected ${x.mu} points). The two usually go together, so the real probability is slightly higher.`, `Victoria con ${pc(x.p / x.pp)} y ${plN(x.pl)} más de ${ln(x.line)} con ${pc(x.pp)} (estimación ${ln(x.mu)} puntos).`, `Pobeda ${pc(x.p / x.pp)} i ${plN(x.pl)} preko ${ln(x.line)} ${pc(x.pp)} (procena ${ln(x.mu)} poena).`, `Galibiyet ${pc(x.p / x.pp)}, ${plN(x.pl)} ${ln(x.line)} üstü ${pc(x.pp)} (tahmin ${x.mu} sayı).`);
+      const card = x => {
+        const b = x.k !== 'combo' ? bestMl(x) : null, ev = b ? Math.round(100 * (x.p * b.pr - 1)) : null;
+        return `<div class="dtcard dt-${x.k}"><p class="dtk">${esc(KT[x.k])}</p><p class="dts">${esc(sel(x))}</p><p class="dtg">${gLink(x)} · ${esc(tm(x.t))}${x.k === 'combo' ? ` · ${plA(x.pl)}` : ''}</p>
+<div class="dtn"><span><b>${pc(x.p)}</b><small>${T('πιθανότητα', 'probability', 'probabilidad', 'verovatnoća', 'olasılık')}</small></span><span><b>${fo(x.p)}</b><small>${T('δίκαιη απόδοση', 'fair odds', 'cuota justa', 'fer kvota', 'adil oran')}</small></span>${b ? `<span><b>${b.pr.toFixed(2)}</b><small>${esc(b.t)}</small></span><span><b class="${ev > 0 ? 'pos' : ev < 0 ? 'neg' : ''}">${ev > 0 ? '+' : ''}${ev}%</b><small>EV</small></span>` : ''}</div>
+<p class="sub">${esc(why(x))}</p></div>`;
+      };
+      const cur = DAYT.day && DAYT.picks.length ? DAYT.picks : [];
+      // ιστορικό
+      const done = Object.entries(DAYT.hist).sort((a, b) => b[0].localeCompare(a[0])).flatMap(([d, H]) => H.picks.filter(x => x.ok != null).map(x => ({ d, ...x })));
+      const recOf = k => { const L = done.filter(x => x.k === k && x.ok !== 'void'); const w = L.filter(x => x.ok === true).length; return { n: L.length, w, exp: L.reduce((s, x) => s + x.p, 0) }; };
+      const recHtml = done.length ? `<h2>${T('Πώς πάνε οι επιλογές μας', 'How our picks are doing', 'Cómo van nuestras apuestas', 'Kako prolaze naši tipovi', 'Seçimlerimiz nasıl gidiyor')}</h2>
+<div class="tbl"><table><thead><tr><th class="l">${T('Τύπος', 'Type', 'Tipo', 'Tip', 'Tür')}</th><th>${T('Επιλογές', 'Picks', 'Apuestas', 'Tipovi', 'Seçim')}</th><th>${T('Βγήκαν', 'Won', 'Acertadas', 'Pogođeno', 'Tuttu')}</th><th>${T('Αναμενόμενα', 'Expected', 'Esperadas', 'Očekivano', 'Beklenen')}</th></tr></thead><tbody>${['safe', 'dog', 'combo'].map(k => { const R = recOf(k); return R.n ? `<tr><td class="l">${esc(KT[k])}</td><td>${R.n}</td><td><b>${R.w}</b> (${pc(R.w / R.n)})</td><td>${R.exp.toFixed(1)}</td></tr>` : ''; }).join('')}</tbody></table></div>
+<div class="tbl"><table><thead><tr><th class="l">${T('Ημ/νία', 'Date', 'Fecha', 'Datum', 'Tarih')}</th><th class="l">${T('Επιλογή', 'Pick', 'Apuesta', 'Tip', 'Seçim')}</th><th>${T('Πιθ.', 'Prob.', 'Prob.', 'Ver.', 'Olas.')}</th><th>${T('Αποτέλεσμα', 'Result', 'Resultado', 'Ishod', 'Sonuç')}</th></tr></thead><tbody>${done.slice(0, 30).map(x => `<tr><td class="l"><small>${esc(dShort(x.d))}</small></td><td class="l"><small>${esc(KT[x.k])}</small><br>${esc(sel(x))}${x.k === 'combo' && x.v != null ? ` <small>(${x.v} ${T('πόντοι', 'pts', 'pts', 'poena', 'sayı')})</small>` : ''}</td><td>${pc(x.p)}</td><td>${x.ok === 'void' ? '–' : x.ok ? '<b class="pos">✓</b>' : '<b class="neg">✗</b>'}</td></tr>`).join('')}</tbody></table></div>` : '';
+      const FAQD = [
+        [T('Πώς διαλέγετε το στοίχημα της ημέρας;', 'How is the bet of the day chosen?', '¿Cómo se elige la apuesta del día?', 'Kako se bira tip dana?', 'Günün bahsi nasıl seçiliyor?'), T('Αυτόματα, από το μοντέλο πρόβλεψης του site: το σημείο είναι η ομάδα με τη μεγαλύτερη πιθανότητα νίκης της ημέρας, το αουτσάιντερ είναι η ομάδα που δεν είναι φαβορί αλλά έχει τις περισσότερες πιθανότητες, και το combo βάζει μαζί τη νίκη του φαβορί με τους πόντους ενός παίκτη του. Οι επιλογές κλειδώνουν με το πρώτο τζάμπολ της μέρας.', 'Automatically, from the site’s prediction model: the pick is the team with the highest win probability of the day, the underdog is the non-favourite with the best chance, and the combo pairs the favourite’s win with one of its players’ points. Picks lock at the first tip-off of the day.', 'Automáticamente, con el modelo de predicción: la apuesta es el equipo con más probabilidad de ganar, la sorpresa el no favorito con más opciones y la combinada une la victoria del favorito con los puntos de un jugador. Se fijan con el primer salto del día.', 'Automatski, iz modela prognoza: tip je tim sa najvećom verovatnoćom pobede, autsajder je tim koji nije favorit a ima najviše šansi, a kombinacija spaja pobedu favorita sa poenima jednog igrača. Tipovi se zaključavaju prvim početkom utakmice.', 'Otomatik olarak tahmin modelinden: bahis günün en yüksek galibiyet olasılığına sahip takım, sürpriz en şanslı favori olmayan takım, kombine ise favorinin galibiyeti ile bir oyuncusunun sayısı.')],
+        [T('Τι είναι η «δίκαιη απόδοση»;', 'What are “fair odds”?', '¿Qué es la «cuota justa»?', 'Šta je «fer kvota»?', '«Adil oran» nedir?'), T('Η απόδοση που αντιστοιχεί στην πιθανότητα του μοντέλου (1 ÷ πιθανότητα). Αν ένας bookmaker δίνει μεγαλύτερη απόδοση, το EV είναι θετικό· αν δίνει μικρότερη, η επιλογή δεν έχει αξία με αυτή την τιμή.', 'The odds that match the model’s probability (1 ÷ probability). If a bookmaker offers higher odds, EV is positive; if lower, the pick has no value at that price.', 'La cuota que corresponde a la probabilidad del modelo (1 ÷ probabilidad).', 'Kvota koja odgovara verovatnoći modela (1 ÷ verovatnoća).', 'Modelin olasılığına karşılık gelen oran (1 ÷ olasılık).')],
+        [T('Είναι συμβουλή στοιχήματος;', 'Is this betting advice?', '¿Es un consejo de apuestas?', 'Da li je ovo savet za klađenje?', 'Bu bir bahis tavsiyesi mi?'), T(`Όχι. Είναι στατιστικές εκτιμήσεις και μπορεί να πέσουν έξω. Δείχνουμε δημόσια πόσες βγήκαν. Το στοίχημα επιτρέπεται μόνο σε άτομα άνω των ${AGEd} ετών.`, `No. These are statistical estimates and can be wrong; we publish how many came in. Betting is for adults ${AGEd}+ only.`, `No. Son estimaciones estadísticas y pueden fallar. Solo para mayores de ${AGEd} años.`, `Ne. To su statističke procene i mogu da omanu. Samo za punoletne (${AGEd}+).`, `Hayır. İstatistiksel tahminlerdir ve yanılabilir. Yalnızca ${AGEd} yaş üstü içindir.`)],
+      ];
+      const dT = DAYT.day ? dTxt(DAYT.day) : '';
+      const h1 = T(`Στοίχημα της ημέρας EuroLeague${dT ? `: ${dT}` : ''}`, `EuroLeague bet of the day${dT ? `: ${dT}` : ''}`, `Apuesta del día de la EuroLeague${dT ? `: ${dT}` : ''}`, `Tip dana Evroliga${dT ? `: ${dT}` : ''}`, `Günün EuroLeague bahsi${dT ? `: ${dT}` : ''}`);
+      const intro = cur.length ? T(`Το σημείο, το αουτσάιντερ και το combo της ημέρας για τους αγώνες της EuroLeague (${dT}), από το μοντέλο πρόβλεψης του ${SITE_NAME}: πιθανότητα, δίκαιη απόδοση και η καλύτερη απόδοση στην αγορά. Σημείο: ${sel(cur[0])} (${pc(cur[0].p)}).`, `The pick, the underdog and the combo of the day for the EuroLeague games (${dT}), from the ${SITE_NAME} prediction model: probability, fair odds and the best market price. Pick: ${sel(cur[0])} (${pc(cur[0].p)}).`, `La apuesta, la sorpresa y la combinada del día para la EuroLeague (${dT}), con el modelo de ${SITE_NAME}. Apuesta: ${sel(cur[0])} (${pc(cur[0].p)}).`, `Tip, autsajder i kombinacija dana za Evroligu (${dT}), iz modela sajta ${SITE_NAME}. Tip: ${sel(cur[0])} (${pc(cur[0].p)}).`, `EuroLeague için günün bahsi, sürprizi ve kombinesi (${dT}), ${SITE_NAME} modelinden. Bahis: ${sel(cur[0])} (${pc(cur[0].p)}).`)
+        : T('Δεν υπάρχουν αγώνες της EuroLeague αυτή τη στιγμή· οι επιλογές της επόμενης μέρας αγώνων εμφανίζονται εδώ.', 'No EuroLeague games right now; the next game day’s picks will appear here.', 'No hay partidos ahora; las apuestas de la próxima jornada aparecerán aquí.', 'Trenutno nema utakmica; tipovi sledećeg dana pojaviće se ovde.', 'Şu anda maç yok; sonraki maç gününün seçimleri burada görünecek.');
+      await simplePage('daytip', { view: 'odds',
+        title: `${h1} | ${SITE_NAME}`, desc: intro.slice(0, 300),
+        main: `<article class="article lead wide anpage dtpage"><h1>${esc(h1)}</h1><p class="lede2">${esc(intro)}</p>
+<p class="sub"><a href="${urlFor(LG, 'today')}">📅 ${T('Οι αγώνες σήμερα', 'Today’s games', 'Los partidos de hoy', 'Današnje utakmice', 'Bugünkü maçlar')}</a> · <a href="${urlFor(LG, 'odds')}">Betting Insights</a> · <a href="${urlFor(LG, 'inj')}">🩹 Injury Report</a></p>
+${cur.length ? `<div class="dtgrid">${cur.map(card).join('')}</div>` : ''}
+${recHtml}
+<section class="faq"><h2>${T('Συχνές ερωτήσεις', 'Frequently asked questions', 'Preguntas frecuentes', 'Česta pitanja', 'Sık sorulan sorular')}</h2>${FAQD.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
+<div class="rgbox"><span class="age21">${AGEd}+</span><p>${T(`Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος ή εγγύηση αποτελέσματος. Το στοίχημα επιτρέπεται μόνο σε ενήλικες άνω των ${AGEd} ετών. Παίξε υπεύθυνα.`, `Estimates are statistical and are not betting advice or a guarantee. Betting is for adults ${AGEd}+ only. Gamble responsibly.`, `Las estimaciones son estadísticas y no son consejos de apuestas. Solo mayores de ${AGEd} años. Juega con responsabilidad.`, `Procene su statističke i nisu savet za klađenje. Samo za punoletne (${AGEd}+). Igraj odgovorno.`, `Tahminler istatistikseldir, bahis tavsiyesi değildir. Yalnızca ${AGEd}+ yaş. Sorumlu oyna.`)}</p></div></article>`,
+        ld: [crumbs([[SITE_NAME, B(LG)], [h1, urlFor(LG, 'daytip')]]), { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQD.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
+    }
+    // ---- Μεταγραφές και αλλαγές προπονητών μέσα στη σεζόν
+    if (TRF.length) {
+      const LOCT = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG];
+      const fdt = d => new Date(d + 'T12:00:00Z').toLocaleDateString(LOCT, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+      const KL = { '+': T('Έρχεται', 'In', 'Llega', 'Dolazi', 'Geliyor'), '-': T('Φεύγει', 'Out', 'Sale', 'Odlazi', 'Ayrılıyor'), 'c+': T('Νέος προπονητής', 'New coach', 'Nuevo entrenador', 'Novi trener', 'Yeni koç'), 'c-': T('Φεύγει ο προπονητής', 'Coach out', 'Sale el entrenador', 'Odlazi trener', 'Koç ayrıldı') };
+      const KI = { '+': '➕', '-': '➖', 'c+': '📋', 'c-': '✖' };
+      const stl = x => x.ok ? `<span class="trok">${T('Επίσημο', 'Official', 'Oficial', 'Zvanično', 'Resmi')}</span>` : `<span class="trrum">${T('Δημοσίευμα', 'Report', 'Rumor', 'Glasina', 'İddia')}</span>`;
+      const nmT = x => x.pl ? `<a href="${urlFor(LG, 'player:' + x.pl.s)}">${esc((LG === 'el' && GRN[x.pl.n]) || niceName(x.pl.n))}</a>` : esc(x.name);
+      const rowT = (x, showTeam = true) => `<tr><td class="l"><small>${esc(fdt(x.d))}</small></td>${showTeam ? `<td class="l"><a href="${urlFor(LG, 'team:' + x.team)}">${esc(tName(x.team))}</a></td>` : ''}<td class="l">${KI[x.k]} ${esc(KL[x.k])}</td><td class="l"><b>${nmT(x)}</b>${x.other ? ` <small>${x.k === '-' ? '→' : x.k === '+' ? '←' : ''} ${esc(x.other)}</small>` : ''}</td><td class="l">${stl(x)}</td><td class="l"><small>${esc(x.txt[LG] || x.txt.en || '')}${x.src ? ` · <a href="${esc(x.src)}" rel="nofollow noopener" target="_blank">${T('πηγή', 'source', 'fuente', 'izvor', 'kaynak')}</a>` : ''}</small></td></tr>`;
+      const head = sh => `<thead><tr><th class="l">${T('Ημ/νία', 'Date', 'Fecha', 'Datum', 'Tarih')}</th>${sh ? `<th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım')}</th>` : ''}<th class="l">${T('Κίνηση', 'Move', 'Movimiento', 'Potez', 'Hareket')}</th><th class="l">${T('Όνομα', 'Name', 'Nombre', 'Ime', 'İsim')}</th><th class="l">${T('Κατάσταση', 'Status', 'Estado', 'Status', 'Durum')}</th><th class="l">${T('Σημείωση', 'Note', 'Nota', 'Napomena', 'Not')}</th></tr></thead>`;
+      const nIn = TRF.filter(x => x.k === '+' && x.ok).length, nCo = TRF.filter(x => x.k === 'c+' && x.ok).length, nRum = TRF.filter(x => !x.ok).length;
+      const teamsT = [...new Set(TRF.map(x => x.team))].sort((a, b) => tName(a).localeCompare(tName(b), LG));
+      const lastD = TRF[0].d;
+      const FAQT = [
+        [T('Ποιες μεταγραφές μπαίνουν στη λίστα;', 'Which moves are listed?', '¿Qué movimientos aparecen?', 'Koji potezi su na listi?', 'Hangi hareketler listede?'), T('Όσες γίνονται μετά την έναρξη της σεζόν: παίκτες που έρχονται ή φεύγουν από ομάδες της EuroLeague και αλλαγές προπονητών. Κάθε κίνηση έχει ημερομηνία και link στην πηγή.', 'Moves made after the season started: players joining or leaving EuroLeague teams and head-coach changes. Every move has a date and a link to its source.', 'Los movimientos desde el inicio de la temporada: jugadores que llegan o se van y cambios de entrenador, con fecha y fuente.', 'Potezi posle početka sezone: igrači koji dolaze ili odlaze i promene trenera, sa datumom i izvorom.', 'Sezon başladıktan sonraki hareketler: gelen ve giden oyuncular ile koç değişiklikleri, tarih ve kaynakla.')],
+        [T('Τι σημαίνει «Δημοσίευμα»;', 'What does “Report” mean?', '¿Qué significa «Rumor»?', 'Šta znači «Glasina»?', '«İddia» ne demek?'), T('Ότι η κίνηση έχει γραφτεί από αξιόπιστα μέσα αλλά δεν την έχει ανακοινώσει ακόμα η ομάδα. Μόλις ανακοινωθεί, γίνεται «Επίσημο».', 'That the move has been reported by reliable outlets but not yet announced by the club. Once announced, it becomes “Official”.', 'Que la han publicado medios fiables pero el club aún no la ha anunciado.', 'Da su potez objavili pouzdani mediji, ali ga klub još nije zvanično saopštio.', 'Güvenilir medyada yer aldığını ama kulübün henüz açıklamadığını.')],
+        [T('Επηρεάζουν οι μεταγραφές το Fantasy;', 'Do transfers affect Fantasy?', '¿Afectan los fichajes al Fantasy?', 'Da li transferi utiču na Fantasy?', 'Transferler Fantasy’yi etkiler mi?'), T('Ναι. Ένας νέος παίκτης παίρνει λεπτά από τους συμπαίκτες του στην ίδια θέση, και ένας παίκτης που φεύγει αφήνει λεπτά. Οι εκτιμήσεις του Fantasy προσαρμόζονται μόλις ο παίκτης αρχίσει να παίζει.', 'Yes. A new player takes minutes from teammates in the same position, and a departing player frees minutes. Fantasy projections adjust as soon as the player starts playing.', 'Sí: un fichaje quita minutos a sus compañeros de posición y una salida los libera.', 'Da: novi igrač uzima minute saigračima na istoj poziciji, a odlazak ih oslobađa.', 'Evet: yeni oyuncu aynı pozisyondaki takım arkadaşlarından dakika alır.')],
+      ];
+      const intro = T(`Όλες οι μεταγραφές της EuroLeague ${SEASON_LABEL} μετά την έναρξη της σεζόν: ποιοι παίκτες ήρθαν και ποιοι έφυγαν από κάθε ομάδα, και οι αλλαγές προπονητών. ${nIn} επίσημες αποκτήσεις, ${nCo} νέοι προπονητές${nRum ? ` και ${nRum} κινήσεις που δεν έχουν ανακοινωθεί ακόμα` : ''}.`,
+        `Every EuroLeague ${SEASON_LABEL} transfer since the season started: which players joined and left each team, plus head-coach changes. ${nIn} official signings, ${nCo} new coaches${nRum ? ` and ${nRum} moves not yet announced` : ''}.`,
+        `Todos los fichajes de la EuroLeague ${SEASON_LABEL} desde el inicio de la temporada: altas, bajas y cambios de entrenador. ${nIn} fichajes oficiales y ${nCo} nuevos entrenadores${nRum ? `, más ${nRum} movimientos sin anunciar` : ''}.`,
+        `Svi transferi Evrolige ${SEASON_LABEL} od početka sezone: ko je došao, ko je otišao i promene trenera. ${nIn} zvaničnih dolazaka i ${nCo} nova trenera${nRum ? `, plus ${nRum} nenajavljenih poteza` : ''}.`,
+        `EuroLeague ${SEASON_LABEL} sezon başından beri tüm transferler: gelenler, gidenler ve koç değişiklikleri. ${nIn} resmi transfer, ${nCo} yeni koç.`);
+      const byTeam = teamsT.map(c => `<section class="trteam" id="${esc(TEAMS[c][TEAM_IDX[LG][1]])}"><h3><a href="${urlFor(LG, 'team:' + c)}">${esc(tName(c))}</a></h3><div class="tbl"><table>${head(false)}<tbody>${TRF.filter(x => x.team === c).map(x => rowT(x, false)).join('')}</tbody></table></div></section>`).join('');
+      await simplePage('transfers', { view: 'inj',
+        title: T(`Μεταγραφές EuroLeague ${SEASON_LABEL}: ποιοι ήρθαν και ποιοι έφυγαν | ${SITE_NAME}`, `EuroLeague transfers ${SEASON_LABEL}: signings, departures and coaching changes | ${SITE_NAME}`, `Fichajes de la EuroLeague ${SEASON_LABEL}: altas, bajas y entrenadores | ${SITE_NAME}`, `Transferi Evrolige ${SEASON_LABEL}: dolasci, odlasci i treneri | ${SITE_NAME}`, `EuroLeague transferleri ${SEASON_LABEL}: gelenler, gidenler ve koçlar | ${SITE_NAME}`),
+        desc: intro.slice(0, 300),
+        main: `<article class="article lead wide anpage trpage"><h1>${T(`Μεταγραφές EuroLeague ${SEASON_LABEL}`, `EuroLeague transfers ${SEASON_LABEL}`, `Fichajes de la EuroLeague ${SEASON_LABEL}`, `Transferi Evrolige ${SEASON_LABEL}`, `EuroLeague transferleri ${SEASON_LABEL}`)}</h1>
+<p class="lede2">${esc(intro)}</p>
+<p class="sub">${T('Τελευταία ενημέρωση', 'Last updated', 'Última actualización', 'Poslednje ažuriranje', 'Son güncelleme')}: ${esc(fdt(lastD))} · <a href="${urlFor(LG, 'inj')}">🩹 Injury Report</a> · <a href="${urlFor(LG, 'fantasy')}">EuroLeague Fantasy →</a></p>
+<h2>${T('Όλες οι κινήσεις', 'All moves', 'Todos los movimientos', 'Svi potezi', 'Tüm hareketler')}</h2>
+<div class="tbl"><table>${head(true)}<tbody>${TRF.map(x => rowT(x)).join('')}</tbody></table></div>
+<h2>${T('Ανά ομάδα', 'By team', 'Por equipo', 'Po timovima', 'Takıma göre')}</h2>
+<nav class="leadnav">${teamsT.map(c => `<a href="#${esc(TEAMS[c][TEAM_IDX[LG][1]])}">${esc(tName(c))} (${TRF.filter(x => x.team === c).length})</a>`).join('')}</nav>
+${byTeam}
+<section class="faq"><h2>${T('Συχνές ερωτήσεις', 'Frequently asked questions', 'Preguntas frecuentes', 'Česta pitanja', 'Sık sorulan sorular')}</h2>${FAQT.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
+<p class="note">${T('Πηγές: ανακοινώσεις των ομάδων και αξιόπιστα αθλητικά μέσα· σε κάθε κίνηση υπάρχει link στην πηγή. Οι σημειώσεις είναι γραμμένες από εμάς.', 'Sources: club announcements and reliable sports outlets; every move links to its source. Notes are written by us.', 'Fuentes: anuncios de los clubes y medios deportivos fiables; cada movimiento enlaza a su fuente.', 'Izvori: saopštenja klubova i pouzdani sportski mediji; svaki potez ima link ka izvoru.', 'Kaynaklar: kulüp açıklamaları ve güvenilir spor medyası; her hareket kaynağına bağlanır.')}</p></article>`,
+        ld: [crumbs([[SITE_NAME, B(LG)], [T('Μεταγραφές', 'Transfers', 'Fichajes', 'Transferi', 'Transferler'), urlFor(LG, 'transfers')]]), { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQT.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
     }
     // ---- Πρόγραμμα & αποτελέσματα: όλες οι αγωνιστικές της σεζόν
     {
@@ -3109,7 +3284,9 @@ ${method}</section>`;
       // σύγκριση με τις άλλες ομάδες (μόνιμες σελίδες ζευγαριών)
       const cmpOthers = CMPT?.E?.teams?.[c]?.splits?.all?.gp ? Object.keys(CMPT.E.teams).filter(o => o !== c && TEAMS[o] && CMPT.E.teams[o].splits?.all?.gp).sort((a, b) => tName(a).localeCompare(tName(b), LG)) : [];
       const tcmp = cmpOthers.length ? `<section class="career"><h2>${T('Σύγκρινε με…', 'Compare with…', 'Comparar con…', 'Uporedi sa…', 'Karşılaştır…')}</h2><ul class="cmppairs">${cmpOthers.map(o => `<li><a href="${urlFor(LG, 'cmptp:' + [c, o].sort().join('|'))}">${esc(name)} vs ${esc(tName(o))}</a></li>`).join('')}</ul></section>` : '';
-      await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede, extra: tana + thist + tcmp, top: nextBox(c) + shTop,
+      const tTr = TRF.filter(x => x.team === c);
+      const ttrf = tTr.length ? `<section class="career"><h2>🔄 ${T('Μεταγραφές της σεζόν', 'Moves this season', 'Movimientos de la temporada', 'Potezi ove sezone', 'Sezonun hareketleri')}</h2><ul>${tTr.map(x => `<li>${{ '+': '➕', '-': '➖', 'c+': '📋', 'c-': '✖' }[x.k]} <b>${x.pl ? `<a href="${urlFor(LG, 'player:' + x.pl.s)}">${esc((LG === 'el' && GRN[x.pl.n]) || niceName(x.pl.n))}</a>` : esc(x.name)}</b>: ${esc(x.txt[LG] || x.txt.en || '')}${x.ok ? '' : ` <small>(${T('δημοσίευμα', 'report', 'rumor', 'glasina', 'iddia')})</small>`}</li>`).join('')}</ul><p><a href="${urlFor(LG, 'transfers')}">${T('Όλες οι μεταγραφές της EuroLeague →', 'All EuroLeague transfers →', 'Todos los fichajes de la EuroLeague →', 'Svi transferi Evrolige →', 'Tüm EuroLeague transferleri →')}</a></p></section>` : '';
+      await page('team:' + c, { view: 'team', id: c, h1t: name, ledet: lede, extra: tana + ttrf + thist + tcmp, top: nextBox(c) + shTop,
         ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name, sport: 'Basketball', url: SITE_URL + urlFor(LG, 'team:' + c), memberOf: { '@type': 'SportsOrganization', name: 'EuroLeague' }, athlete: roster.map(p => ({ '@type': 'Person', name: niceName(p.n), url: SITE_URL + urlFor(LG, 'player:' + p.s) })) },
           crumbs([[SITE_NAME, B(LG)], [name, urlFor(LG, 'team:' + c)]])],
         title: T(GREEK_T[c] ? `${name} μπάσκετ: πρόγραμμα, αποτελέσματα, επόμενος αγώνας και κανάλι | ${S}` : `${name} ${S}: ρόστερ, πρόγραμμα, αποτελέσματα | ${SITE_NAME}`, `${name} ${S}: roster, schedule, stats | ${SITE_NAME}`, ({ MAD: 1, BAR: 1, PAM: 1, BAS: 1 }[c] ? `${name} baloncesto: calendario, resultados y próximo partido | Euroliga ${SEASON_LABEL}` : `${name} Euroliga ${SEASON_LABEL}: plantilla, calendario y resultados | ${SITE_NAME}`), ({ RED: 1, PAR: 1 }[c] ? `${name} Evroliga: raspored, rezultati, tabela i sledeća utakmica | ${SEASON_LABEL}` : `${name} Evroliga ${SEASON_LABEL}: roster, raspored, rezultati | ${SITE_NAME}`), ({ IST: 1, ULK: 1, BES: 1 }[c] ? `${name} maçı ne zaman, hangi kanalda? Fikstür, sonuçlar ve puan durumu | EuroLeague ${SEASON_LABEL}` : `${name} EuroLeague ${SEASON_LABEL}: kadro, fikstür, sonuçlar | ${SITE_NAME}`)),
