@@ -15,6 +15,7 @@
 - **επώνυμο**: όπως στο site, χωρίς τόνους (π.χ. Montero)
 - **ομάδα**: ο κωδικός της ομάδας (OLY, PAN, MAD, BAR, ULK, IST, RED, PAR, ZAL, TEL, HTA, DUB, MUN, MIL, VIR, PAM, BAS, ASV, PRS, BES)
 - **επιστροφή**: μήνας (2027-05) ή ημερομηνία (2026-11-10) ή - αν δεν είναι γνωστή
+- Αν η απουσία δεν είναι τραυματισμός (τιμωρία, εκτός αποστολής), βάλε «!» μπροστά στην επιστροφή, π.χ. !2026-12 ή !-
 - Τα κείμενα σε άλλες γλώσσες είναι προαιρετικά (αν λείπουν, γράφει απλώς «Injured» κ.λπ.)
 
 Η γραμμή σβήνει μόνη της από το site μόλις ο παίκτης ξαναπαίξει, οπότε δεν χρειάζεται να τη σβήνεις.
@@ -23,14 +24,29 @@
 
 2026-10-30 | Montero | OLY | 2027-05 | Χειρουργείο στον μηνίσκο του αριστερού γονάτου, εκτός περίπου 6 μήνες | Left knee meniscus surgery, out about 6 months | Operado del menisco de la rodilla izquierda, unos 6 meses de baja | Operacija meniskusa levog kolena, van terena oko 6 meseci
 2026-10-20 | Fournier | OLY | 2026-11-10 | Ώμος και γόνατο, εκτός περίπου 20 ημέρες | Shoulder and knee, out about 20 days | Hombro y rodilla, unos 20 días de baja | Rame i koleno, van terena oko 20 dana
-2026-10-29 | Lundberg | TEL | - | Μερική ρήξη τένοντα τετρακεφάλου | Partial quadriceps tendon tear | Rotura parcial del tendón del cuádriceps | Delimično pucanje tetive kvadricepsa
-2026-10-30 | Dozier | IST | 2026-11-13 | Μέση, εκτός 1-2 εβδομάδες | Back, out 1-2 weeks | Espalda, 1-2 semanas de baja | Leđa, van terena 1-2 nedelje
-2026-10-30 | Jekiri | PAR | - | Θλάση στη βουβωνική χώρα | Groin strain | Distensión en la ingle | Istegnuće prepone
+2026-10-29 | Lundberg | TEL | 2026-12 | Μερική ρήξη τένοντα τετρακεφάλου, εκτός ως τον Δεκέμβριο | Partial quadriceps tendon tear, out until December | Rotura parcial del tendón del cuádriceps, baja hasta diciembre | Delimično pucanje tetive kvadricepsa, van terena do decembra
+2026-11-11 | Dozier | IST | - | Μέση, εκτός από την 7η αγωνιστική | Back, out since Round 7 | Espalda, de baja desde la jornada 7 | Leđa, van terena od 7. kola
 2026-10-29 | Smith Jr | MAD | - | Ενόχληση στο πέλμα του δεξιού ποδιού | Discomfort in the sole of the right foot | Molestias en la planta del pie derecho | Bol u tabanu desnog stopala
 2026-10-30 | Reuvers | PAM | - | Πόδι | Foot | Pie | Stopalo
 2026-10-30 | Maledon | MAD | - | Διάστρεμμα στο δεξί γόνατο, χρόνος απουσίας άγνωστος | Right knee sprain, no timetable for his return | Esguince en la rodilla derecha, sin plazo de regreso | Uganuće desnog kolena, rok povratka nepoznat
 2026-10-30 | Jantunen | MAD | 2027-01 | Πλήρης ρήξη της πελματιαίας περιτονίας στο αριστερό πόδι, εκτός 2-3 μήνες | Complete plantar fascia tear in the left foot, out 2-3 months | Rotura completa de la fascia plantar del pie izquierdo, 2-3 meses de baja | Potpuno pucanje plantarne fascije levog stopala, van terena 2-3 meseca
 2026-11-02 | Campazzo | MAD | - | Μυϊκός τραυματισμός, αναμένονται εξετάσεις για τη σοβαρότητα | Muscle injury, awaiting tests on its severity | Lesión muscular, pendiente de pruebas | Povreda mišića, čekaju se snimanja
-2026-11-09 | Punter | BAR | 2026-11-30 | Αστράγαλος (στον αγώνα με τη Breogán), εκτός περίπου 3 εβδομάδες | Ankle (in the game against Breogán), out about 3 weeks | Tobillo (en el partido ante el Breogán), unas 3 semanas de baja | Skočni zglob (na utakmici protiv Breogána), van terena oko 3 nedelje
+2026-11-09 | Punter | BAR | 2026-12 | Διάστρεμμα στον αριστερό αστράγαλο, εκτός 3 έως 6 εβδομάδες | Left ankle sprain, out 3 to 6 weeks | Esguince en el tobillo izquierdo, de 3 a 6 semanas de baja | Uganuće levog skočnog zgloba, van terena 3 do 6 nedelja
 2026-11-10 | Hayes | PAR | 2026-11-17 | Ώμος, εκτός με την Μπασκόνια | Shoulder, out against Baskonia | Hombro, baja ante el Baskonia | Rame, van terena protiv Baskonije
 2026-11-06 | Booker | MIL | 2027-01 | Ρήξη τένοντα στον ορθό μηριαίο του δεξιού ποδιού, εκτός περίπου 3 μήνες | Rectus femoris tendon rupture in the right leg, out about 3 months | Rotura del tendón del recto femoral de la pierna derecha, unos 3 meses de baja | Ruptura tetive pravog butnog mišića desne noge, van terena oko 3 meseca
+2026-11-09 | Evbuomwan | BAR | 2026-11-30 | Ρήξη στον λοξό κοιλιακό, εκτός περίπου 3 εβδομάδες | Oblique muscle tear, out about 3 weeks | Rotura del oblicuo, unas 3 semanas de baja | Pucanje kosog trbušnog mišića, van terena oko 3 nedelje
+2026-11-11 | Willis | PAR | - | Αστράγαλος, εκτός από την 1η αγωνιστική | Ankle, out since Round 1 | Tobillo, de baja desde la jornada 1 | Skočni zglob, van terena od 1. kola
+2026-11-11 | Satoransky | HTA | - | Χτύπημα στο κεφάλι μετά από πτώση, εκτός από την 9η αγωνιστική | Head injury after a fall, out since Round 9 | Golpe en la cabeza tras una caída, de baja desde la jornada 9 | Udarac u glavu posle pada, van terena od 9. kola
+2026-11-10 | Walkup | DUB | - | Μέση, δεν ταξιδεύει για τον αγώνα με τον Ολυμπιακό | Back, not travelling for the game against Olympiacos | Espalda, no viaja para el partido ante Olympiacos | Leđa, ne putuje na utakmicu protiv Olimpijakosa
+2026-11-11 | Williams-Goss | ZAL | - | Οπίσθιοι μηριαίοι, εκτός από την 6η αγωνιστική | Hamstring, out since Round 6 | Isquiotibiales, de baja desde la jornada 6 | Zadnja loža, van terena od 6. kola
+2026-11-10 | Miljenovic | RED | - | Χειρουργείο στον αστράγαλο | Ankle surgery | Operado del tobillo | Operacija skočnog zgloba
+2026-11-11 | Rogkavopoulos | PAN | - | Οπίσθιοι μηριαίοι, εκτός από την 5η αγωνιστική | Hamstring, out since Round 5 | Isquiotibiales, de baja desde la jornada 5 | Zadnja loža, van terena od 5. kola
+2026-11-11 | James | IST | 2027-06 | Αχίλλειος τένοντας, εκτός 7 έως 9 μήνες | Achilles tendon, out 7 to 9 months | Tendón de Aquiles, de 7 a 9 meses de baja | Ahilova tetiva, van terena 7 do 9 meseci
+2026-11-11 | Cordinier | IST | - | Αποθεραπεία μετά από χειρουργείο | Recovering from surgery | Recuperándose de una operación | Oporavak posle operacije
+2026-11-11 | Jeffries | BES | - | Χειρουργείο στον καρπό | Wrist surgery | Operado de la muñeca | Operacija ručnog zgloba
+2026-11-11 | Deck | MAD | - | Χειρουργείο στον ώμο | Shoulder surgery | Operado del hombro | Operacija ramena
+2026-11-11 | Dossou-Yovo | ASV | - | Βουβωνική χώρα | Groin | Ingle | Prepone
+2026-11-11 | Makoundou | BAR | - | Γόνατο | Knee | Rodilla | Koleno
+2026-11-10 | Sedekerskis | BAS | - | Μηρός | Thigh | Muslo | Butina
+2026-11-10 | Santos | BAS | - | Ρήξη στη γάμπα | Calf tear | Rotura en el gemelo | Pucanje lista
+2026-11-11 | Dorsey | OLY | !- | Εκτός ομάδας με απόφαση του συλλόγου | Left out of the team by the club | Apartado del equipo por el club | Van tima odlukom kluba

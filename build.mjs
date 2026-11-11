@@ -403,10 +403,13 @@ async function loadInjuries(players, games) {
     const d = new Date(r.length === 7 ? r + '-15' : r);
     return d.toLocaleDateString(MON[lg], r.length === 7 ? { month: 'long', year: 'numeric' } : { day: 'numeric', month: 'long' });
   };
+  const LBLX = { el: 'Εκτός', en: 'Out', es: 'Baja', sr: 'Van tima', tr: 'Kadro dışı' };
   const LBL = { el: ['Τραυματίας', 'Επιστροφή'], en: ['Injured', 'Expected back'], es: ['Lesionado', 'Regreso previsto'], sr: ['Povređen', 'Očekivani povratak'], tr: ['Sakat', 'Dönüş tarihi'] };
   for (const line of txt.split(/\r?\n/)) {
     if (!/^\s*\d{4}-\d{2}-\d{2}\s*\|/.test(line)) continue;
-    const [date, who, team, ret, ...notes] = line.split('|').map(s => s.trim());
+    let [date, who, team, ret, ...notes] = line.split('|').map(s => s.trim());
+    // «!» μπροστά στην επιστροφή = απουσία που δεν είναι τραυματισμός (π.χ. τιμωρία, εκτός αποστολής)
+    const notInj = ret.startsWith('!'); if (notInj) ret = ret.slice(1).trim() || '-';
     const key = who.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     const p = players.find(x => x.t.split(';').pop() === team.toUpperCase() && x.n.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().includes(key));
     if (!p) { console.warn('Τραυματίες: δεν βρέθηκε ο παίκτης', who, team); continue; }
@@ -415,7 +418,7 @@ async function loadInjuries(players, games) {
     ['el', 'en', 'es', 'sr'].forEach((lg, i) => {
       const note = notes[i] || '';
       const r = ret && ret !== '-' ? ` · ${LBL[lg][1]}: ${fmtRet(ret, lg)}` : '';
-      out[lg][p.c] = { m: 1, t: `${LBL[lg][0]}${note ? ': ' + note : ''}${r}` };
+      out[lg][p.c] = { m: 1, t: `${notInj ? LBLX[lg] : LBL[lg][0]}${note ? ': ' + note : ''}${r}` };
     });
   }
   console.log('Τραυματίες/απόντες:', Object.keys(out.el).length);
