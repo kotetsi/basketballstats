@@ -894,7 +894,18 @@ async function main() {
   let FXD = null;
   try { FXD = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'latest.json'), 'utf8')); if (FXD.round < lastRound) FXD = null; } catch { FXD = null; }   // κρατάμε τις εκτιμήσεις και όσο παίζεται η αγωνιστική (live tracker)
   const existsPrices = r => fsSync.existsSync(path.join(ROOT, 'fantasy', 'official', `prices-r${r}.csv`));
-  const OFFP = !!(FXD && FXD.players.some(x => x.price_src === 'official'));   // επίσημες τιμές EuroLeague Fantasy για την αγωνιστική
+  const OFFP = !!(FXD && FXD.players.some(x => x.price_src === 'official'));
+  // επίσημη αλλαγή τιμής σε 3/5/10 αγωνιστικές και μοντέλο αλλαγής τιμής (fantasy/official)
+  const OFFD = {};
+  let PMODEL = null;
+  try { PMODEL = JSON.parse(fsSync.readFileSync(path.join(ROOT, 'fantasy', 'official', 'price-model.json'), 'utf8')); } catch { }
+  if (FXD) try {
+    for (const l of fsSync.readFileSync(path.join(ROOT, 'fantasy', 'official', `prices-r${FXD.round}.csv`), 'utf8').split('\n')) {
+      const m = l.match(/^([^#,][^,]*),[^,]+,[^,]+,(?:"[^"]*"|[^,]*),[^,]*,([^,]*),([^,]*),([^,]*)$/); if (!m) continue;
+      const v = x => (x === '' || x === 'x' ? null : +x / 10);
+      OFFD[m[1]] = { 3: v(m[2]), 5: v(m[3]), 10: v(m[4]) };
+    }
+  } catch { }   // επίσημες τιμές EuroLeague Fantasy για την αγωνιστική
 
   // slugs παικτών (μοναδικά, ίδια και στις δύο γλώσσες)
   const used = new Set();
@@ -1947,7 +1958,7 @@ ${notes}</article>${ctxJ('projections')}`;
       // ---- Fantasy Manager Tools · Transfer Market Analyzer
       {
         const TP = FXP.filter(x => x.nx);
-        const dP = (x, k) => (x.ph && x.ph.length > k ? Math.round((x.ph[x.ph.length - 1][1] - x.ph[x.ph.length - 1 - k][1]) * 10) / 10 : null);
+        const dP = (x, k) => OFFD[x.c] && OFFD[x.c][k] !== undefined ? OFFD[x.c][k] : (x.ph && x.ph.length > k ? Math.round((x.ph[x.ph.length - 1][1] - x.ph[x.ph.length - 1 - k][1]) * 10) / 10 : null);
         const sgn = v => (v == null ? '–' : `<span class="${v > 0 ? 'up' : v < 0 ? 'dn' : ''}">${v > 0 ? '+' : ''}${v.toFixed(1)}</span>`);
         const SIG = { buy: ['🟢', 'Buy-low'], sell: ['🔴', 'Sell-high'], hold: ['⚪', T('Κράτα', 'Hold', 'Mantener', 'Zadrži', 'Tut')], avoid: ['⛔', 'Avoid'] };
         const WHY = { 'value+': T('υψηλό value για τη θέση του', 'high value for his position', 'alto valor para su posición', 'visoka vrednost za poziciju', ''), 'value-': T('χαμηλό value για τη θέση του', 'low value for his position', 'bajo valor para su posición', 'niska vrednost za poziciju', ''), 'dip+': T('πρόσφατη πτώση PIR με σταθερή προβολή', 'recent PIR dip, projection holds', 'bajón reciente con proyección estable', 'nedavni pad PIR uz stabilnu projekciju', ''), 'dip-': T('παίζει πάνω από τη συνήθη απόδοσή του', 'playing above his usual level', 'rinde por encima de lo habitual', 'igra iznad uobičajenog', ''), 'price+': T('η τιμή έπεσε', 'price has dropped', 'el precio ha bajado', 'cena je pala', ''), 'price-': T('η τιμή ανέβηκε', 'price has risen', 'el precio ha subido', 'cena je porasla', ''), 'minutes+': T('παίρνει περισσότερα λεπτά', 'getting more minutes', 'más minutos', 'više minuta', ''), 'minutes-': T('παίρνει λιγότερα λεπτά', 'getting fewer minutes', 'menos minutos', 'manje minuta', ''), 'schedule+': T('εύκολο πρόγραμμα', 'easy fixtures', 'calendario fácil', 'lak raspored', ''), 'schedule-': T('δύσκολο πρόγραμμα', 'tough fixtures', 'calendario difícil', 'težak raspored', ''), 'injury-': T('τραυματίας ή αμφίβολος', 'injured or doubtful', 'lesionado o en duda', 'povređen ili neizvestan', '') };
@@ -2652,7 +2663,7 @@ ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: t
         const odir = path.join(ROOT, 'fantasy', 'official');
         for (const f of (await fs.readdir(odir)).filter(f => /^prices-r\d+\.csv$/.test(f))) {
           const r = +f.match(/\d+/)[0];
-          PRC[r] = (await fs.readFile(path.join(odir, f), 'utf8')).split('\n').filter(l => l && !l.startsWith('#')).map(l => { const m = l.match(/^([^,]+),([^,]+),([^,]+),("[^"]*"|[^,]*)(?:,(\d*))?$/); if (!m) return {}; return { c: m[1], pr: +m[2], ch: +m[3], n: m[4].replace(/^"|"$/g, ''), pop: m[5] === undefined || m[5] === '' ? null : +m[5] / 10 }; }).filter(x => x.pr > 0);
+          PRC[r] = (await fs.readFile(path.join(odir, f), 'utf8')).split('\n').filter(l => l && !l.startsWith('#')).map(l => { const m = l.match(/^([^,]+),([^,]+),([^,]+),("[^"]*"|[^,]*)(?:,(\d*))?(?:,([^,]*),([^,]*),([^,]*))?$/); if (!m) return {}; const dv = x => (x === undefined || x === '' || x === 'x' ? null : +x / 10); return { c: m[1], pr: +m[2], ch: +m[3], n: m[4].replace(/^"|"$/g, ''), pop: m[5] === undefined || m[5] === '' ? null : +m[5] / 10, d3: dv(m[6]), d5: dv(m[7]) }; }).filter(x => x.pr > 0);
         }
       } catch { }
       const prRounds = Object.keys(PRC).map(Number).filter(r => PRC[r].length >= 100).sort((a, b) => b - a);
@@ -2799,6 +2810,11 @@ ${navR(r)}${review}${trio}
         const cur = FXD && r === FXD.round;
         const proj = cur ? Object.fromEntries(FXD.players.map(x => [x.c, x])) : {};
         const L = PRC[r].filter(x => pByC[x.c]).map(x => ({ ...x, q: pByC[x.c], f: proj[x.c] }));
+        const pwinT = cur ? Object.fromEntries((FXD.coaches || []).map(c => [c.t, c.pwin])) : {};
+        // πρόβλεψη αλλαγής τιμής μετά την αγωνιστική (μοντέλο από τις επίσημες αλλαγές 1–10)
+        const predCh = x => { if (!cur || !PMODEL || !x.f) return null; const out = ['injured', 'out', 'rest'].includes(x.f.status);
+          const v = out ? Math.max(PMODEL.floor - x.pr, PMODEL.dnp_ratio * x.pr) : PMODEL.slope * (x.f.pp * (1 + PMODEL.win_bonus * (pwinT[x.f.t] ?? 0.5)) - x.pr);
+          return Math.round(Math.max(PMODEL.floor - x.pr, v) * 10) / 10; };
         const coaches = PRC[r].filter(x => x.c.startsWith('COACH-')).map(x => ({ ...x, t: x.c.slice(6) })).sort((a, b) => b.pr - a.pr);
         if (L.length < 100) continue;
         const prT = T(`Τιμές παικτών EuroLeague Fantasy: ${r}η αγωνιστική`, `EuroLeague Fantasy player prices: Round ${r}`, `Precios de jugadores del EuroLeague Fantasy: jornada ${r}`, `Cene igrača u Evroliga Fantasy: ${r}. kolo`, `EuroLeague Fantasy oyuncu fiyatları: ${r}. hafta`);
@@ -2806,8 +2822,8 @@ ${navR(r)}${review}${trio}
         const sg = v => v > 0 ? `<span class="pos">+${v.toFixed(1)}</span>` : v < 0 ? `<span class="neg">${v.toFixed(1)}</span>` : '0.0';
         const POSL = { Guard: 'G', Forward: 'F', Center: 'C' };
         const hasPop = L.some(x => x.pop != null), popTxt = v => v == null ? '–' : (v < 1 ? v.toFixed(1) : Math.round(v)) + '%';
-        const rowP = x => `<tr><td class="l">${pA(x.q)} <small>${esc(tName(tmOf(x.q)))} · ${POSL[x.q.pos] || ''}</small></td><td><b>${x.pr.toFixed(1)}</b></td><td>${sg(x.ch)}</td>${hasPop ? `<td>${popTxt(x.pop)}</td>` : ''}<td>${(() => { const g = x.q.g.filter(r => r[7] > 0).slice(-10); return g.length ? `${g.filter(r => r[25] >= x.pr).length}/${g.length}` : '–'; })()}</td>${cur ? `<td>${x.f && ['injured', 'out', 'rest'].includes(x.f.status) ? `<small>${T('εκτός', 'out', 'baja', 'van', 'yok')}</small>` : x.f ? f1(x.f.pp) : '–'}</td><td>${x.f && x.f.pp > 0 ? (x.f.pp / x.pr).toFixed(2) : '–'}</td>` : ''}</tr>`;
-        const hd = `<tr><th class="l">${H.pl}</th><th>${T('Τιμή', 'Price', 'Precio', 'Cena', 'Fiyat')}</th><th>${T('Από αρχή σεζόν', 'Since start', 'Desde inicio', 'Od starta', 'Sezon başı')}</th>${hasPop ? `<th title="${T('Ποσοστό των ομάδων του παιχνιδιού που έχουν τον παίκτη', 'Share of game teams that own the player', 'Porcentaje de equipos que tienen al jugador', 'Procenat timova koji imaju igrača', 'Oyuncuya sahip takımların oranı')}">${T('Επιλογή', 'Owned', 'Elegido', 'Izabran', 'Sahiplik')}</th>` : ''}<th title="${T('Σε πόσους από τους 10 τελευταίους αγώνες του έφερε PIR ίσο ή μεγαλύτερο από την τιμή του', 'In how many of his last 10 games his PIR matched or beat his price', 'En cuántos de sus 10 últimos partidos su PIR igualó o superó su precio', 'U koliko od poslednjih 10 utakmica je PIR bio jednak ili veći od cene', 'Son 10 maçın kaçında PIR fiyatına eşit veya fazla')}">PIR ≥ ${T('τιμή', 'price', 'precio', 'cena', 'fiyat')}</th>${cur ? `<th>${H.pp}</th><th>PIR/cr</th>` : ''}</tr>`;
+        const rowP = x => `<tr><td class="l">${pA(x.q)} <small>${esc(tName(tmOf(x.q)))} · ${POSL[x.q.pos] || ''}</small></td><td><b>${x.pr.toFixed(1)}</b></td><td>${sg(x.ch)}</td>${hasPop ? `<td>${popTxt(x.pop)}</td>` : ''}<td>${(() => { const g = x.q.g.filter(r => r[7] > 0).slice(-10); return g.length ? `${g.filter(r => r[25] >= x.pr).length}/${g.length}` : '–'; })()}</td>${cur && PMODEL ? `<td>${(() => { const v = predCh(x); return v == null ? '–' : sg(v); })()}</td>` : ''}${cur ? `<td>${x.f && ['injured', 'out', 'rest'].includes(x.f.status) ? `<small>${T('εκτός', 'out', 'baja', 'van', 'yok')}</small>` : x.f ? f1(x.f.pp) : '–'}</td><td>${x.f && x.f.pp > 0 ? (x.f.pp / x.pr).toFixed(2) : '–'}</td>` : ''}</tr>`;
+        const hd = `<tr><th class="l">${H.pl}</th><th>${T('Τιμή', 'Price', 'Precio', 'Cena', 'Fiyat')}</th><th>${T('Από αρχή σεζόν', 'Since start', 'Desde inicio', 'Od starta', 'Sezon başı')}</th>${hasPop ? `<th title="${T('Ποσοστό των ομάδων του παιχνιδιού που έχουν τον παίκτη', 'Share of game teams that own the player', 'Porcentaje de equipos que tienen al jugador', 'Procenat timova koji imaju igrača', 'Oyuncuya sahip takımların oranı')}">${T('Επιλογή', 'Owned', 'Elegido', 'Izabran', 'Sahiplik')}</th>` : ''}<th title="${T('Σε πόσους από τους 10 τελευταίους αγώνες του έφερε PIR ίσο ή μεγαλύτερο από την τιμή του', 'In how many of his last 10 games his PIR matched or beat his price', 'En cuántos de sus 10 últimos partidos su PIR igualó o superó su precio', 'U koliko od poslednjih 10 utakmica je PIR bio jednak ili veći od cene', 'Son 10 maçın kaçında PIR fiyatına eşit veya fazla')}">PIR ≥ ${T('τιμή', 'price', 'precio', 'cena', 'fiyat')}</th>${cur && PMODEL ? `<th title="${T('Πόσο θα αλλάξει η τιμή μετά την αγωνιστική, αν ο παίκτης φέρει όσους πόντους εκτιμά το μοντέλο', 'How much the price will change after the round if the player scores what the model projects', 'Cuánto cambiará el precio tras la jornada si rinde lo estimado', 'Koliko će se promeniti cena posle kola ako igrač odigra po proceni', 'Oyuncu tahmin kadar puan alırsa hafta sonrası fiyat değişimi')}">${T('Πρόβλ. αλλαγή', 'Proj. change', 'Cambio est.', 'Proc. promena', 'Tah. değişim')}</th>` : ''}${cur ? `<th>${H.pp}</th><th>PIR/cr</th>` : ''}</tr>`;
         const tb = (arr, cls = '') => `<div class="tbl"><table class="${cls}"><thead>${hd}</thead><tbody>${arr.map(rowP).join('')}</tbody></table></div>`;
         const val = cur ? L.filter(x => x.f && x.f.pp > 0 && !['injured', 'out', 'rest'].includes(x.f.status)).sort((a, b) => b.f.pp / b.pr - a.f.pp / a.pr).slice(0, 15) : [];
         const intro = T(`Οι επίσημες τιμές όλων των παικτών στο EuroLeague Fantasy πριν από την ${r}η αγωνιστική: ποιοι έχουν ακριβύνει και ποιοι έχουν πέσει από την αρχή της σεζόν, ποιους έχουν οι περισσότεροι μάνατζερ${cur ? ', και ποιοι δίνουν το περισσότερο εκτιμώμενο PIR ανά credit' : ''}. Ακριβότερος: ${pn(L[0].q)} (${L[0].pr.toFixed(1)}).`,
@@ -2822,6 +2838,10 @@ ${navR(r)}${review}${trio}
 ${navR(r)}
 ${up.length ? `<h2>${T('Ανέβηκαν περισσότερο φέτος', 'Biggest risers this season', 'Los que más suben', 'Najviše poskupeli', 'En çok yükselenler')}</h2>${tb(up.slice(0, 15))}` : ''}
 ${dn.length ? `<h2>${T('Έπεσαν περισσότερο φέτος', 'Biggest fallers this season', 'Los que más bajan', 'Najviše pojeftinili', 'En çok düşenler')}</h2>${tb(dn.slice(0, 15))}` : ''}
+${(() => { if (!cur || !PMODEL) return ''; const P = L.filter(x => x.f).map(x => ({ x, v: predCh(x) })).filter(o => o.v != null);
+  const up = P.filter(o => o.v > 0).sort((a, b) => b.v - a.v).slice(0, 12).map(o => o.x), dn = P.filter(o => o.v < 0 && !['injured', 'out', 'rest'].includes(o.x.f.status)).sort((a, b) => a.v - b.v).slice(0, 12).map(o => o.x);
+  return `<h2>${T(`Ποιοι θα ακριβύνουν μετά την ${r}η αγωνιστική`, `Who will rise after Round ${r}`, `Quién subirá tras la jornada ${r}`, `Ko će poskupeti posle ${r}. kola`, `${r}. hafta sonrası kim yükselecek`)}</h2><p class="sub">${T('Η τιμή αλλάζει ανάλογα με το πόσους fantasy πόντους φέρνει ο παίκτης σε σχέση με την τιμή του: περίπου +0,1 για κάθε 3 πόντους πάνω από την τιμή. Η πρόβλεψη βγαίνει από τις επίσημες αλλαγές των αγωνιστικών 1–10 και την εκτίμηση PIR του μοντέλου μας. Αγόρασε πριν ανέβει.', 'The price moves with how many fantasy points the player scores relative to his price: about +0.1 for every 3 points above it. The forecast comes from the official changes of rounds 1–10 and our PIR projection. Buy before he rises.', 'El precio cambia según los puntos fantasy frente a su precio: unos +0,1 por cada 3 puntos por encima.', 'Cena se menja prema fantasy poenima u odnosu na cenu: oko +0,1 na svaka 3 poena iznad.', 'Fiyat, fiyatın üzerindeki her ~3 puan için yaklaşık +0,1 değişir.')}</p>${tb(up)}
+<h2>${T(`Ποιοι θα πέσουν μετά την ${r}η αγωνιστική`, `Who will fall after Round ${r}`, `Quién bajará tras la jornada ${r}`, `Ko će pojeftiniti posle ${r}. kola`, `${r}. hafta sonrası kim düşecek`)}</h2><p class="sub">${T('Παίκτες που, με βάση την εκτίμηση, θα φέρουν πολύ λιγότερους πόντους από την τιμή τους. Αν τους έχεις, σκέψου να τους πουλήσεις πριν πέσουν.', 'Players projected to score well below their price. If you own them, consider selling before they drop.', 'Jugadores que rendirían muy por debajo de su precio.', 'Igrači koji bi odigrali znatno ispod cene.', 'Fiyatının çok altında puan beklenen oyuncular.')}</p>${tb(dn)}`; })()}
 ${(() => { if (!cur || !hasPop) return ''; const ok = L.filter(x => x.f && x.f.pp > 0 && !['injured', 'out', 'rest'].includes(x.f.status) && x.pop != null);
   const dif = ok.filter(x => x.pop < 5 && x.f.pp >= 9).sort((a, b) => b.f.pp / b.pr - a.f.pp / a.pr).slice(0, 12);
   const popl = ok.slice().sort((a, b) => b.pop - a.pop).slice(0, 12);
