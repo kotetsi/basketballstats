@@ -1,0 +1,14 @@
+{
+  "name": "Sportarena.gr",
+  "public": true,
+  "teams": 160,
+  "game": "https://euroleaguefantasy.euroleaguebasketball.net/",
+  "updated": "2026-11-11",
+  "note": "Μόνο ονόματα ομάδων, όχι ονόματα μάνατζερ. Round = πόντοι της αγωνιστικής, total = σύνολο μετά από αυτή.",
+  "rounds": {
+    "10": {
+      "round": [["RED VELVET CAKE", 226.3], ["Red Drops", 222.85], ["ΑΝΤΙΓΟΝΟΥΛΑ", 218.05], ["Nunn Better Andreas", 211.85], ["Red Drops!", 210.65]],
+      "total": [["χασιωω", 1693.05], ["Red Drops", 1681.25], ["ΑΝΤΙΓΟΝΟΥΛΑ", 1670.7], ["Red Drops!", 1599.7], ["ANS", 1595.23]]
+    }
+  }
+}
