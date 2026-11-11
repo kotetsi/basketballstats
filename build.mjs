@@ -537,9 +537,11 @@ async function loadArticles() {
 async function fetchAll() {
   const q = `seasonMode=Single&seasonCode=${SEASON}&limit=500`;
   const [trad, adv, misc, gamesRes] = await Promise.all([
-    get(`${FEED}/v3/competitions/E/statistics/players/traditional?${q}&statisticMode=PerGame`),
-    get(`${FEED}/v3/competitions/E/statistics/players/advanced?${q}&statisticMode=PerGame`),
-    get(`${FEED}/v3/competitions/E/statistics/players/misc?${q}&statisticMode=PerGame`),
+    // statisticSortMode=accumulated: όλοι οι παίκτες που έχουν αγωνιστεί. Το PerGame επιστρέφει μόνο όσους περνούν
+    // το όριο αγώνων/λεπτών της EuroLeague και έκοβε ~60 παίκτες (π.χ. Ousmane Diop). Οι μέσοι όροι βγαίνουν από τα ματς.
+    get(`${FEED}/v3/competitions/E/statistics/players/traditional?${q}&statisticMode=PerGame&statisticSortMode=accumulated`),
+    get(`${FEED}/v3/competitions/E/statistics/players/advanced?${q}&statisticMode=PerGame&statisticSortMode=accumulated`),
+    get(`${FEED}/v3/competitions/E/statistics/players/misc?${q}&statisticMode=PerGame&statisticSortMode=accumulated`),
     get(`${FEED}/v2/competitions/E/seasons/${SEASON}/games?limit=500`),
   ]);
   const advM = Object.fromEntries((adv?.players || []).map(p => [p.player.code, p]));
