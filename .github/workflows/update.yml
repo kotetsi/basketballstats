@@ -51,7 +51,7 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test test/assistant.test.mjs test/dom.test.mjs test/press.test.mjs test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/compare-v2.test.mjs test/odds.test.mjs test/props.test.mjs test/odds-value.test.mjs && python -m unittest predictor/test_predictor.py && python -m unittest fantasy/tests/test_perf.py fantasy/tests/test_translate.py
+        run: node --test test/finder.test.mjs test/assistant.test.mjs test/dom.test.mjs test/press.test.mjs test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/compare-v2.test.mjs test/odds.test.mjs test/props.test.mjs test/odds-value.test.mjs && python -m unittest predictor/test_predictor.py && python -m unittest fantasy/tests/test_perf.py fantasy/tests/test_translate.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
@@ -92,6 +92,8 @@ jobs:
         run: python predictor/run.py || echo "Game Predictor - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
         run: node build.mjs --offline
+      - name: Δημιουργία Advanced Player Finder
+        run: node scripts/build-finder.mjs
       - name: Έλεγχος SEO (στατική βαθμολογία και δεδομένα αγώνων)
         run: node --test test/seo.test.mjs
       - name: "Έλεγχος σελίδας Σύγκρισης στον browser (επιλογές, φίλτρα, URLs, SEO, κινητό)"
