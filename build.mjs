@@ -25,6 +25,7 @@ import * as SB from './src/shots/build-shots.mjs';
 import { wpSeries, wpSVG, clockOf } from './src/game/wp.mjs';
 import * as RB from './src/refs/build-refs.mjs';
 import { deepFacts, renderDeep } from './src/deep/deep.mjs';
+import { texts as ASKT } from './src/fantasy/ask.mjs';
 import { fieldsTable, fieldsMeta } from './src/fantasy/fields.mjs';
 import * as FV from './src/fantasy/value.mjs';
 import * as FC from './src/fantasy/captain.mjs';
@@ -943,7 +944,7 @@ async function main() {
   await fs.writeFile(path.join(OUT, 'assets', 'app.tr.js'), translate(appSrc, TRL.APP_CODE, 'app.js (tr)', TRL.PHRASES));
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
   await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
-  for (const f of ['optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs', 'live.mjs', 'livetracker.js', 'assistant.mjs', 'assistant.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
+  for (const f of ['optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs', 'live.mjs', 'livetracker.js', 'assistant.mjs', 'assistant.js', 'ask.mjs', 'ask.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
   await fs.mkdir(path.join(OUT, 'assets', 'analytics'), { recursive: true });
   for (const f of ['metrics.mjs', 'ui.js']) await fs.copyFile(path.join(ROOT, 'src', 'analytics', f), path.join(OUT, 'assets', 'analytics', f));
   await fs.mkdir(path.join(OUT, 'assets', 'matchup'), { recursive: true });
@@ -1245,6 +1246,8 @@ ${pwaStyle}`;
     const BL = B(LG);
     const ord = n => T(n + 'η', ordEn(n), n + '.º', n + '.', n + '.');
     const tName = c => (TEAMS[c] ? TEAMS[c][TEAM_IDX[LG][0]] : c);
+    // «Ρώτα το BasketballStats»: κουτί ερωτήσεων Fantasy (γραπτά ή με φωνή), απαντά από /api/ask/<lg>.json χωρίς AI
+    const askBox = () => { const X = ASKT(LG); return `<section class="askbox" aria-label="${esc(X.title)}"><h2>💬 ${esc(X.title)}</h2><form class="askf"><input type="search" name="q" placeholder="${esc(X.ph)}" aria-label="${esc(X.ph)}" autocomplete="off" enterkeyhint="search"><button type="button" class="askmic" hidden title="${esc(X.mic)}" aria-label="${esc(X.mic)}">🎤</button><button type="submit">${esc(X.go)}</button></form><div class="aska" aria-live="polite"></div><p class="note">${esc(X.disc)}</p><script type="application/json" class="askctx">${JSON.stringify({ api: BASE + 'api/ask/' + LG + '.json', lg: LG }).replace(/</g, '\\u003c')}</script><script type="module" src="${BASE}assets/fantasy/ask.js?v=${ver}"></script></section>`; };
     const teamNameL = c => c.split(';').map(tName).join(' / ');
     const updated = UPD[LG];
     const PRIV = T('Πολιτική απορρήτου</a>', 'Privacy policy</a>', 'Política de privacidad</a>', 'Politika privatnosti</a>', 'Gizlilik politikası</a>');
@@ -1605,7 +1608,7 @@ ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) 
       if (!gs.length) return '';
       return `<section class="deepstrip"><h2>🔎 ${T(`Σε βάθος ανάλυση: ${nr}η αγωνιστική`, `In-depth previews: round ${nr}`, `Análisis en profundidad: jornada ${nr}`, `Detaljne analize: ${nr}. kolo`, `Detaylı analizler: ${nr}. hafta`)}</h2><div class="deepl">${gs.map(g => `<a href="${urlFor(LG, `deep:${g[0]}|${g[2]}|${g[3]}`)}">${esc(tName(g[2]))} – ${esc(tName(g[3]))}</a>`).join('')}</div></section>`;
     })();
-    await page('home', { view: 'stand', top: homeToday + deepStrip + homeShots, ld: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + B(LG), inLanguage: LG, description: T('Στατιστικά EuroLeague και EuroCup στα ελληνικά', 'EuroLeague and EuroCup stats', 'Estadísticas de la EuroLeague y la EuroCup', 'Statistika Evrolige i Evrokupa', 'EuroLeague ve EuroCup istatistikleri') },
+    await page('home', { view: 'stand', top: homeToday + askBox() + deepStrip + homeShots, ld: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + B(LG), inLanguage: LG, description: T('Στατιστικά EuroLeague και EuroCup στα ελληνικά', 'EuroLeague and EuroCup stats', 'Estadísticas de la EuroLeague y la EuroCup', 'Statistika Evrolige i Evrokupa', 'EuroLeague ve EuroCup istatistikleri') },
       title: T(`Βαθμολογία EuroLeague ${SEASON_LABEL} (Ευρωλίγκα): πρόγραμμα, αποτελέσματα, στατιστικά | ${SITE_NAME}`, `EuroLeague standings ${SEASON_LABEL}: schedule, team and player stats | ${SITE_NAME}`, `Clasificación de la Euroliga ${SEASON_LABEL} (EuroLeague): calendario, resultados y estadísticas | ${SITE_NAME}`, `Evroliga tabela i raspored ${SEASON_LABEL}: rezultati, statistika timova i igrača | ${SITE_NAME}`, `EuroLeague puan durumu ${SEASON_LABEL} (THY EuroLeague): fikstür, maç sonuçları, istatistikler | ${SITE_NAME}`),
       desc: T(`Η βαθμολογία της ${S} μετά την ${lastRound}η αγωνιστική, το πρόγραμμα, στατιστικά ομάδων και παικτών στα ελληνικά.`,
         `The ${S} standings after Round ${lastRound}, the schedule, team ratings and player stats.`, `La clasificación de la ${S} tras la jornada ${lastRound}, el calendario, los ratings de los equipos y las estadísticas de los jugadores.`, `Tabela ${S} posle ${lastRound}. kola, raspored, rejtinzi timova i statistika igrača.`, `${S} puan durumu (${lastRound}. hafta sonrası), fikstür, takım reytingleri ve oyuncu istatistikleri.`) });
@@ -1630,6 +1633,28 @@ ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) 
       const DISC = T('Οι προβλέψεις είναι στατιστικές εκτιμήσεις και δεν αποτελούν εγγύηση απόδοσης.', 'Projections are statistical estimates and do not guarantee performance.', 'Las proyecciones son estimaciones estadísticas y no garantizan el rendimiento.', 'Projekcije su statističke procene i ne garantuju učinak.', 'Tahminler istatistiksel öngörülerdir ve performans garantisi vermez.');
       const PRICE_NOTE = T('Οι τιμές είναι δικές μας εκτιμήσεις (από το PIR) και όχι οι επίσημες του EuroLeague Fantasy· στο optimizer μπορείς να αλλάξεις τον προϋπολογισμό.', 'Prices are our own estimates (based on PIR), not the official EuroLeague Fantasy prices; you can change the budget in the optimizer.', 'Los precios son estimaciones propias (según el PIR), no los oficiales del EuroLeague Fantasy; puedes cambiar el presupuesto en el optimizador.', 'Cene su naše procene (na osnovu PIR-a), a ne zvanične cene Evroliga Fantasy igre; budžet možeš da promeniš u optimizatoru.', 'Fiyatlar bizim tahminlerimizdir (PIR’a göre), resmi EuroLeague Fantasy fiyatları değildir; bütçeyi optimizer aracında değiştirebilirsin.');
       const fxu = sub => urlFor(LG, 'fx:' + sub), fxp = c => (pBy[c] ? fxu('player/' + pBy[c].s) : '#');
+      {
+        // δεδομένα για το κουτί ερωτήσεων: όλοι οι παίκτες (και όσοι δεν έχουν εκτίμηση), ομάδες με άμυνα, αγώνες της αγωνιστικής
+        const fxBy = Object.fromEntries(FXD.players.map(x => [x.c, x]));
+        const teamRows = league.stand.map(r => ({ c: r[1], pa: r[5] / Math.max(1, r[2] + r[3]) })).sort((a, b) => a.pa - b.pa);
+        const teams = Object.fromEntries(Object.keys(TEAMS).map(c => { const i = teamRows.findIndex(r => r.c === c); return [c, { n: tName(c), alt: [...new Set([TEAMS[c][TEAM_IDX.en[0]], TEAMS[c][TEAM_IDX.el[0]]])], pa: i >= 0 ? +teamRows[i].pa.toFixed(1) : null, dr: i >= 0 ? i + 1 : null }]; }));
+        const games = {};
+        for (const g of league.games.filter(g => g[0] === FXD.round)) {
+          const w = g[1], at = new Date(Date.UTC(2020 + (+w[8]), +w.slice(0, 2) - 1, +w.slice(2, 4), +w.slice(4, 6), +w.slice(6, 8))).toISOString();
+          const day = FXD.days.indexOf(at.slice(0, 10));
+          games[g[2]] = { opp: g[3], home: 1, at, day: day >= 0 ? day : null }; games[g[3]] = { opp: g[2], home: 0, at, day: day >= 0 ? day : null };
+        }
+        const askPlayers = players.map(q => {
+          const x = fxBy[q.c], pl = q.g.filter(r => r[7] > 0), inj = INJ[LG][q.c], t = q.t.split(';').pop();
+          return { c: q.c, n: (LG === 'el' && GRN[q.n]) || niceName(q.n), alt: [niceName(q.n), GRN[q.n]].filter(Boolean), t,
+            st: x ? x.status : (inj ? (inj.m === 1 ? 'injured' : 'doubtful') : 'playing'), why: inj?.t || '', miss: inj && inj.m === 0 ? 1 : 0,
+            pp: x && x.status !== 'injured' ? +x.pp.toFixed(1) : null, p10: x ? +x.p10.toFixed(1) : null, p90: x ? +x.p90.toFixed(1) : null, day: x ? x.day : (games[t]?.day ?? null),
+            avg: pl.length ? +(pl.reduce((a, r) => a + r[25], 0) / pl.length).toFixed(1) : null, l3: pl.slice(-3).map(r => r[25]),
+            u: urlFor(LG, 'player:' + q.s), fu: pBy[q.c] ? fxp(q.c) : '' };
+        });
+        await fs.mkdir(path.join(OUT, 'api', 'ask'), { recursive: true });
+        await fs.writeFile(path.join(OUT, 'api', 'ask', LG + '.json'), JSON.stringify({ round: FXD.round, generated: FXD.generated, days: FXD.days, loc: { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG], caps: urlFor(LG, 'fxcap:' + FXD.round), teams, games, players: askPlayers }));
+      }
       const U = {
         round: T('Αγωνιστική', 'Round', 'Jornada', 'Kolo', 'Hafta'), noRes: T('Δεν βρέθηκε σύνθεση με αυτούς τους περιορισμούς.', 'No lineup fits these constraints.', 'Ninguna alineación cumple estas condiciones.', 'Nijedna postava ne odgovara ovim uslovima.', 'Bu kısıtlamalara uyan bir kadro bulunamadı.'),
         slot: { start: T('Πεντάδα', 'Starter', 'Titular', 'Starter', 'İlk beş'), sixth: T('6ος', '6th man', 'Sexto', '6. igrač', '6. adam'), bench: T('Πάγκος', 'Bench', 'Banquillo', 'Klupa', 'Yedek kulübesi'), coach: T('Προπονητής', 'Coach', 'Entrenador', 'Trener', 'Koç') },
@@ -2317,7 +2342,7 @@ ${notes}</article>`;
 </article>`,
       ld: crumbs([[SITE_NAME, B(LG)], ['EuroLeague Fantasy', urlFor(LG, 'fantasy')], [T('Οδηγός', 'Guide', 'Guía', 'Vodič', 'Rehber'), urlFor(LG, 'fxrules')]]) });
     const fxRoundStrip = `<section class="fxdash"><p class="leadnav">${FXD?.players?.length ? `<a href="${urlFor(LG, 'fxcap:' + FXD.round)}">👑 ${T(`Αρχηγοί ${FXD.round}ης αγωνιστικής`, `Round ${FXD.round} captains`, `Capitanes jornada ${FXD.round}`, `Kapiteni ${FXD.round}. kola`, `${FXD.round}. hafta kaptanları`)}</a>` : ''}${doneRounds.length ? `<a href="${urlFor(LG, 'fxtotr:' + doneRounds[0])}">⭐ ${T(`Ομάδα της ${doneRounds[0]}ης αγωνιστικής`, `Team of Round ${doneRounds[0]}`, `Equipo de la jornada ${doneRounds[0]}`, `Tim ${doneRounds[0]}. kola`, `${doneRounds[0]}. haftanın takımı`)}</a>` : ''}<a href="${urlFor(LG, 'fxrounds')}">📅 ${T('Όλες οι αγωνιστικές', 'All rounds', 'Todas las jornadas', 'Sva kola', 'Tüm haftalar')}</a></p></section>`;
-    await page('fantasy', { view: 'fantasy', extra: fxRoundStrip + fxInj + FXDASH,
+    await page('fantasy', { view: 'fantasy', extra: fxRoundStrip + askBox() + fxInj + FXDASH,
       title: T(`EuroLeague Fantasy προτάσεις ${lastRound + 1}ης αγωνιστικής (tips): ποιους να βάλεις | ${SITE_NAME}`, `EuroLeague Fantasy tips & picks for Round ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy consejos jornada ${lastRound + 1}: a quién fichar | ${SITE_NAME}`, `Evroliga Fantazi (Fantasy) saveti za ${lastRound + 1}. kolo: koga izabrati | ${SITE_NAME}`, `${lastRound + 1}. hafta EuroLeague Fantasy tavsiyeleri ve seçimler | ${SITE_NAME}`),
       desc: T(`Εκτιμήσεις PIR ανά θέση, δυσκολία προγράμματος, διπλές εβδομάδες και η πεντάδα της αγωνιστικής για το EuroLeague Fantasy.`,
         `Projected PIR by position, schedule difficulty, double weeks and the team of the round for EuroLeague Fantasy.`, `PIR estimado por posición, dificultad del calendario, semanas dobles y el quinteto de la jornada para el EuroLeague Fantasy.`, `Procena PIR-a po poziciji, težina rasporeda, duple nedelje i idealna petorka kola za EuroLeague Fantasy.`, `EuroLeague Fantasy için pozisyona göre tahmini PIR, fikstür zorluğu, çift maç haftaları ve haftanın kadrosu.`) });
@@ -2456,7 +2481,7 @@ ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: t
 <p class="kicker">Fantasy · ${esc(rdTxt0(r))}</p>
 <h1>${esc(capT(r))}</h1>
 <p class="lede2">${esc(intro)}</p>
-${navR(r)}${review}${trio}${body}
+${navR(r)}${cur ? askBox() : ''}${review}${trio}${body}
 <p class="note">${T(`Εκτιμήσεις του μοντέλου μας (${C.model}) στις ${genD}. Κάτω όριο και ταβάνι = 10ο και 90ό εκατοστημόριο. Οι τραυματίες και όσοι ξεκουράζονται δεν προτείνονται. Στατιστικές εκτιμήσεις, όχι εγγύηση απόδοσης.`, `Projections from our model (${C.model}) on ${genD}. Floor and ceiling = 10th and 90th percentile. Injured and rested players are excluded. Statistical estimates, not a guarantee of performance.`, `Estimaciones de nuestro modelo (${C.model}) del ${genD}. Suelo y techo = percentiles 10 y 90. Se excluyen lesionados y jugadores en descanso. Estimaciones estadísticas, no garantía de rendimiento.`, `Procene našeg modela (${C.model}) od ${genD}. Donja granica i plafon = 10. i 90. percentil. Povređeni i odmorni igrači nisu uključeni. Statističke procene, ne garancija učinka.`, `Modelimizin (${C.model}) ${genD} tarihli tahminleri. Taban ve tavan = 10. ve 90. yüzdelik. Sakatlar ve dinlendirilenler dahil değildir. İstatistiksel tahminlerdir, performans garantisi değildir.`)} <a href="${urlFor(LG, 'fx:captain-advisor')}">Captain Advisor →</a></p>
 </article>`;
         await simplePage('fxcap:' + r, { view: 'articles', title: `${capT(r)} | ${SITE_NAME}`, desc: intro.slice(0, 300), main, ld: artLd(capT(r), 'fxcap:' + r, genD) });
