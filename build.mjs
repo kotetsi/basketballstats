@@ -2428,7 +2428,7 @@ ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: t
         const tbl = arr => `<div class="tbl"><table><thead>${head}</thead><tbody>${arr.map(row).join('')}</tbody></table></div>`;
         let body = '';
         if (cur && C.days?.length > 1 && pool.some(x => x.day != null)) {
-          body = C.days.map((d, i) => { const L = pool.filter(x => x.day === i + 1).slice(0, 5); if (!L.length) return ''; const dl = new Date(d + 'T12:00:00Z').toLocaleDateString(LOCR, { weekday: 'long', day: 'numeric', month: 'long' }); return `<h2>${T('Μέρα', 'Day', 'Día', 'Dan', 'Gün')} ${i + 1} · ${esc(dl)}</h2>${tbl(L)}`; }).join('');
+          body = C.days.map((d, i) => { const L = pool.filter(x => x.day === i).slice(0, 5); if (!L.length) return ''; const dl = new Date(d + 'T12:00:00Z').toLocaleDateString(LOCR, { weekday: 'long', day: 'numeric', month: 'long' }); return `<h2>${T('Μέρα', 'Day', 'Día', 'Dan', 'Gün')} ${i + 1} · ${esc(dl)}</h2>${tbl(L)}`; }).join('');
         } else body = `<h2>${T('Οι 10 καλύτερες επιλογές', 'Top 10 picks', 'Las 10 mejores opciones', '10 najboljih izbora', 'En iyi 10 seçenek')}</h2>${tbl(pool.slice(0, 10))}`;
         const best = pool[0], top = pool.slice(1, 25), safe = top.slice().sort((a, b) => b.p10 - a.p10)[0], ceil = top.filter(x => x !== safe).sort((a, b) => b.p90 - a.p90)[0];
         if (!best || !safe || !ceil) continue;
