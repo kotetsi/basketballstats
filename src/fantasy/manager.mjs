@@ -31,11 +31,12 @@ export function validateRoster(ro, { coach = null, cap = CAP, maxPerTeam = MAX_P
   return err;
 }
 
-// ---------- προβολή 3 αγωνιστικών ως «ψευδο-παίκτης» (για το optimizer με ορίζοντα 3)
+// ---------- προβολή 3 ή 5 αγωνιστικών ως «ψευδο-παίκτης» (για το optimizer με ορίζοντα 3)
 export function horizon(p, h) {
-  if (h !== 3 || !p.nx || !p.nx.length || !p.pp) return p;
-  const k = (p.p3 || 0) / Math.max(p.pp, 0.1);
-  return { ...p, pp: p.p3, p10: p.p10 * k, p50: p.p50 * k, p90: p.p90 * k };
+  if ((h !== 3 && h !== 5) || !p.nx || !p.nx.length || !p.pp) return p;
+  const tot = h === 5 ? (p.p5 ?? p.p3 ?? 0) : (p.p3 || 0);
+  const k = tot / Math.max(p.pp, 0.1);
+  return { ...p, pp: tot, p10: p.p10 * k, p50: p.p50 * k, p90: p.p90 * k };
 }
 const lineupScore = (ro, risk, h = 1) => { const lu = bestLineup(ro.map(p => horizon(p, h)), risk); return lu ? lu.score : -1e9; };
 

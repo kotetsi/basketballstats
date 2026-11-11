@@ -116,7 +116,7 @@ ${rr(L.priceH, f1(r.out.price), f1(r.inn.price))}${rr(L.proj, f1(r.out.pp), f1(r
 <span class="sub">${esc(L.bank)} ${f1(bank)} · ${esc(L.transfersLeft)} ${t.transfers ?? 2}</span></form>${res}
 <h3>Multi-trade optimizer</h3><p class="sub">${esc(L.mtHelp)}</p>
 <form class="fxfilters" data-form="mt" onsubmit="return false"><label>${esc(L.maxTrades)} <select name="k">${[1, 2, 3, 4].map(k => `<option${k === (mt?.k || 2) ? ' selected' : ''}>${k}</option>`).join('')}</select></label>
-<label>${esc(L.horizon)} <select name="h"><option value="3"${mt?.h !== 1 ? ' selected' : ''}>${esc(L.next3)}</option><option value="1"${mt?.h === 1 ? ' selected' : ''}>${esc(L.nextRound)}</option></select></label>
+<label>${esc(L.horizon)} <select name="h"><option value="3"${mt?.h !== 1 && mt?.h !== 5 ? ' selected' : ''}>${esc(L.next3)}</option><option value="5"${mt?.h === 5 ? ' selected' : ''}>${esc(L.next5 || 'Next 5')}</option><option value="1"${mt?.h === 1 ? ' selected' : ''}>${esc(L.nextRound)}</option></select></label>
 <button type="button" data-act="mt" class="fxrun">${esc(L.findTrades)}</button></form>
 <div data-mtout>${mt?.res ? mtView(mt.res, mt.h) : ''}</div></section>`;
 }

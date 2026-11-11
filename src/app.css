@@ -783,3 +783,18 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 .tnl{list-style:none;padding:0;margin:.4em 0}
 .tnl li{padding:6px 0;border-bottom:1px solid var(--line)}
 .tnl time{display:inline-block;min-width:58px;font-size:.85em;color:var(--muted)}
+/* σύγκριση παικτών Fantasy */
+.cmpin{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.6rem;margin:.8rem 0}
+.cmpin label{display:flex;flex-direction:column;font-size:.8rem;font-weight:600;gap:.2rem}
+.cmpin span{display:flex;gap:.3rem}
+.cmpin input{flex:1;padding:.45rem .55rem;border:1px solid var(--line,#ccd);border-radius:6px;font:inherit;font-weight:400;min-width:0}
+.cmpin button{border:0;background:none;cursor:pointer;color:#c33;font-size:1rem}
+table.cmpfx th,table.cmpfx td{text-align:center;vertical-align:middle}
+table.cmpfx thead th{min-width:120px}
+table.cmpfx tbody th{font-weight:600;white-space:nowrap}
+table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
+.cmpd{display:inline-block;padding:1px 5px;border-radius:4px;font-size:.75rem;font-weight:700;margin:1px}
+.cmpd.d1{background:#1f9d55;color:#fff}.cmpd.d2{background:#8bd17c;color:#123}.cmpd.d3{background:#e6e6e6;color:#222}.cmpd.d4{background:#f5a37a;color:#311}.cmpd.d5{background:#d64545;color:#fff}
+.cmpv{margin:.8rem 0;padding-left:1.2rem}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmpd.d3{background:#444;color:#eee}}
+:root[data-theme="dark"] .cmpd.d3{background:#444;color:#eee}

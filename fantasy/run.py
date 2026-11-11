@@ -224,7 +224,7 @@ def main():
         r = s.rank(pct=True)
         return np.clip(np.ceil(r * 5), 1, 5).astype(int)
     fut = {0: (tgt, pred)}
-    for k in (1, 2):
+    for k in (1, 2, 3, 4):
         rr = target + k
         if not any(g[0] == rr for g in games):
             break
@@ -263,10 +263,10 @@ def main():
                 hist_c[str(rnd)] = round(min(24, max(4, 4 + 0.75 * float(np.mean(prev)))), 1)
         hist_c[str(target)] = p["price"]
     ph_file.write_text(json.dumps(ph), encoding="utf-8")
-    mult_f = {"playing": (1, 1, 1), "doubtful": (0.4, 0.85, 1), "injured": (0, 0.35, 0.7), "rest": (0, 1, 1)}
+    mult_f = {"playing": (1, 1, 1, 1, 1), "doubtful": (0.4, 0.85, 1, 1, 1), "injured": (0, 0.35, 0.7, 0.85, 0.95), "rest": (0, 1, 1, 1, 1)}
     for p in players:
         c = p["c"]
-        m3 = mult_f.get(p["status"], (1, 1, 1))
+        m3 = mult_f.get(p["status"], (1, 1, 1, 1, 1))
         nx = []
         for k in sorted(fut):
             if c not in proj_k[k]:
@@ -274,8 +274,12 @@ def main():
             o = opp_k[k][c]
             val = p["pp"] if k == 0 else max(float(proj_k[k][c]), 0) * m3[k]
             nx.append([target + k, o[0], o[1], round(val, 1), int(dif[k][c]), o[3]])
+        # nx = οι 3 επόμενες αγωνιστικές (όπως πριν)· nxe = η 4η και 5η για τον planner 5 αγωνιστικών
+        p["nxe"] = nx[3:5]
+        nx = nx[:3]
         p["nx"] = nx
         p["p3"] = round(sum(x[3] for x in nx), 1)
+        p["p5"] = round(p["p3"] + sum(x[3] for x in p["nxe"]), 1)
         f0 = feat0.get(c)
         p["start"] = round(float(f0["start_rate5"]), 2) if f0 is not None else None
         # για τον Captain Advisor: άμυνα αντιπάλου, ρυθμός αναμέτρησης, σταθερότητα λεπτών, ιστορικό «ως αρχηγός»
