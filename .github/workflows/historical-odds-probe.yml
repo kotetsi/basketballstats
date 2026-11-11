@@ -1,0 +1,24 @@
+name: Historical odds availability probe
+on:
+  workflow_dispatch:
+    inputs:
+      fixture_id:
+        description: 'OddsPapi fixture ID (default: first Nov 11 EuroLeague game)'
+        required: false
+        default: 'id1100013873263138'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: One historical request
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          FIXTURE_ID: ${{ inputs.fixture_id }}
+        run: node scripts/historical-odds-probe.mjs
