@@ -4,7 +4,7 @@ if (!key) { console.error('ODDS_API_KEY is missing'); process.exitCode = 1; }
 else {
   const fixtureId = process.env.FIXTURE_ID || 'id1100013873263138';
   const base = 'https://api.oddspapi.io/v4/historical-odds';
-  const params = new URLSearchParams({ apiKey: key, fixtureId, oddsFormat: 'decimal' });
+  const params = new URLSearchParams({ apiKey: key, fixtureId, bookmakers: 'stoiximan,bet365.gr' });
   try {
     const response = await fetch(base + '?' + params, { signal: AbortSignal.timeout(20000) });
     const body = await response.text();
