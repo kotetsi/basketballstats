@@ -339,6 +339,7 @@ def main():
     hist.mkdir(exist_ok=True)
     slim = {"round": target, "generated": latest["generated"], "model": MODEL_VERSION,
             "p": [[x["c"], x["pm"], x["pp"], x["p10"], x["p50"], x["p90"], x["status"]] for x in players],
+            "co": coaches,
             # feature snapshot: ό,τι ήξερε το μοντέλο τη στιγμή της πρόβλεψης (για το backtesting/model performance)
             "snapshot_cols": SNAP_COLS,
             "snapshot": {r["c"]: [None if pd.isna(r[k]) else round(float(r[k]), 3) for k in SNAP_COLS] for _, r in tgt.iterrows()}}
