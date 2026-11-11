@@ -780,3 +780,6 @@ tr.chg-in td{background:#f1faf3}tr.chg-out td{background:#fdf3f2}tr.chg-slot td{
 .dtn b{font-size:1.25em}
 .dtn small{font-size:.75em;opacity:.7}
 .dt-safe{border-top:4px solid #2e9e57}.dt-dog{border-top:4px solid #e0a020}.dt-combo{border-top:4px solid #3a7bd5}
+.tnl{list-style:none;padding:0;margin:.4em 0}
+.tnl li{padding:6px 0;border-bottom:1px solid var(--line)}
+.tnl time{display:inline-block;min-width:58px;font-size:.85em;color:var(--muted)}
