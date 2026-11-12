@@ -101,8 +101,8 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-12T13:06:41.605Z",
- "lastSuccess": "2026-11-12T13:06:41.605Z",
+ "lastCall": "2026-11-12T13:11:10.086Z",
+ "lastSuccess": "2026-11-12T13:11:10.086Z",
  "events": 1,
  "matched": 1,
  "added": 52,
@@ -111,5 +111,5 @@
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-12T13:06:41.605Z"
+ "lastChange": "2026-11-12T13:11:10.086Z"
 }
