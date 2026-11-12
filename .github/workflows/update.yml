@@ -92,8 +92,6 @@ jobs:
         run: python predictor/run.py || echo "Game Predictor - παραλείφθηκε"
       - name: Ξανά οι σελίδες, με τις προβλέψεις
         run: node build.mjs --offline
-      - name: Δημιουργία Advanced Player Finder
-        run: node scripts/build-finder.mjs
       - name: Έλεγχος SEO (στατική βαθμολογία και δεδομένα αγώνων)
         run: node --test test/seo.test.mjs
       - name: "Έλεγχος σελίδας Σύγκρισης στον browser (επιλογές, φίλτρα, URLs, SEO, κινητό)"
