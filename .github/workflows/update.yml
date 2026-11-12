@@ -112,6 +112,12 @@ jobs:
           TELEGRAM_TIPSTERS: "high-fidelity"     # νέα picks → κανάλι
           TELEGRAM_ROUNDS: "0"                   # 1 = και προεπισκόπηση/αποτελέσματα αγωνιστικής
         run: node scripts/telegram.mjs || true
+      - name: Κάρτες εικόνας για τα ανοιχτά picks (Instagram/Facebook)
+        continue-on-error: true
+        run: |
+          node -e "require.resolve('playwright')" 2>/dev/null || npm i --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium >/dev/null
+          node scripts/pick-cards.mjs
       - name: Αποθήκευση των νέων δεδομένων στο repo
         continue-on-error: true
         run: |
@@ -134,3 +140,31 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           timeout: 1800000   # ~16.000 σελίδες: ο συγχρονισμός αρχείων μπορεί να ξεπεράσει τα 10 λεπτά (προεπιλογή)
+
+  # Αναρτήσεις νέων picks σε Facebook/Instagram ΜΕΤΑ το deploy (το Instagram διαβάζει την κάρτα από το δημόσιο URL).
+  # Χωρίς το secret META_PAGE_TOKEN δεν κάνει τίποτα. FB_PAGE_ID / IG_USER_ID: Settings → Secrets and variables → Actions → Variables.
+  social:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Αναρτήσεις Facebook / Instagram
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          FB_PAGE_ID: ${{ vars.FB_PAGE_ID }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
+          SOCIAL_TIPSTERS: "high-fidelity"
+        run: node scripts/social.mjs || true
+      - name: Αποθήκευση (τι αναρτήθηκε)
+        run: |
+          [ -f data/social.json ] || exit 0
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add data/social.json
+          git diff --cached --quiet || (git commit -m "Social: αναρτήσεις picks" && for i in 1 2 3 4; do git push && break; sleep 10; git pull --rebase -q; done)
