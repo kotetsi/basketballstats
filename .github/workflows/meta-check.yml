@@ -1,0 +1,20 @@
+# Έλεγχος σύνδεσης με Facebook/Instagram (μόνο ανάγνωση, καμία ανάρτηση). Τρέχει χειροκίνητα από την καρτέλα Actions.
+name: Meta (έλεγχος σύνδεσης)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Σελίδα και Instagram
+        env:
+          TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+        run: |
+          T=$(printf '%s' "$TOKEN" | tr -d '[:space:]')
+          [ -n "$T" ] || { echo "Λείπει το META_PAGE_TOKEN"; exit 1; }
+          g() { curl -sS -G "https://graph.facebook.com/v21.0/$1" --data-urlencode "access_token=$T" --data-urlencode "fields=$2"; }
+          echo "Σελίδα:";    g 1372786612592081 "name,instagram_business_account{username}" | python3 -c 'import json,sys;r=json.load(sys.stdin);print(r.get("name"), "| IG:", (r.get("instagram_business_account") or {}).get("username"), "| σφάλμα:", (r.get("error") or {}).get("message"))'
+          echo "Instagram:"; g 17841438627851733 "username,media_count" | python3 -c 'import json,sys;r=json.load(sys.stdin);print(r.get("username"), r.get("media_count"), "| σφάλμα:", (r.get("error") or {}).get("message"))'
+          echo "Κλειδί:";    curl -sS -G "https://graph.facebook.com/v21.0/debug_token" --data-urlencode "input_token=$T" --data-urlencode "access_token=$T" | python3 -c 'import json,sys;d=json.load(sys.stdin).get("data",{});print("τύπος", d.get("type"), "| έγκυρο", d.get("is_valid"), "| λήγει", d.get("expires_at") or "ποτέ", "| δικαιώματα", ",".join(d.get("scopes",[])))'
