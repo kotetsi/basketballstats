@@ -10,6 +10,7 @@ import fsSync from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { finderPage, finderTitle } from './src/finder/page.mjs';
 import { translate, APP_CODE, SHELL_CODE } from './src/en.mjs';
 import * as ES from './src/es.mjs';
 import * as SR from './src/sr.mjs';
@@ -1215,6 +1216,7 @@ async function main() {
     const [k, v] = key.split(':');
     const P = PATHS[lg];
     if (k === 'home') return B(lg);
+    if (k === 'finder') return B(lg) + 'player-finder/';
     if (k === 'team') return B(lg) + P.team + '/' + TEAMS[v][TEAM_IDX[lg][1]] + '/';
     if (k === 'player') return B(lg) + P.player + '/' + v + '/';
     if (k === 'article') { const a = artBySlug[v]; return a && a[lg] ? a[lg].url : null; }
@@ -1265,6 +1267,11 @@ async function main() {
     return B(lg) + P[k] + '/';
   }
 
+  const finderAssets = path.join(OUT, 'assets', 'finder');
+  await fs.mkdir(finderAssets, { recursive: true });
+  for (const file of ['metrics.mjs', 'ui.mjs', 'finder.css']) {
+    await fs.copyFile(path.join(ROOT, 'src', 'finder', file), path.join(finderAssets, file));
+  }
   const urls = [], PAGE_HASH = new Map();
   const adUnit = lg => (AD_CLIENT && AD_SLOT)
     ? `<div class="wrap adwrap"><span class="adlabel">${{ el: 'Διαφήμιση', en: 'Advertisement', es: 'Publicidad', sr: 'Reklama', tr: 'Reklam' }[lg]}</span><ins class="adsbygoogle" style="display:block" data-ad-client="${esc(AD_CLIENT)}" data-ad-slot="${esc(AD_SLOT)}" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>`
@@ -1368,7 +1375,7 @@ ${pwaStyle}`;
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const shellB = shellB0.replace(/(<a href="[^"]*" data-v="stand">[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'today')}" data-v="today" class="navtoday">📅 ${T('Οι αγώνες σήμερα', 'Today', 'Hoy', 'Danas', 'Bugün')}</a>`)
       // «Σύγκριση» (ομάδων και παικτών) μετά τα Shot Charts
-      .replace(/(<a href="[^"]*" data-v="shots"[^>]*>[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'compare')}" data-v="compare">${T('Σύγκριση', 'Compare', 'Comparar', 'Poređenje', 'Karşılaştır')}</a>`);
+      .replace(/(<a href="[^"]*" data-v="shots"[^>]*>[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'compare')}" data-v="compare">${T('Σύγκριση', 'Compare', 'Comparar', 'Poređenje', 'Karşılaştır')}</a><a href="${urlFor(LG, 'finder')}" data-v="finder">${esc(finderTitle[LG])}</a>`);
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
     const LNAME = { el: ['ΕΛ', 'Ελληνικά'], en: ['EN', 'English'], es: ['ES', 'Español'], sr: ['SR', 'Srpski'], tr: ['TR', 'Türkçe'] };
@@ -1505,6 +1512,9 @@ ${ldTag(ld)}${script}
 </html>
 `);
     }
+    const finder = finderPage({ lang: LG, T, esc, base: BASE, urlFor, players, niceName });
+    await simplePage('finder', { ...finder, title: `${finder.title} | ${SITE_NAME}` });
+
     async function page(key, { title, desc, view, id = '', h1p = '', ledep = '', h1t = '', ledet = '', ld = null, extra = '', top = '' }) {
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
