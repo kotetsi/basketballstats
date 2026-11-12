@@ -1,4 +1,4 @@
-# Χειροκίνητη δημοσίευση στο κανάλι Telegram (t.me/basketballstats_eu) από την καρτέλα Actions.
+# Χειροκίνητη δημοσίευση στο κανάλι Telegram (t.me/eubasketballstats_eu) από την καρτέλα Actions.
 # Το token του bot είναι στο secret TELEGRAM_BOT_TOKEN· δεν εμφανίζεται ποτέ στα logs.
 name: Telegram (δημοσίευση στο κανάλι)
 on:
@@ -16,7 +16,7 @@ jobs:
       - name: Αποστολή
         env:
           TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          CHAT: "@basketballstats_eu"
+          CHAT: "@eubasketballstats_eu"
           MSG: ${{ github.event.inputs.message }}
         run: |
           if [ -z "$TOKEN" ]; then echo "Λείπει το secret TELEGRAM_BOT_TOKEN"; exit 1; fi
