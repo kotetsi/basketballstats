@@ -142,7 +142,7 @@ jobs:
           timeout: 1800000   # ~16.000 σελίδες: ο συγχρονισμός αρχείων μπορεί να ξεπεράσει τα 10 λεπτά (προεπιλογή)
 
   # Αναρτήσεις νέων picks σε Facebook/Instagram ΜΕΤΑ το deploy (το Instagram διαβάζει την κάρτα από το δημόσιο URL).
-  # Χωρίς το secret META_PAGE_TOKEN δεν κάνει τίποτα. FB_PAGE_ID / IG_USER_ID: Settings → Secrets and variables → Actions → Variables.
+  # Χωρίς το secret META_PAGE_TOKEN δεν κάνει τίποτα.
   social:
     needs: deploy
     runs-on: ubuntu-latest
@@ -158,8 +158,8 @@ jobs:
       - name: Αναρτήσεις Facebook / Instagram
         env:
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
-          FB_PAGE_ID: ${{ vars.FB_PAGE_ID }}
-          IG_USER_ID: ${{ vars.IG_USER_ID }}
+          FB_PAGE_ID: "1372786612592081"      # Σελίδα BasketballStats.eu (δημόσιο id)
+          IG_USER_ID: "17841438627851733"     # Instagram @basketballstats.eu (δημόσιο id)
           SOCIAL_TIPSTERS: "high-fidelity"
         run: node scripts/social.mjs || true
       - name: Αποθήκευση (τι αναρτήθηκε)
