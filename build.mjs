@@ -1033,7 +1033,7 @@ async function main() {
     await fs.writeFile(path.join(ROOT, 'data', 'matchups', 'fixtures.json'), JSON.stringify({ season: SEASON, avail: Object.fromEntries(Object.entries(INJ.el).map(([c, v]) => [c, v.m])), fixtures: fx }));
   }
   const INJL = { el: 'Εκτός (τραυματίες ή απόντες):', en: 'Out (injured or absent):', es: 'Bajas (lesionados o ausentes):', sr: 'Van terena (povređeni ili odsutni):', tr: 'Forma giyemeyecekler (sakat veya eksik):' };
-  const pendingTips = lg => tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label[lg], u: p.url[lg] })));
+  const pendingTips = lg => tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending').map(p => ({ g: p.h + '-' + p.a, r: p.round, n: t.name, s: t.slug, l: p.label[lg], u: p.url[lg], o: p.odds })));
   const artList = lg => articles.filter(a => a[lg]).map(a => ({ title: a[lg].title, desc: a[lg].desc, type: a.type, round: a.round, game: a.game, author: a.author, date: a.date, dateText: a[lg].dateText, slug: a[lg].slug, url: a[lg].url }));
   await fs.writeFile(path.join(OUT, 'assets', 'data.json'), JSON.stringify({ mp: Object.fromEntries((MPRED?.games || []).filter(g => g.comp === 'E').map(g => [`${g.h}|${g.a}`, [g.hs, g.as, g.p_home, g.total]])), updated: UPD.el, teams: TEAMS, players, league, season: SEASON,
     vid: { hl: Object.fromEntries(Object.entries(VIDS.hl).map(([k, v]) => [k, v.id])), team: Object.fromEntries(Object.entries(VIDS.team).map(([c, l]) => [c, l.slice(0, 6).map(v => ({ id: v.id, t: v.t }))])), ch: YT_TEAMS },

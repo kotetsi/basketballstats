@@ -107,8 +107,10 @@ jobs:
         run: node test/e2e/odds-value.e2e.mjs   # το playwright εγκαταστάθηκε στο προηγούμενο βήμα
       - name: Αναρτήσεις στο κανάλι Telegram (μόνο αν υπάρχουν τα secrets)
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT: ${{ secrets.TELEGRAM_CHAT }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT: "@eubasketballstats_eu"
+          TELEGRAM_TIPSTERS: "high-fidelity"     # νέα picks → κανάλι
+          TELEGRAM_ROUNDS: "0"                   # 1 = και προεπισκόπηση/αποτελέσματα αγωνιστικής
         run: node scripts/telegram.mjs || true
       - name: Αποθήκευση των νέων δεδομένων στο repo
         continue-on-error: true
