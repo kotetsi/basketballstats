@@ -12,7 +12,8 @@ jobs:
         env:
           TOKEN: ${{ secrets.META_PAGE_TOKEN }}
         run: |
-          T=$(printf '%s' "$TOKEN" | tr -d '[:space:]')
+          T=$(printf '%s' "$TOKEN" | tr -d '[:space:]' | grep -o 'EAA[A-Za-z0-9]*' | head -1)   # χωρίς εισαγωγικά/κενά της επικόλλησης
+          echo "μήκος κλειδιού: ${#T} (αρχικό ${#TOKEN})"
           [ -n "$T" ] || { echo "Λείπει το META_PAGE_TOKEN"; exit 1; }
           g() { curl -sS -G "https://graph.facebook.com/v21.0/$1" --data-urlencode "access_token=$T" --data-urlencode "fields=$2"; }
           echo "Σελίδα:";    g 1372786612592081 "name,instagram_business_account{username}" | python3 -c 'import json,sys;r=json.load(sys.stdin);print(r.get("name"), "| IG:", (r.get("instagram_business_account") or {}).get("username"), "| σφάλμα:", (r.get("error") or {}).get("message"))'

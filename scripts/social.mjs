@@ -10,7 +10,7 @@ import { upcomingPicks, cardName, when, DISC } from './pick-cards.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://basketballstats.eu', G = 'https://graph.facebook.com/v21.0';
-const TOKEN = String(process.env.META_PAGE_TOKEN || '').replace(/\s+/g, ''), PAGE = String(process.env.FB_PAGE_ID || '').trim(), IG = String(process.env.IG_USER_ID || '').trim();
+const TOKEN = (String(process.env.META_PAGE_TOKEN || '').replace(/\s+/g, '').match(/EAA[A-Za-z0-9]+/) || [''])[0], PAGE = String(process.env.FB_PAGE_ID || '').trim(), IG = String(process.env.IG_USER_ID || '').trim();
 const DRY = process.env.SOCIAL_DRY === '1';
 const TIPSTERS = String(process.env.SOCIAL_TIPSTERS || 'high-fidelity').split(',').map(s => s.trim());
 if (!DRY && (!TOKEN || (!PAGE && !IG))) { console.log('Social: δεν έχουν οριστεί META_PAGE_TOKEN και FB_PAGE_ID/IG_USER_ID, παράλειψη.'); process.exit(0); }
