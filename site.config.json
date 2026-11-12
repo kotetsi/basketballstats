@@ -14,6 +14,26 @@
     "instagram": {
       "url": "https://www.instagram.com/sportarena/",
       "sameAs": false
+    },
+    "telegram": "https://t.me/eubasketballstats_eu"
+  },
+  "announce": {
+    "id": "telegram-1",
+    "url": "https://t.me/eubasketballstats_eu",
+    "until": "2027-06-01",
+    "text": {
+      "el": "📣 Νέο: τα προγνωστικά μας τώρα και στο Telegram",
+      "en": "📣 New: our predictions are now on Telegram",
+      "es": "📣 Nuevo: nuestros pronósticos, ahora en Telegram",
+      "sr": "📣 Novo: naše prognoze sada i na Telegramu",
+      "tr": "📣 Yeni: tahminlerimiz artık Telegram’da"
+    },
+    "cta": {
+      "el": "Μπες στο κανάλι →",
+      "en": "Join the channel →",
+      "es": "Únete al canal →",
+      "sr": "Pridruži se kanalu →",
+      "tr": "Kanala katıl →"
     }
   }
 }

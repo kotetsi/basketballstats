@@ -798,3 +798,9 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .cmpv{margin:.8rem 0;padding-left:1.2rem}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmpd.d3{background:#444;color:#eee}}
 :root[data-theme="dark"] .cmpd.d3{background:#444;color:#eee}
+/* ανακοίνωση στην κορυφή (site.config.json → announce) */
+.annbar{position:relative;background:#229ed9;color:#fff;font-size:.92rem;line-height:1.35}
+.annbar a{display:block;color:#fff!important;text-decoration:none;text-align:center;padding:9px 44px}
+.annbar a b{white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
+.annbar button{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:1.4rem;line-height:1;width:36px;height:36px;cursor:pointer;opacity:.85}
+.annbar button:hover{opacity:1}
