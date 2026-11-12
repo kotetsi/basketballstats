@@ -1,5 +1,5 @@
 // «Ρώτα το BasketballStats»: σύνδεση του κουτιού με τη λογική του ask.mjs (γραπτά ή με φωνή, από τον browser)
-import { buildIndex, answer, texts } from './ask.mjs?v=2';
+import { buildIndex, answer, texts } from './ask.mjs?v=3';
 
 const athensToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Athens', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const SPEECH = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-RS', tr: 'tr-TR' };
@@ -14,7 +14,7 @@ for (const box of document.querySelectorAll('.askbox')) {
   const ask = async q => {
     q = (q || '').trim(); if (!q) return;
     out.innerHTML = '<p class="sub">…</p>';
-    try { const { D, idx } = await load(); out.innerHTML = answer(q, D, idx, athensToday(), ctx.lg).html; }
+    try { const { D, idx } = await load(); out.innerHTML = answer(q, D, idx, athensToday(), ctx.lg, Date.now()).html; }
     catch { out.innerHTML = '<p class="sub">⚠️</p>'; }
     try { window.gtag?.('event', 'ask_question', { q: q.slice(0, 100) }); } catch { }
   };
