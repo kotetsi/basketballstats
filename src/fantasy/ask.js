@@ -1,5 +1,5 @@
 // «Ρώτα το BasketballStats»: σύνδεση του κουτιού με τη λογική του ask.mjs (γραπτά ή με φωνή, από τον browser)
-import { buildIndex, answer, texts } from './ask.mjs?v=1';
+import { buildIndex, answer, texts } from './ask.mjs?v=2';
 
 const athensToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Athens', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const SPEECH = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-RS', tr: 'tr-TR' };
