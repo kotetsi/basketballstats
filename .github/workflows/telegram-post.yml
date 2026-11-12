@@ -1,0 +1,25 @@
+# Χειροκίνητη δημοσίευση στο κανάλι Telegram (t.me/eubasketballstats) από την καρτέλα Actions.
+# Το token του bot είναι στο secret TELEGRAM_BOT_TOKEN· δεν εμφανίζεται ποτέ στα logs.
+name: Telegram (δημοσίευση στο κανάλι)
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Κείμενο μηνύματος"
+        required: true
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Αποστολή
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: "@eubasketballstats"
+          MSG: ${{ github.event.inputs.message }}
+        run: |
+          if [ -z "$TOKEN" ]; then echo "Λείπει το secret TELEGRAM_BOT_TOKEN"; exit 1; fi
+          R=$(curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT}" --data-urlencode "text=${MSG}" -d "disable_web_page_preview=true")
+          echo "$R" | python3 -c 'import json,sys; r=json.load(sys.stdin); print("ok" if r.get("ok") else "σφάλμα: "+str(r.get("description"))); sys.exit(0 if r.get("ok") else 1)'
