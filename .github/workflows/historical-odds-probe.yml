@@ -1,5 +1,8 @@
 name: Historical odds availability probe
 on:
+  push:
+    branches: [research/historical-odds-probe]
+    paths: ['.github/workflows/historical-odds-probe.yml']
   workflow_dispatch:
     inputs:
       fixture_id:
@@ -10,10 +13,13 @@ permissions:
   contents: read
 jobs:
   probe:
+    if: github.repository == 'kotetsi/basketballstats' && github.ref == 'refs/heads/research/historical-odds-probe'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
