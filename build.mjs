@@ -58,6 +58,8 @@ const AD_SLOT = (process.env.ADSENSE_SLOT || CONF.adsenseSlot || '').trim();
 const GA_ID = (process.env.GA_ID || CONF.gaId || '').trim();
 const SEASON_LABEL = `${+SEASON.slice(1)}-${String(+SEASON.slice(1) + 1).slice(2)}`;
 const OFFLINE = process.argv.includes('--offline');
+// γραμμή αγώνα → [λεπτά, πόντοι, ριμπ., ασίστ, κλεψ., κοψ., λάθη, 2π εύστ., 2π προσπ., 3π εύστ., 3π προσπ., βολές εύστ., βολές προσπ., φάουλ, PIR] (σειρά SK στο ask.mjs)
+const ASK_SK = r => [Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[18], r[20], r[19], r[9], r[10], r[11], r[12], r[13], r[14], r[22], r[25]];
 const OUT = path.join(ROOT, 'dist');
 // ελληνική γραφή ονομάτων παικτών για τις ελληνικές σελίδες (data/greek-names.json)
 const GRN = await fs.readFile(path.join(ROOT, 'data', 'greek-names.json'), 'utf8').then(JSON.parse).catch(() => ({}));
@@ -1887,6 +1889,9 @@ ${block(nxt, true)}${nxt > 1 && rounds.includes(nxt - 1) ? block(nxt - 1, true) 
             st: x ? x.status : (inj ? (inj.m === 1 ? 'injured' : 'doubtful') : 'playing'), why: inj?.t || '', miss: inj && inj.m === 0 ? 1 : 0,
             pp: x && x.status !== 'injured' ? +x.pp.toFixed(1) : null, p10: x ? +x.p10.toFixed(1) : null, p90: x ? +x.p90.toFixed(1) : null, day: x ? x.day : (games[t]?.day ?? null),
             avg: pl.length ? +(pl.reduce((a, r) => a + r[25], 0) / pl.length).toFixed(1) : null, l3: pl.slice(-3).map(r => r[25]),
+            // στατιστικά για ερωτήσεις τύπου «πόσες βολές;»: σύνολα σεζόν και οι 3 τελευταίοι αγώνες (ίδια σειρά με ask.mjs SK)
+            s: [pl.length, ...pl.reduce((a, r) => ASK_SK(r).map((v, i) => +(a[i] + v).toFixed(1)), new Array(15).fill(0))],
+            g: pl.slice(-3).map(r => [r[0], r[2], ...ASK_SK(r)]),
             u: urlFor(LG, 'player:' + q.s), fu: pBy[q.c] ? fxp(q.c) : '',
             ...(x?.vx ? { vx: { ...x.vx, a: x.vx.a.map(c => (LG === 'el' && GRN[pByAll[c]?.n]) || niceName(pByAll[c]?.n || c)) } } : {}) };
         });
