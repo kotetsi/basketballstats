@@ -20,6 +20,8 @@ jobs:
           MSG: ${{ github.event.inputs.message }}
         run: |
           if [ -z "$TOKEN" ]; then echo "Λείπει το secret TELEGRAM_BOT_TOKEN"; exit 1; fi
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '[:space:]')      # κενά/αλλαγές γραμμής από την επικόλληση
+          if ! printf '%s' "$TOKEN" | grep -Eq '^[0-9]+:[A-Za-z0-9_-]{30,}$'; then echo "Το TELEGRAM_BOT_TOKEN δεν έχει τη μορφή αριθμοί:γράμματα (μήκος ${#TOKEN})"; exit 1; fi
           R=$(curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${CHAT}" --data-urlencode "text=${MSG}" -d "disable_web_page_preview=true")
           echo "$R" | python3 -c 'import json,sys; r=json.load(sys.stdin); print("ok" if r.get("ok") else "σφάλμα: "+str(r.get("description"))); sys.exit(0 if r.get("ok") else 1)'
