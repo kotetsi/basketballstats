@@ -1,0 +1,31 @@
+# Αναρτήσεις picks σε Facebook/Instagram ΤΩΡΑ, χωρίς νέο build (π.χ. μετά από αλλαγή του META_PAGE_TOKEN).
+# Αναρτά μόνο όσα ανοιχτά picks δεν έχουν αναρτηθεί και ο αγώνας δεν έχει αρχίσει.
+name: Social (αναρτήσεις τώρα)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: social
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Αναρτήσεις Facebook / Instagram
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          FB_PAGE_ID: "1372786612592081"
+          IG_USER_ID: "17841438627851733"
+          SOCIAL_TIPSTERS: "high-fidelity"
+        run: node scripts/social.mjs
+      - name: Αποθήκευση (τι αναρτήθηκε)
+        if: always()
+        run: |
+          [ -f data/social.json ] || exit 0
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add data/social.json
+          git diff --cached --quiet || (git commit -m "Social: αναρτήσεις picks" && for i in 1 2 3 4; do git push && break; sleep 10; git pull --rebase -q; done)

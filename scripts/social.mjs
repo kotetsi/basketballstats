@@ -29,6 +29,7 @@ async function graph(p, params) {
 }
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
+let failed = 0;
 for (const t of upcomingPicks(data, TIPSTERS)) {
   const key = `${t.s}-${t.r}-${t.g}-${t.l}`.toLowerCase().replace(/\s+/g, '_').slice(0, 120);
   const img = `${SITE}/og/picks/${cardName(t)}`, link = SITE + t.u;
@@ -45,8 +46,10 @@ for (const t of upcomingPicks(data, TIPSTERS)) {
     if (DRY) { console.log(`--- ${net} (δοκιμή)\n${net === 'ig' ? igCaption : caption}\n[εικόνα] ${img}`); continue; }
     if (!run) continue;
     try { await run(); state.posted.push(k); console.log('Social: αναρτήθηκε', k); }
-    catch (e) { console.error('Social:', net, e.message); }
+    catch (e) { console.error('Social:', net, e.message); failed++; }
   }
 }
 state.posted = state.posted.slice(-400);
 if (!DRY) await fs.writeFile(STATE, JSON.stringify(state, null, 1));
+// αποτυχία = το job βγαίνει κόκκινο και το GitHub στέλνει email (π.χ. όταν το Facebook ακυρώσει το κλειδί)
+if (failed) { console.error(`Social: ${failed} αναρτήσεις απέτυχαν· αν λέει «access token», χρειάζεται νέο META_PAGE_TOKEN.`); process.exit(1); }

@@ -161,8 +161,9 @@ jobs:
           FB_PAGE_ID: "1372786612592081"      # Σελίδα BasketballStats.eu (δημόσιο id)
           IG_USER_ID: "17841438627851733"     # Instagram @basketballstats.eu (δημόσιο id)
           SOCIAL_TIPSTERS: "high-fidelity"
-        run: node scripts/social.mjs || true
+        run: node scripts/social.mjs
       - name: Αποθήκευση (τι αναρτήθηκε)
+        if: always()
         run: |
           [ -f data/social.json ] || exit 0
           git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
