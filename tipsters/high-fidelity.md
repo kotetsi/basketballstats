@@ -122,3 +122,31 @@ Kod kuće Olimpijakos igra drugačiju igru: u sve **4 domaće utakmice** ukupan 
 Dubai postiže 88,0 i prima 84,1, ali dve najzatvorenije odbrane na koje je naišao ove sezone, Fenerbahče (66) i Crvena zvezda (58), zadržale su ga veoma nisko. Ako Olimpijakos nametne svoj ritam kao kod kuće, under po kvoti 1,85 ima vrednost.
 
 Rizik: na gostovanjima Dubai je odigrao dve utakmice sa 198 ukupnih poena (Milano, Bajern).
+
+11 | IST-VIR | Malcolm πόντοι 10+ | 1.60
+Ο Κόλιν Μάλκολμ άλλαξε επίπεδο από τα μέσα Οκτωβρίου: στα τελευταία **6 ματς** παίζει 26-36 λεπτά και έχει **13, 15, 15, 9, 15 και 20 πόντους**, δηλαδή 10+ στα 5 από τα 6. Την τελευταία αγωνιστική έβαλε **20** στο Παρίσι με 6/6 δίποντα.
+
+Στην Πόλη είναι ακόμα πιο σταθερός: στα τέσσερα τελευταία εντός έδρας ματς πέρασε τους 10 και στα τέσσερα (13, 15, 15, 20). Απέναντι έχει τη Βίρτους, που έρχεται από **4 σερί ήττες** και δέχεται 89.5 πόντους ανά αγώνα, την έβδομη χειρότερη άμυνα της λίγκας. Μετράει και η παράταση.
+
+Το ρίσκο: στα τέσσερα πρώτα ματς της σεζόν δεν είχε περάσει τους 6 πόντους. Αν ο προπονητής του μειώσει τα λεπτά, το 10+ δυσκολεύει.
+
+EN:
+Collin Malcolm has stepped up since mid-October: over his last **6 games** he has played 26-36 minutes and scored **13, 15, 15, 9, 15 and 20 points**, so 10+ in 5 of 6. Last round he put up **20** in Paris, going 6/6 from two.
+
+In Istanbul he is even steadier: he has gone past 10 in each of his last four home games (13, 15, 15, 20). He faces Virtus, who come in on a **4-game losing streak** and allow 89.5 points per game, the seventh-worst defense in the league. Overtime counts.
+
+The risk: in his first four games of the season he did not go past 6 points. If his minutes drop, 10+ gets harder.
+
+ES:
+Collin Malcolm ha dado un salto desde mediados de octubre: en sus últimos **6 partidos** juega 26-36 minutos y ha anotado **13, 15, 15, 9, 15 y 20 puntos**, es decir, 10+ en 5 de 6. En la última jornada firmó **20** en París, con 6/6 en tiros de dos.
+
+En Estambul es aún más fiable: superó los 10 puntos en sus cuatro últimos partidos como local (13, 15, 15, 20). Enfrente está la Virtus, que llega con **4 derrotas seguidas** y recibe 89,5 puntos por partido, la séptima peor defensa de la liga. La prórroga cuenta.
+
+El riesgo: en sus cuatro primeros partidos de la temporada no pasó de 6 puntos. Si bajan sus minutos, el 10+ se complica.
+
+SR:
+Kolin Malkolm je podigao nivo od sredine oktobra: u poslednjih **6 utakmica** igra 26-36 minuta i postigao je **13, 15, 15, 9, 15 i 20 poena**, dakle 10+ u 5 od 6. U poslednjem kolu ubacio je **20** u Parizu, sa 6/6 za dva poena.
+
+U Istanbulu je još stabilniji: prešao je 10 poena u sve četiri poslednje domaće utakmice (13, 15, 15, 20). Protivnik je Virtus, koji dolazi sa **4 uzastopna poraza** i prima 89,5 poena po utakmici, sedma najlošija odbrana lige. Produžetak se računa.
+
+Rizik: u prve četiri utakmice sezone nije prelazio 6 poena. Ako mu se smanji minutaža, 10+ postaje teže.
