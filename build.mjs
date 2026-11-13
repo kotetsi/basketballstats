@@ -38,6 +38,8 @@ import { describe as shDescribe } from './src/shots/zones.mjs';
 import { miniHeat } from './src/shots/court.mjs';
 import * as CB from './src/compare/build-compare.mjs';
 import * as CT from './src/compare/teams.mjs';
+import { buildQuizPool } from './src/quiz/questions.mjs';
+import { quizLabels, renderQuiz } from './src/quiz/render.mjs';
 import * as CM from './src/compare/metrics.mjs';
 import * as CAT from './src/compare/catalog.mjs';
 import * as PAIR from './src/compare/pairs.mjs';
@@ -1042,6 +1044,11 @@ async function main() {
     es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: { ...UI.es, calBase: BASE + 'es/' + 'cal/', cmpUrl: BASE + 'es/' + PATHS.es.compare + '/', modelUrl: BASE + 'es/' + PATHS.es.model + '/' } },
     sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr, ui: { ...UI.sr, calBase: BASE + 'sr/' + 'cal/', cmpUrl: BASE + 'sr/' + PATHS.sr.compare + '/', modelUrl: BASE + 'sr/' + PATHS.sr.model + '/' } },
     tr: { updated: UPD.tr, articles: artList('tr'), tips: pendingTips('tr'), inj: INJ.tr, injL: INJL.tr, ui: { ...UI.tr, calBase: BASE + 'tr/' + 'cal/', cmpUrl: BASE + 'tr/' + PATHS.tr.compare + '/', modelUrl: BASE + 'tr/' + PATHS.tr.model + '/' } } }));
+  const quizPool = buildQuizPool(players, niceName);
+  await fs.mkdir(path.join(OUT, 'assets', 'quiz'), { recursive: true });
+  for (const file of ['questions.mjs', 'quiz.js', 'quiz.css']) {
+    await fs.copyFile(path.join(ROOT, 'src', 'quiz', file), path.join(OUT, 'assets', 'quiz', file));
+  }
   const appSrc = await fs.readFile(path.join(ROOT, 'src', 'app.js'), 'utf8');
   await fs.writeFile(path.join(OUT, 'assets', 'app.js'), appSrc);
   await fs.writeFile(path.join(OUT, 'assets', 'app.en.js'), translate(appSrc, APP_CODE, 'app.js (en)'));
@@ -1214,6 +1221,7 @@ async function main() {
   function urlFor(lg, key) {
     const [k, v] = key.split(':');
     const P = PATHS[lg];
+    if (k === 'quiz') return B(lg) + 'quiz/';
     if (k === 'home') return B(lg);
     if (k === 'team') return B(lg) + P.team + '/' + TEAMS[v][TEAM_IDX[lg][1]] + '/';
     if (k === 'player') return B(lg) + P.player + '/' + v + '/';
@@ -1376,6 +1384,7 @@ ${pwaStyle}`;
     const shellB = shellB0.replace(/(<a href="[^"]*" data-v="stand">[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'today')}" data-v="today" class="navtoday">📅 ${T('Οι αγώνες σήμερα', 'Today', 'Hoy', 'Danas', 'Bugün')}</a>`)
       // «Σύγκριση» (ομάδων και παικτών) μετά τα Shot Charts
       .replace(/(<a href="[^"]*" data-v="shots"[^>]*>[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'compare')}" data-v="compare">${T('Σύγκριση', 'Compare', 'Comparar', 'Poređenje', 'Karşılaştır')}</a>`)
+      .replace('</nav>', `<a href="${urlFor(LG, 'quiz')}" data-v="quiz">${esc(quizLabels(LG).title)}</a></nav>`)
       // ανακοίνωση στην κορυφή κάθε σελίδας (site.config.json → announce): κλείνει με ×, και μένει κλειστή σε αυτόν τον browser
       .replace('<div class="band topband">', m => annBar() + m);
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
@@ -3786,6 +3795,7 @@ ${rgBlock()}
       await simplePage('guess', { view: 'lead', title: T(`Μάντεψε τον παίκτη της EuroLeague: καθημερινό παιχνίδι | ${SITE_NAME}`, `Guess the EuroLeague player: daily game | ${SITE_NAME}`, `Adivina el jugador de la EuroLeague: juego diario | ${SITE_NAME}`, `Pogodi igrača Evrolige: dnevna igra | ${SITE_NAME}`, `EuroLeague oyuncusunu tahmin et: günlük oyun | ${SITE_NAME}`),
         desc: T('Κάθε μέρα ένας κρυφός παίκτης της EuroLeague. Έχεις 8 προσπάθειες: ομάδα, θέση, ύψος, ηλικία, χώρα, φανέλα και PIR σε φέρνουν πιο κοντά.', 'A new mystery EuroLeague player every day. You have 8 tries: team, position, height, age, country, number and PIR bring you closer.', 'Cada día un jugador oculto de la EuroLeague. Tienes 8 intentos: equipo, posición, altura, edad, país, dorsal y PIR te acercan.', 'Svakog dana tajni igrač Evrolige. Imaš 8 pokušaja: tim, pozicija, visina, godine, zemlja, broj i PIR te približavaju.', 'Her gün yeni bir gizli EuroLeague oyuncusu. 8 hakkın var: takım, pozisyon, boy, yaş, ülke, forma numarası ve PIR seni sonuca yaklaştırır.'),
         main: `<article class="article lead wide anpage guesspage"><h1>${GL.title}</h1><p class="lede2">${esc(T(`Ένας νέος κρυφός παίκτης κάθε μέρα, ίδιος για όλους. Γράψε έναν παίκτη: τα χρώματα και τα βελάκια σού δείχνουν πόσο κοντά είσαι. ${pool.length} παίκτες με τουλάχιστον 4 αγώνες και 12 λεπτά.`, `A new mystery player every day, the same for everyone. Type a player: colours and arrows show how close you are. ${pool.length} players with at least 4 games and 12 minutes.`, `Un jugador oculto nuevo cada día, el mismo para todos. Escribe un jugador: los colores y flechas te dicen lo cerca que estás. ${pool.length} jugadores con al menos 4 partidos y 12 minutos.`, `Novi tajni igrač svakog dana, isti za sve. Ukucaj igrača: boje i strelice pokazuju koliko si blizu. ${pool.length} igrača sa najmanje 4 utakmice i 12 minuta.`, `Her gün herkes için aynı olan yeni bir gizli oyuncu. Bir oyuncu yaz: renkler ve oklar ne kadar yaklaştığını gösterir. En az 4 maç ve 12 dakikası olan ${pool.length} oyuncu.`))}</p>
+<p><a href="${urlFor(LG, 'quiz')}">${esc(quizLabels(LG).title)} →</a></p>
 <div id="guessApp"><script type="application/json" class="gj">${JSON.stringify({ pool, teams: Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)])), L: GL }).replace(/</g, '\\u003c')}</script><p class="sub">…</p></div><script type="module" src="${BASE}assets/guess/game.js?v=${ver}"></script></article>`,
         ld: [crumbs([[SITE_NAME, B(LG)], [GL.title, urlFor(LG, 'guess')]]), { '@context': 'https://schema.org', '@type': 'Game', name: GL.title, url: SITE_URL + urlFor(LG, 'guess'), inLanguage: LG }] });
     }
@@ -3874,6 +3884,22 @@ ${shCfg({ kind: 'team', api: `${BASE}api/${cp === 'U' ? 'eurocup/' : ''}teams/${
 <h2>${T('Αμυντικό προφίλ (σουτ αντιπάλων)', 'Defensive profile (opponent shots)', 'Perfil defensivo (tiros rivales)', 'Odbrambeni profil (šutevi protivnika)', 'Savunma profili (rakip şutları)')}</h2>${defTable(pr.defense, la)}${shMeth}</article>`,
         ld: crumbs([[SITE_NAME, B(LG)], [nm, cp === 'E' ? urlFor(LG, 'team:' + c) : urlFor(LG, 'ec:' + ecSl)], ['Shot chart', urlFor(LG, key)]]) });
     }
+    {
+      const { title, description } = quizLabels(LG);
+      const url = urlFor(LG, 'quiz');
+      await simplePage('quiz', {
+        title: title + ' | ' + SITE_NAME, desc: description, view: 'quiz',
+        main: renderQuiz({
+          lang: LG, pool: quizPool, season: SEASON, seasonLabel: SEASON_LABEL,
+          guessUrl: urlFor(LG, 'guess'), asset: file => BASE + 'assets/quiz/' + file + '?v=' + ver, esc,
+        }),
+        ld: [
+          crumbs([[SITE_NAME, B(LG)], [title, url]]),
+          { '@context': 'https://schema.org', '@type': 'Game', name: title, url: SITE_URL + url, inLanguage: LG },
+        ],
+      });
+    }
+
     // ---- hub /shot-charts/
     if (SH?.[SEASON]) {
       const laZ = SHLA[SEASON]?.zones, laG = SHLA[SEASON]?.groups;
