@@ -1,6 +1,8 @@
 .quiz-panel{max-width:48rem;margin:1.5rem 0;padding:clamp(1rem,4vw,2rem);border:1px solid currentColor;border-radius:1rem}
 .quiz-progress{font-variant-numeric:tabular-nums}
 .quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.quiz-panel [hidden]{display:none}
+.quiz-levels{margin-block:.75rem}
 .quiz-actions{display:flex;flex-wrap:wrap;gap:.65rem}
 .quiz-panel button{min-height:44px;padding:.65rem 1rem;border:1px solid currentColor;border-radius:.5rem;background:transparent;color:inherit;font:inherit;overflow-wrap:anywhere;cursor:pointer}
 .quiz-panel button:disabled{cursor:default}

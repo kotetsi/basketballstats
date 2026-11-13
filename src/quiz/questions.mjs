@@ -43,8 +43,11 @@ function shuffled(items, random) {
   return result;
 }
 
-export function quizQuestions(pool, seed) {
-  const random = seededRandom(seed);
+const rankRanges = { easy: 30, medium: 12, hard: 4 };
+
+export function quizQuestions(pool, seed, level = 'medium') {
+  if (!Object.hasOwn(rankRanges, level)) throw new RangeError('Unknown quiz level');
+  const random = seededRandom(seed + '/' + level);
   const questions = [];
   for (const metric of Object.keys(metrics)) {
     const ranked = pool.filter(player => Number.isSafeInteger(player.totals[metric]))
@@ -56,7 +59,12 @@ export function quizQuestions(pool, seed) {
       groups.get(value).push(player);
     }
     if (groups.size < 4) return [];
-    const candidates = shuffled([...groups.values()].slice(0, 20), random).slice(0, 4);
+    // Compare nearby season totals in Hard and spread the distractors out in Easy.
+    const start = Math.floor(random() * Math.min(8, groups.size - 3));
+    const window = [...groups.values()].slice(start, start + rankRanges[level]);
+    const last = window.length - 1;
+    const candidates = shuffled([0, Math.floor(last / 3), Math.floor(2 * last / 3), last]
+      .map(index => window[index]), random);
     const options = candidates.map(group => {
       const { name, totals } = group[Math.floor(random() * group.length)];
       return { name, value: totals[metric] };

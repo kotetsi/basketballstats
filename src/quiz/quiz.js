@@ -3,14 +3,17 @@ import { quizQuestions } from './questions.mjs';
 const root = document.querySelector('#quiz-app');
 const { pool, season, labels } = JSON.parse(document.querySelector('#quiz-data').textContent);
 const day = new Date().toISOString().slice(0, 10);
-const questions = quizQuestions(pool, season + '/' + day);
+const seed = season + '/' + day;
+const levels = root.querySelector('.quiz-levels');
+let level;
+let questions;
 const heading = root.querySelector('h2');
 const options = root.querySelector('.quiz-options');
 const feedback = root.querySelector('.quiz-feedback');
 const next = root.querySelector('[data-action="next"]');
 const results = root.querySelector('.quiz-results');
 const manualCopy = root.querySelector('textarea');
-const actions = root.querySelector('.quiz-actions');
+const actions = results.querySelector('.quiz-actions');
 const share = root.querySelector('[data-action="share"]');
 const progress = root.querySelector('.quiz-progress');
 const format = (text, fields) => text.replace(/\{(\w+)\}/g, (_, key) => fields[key]);
@@ -23,7 +26,7 @@ let attempt = 0;
 function showQuestion() {
   answered = false;
   const question = questions[index];
-  progress.textContent = format(labels.progress, { current: index + 1, total: questions.length });
+  progress.textContent = labels.levels[level] + ' · ' + format(labels.progress, { current: index + 1, total: questions.length });
   heading.textContent = labels.prompts[question.metric];
   options.replaceChildren(...question.options.map((option, i) => {
     const button = document.createElement('button');
@@ -58,33 +61,43 @@ next.addEventListener('click', () => {
   if (index < questions.length) {
     showQuestion();
   } else {
-    progress.textContent = '';
+    progress.textContent = labels.levels[level];
     options.replaceChildren();
     feedback.textContent = '';
     next.hidden = true;
     heading.textContent = format(labels.score, { score, total: questions.length });
     results.hidden = false;
+    levels.hidden = false;
     share.hidden = typeof navigator.share !== 'function';
   }
   heading.focus();
 });
 
-root.querySelector('[data-action="replay"]').addEventListener('click', () => {
+function start(selectedLevel) {
   attempt++;
+  level = selectedLevel;
+  questions = quizQuestions(pool, seed, level);
+  levels.hidden = true;
   index = 0;
   score = 0;
   results.hidden = true;
   manualCopy.hidden = true;
   showQuestion();
   heading.focus();
+}
+
+levels.addEventListener('click', event => {
+  const selected = event.target.dataset.level;
+  if (selected) start(selected);
 });
+root.querySelector('[data-action="replay"]').addEventListener('click', () => start(level));
 
 actions.addEventListener('click', async event => {
   const action = event.target.dataset.action;
   if (action !== 'share' && action !== 'copy') return;
   const currentAttempt = attempt;
   const url = location.origin + location.pathname;
-  const text = 'EuroLeague Quiz · ' + day + ' · ' + score + '/' + questions.length;
+  const text = 'EuroLeague Quiz · ' + day + ' · ' + labels.levels[level] + ' · ' + score + '/' + questions.length;
   try {
     if (action === 'share') {
       await navigator.share({ text, url });
@@ -101,8 +114,7 @@ actions.addEventListener('click', async event => {
   }
 });
 
-if (questions.length) {
-  showQuestion();
-} else {
+if (!quizQuestions(pool, seed).length) {
+  levels.hidden = true;
   heading.textContent = labels.unavailable;
 }

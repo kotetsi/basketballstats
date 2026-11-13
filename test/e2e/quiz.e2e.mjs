@@ -39,6 +39,7 @@ try {
   await page.goto(origin + '/en/');
   await page.locator('nav [data-v="quiz"]').click();
   assert.equal(new URL(page.url()).pathname, '/en/quiz/');
+  await page.getByRole('button', { name: 'Medium', exact: true }).click();
   const buttons = page.locator('.quiz-options button');
   await buttons.first().waitFor();
   const { pool, season } = JSON.parse(await page.locator('#quiz-data').textContent());
@@ -46,7 +47,7 @@ try {
   const { players } = await (await fetch(origin + '/assets/data.json')).json();
   assert.ok(pool.every(player => players.some(source => String(source.c) === player.id)));
   for (const [i, question] of questions.entries()) {
-    assert.equal(await page.locator('.quiz-progress').textContent(), 'Question ' + (i + 1) + ' of 5');
+    assert.equal(await page.locator('.quiz-progress').textContent(), 'Medium · Question ' + (i + 1) + ' of 5');
     assert.deepEqual(await buttons.allTextContents(), question.options.map(option => option.name));
     await buttons.nth(i === 0 ? (question.correct + 1) % 4 : question.correct).click();
     assert.equal(await page.locator('.quiz-options button:disabled').count(), 4);
@@ -55,13 +56,21 @@ try {
   }
   assert.equal(await page.locator('#quiz-heading').textContent(), 'Score 4/5');
   await page.getByRole('button', { name: 'Share', exact: true }).click();
-  assert.deepEqual(await page.evaluate(() => window.lastShare), { text: 'EuroLeague Quiz · 2026-11-13 · 4/5', url: origin + '/en/quiz/' });
+  assert.deepEqual(await page.evaluate(() => window.lastShare), { text: 'EuroLeague Quiz · 2026-11-13 · Medium · 4/5', url: origin + '/en/quiz/' });
   await page.getByRole('button', { name: 'Copy score' }).click();
   await page.getByText('Score copied.').waitFor();
   assert.match(await page.evaluate(() => navigator.clipboard.readText()), /4\/5\r?\n.*\/en\/quiz\/$/);
   await page.getByRole('button', { name: 'Play again' }).click();
   assert.deepEqual(await buttons.allTextContents(), questions[0].options.map(option => option.name));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 360);
+  for (const level of ['Easy', 'Hard']) {
+    await page.reload();
+    await page.getByRole('button', { name: level, exact: true }).click();
+    await buttons.first().waitFor();
+    const [first] = quizQuestions(pool, season + '/2026-11-13', level.toLowerCase());
+    assert.deepEqual(await buttons.allTextContents(), first.options.map(option => option.name));
+    assert.equal(await page.locator('.quiz-progress').textContent(), level + ' · Question 1 of 5');
+  }
   assert.match(await page.locator('link[rel="canonical"]').getAttribute('href'), /\/en\/quiz\/$/);
   assert.equal(await page.locator('link[rel="alternate"][hreflang]').count(), 6);
   await page.getByRole('link', { name: 'Guess the Player →', exact: true }).click();

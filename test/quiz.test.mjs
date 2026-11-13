@@ -39,3 +39,21 @@ test('insufficient data, including ties, yields no partial quiz', () => {
   const tied = Array.from({ length: 4 }, (_, i) => ({ id: String(i), name: 'Player ' + i, totals: { pts: 10 } }));
   assert.deepEqual(quizQuestions(tied, seed), []);
 });
+
+test('difficulty changes the distance between options while preserving unique answers', () => {
+  const ranked = Array.from({ length: 50 }, (_, i) => ({
+    id: String(i), name: 'Player ' + i,
+    totals: Object.fromEntries(['pts', 'reb', 'ast', 'm3', 'pir'].map(metric => [metric, i])),
+  }));
+  for (const [level, spread] of [['easy', 29], ['medium', 11], ['hard', 3]]) {
+    const questions = quizQuestions(ranked, seed, level);
+    assert.equal(questions.length, 5);
+    assert.deepEqual(questions, quizQuestions([...ranked].reverse(), seed, level));
+    for (const { options, correct } of questions) {
+      const values = options.map(option => option.value);
+      assert.equal(new Set(values).size, 4);
+      assert.equal(values[correct], Math.max(...values));
+      assert.equal(Math.max(...values) - Math.min(...values), spread);
+    }
+  }
+});
