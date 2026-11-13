@@ -150,3 +150,31 @@ Kolin Malkolm je podigao nivo od sredine oktobra: u poslednjih **6 utakmica** ig
 U Istanbulu je još stabilniji: prešao je 10 poena u sve četiri poslednje domaće utakmice (13, 15, 15, 20). Protivnik je Virtus, koji dolazi sa **4 uzastopna poraza** i prima 89,5 poena po utakmici, sedma najlošija odbrana lige. Produžetak se računa.
 
 Rizik: u prve četiri utakmice sezone nije prelazio 6 poena. Ako mu se smanji minutaža, 10+ postaje teže.
+
+11 | ASV-BES | over 174.5 | 1.77
+Δύο ομάδες που σκοράρουν αλλά δεν αμύνονται: η Βιλερμπάν δέχεται **93.0 πόντους** ανά αγώνα, τη δεύτερη χειρότερη άμυνα της EuroLeague, και η Μπεσίκτας 90.9. Ο μέσος όρος συνόλου στα ματς τους είναι **181.3** (Βιλερμπάν) και **178.6** (Μπεσίκτας), πάνω από τη γραμμή και οι δύο, ενώ ο μέσος όρος της λίγκας είναι 173.9.
+
+Στα 20 ματς των δύο ομάδων, τα **13** πέρασαν τους 174.5. Η Μπεσίκτας εκτός έδρας ξεπέρασε τη γραμμή στα **4 από τα 5** (202, 176, 182, 204), και στο τελευταίο εντός έδρας ματς της Βιλερμπάν έπεσαν 194 πόντοι με τη Μπάγερν. Η παράταση μετράει.
+
+Το ρίσκο: στη Λιόν η Βιλερμπάν παίζει πιο κλειστά, με 4 από τα 6 εντός έδρας ματς κάτω από το 174.5 (158, 166, 157, 173). Και η Μπεσίκτας έμεινε στους 154 και 150 στα δύο τελευταία εντός έδρας παιχνίδια της.
+
+EN:
+Two teams that score but do not defend: ASVEL allow **93.0 points** per game, the second-worst defense in the EuroLeague, and Besiktas 90.9. The average total in their games is **181.3** (ASVEL) and **178.6** (Besiktas), both above the line, while the league average is 173.9.
+
+Of the 20 games the two teams have played, **13** went over 174.5. Besiktas on the road have gone over in **4 of 5** (202, 176, 182, 204), and ASVEL's last home game against Bayern produced 194 points. Overtime counts.
+
+The risk: in Lyon ASVEL play tighter, with 4 of 6 home games under 174.5 (158, 166, 157, 173). Besiktas also stayed at 154 and 150 in their last two home games.
+
+ES:
+Dos equipos que anotan pero no defienden: el ASVEL recibe **93,0 puntos** por partido, la segunda peor defensa de la Euroliga, y el Besiktas 90,9. El total medio en sus partidos es de **181,3** (ASVEL) y **178,6** (Besiktas), ambos por encima de la línea, mientras que la media de la liga es de 173,9.
+
+De los 20 partidos de los dos equipos, **13** superaron los 174,5. El Besiktas a domicilio ha superado la línea en **4 de 5** (202, 176, 182, 204), y el último partido del ASVEL en casa, ante el Bayern, dejó 194 puntos. La prórroga cuenta.
+
+El riesgo: en Lyon el ASVEL juega más cerrado, con 4 de 6 partidos como local por debajo de 174,5 (158, 166, 157, 173). Y el Besiktas se quedó en 154 y 150 en sus dos últimos partidos en casa.
+
+SR:
+Dva tima koja postižu, ali se ne brane: Asvel prima **93,0 poena** po utakmici, druga najlošija odbrana Evrolige, a Bešiktaš 90,9. Prosečan zbir u njihovim utakmicama je **181,3** (Asvel) i **178,6** (Bešiktaš), oba iznad granice, dok je prosek lige 173,9.
+
+Od 20 utakmica ova dva tima, **13** je prešlo 174,5. Bešiktaš je na gostovanjima prešao granicu u **4 od 5** (202, 176, 182, 204), a poslednja domaća utakmica Asvela, protiv Bajerna, donela je 194 poena. Produžetak se računa.
+
+Rizik: u Lionu Asvel igra zatvorenije, sa 4 od 6 domaćih utakmica ispod 174,5 (158, 166, 157, 173). I Bešiktaš je ostao na 154 i 150 u poslednje dve domaće utakmice.
