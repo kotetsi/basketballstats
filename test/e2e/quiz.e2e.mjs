@@ -22,7 +22,7 @@ await once(server, 'listening');
 const origin = 'http://localhost:' + server.address().port;
 let browser;
 try {
-  browser = await chromium.launch();
+  browser = await chromium.launch({ channel: 'chrome' });
   const context = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'], viewport: { width: 360, height: 760 } });
   await context.route('**/*', route => route.request().url().startsWith(origin) ? route.continue() : route.abort());
   const page = await context.newPage();
@@ -58,7 +58,7 @@ try {
   assert.deepEqual(await page.evaluate(() => window.lastShare), { text: 'EuroLeague Quiz · 2026-11-13 · 4/5', url: origin + '/en/quiz/' });
   await page.getByRole('button', { name: 'Copy score' }).click();
   await page.getByText('Score copied.').waitFor();
-  assert.match(await page.evaluate(() => navigator.clipboard.readText()), /4\/5\n.*\/en\/quiz\/$/);
+  assert.match(await page.evaluate(() => navigator.clipboard.readText()), /4\/5\r?\n.*\/en\/quiz\/$/);
   await page.getByRole('button', { name: 'Play again' }).click();
   assert.deepEqual(await buttons.allTextContents(), questions[0].options.map(option => option.name));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 360);
