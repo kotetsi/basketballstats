@@ -38,6 +38,7 @@ import { describe as shDescribe } from './src/shots/zones.mjs';
 import { miniHeat } from './src/shots/court.mjs';
 import * as CB from './src/compare/build-compare.mjs';
 import * as CT from './src/compare/teams.mjs';
+import { startingFives } from './src/quiz/five.mjs';
 import { buildQuizPool } from './src/quiz/questions.mjs';
 import { quizLabels, renderQuiz } from './src/quiz/render.mjs';
 import * as CM from './src/compare/metrics.mjs';
@@ -1045,9 +1046,10 @@ async function main() {
     es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: { ...UI.es, calBase: BASE + 'es/' + 'cal/', cmpUrl: BASE + 'es/' + PATHS.es.compare + '/', modelUrl: BASE + 'es/' + PATHS.es.model + '/' } },
     sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr, ui: { ...UI.sr, calBase: BASE + 'sr/' + 'cal/', cmpUrl: BASE + 'sr/' + PATHS.sr.compare + '/', modelUrl: BASE + 'sr/' + PATHS.sr.model + '/' } },
     tr: { updated: UPD.tr, articles: artList('tr'), tips: pendingTips('tr'), inj: INJ.tr, injL: INJL.tr, ui: { ...UI.tr, calBase: BASE + 'tr/' + 'cal/', cmpUrl: BASE + 'tr/' + PATHS.tr.compare + '/', modelUrl: BASE + 'tr/' + PATHS.tr.model + '/' } } }));
+  const fiveGames = startingFives(players, league.games, niceName);
   const quizPool = buildQuizPool(players, niceName);
   await fs.mkdir(path.join(OUT, 'assets', 'quiz'), { recursive: true });
-  for (const file of ['questions.mjs', 'quiz.js', 'quiz.css']) {
+  for (const file of ['questions.mjs', 'quiz.js', 'quiz.css', 'five.js', 'five.css']) {
     await fs.copyFile(path.join(ROOT, 'src', 'quiz', file), path.join(OUT, 'assets', 'quiz', file));
   }
   const appSrc = await fs.readFile(path.join(ROOT, 'src', 'app.js'), 'utf8');
@@ -1222,6 +1224,7 @@ async function main() {
   function urlFor(lg, key) {
     const [k, v] = key.split(':');
     const P = PATHS[lg];
+    if (k === 'five') return B(lg) + 'quiz/starting-five/';
     if (k === 'quiz') return B(lg) + 'quiz/';
     if (k === 'home') return B(lg);
     if (k === 'team') return B(lg) + P.team + '/' + TEAMS[v][TEAM_IDX[lg][1]] + '/';
@@ -3900,12 +3903,46 @@ ${shCfg({ kind: 'team', api: `${BASE}api/${cp === 'U' ? 'eurocup/' : ''}teams/${
         title: title + ' | ' + SITE_NAME, desc: description, view: 'quiz',
         main: renderQuiz({
           lang: LG, pool: quizPool, season: SEASON, seasonLabel: SEASON_LABEL,
-          guessUrl: urlFor(LG, 'guess'), asset: file => BASE + 'assets/quiz/' + file + '?v=' + ver, esc,
+          guessUrl: urlFor(LG, 'guess'), fiveUrl: urlFor(LG, 'five'), fiveLabel: T('Βρες την πεντάδα', 'Guess the Starting Five', 'Adivina el quinteto titular', 'Pogodi startnu petorku', 'İlk beşi tahmin et'), asset: file => BASE + 'assets/quiz/' + file + '?v=' + ver, esc,
         }),
         ld: [
           crumbs([[SITE_NAME, B(LG)], [title, url]]),
           { '@context': 'https://schema.org', '@type': 'Game', name: title, url: SITE_URL + url, inLanguage: LG },
         ],
+      });
+    }
+
+    {
+      const title = T('Βρες την πεντάδα', 'Guess the Starting Five', 'Adivina el quinteto titular', 'Pogodi startnu petorku', 'İlk beşi tahmin et');
+      const desc = T('Διάλεξε ομάδα και αγώνα της EuroLeague. Βρες τους πέντε βασικούς σε τέσσερα λεπτά.', 'Pick a EuroLeague team and game. Find all five starters in four minutes.', 'Elige equipo y partido de la Euroliga. Adivina los cinco titulares en cuatro minutos.', 'Izaberi tim i utakmicu Evrolige. Pogodi pet startera za četiri minuta.', 'EuroLeague takımı ve maç seç. Dört dakikada ilk beşi bul.');
+      const labels = {
+        choose: T('Διάλεξε παίκτη', 'Choose a player', 'Elige jugador', 'Izaberi igrača', 'Oyuncu seç'),
+        wrong: T('Αναπληρωματικός:', 'Bench:', 'Suplente:', 'Rezerva:', 'Yedek:'),
+        score: T('Βασικοί', 'Starters', 'Titulares', 'Starteri', 'İlk beş'),
+        missed: T('Αποκάλυψη', 'Revealed', 'Revelado', 'Otkriveno', 'Açıklandı'),
+        empty: T('Δεν υπάρχουν διαθέσιμες πεντάδες.', 'No lineups are available.', 'No hay quintetos disponibles.', 'Nema dostupnih petorki.', 'İlk beş verisi yok.'),
+      };
+      const games = fiveGames.map((game, id) => ({ ...game, id: String(id), team: tName(game.team), opponent: tName(game.opponent) }));
+      const payload = JSON.stringify({ games, labels }).replace(/</g, '\\u003c');
+      await simplePage('five', {
+        title: title + ' | ' + SITE_NAME, desc, view: 'quiz',
+        main: `<link rel="stylesheet" href="${BASE}assets/quiz/quiz.css?v=${ver}">
+<link rel="stylesheet" href="${BASE}assets/quiz/five.css?v=${ver}">
+<article class="article lead wide"><h1>${esc(title)}</h1><p>${esc(desc)}</p>
+<section id="five-game" class="quiz-panel" aria-label="${esc(title)}">
+<div class="five-controls">
+<label>${T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım')} <select name="team"></select></label>
+<label>${T('Αγώνας', 'Game', 'Partido', 'Utakmica', 'Maç')} <select name="match"></select></label>
+<button type="button" data-start>${T('Έναρξη', 'Start', 'Empezar', 'Počni', 'Başlat')}</button>
+</div><time hidden></time><ol class="five-court"></ol>
+<form hidden><label>${esc(labels.choose)} <select required></select></label>
+<button type="submit">${T('Έλεγχος', 'Guess', 'Adivinar', 'Pogodi', 'Tahmin et')}</button></form>
+<p role="status"></p>
+<button type="button" data-reveal hidden>${T('Δες την πεντάδα', 'Reveal lineup', 'Ver quinteto', 'Prikaži petorku', 'İlk beşi göster')}</button>
+</section><p><a href="${urlFor(LG, 'quiz')}">${esc(quizLabels(LG).title)} →</a></p></article>
+<script type="application/json" id="five-data">${payload}</script>
+<script type="module" src="${BASE}assets/quiz/five.js?v=${ver}"></script>`,
+        ld: crumbs([[SITE_NAME, B(LG)], [quizLabels(LG).title, urlFor(LG, 'quiz')], [title, urlFor(LG, 'five')]]),
       });
     }
 
