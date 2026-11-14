@@ -20,10 +20,10 @@
    `CLOUDFLARE_API_TOKEN` και `CLOUDFLARE_ACCOUNT_ID`. Μετά: Actions → «Λογαριασμοί (deploy)» → Run workflow.
    Το workflow φτιάχνει τη βάση, κάνει deploy και γράφει τη διεύθυνση στο `site.config.json` → εμφανίζεται το κουμπί «Σύνδεση».
 2. **Google**: Google Cloud Console → νέο project → OAuth consent screen (External, όνομα BasketballStats, privacy
-   `https://basketballstats.eu/privacy/`) → Credentials → OAuth client ID → Web application → Authorized JavaScript origins:
+   `https://basketballstats.eu/politiki-aporritou/`) → Credentials → OAuth client ID → Web application → Authorized JavaScript origins:
    `https://basketballstats.eu`. Το Client ID (δεν είναι μυστικό) μπαίνει στο `site.config.json` → `account.googleClientId`.
 3. **Facebook** (προαιρετικό): στην εφαρμογή «BasketballStats Poster» → προσθήκη Facebook Login for Business/Login,
-   App domains `basketballstats.eu`, Privacy URL και Data deletion URL `https://basketballstats.eu/privacy/#delete-data`,
+   App domains `basketballstats.eu`, Privacy URL και Data deletion URL `https://basketballstats.eu/politiki-aporritou/#delete-data`,
    εφαρμογή σε Live. Το App Secret → secret `META_APP_SECRET` στο GitHub, και ξανά Run του «Λογαριασμοί (deploy)».
 
 Το `TELEGRAM_BOT_TOKEN` υπάρχει ήδη και περνά αυτόματα στον worker. Το bot παίρνει webhook (για το `/start`)·
