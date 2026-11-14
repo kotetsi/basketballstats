@@ -35,6 +35,7 @@ export const APP_CODE = [
 
 // ---- κέλυφος σελίδων: διευθύνσεις
 export const SHELL_CODE = [
+  ['{{BASE}}ergaleia/', '{{BASE}}araclar/'],
   ['{{BASE}}thermometro/', '{{BASE}}termometre/'],
   ['{{BASE}}prognostika/', '{{BASE}}tahminler/'],
   ['{{BASE}}arthra/', '{{BASE}}makaleler/'],
@@ -43,6 +44,7 @@ export const SHELL_CODE = [
 
 // ---- φράσεις (κοινές για app.js και κέλυφος)
 export const PHRASES = {
+  'Όλα τα εργαλεία': 'Tüm araçlar',
   // app.js
   'Τα δεδομένα δεν φόρτωσαν. Δοκιμάστε ανανέωση της σελίδας.': 'Veriler yüklenemedi. Sayfayı yenile.',
   'Σελίδα ομάδας': 'Takım sayfası',
