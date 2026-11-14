@@ -1,0 +1,1457 @@
+[
+  {
+    "year": 2026,
+    "team": "OLY",
+    "teamName": "Olympiacos Piraeus",
+    "opponent": "Real Madrid",
+    "date": "2026-05-24",
+    "score": "92–85",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2025/games/406/stats",
+    "roster": [
+      {
+        "name": "DORSEY, TYLER",
+        "start": true
+      },
+      {
+        "name": "FOURNIER, EVAN",
+        "start": false
+      },
+      {
+        "name": "HALL, DONTA",
+        "start": false
+      },
+      {
+        "name": "JONES, TYRIQUE",
+        "start": false
+      },
+      {
+        "name": "JOSEPH, CORY",
+        "start": false
+      },
+      {
+        "name": "MCKISSIC, SHAQUIELLE",
+        "start": false
+      },
+      {
+        "name": "MILUTINOV, NIKOLA",
+        "start": true
+      },
+      {
+        "name": "PAPANIKOLAOU, KOSTAS",
+        "start": true
+      },
+      {
+        "name": "PETERS, ALEC",
+        "start": false
+      },
+      {
+        "name": "VEZENKOV, SASHA",
+        "start": true
+      },
+      {
+        "name": "WALKUP, THOMAS",
+        "start": true
+      },
+      {
+        "name": "WARD, TYSON",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2025,
+    "team": "ULK",
+    "teamName": "Fenerbahce Beko Istanbul",
+    "opponent": "AS Monaco",
+    "date": "2025-05-25",
+    "score": "81–70",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2024/games/330/stats",
+    "roster": [
+      {
+        "name": "BALDWIN IV, WADE",
+        "start": false
+      },
+      {
+        "name": "BANGO, JILSON",
+        "start": false
+      },
+      {
+        "name": "BIBEROVIC, TARIK",
+        "start": false
+      },
+      {
+        "name": "BIRCH, KHEM",
+        "start": true
+      },
+      {
+        "name": "COLSON, BONZIE",
+        "start": true
+      },
+      {
+        "name": "GUDURIC, MARKO",
+        "start": true
+      },
+      {
+        "name": "HALL, DEVON",
+        "start": true
+      },
+      {
+        "name": "HAYES-DAVIS, NIGEL",
+        "start": true
+      },
+      {
+        "name": "MCCOLLUM, ERRICK",
+        "start": false
+      },
+      {
+        "name": "MELLI, NICOLO",
+        "start": false
+      },
+      {
+        "name": "PIERRE, DYSHAWN",
+        "start": false
+      },
+      {
+        "name": "SANLI, SERTAC",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2024,
+    "team": "PAN",
+    "teamName": "Panathinaikos AKTOR Athens",
+    "opponent": "Real Madrid",
+    "date": "2024-05-26",
+    "score": "95–80",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2023/games/333/stats",
+    "roster": [
+      {
+        "name": "ANTETOKOUNMPO, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "BALCEROWSKI, OLEK",
+        "start": false
+      },
+      {
+        "name": "GRANT, JERIAN",
+        "start": true
+      },
+      {
+        "name": "GRIGONIS, MARIUS",
+        "start": false
+      },
+      {
+        "name": "HERNANGOMEZ, JUANCHO",
+        "start": false
+      },
+      {
+        "name": "KALAITZAKIS, PANAGIOTIS",
+        "start": false
+      },
+      {
+        "name": "LESSORT, MATHIAS",
+        "start": true
+      },
+      {
+        "name": "MITOGLOU, KONSTANTINOS",
+        "start": true
+      },
+      {
+        "name": "NUNN, KENDRICK",
+        "start": true
+      },
+      {
+        "name": "PAPAPETROU, IOANNIS",
+        "start": true
+      },
+      {
+        "name": "SLOUKAS, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "VILDOZA, LUCA",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2023,
+    "team": "MAD",
+    "teamName": "Real Madrid",
+    "opponent": "Olympiacos Piraeus",
+    "date": "2023-05-21",
+    "score": "79–78",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2022/games/330/stats",
+    "roster": [
+      {
+        "name": "ABALDE, ALBERTO",
+        "start": false
+      },
+      {
+        "name": "CAUSEUR, FABIEN",
+        "start": false
+      },
+      {
+        "name": "FERNANDEZ, RUDY",
+        "start": false
+      },
+      {
+        "name": "HANGA, ADAM",
+        "start": true
+      },
+      {
+        "name": "HEZONJA, MARIO",
+        "start": false
+      },
+      {
+        "name": "LLULL, SERGIO",
+        "start": false
+      },
+      {
+        "name": "MUSA, DZANAN",
+        "start": true
+      },
+      {
+        "name": "NDIAYE, ELI",
+        "start": true
+      },
+      {
+        "name": "RANDOLPH, ANTHONY",
+        "start": false
+      },
+      {
+        "name": "RODRIGUEZ, SERGIO",
+        "start": false
+      },
+      {
+        "name": "TAVARES, WALTER",
+        "start": true
+      },
+      {
+        "name": "WILLIAMS-GOSS, NIGEL",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2022,
+    "team": "IST",
+    "teamName": "Anadolu Efes Istanbul",
+    "opponent": "Real Madrid",
+    "date": "2022-05-21",
+    "score": "58–57",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2021/games/330/stats",
+    "roster": [
+      {
+        "name": "ANDERSON, JAMES",
+        "start": true
+      },
+      {
+        "name": "BEAUBOIS, RODRIGUE",
+        "start": false
+      },
+      {
+        "name": "BRYANT, ELIJAH",
+        "start": false
+      },
+      {
+        "name": "DUNSTON, BRYANT",
+        "start": false
+      },
+      {
+        "name": "GAZI, ERTEN",
+        "start": false
+      },
+      {
+        "name": "LARKIN, SHANE",
+        "start": true
+      },
+      {
+        "name": "MICIC, VASILIJE",
+        "start": true
+      },
+      {
+        "name": "MOERMAN, ADRIEN",
+        "start": true
+      },
+      {
+        "name": "PETRUSEV, FILIP",
+        "start": false
+      },
+      {
+        "name": "PLEISS, TIBOR",
+        "start": true
+      },
+      {
+        "name": "SINGLETON, CHRIS",
+        "start": false
+      },
+      {
+        "name": "TUNCER, BUGRAHAN",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2021,
+    "team": "IST",
+    "teamName": "Anadolu Efes Istanbul",
+    "opponent": "FC Barcelona",
+    "date": "2021-05-30",
+    "score": "86–81",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2020/games/328/stats",
+    "roster": [
+      {
+        "name": "ANDERSON, JAMES",
+        "start": false
+      },
+      {
+        "name": "BALBAY, DOGUS",
+        "start": false
+      },
+      {
+        "name": "BEAUBOIS, RODRIGUE",
+        "start": false
+      },
+      {
+        "name": "DUNSTON, BRYANT",
+        "start": false
+      },
+      {
+        "name": "LARKIN, SHANE",
+        "start": true
+      },
+      {
+        "name": "MICIC, VASILIJE",
+        "start": true
+      },
+      {
+        "name": "MOERMAN, ADRIEN",
+        "start": false
+      },
+      {
+        "name": "PLEISS, TIBOR",
+        "start": false
+      },
+      {
+        "name": "SANLI, SERTAC",
+        "start": true
+      },
+      {
+        "name": "SIMON, KRUNOSLAV",
+        "start": true
+      },
+      {
+        "name": "SINGLETON, CHRIS",
+        "start": true
+      },
+      {
+        "name": "TUNCER, BUGRAHAN",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2019,
+    "team": "CSK",
+    "teamName": "CSKA Moscow",
+    "opponent": "Anadolu Efes Istanbul",
+    "date": "2019-05-19",
+    "score": "91–83",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2018/games/260/stats",
+    "roster": [
+      {
+        "name": "BOLOMBOY, JOEL",
+        "start": false
+      },
+      {
+        "name": "CLYBURN, WILL",
+        "start": true
+      },
+      {
+        "name": "DE COLO, NANDO",
+        "start": true
+      },
+      {
+        "name": "HACKETT, DANIEL",
+        "start": true
+      },
+      {
+        "name": "HIGGINS, CORY",
+        "start": false
+      },
+      {
+        "name": "HINES, KYLE",
+        "start": false
+      },
+      {
+        "name": "HUNTER, OTHELLO",
+        "start": true
+      },
+      {
+        "name": "KURBANOV, NIKITA",
+        "start": true
+      },
+      {
+        "name": "PETERS, ALEC",
+        "start": false
+      },
+      {
+        "name": "RODRIGUEZ, SERGIO",
+        "start": false
+      },
+      {
+        "name": "UKHOV, IVAN",
+        "start": false
+      },
+      {
+        "name": "VORONTSEVICH, ANDREY",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2018,
+    "team": "MAD",
+    "teamName": "Real Madrid",
+    "opponent": "Fenerbahce Dogus Istanbul",
+    "date": "2018-05-20",
+    "score": "85–80",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2017/games/260/stats",
+    "roster": [
+      {
+        "name": "AYON, GUSTAVO",
+        "start": true
+      },
+      {
+        "name": "CAMPAZZO, FACUNDO",
+        "start": true
+      },
+      {
+        "name": "CARROLL, JAYCEE",
+        "start": false
+      },
+      {
+        "name": "CAUSEUR, FABIEN",
+        "start": true
+      },
+      {
+        "name": "DONCIC, LUKA",
+        "start": true
+      },
+      {
+        "name": "FERNANDEZ, RUDY",
+        "start": false
+      },
+      {
+        "name": "LLULL, SERGIO",
+        "start": false
+      },
+      {
+        "name": "RANDOLPH, ANTHONY",
+        "start": false
+      },
+      {
+        "name": "REYES, FELIPE",
+        "start": true
+      },
+      {
+        "name": "TAVARES, WALTER",
+        "start": false
+      },
+      {
+        "name": "TAYLOR, JEFFERY",
+        "start": false
+      },
+      {
+        "name": "THOMPKINS, TREY",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2017,
+    "team": "ULK",
+    "teamName": "Fenerbahce Istanbul",
+    "opponent": "Olympiacos Piraeus",
+    "date": "2017-05-21",
+    "score": "80–64",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2016/games/263/stats",
+    "roster": [
+      {
+        "name": "ANTIC, PERO",
+        "start": false
+      },
+      {
+        "name": "BENNETT, ANTHONY",
+        "start": false
+      },
+      {
+        "name": "BOGDANOVIC, BOGDAN",
+        "start": true
+      },
+      {
+        "name": "DATOME, LUIGI",
+        "start": false
+      },
+      {
+        "name": "DUVERIOGLU, AHMET",
+        "start": false
+      },
+      {
+        "name": "KALINIC, NIKOLA",
+        "start": true
+      },
+      {
+        "name": "MAHMUTOGLU, MELIH",
+        "start": false
+      },
+      {
+        "name": "MUHAMMED, ALI",
+        "start": true
+      },
+      {
+        "name": "NUNNALLY, JAMES",
+        "start": false
+      },
+      {
+        "name": "SLOUKAS, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "UDOH, EKPE",
+        "start": true
+      },
+      {
+        "name": "VESELY, JAN",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2016,
+    "team": "CSK",
+    "teamName": "CSKA Moscow",
+    "opponent": "Fenerbahce Istanbul",
+    "date": "2016-05-15",
+    "score": "101–96",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2015/games/250/stats",
+    "roster": [
+      {
+        "name": "DE COLO, NANDO",
+        "start": true
+      },
+      {
+        "name": "FRIDZON, VITALY",
+        "start": false
+      },
+      {
+        "name": "HIGGINS, CORY",
+        "start": true
+      },
+      {
+        "name": "HINES, KYLE",
+        "start": true
+      },
+      {
+        "name": "JACKSON, AARON",
+        "start": false
+      },
+      {
+        "name": "KHRYAPA, VICTOR",
+        "start": false
+      },
+      {
+        "name": "KOROBKOV, PAVEL",
+        "start": false
+      },
+      {
+        "name": "KULAGIN, DMITRY",
+        "start": false
+      },
+      {
+        "name": "KURBANOV, NIKITA",
+        "start": true
+      },
+      {
+        "name": "NICHOLS, DEMETRIS",
+        "start": false
+      },
+      {
+        "name": "TEODOSIC, MILOS",
+        "start": false
+      },
+      {
+        "name": "VORONTSEVICH, ANDREY",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2015,
+    "team": "MAD",
+    "teamName": "Real Madrid",
+    "opponent": "Olympiacos Piraeus",
+    "date": "2015-05-17",
+    "score": "78–59",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2014/games/251/stats",
+    "roster": [
+      {
+        "name": "AYON, GUSTAVO",
+        "start": true
+      },
+      {
+        "name": "BOUROUSIS, IOANNIS",
+        "start": false
+      },
+      {
+        "name": "CAMPAZZO, FACUNDO",
+        "start": false
+      },
+      {
+        "name": "CARROLL, JAYCEE",
+        "start": true
+      },
+      {
+        "name": "FERNANDEZ, RUDY",
+        "start": true
+      },
+      {
+        "name": "LLULL, SERGIO",
+        "start": true
+      },
+      {
+        "name": "MACIULIS, JONAS",
+        "start": false
+      },
+      {
+        "name": "NOCIONI, ANDRES",
+        "start": false
+      },
+      {
+        "name": "REYES, FELIPE",
+        "start": true
+      },
+      {
+        "name": "RIVERS, KC",
+        "start": false
+      },
+      {
+        "name": "RODRIGUEZ, SERGIO",
+        "start": false
+      },
+      {
+        "name": "SLAUGHTER, MARCUS",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2014,
+    "team": "TEL",
+    "teamName": "Maccabi Electra Tel Aviv",
+    "opponent": "Real Madrid",
+    "date": "2014-05-18",
+    "score": "98–86",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2013/games/253/stats",
+    "roster": [
+      {
+        "name": "ALTIT, BEN",
+        "start": false
+      },
+      {
+        "name": "BLU, DAVID",
+        "start": false
+      },
+      {
+        "name": "HICKMAN, RICKY",
+        "start": true
+      },
+      {
+        "name": "INGLES, JOE",
+        "start": false
+      },
+      {
+        "name": "LANDESBERG, SYLVEN",
+        "start": false
+      },
+      {
+        "name": "OHAYON, YOGEV",
+        "start": true
+      },
+      {
+        "name": "PNINI, GUY",
+        "start": true
+      },
+      {
+        "name": "RICE, TYRESE",
+        "start": false
+      },
+      {
+        "name": "SCHORTSANITIS, SOFOKLIS",
+        "start": true
+      },
+      {
+        "name": "SMITH, DEVIN",
+        "start": true
+      },
+      {
+        "name": "TYUS, ALEX",
+        "start": false
+      },
+      {
+        "name": "ZIZIC, ANDRIJA",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2013,
+    "team": "OLY",
+    "teamName": "Olympiacos Piraeus",
+    "opponent": "Real Madrid",
+    "date": "2013-05-12",
+    "score": "100–88",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2012/games/253/stats",
+    "roster": [
+      {
+        "name": "ANTIC, PERO",
+        "start": false
+      },
+      {
+        "name": "GECEVICIUS, MARTYNAS",
+        "start": false
+      },
+      {
+        "name": "HINES, KYLE",
+        "start": false
+      },
+      {
+        "name": "KATSIVELIS, DIMITRIS",
+        "start": false
+      },
+      {
+        "name": "LAW, ACIE",
+        "start": true
+      },
+      {
+        "name": "PAPANIKOLAOU, KOSTAS",
+        "start": true
+      },
+      {
+        "name": "PERPEROGLOU, STRATOS",
+        "start": false
+      },
+      {
+        "name": "POWELL, JOSH",
+        "start": true
+      },
+      {
+        "name": "PRINTEZIS, GEORGIOS",
+        "start": true
+      },
+      {
+        "name": "SHERMADINI, GIORGI",
+        "start": false
+      },
+      {
+        "name": "SLOUKAS, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "SPANOULIS, VASSILIS",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2012,
+    "team": "OLY",
+    "teamName": "Olympiacos Piraeus",
+    "opponent": "CSKA Moscow",
+    "date": "2012-05-13",
+    "score": "62–61",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2011/games/188/stats",
+    "roster": [
+      {
+        "name": "ANTIC, PERO",
+        "start": true
+      },
+      {
+        "name": "DORSEY, JOEY",
+        "start": true
+      },
+      {
+        "name": "GECEVICIUS, MARTYNAS",
+        "start": false
+      },
+      {
+        "name": "HINES, KYLE",
+        "start": false
+      },
+      {
+        "name": "KESELJ, MARKO",
+        "start": true
+      },
+      {
+        "name": "LAW, ACIE",
+        "start": false
+      },
+      {
+        "name": "MANTZARIS, VANGELIS",
+        "start": true
+      },
+      {
+        "name": "PAPADOPOULOS, LAZAROS",
+        "start": false
+      },
+      {
+        "name": "PAPANIKOLAOU, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "PRINTEZIS, GEORGIOS",
+        "start": false
+      },
+      {
+        "name": "SLOUKAS, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "SPANOULIS, VASSILIS",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2011,
+    "team": "PAN",
+    "teamName": "Panathinaikos Athens",
+    "opponent": "Maccabi Electra Tel Aviv",
+    "date": "2011-05-08",
+    "score": "78–70",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2010/games/189/stats",
+    "roster": [
+      {
+        "name": "BATISTE, MIKE",
+        "start": false
+      },
+      {
+        "name": "CALATHES, NICK",
+        "start": true
+      },
+      {
+        "name": "DIAMANTIDIS, DIMITRIS",
+        "start": true
+      },
+      {
+        "name": "FOTSIS, ANTONIS",
+        "start": true
+      },
+      {
+        "name": "KAIMAKOGLOU, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "MARIC, ALEKS",
+        "start": false
+      },
+      {
+        "name": "NICHOLAS, DREW",
+        "start": false
+      },
+      {
+        "name": "PERPEROGLOU, STRATOS",
+        "start": false
+      },
+      {
+        "name": "SATO, ROMAIN",
+        "start": true
+      },
+      {
+        "name": "TEPIC, MILENKO",
+        "start": false
+      },
+      {
+        "name": "TSARTSARIS, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "VOUGIOUKAS, IAN",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2010,
+    "team": "BAR",
+    "teamName": "Regal FC Barcelona",
+    "opponent": "Olympiacos Piraeus",
+    "date": "2010-05-09",
+    "score": "86–68",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2009/games/188/stats",
+    "roster": [
+      {
+        "name": "BASILE, GIANLUCA",
+        "start": false
+      },
+      {
+        "name": "GRIMAU, ROGER",
+        "start": false
+      },
+      {
+        "name": "LAKOVIC, JAKA",
+        "start": false
+      },
+      {
+        "name": "LORBEK, ERAZEM",
+        "start": true
+      },
+      {
+        "name": "MICKEAL, PETE",
+        "start": true
+      },
+      {
+        "name": "MORRIS, TERENCE",
+        "start": false
+      },
+      {
+        "name": "NAVARRO, JUAN CARLOS",
+        "start": true
+      },
+      {
+        "name": "NDONG, BONIFACE",
+        "start": true
+      },
+      {
+        "name": "RUBIO, RICKY",
+        "start": true
+      },
+      {
+        "name": "SADA, VICTOR",
+        "start": false
+      },
+      {
+        "name": "TRIAS, JORDI",
+        "start": false
+      },
+      {
+        "name": "VAZQUEZ, FRAN",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2009,
+    "team": "PAN",
+    "teamName": "Panathinaikos Athens",
+    "opponent": "CSKA Moscow",
+    "date": "2009-05-03",
+    "score": "73–71",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2008/games/188/stats",
+    "roster": [
+      {
+        "name": "BATISTE, MIKE",
+        "start": false
+      },
+      {
+        "name": "DIAMANTIDIS, DIMITRIS",
+        "start": false
+      },
+      {
+        "name": "FOTSIS, ANTONIS",
+        "start": true
+      },
+      {
+        "name": "HATZIVRETTAS, NIKOS",
+        "start": false
+      },
+      {
+        "name": "JASIKEVICIUS, SARAS",
+        "start": false
+      },
+      {
+        "name": "KECMAN, DUSAN",
+        "start": false
+      },
+      {
+        "name": "NICHOLAS, DREW",
+        "start": true
+      },
+      {
+        "name": "PEKOVIC, NIKOLA",
+        "start": true
+      },
+      {
+        "name": "PERPEROGLOU, STRATOS",
+        "start": true
+      },
+      {
+        "name": "SAKOTA, DUSAN",
+        "start": false
+      },
+      {
+        "name": "SPANOULIS, VASSILIS",
+        "start": true
+      },
+      {
+        "name": "TSARTSARIS, KOSTAS",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2008,
+    "team": "CSK",
+    "teamName": "CSKA Moscow",
+    "opponent": "Maccabi Elite Tel Aviv",
+    "date": "2008-05-04",
+    "score": "91–77",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2007/games/231/stats",
+    "roster": [
+      {
+        "name": "ANDERSEN, DAVID",
+        "start": true
+      },
+      {
+        "name": "GOREE, MARCUS",
+        "start": false
+      },
+      {
+        "name": "HOLDEN, JR",
+        "start": true
+      },
+      {
+        "name": "KHRYAPA, VICTOR",
+        "start": false
+      },
+      {
+        "name": "LANGDON, TRAJAN",
+        "start": true
+      },
+      {
+        "name": "PAPALOUKAS, THEODOROS",
+        "start": false
+      },
+      {
+        "name": "PASHUTIN, ZAKHAR",
+        "start": false
+      },
+      {
+        "name": "SHVED, ALEXEY",
+        "start": false
+      },
+      {
+        "name": "SISKAUSKAS, RAMUNAS",
+        "start": true
+      },
+      {
+        "name": "SMODIS, MATJAZ",
+        "start": true
+      },
+      {
+        "name": "VAN DEN SPIEGEL, TOMAS",
+        "start": false
+      },
+      {
+        "name": "ZISIS, NIKOS",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2007,
+    "team": "PAN",
+    "teamName": "Panathinaikos Athens",
+    "opponent": "CSKA Moscow",
+    "date": "2007-05-06",
+    "score": "93–91",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2006/games/230/stats",
+    "roster": [
+      {
+        "name": "ALVERTIS, FRAGISKOS",
+        "start": false
+      },
+      {
+        "name": "BATISTE, MIKE",
+        "start": true
+      },
+      {
+        "name": "BECIROVIC, SANI",
+        "start": true
+      },
+      {
+        "name": "DELK, TONY",
+        "start": false
+      },
+      {
+        "name": "DIAMANTIDIS, DIMITRIS",
+        "start": true
+      },
+      {
+        "name": "DIKOUDIS, DIMOS",
+        "start": true
+      },
+      {
+        "name": "HATZIVRETTAS, NIKOS",
+        "start": false
+      },
+      {
+        "name": "JAVTOKAS, ROBERTAS",
+        "start": false
+      },
+      {
+        "name": "SISKAUSKAS, RAMUNAS",
+        "start": true
+      },
+      {
+        "name": "TOMASEVIC, DEJAN",
+        "start": false
+      },
+      {
+        "name": "TSARTSARIS, KOSTAS",
+        "start": false
+      },
+      {
+        "name": "VUJANIC, MILOS",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2006,
+    "team": "CSK",
+    "teamName": "CSKA Moscow",
+    "opponent": "Maccabi Elite Tel Aviv",
+    "date": "2006-04-30",
+    "score": "73–69",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2005/games/231/stats",
+    "roster": [
+      {
+        "name": "DYACHOK, VLADIMIR",
+        "start": false
+      },
+      {
+        "name": "HOLDEN, JR",
+        "start": true
+      },
+      {
+        "name": "KURBANOV, NIKITA",
+        "start": false
+      },
+      {
+        "name": "LANGDON, TRAJAN",
+        "start": true
+      },
+      {
+        "name": "PANOV, SERGEY",
+        "start": false
+      },
+      {
+        "name": "PAPALOUKAS, THEODOROS",
+        "start": false
+      },
+      {
+        "name": "PASHUTIN, ZAKHAR",
+        "start": false
+      },
+      {
+        "name": "SAVRASENKO, ALEKSEY",
+        "start": true
+      },
+      {
+        "name": "SMODIS, MATJAZ",
+        "start": true
+      },
+      {
+        "name": "VAN DEN SPIEGEL, TOMAS",
+        "start": false
+      },
+      {
+        "name": "VANTERPOOL, DAVID",
+        "start": true
+      },
+      {
+        "name": "ZAVOUREV, VASILY",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2005,
+    "team": "TEL",
+    "teamName": "Maccabi Elite Tel Aviv",
+    "opponent": "Tau Ceramica Vitoria-Gasteiz",
+    "date": "2005-05-08",
+    "score": "90–78",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2004/games/229/stats",
+    "roster": [
+      {
+        "name": "BASTON, MACEO",
+        "start": true
+      },
+      {
+        "name": "BURSTEIN, TAL",
+        "start": true
+      },
+      {
+        "name": "DOTAN, ASSAF",
+        "start": false
+      },
+      {
+        "name": "FANAN, REGEV",
+        "start": false
+      },
+      {
+        "name": "GREEN, YANIV",
+        "start": false
+      },
+      {
+        "name": "HALPERIN, YOTAM",
+        "start": false
+      },
+      {
+        "name": "JASIKEVICIUS, SARAS",
+        "start": true
+      },
+      {
+        "name": "KOMMATOS, NESTORAS",
+        "start": false
+      },
+      {
+        "name": "PARKER, ANTHONY",
+        "start": true
+      },
+      {
+        "name": "SHARP, DERRICK",
+        "start": false
+      },
+      {
+        "name": "SHELEF, GUR",
+        "start": false
+      },
+      {
+        "name": "VUJCIC, NIKOLA",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2004,
+    "team": "TEL",
+    "teamName": "Maccabi Elite Tel Aviv",
+    "opponent": "Skipper Fortitudo Bologna",
+    "date": "2004-05-01",
+    "score": "118–74",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2003/games/220/stats",
+    "roster": [
+      {
+        "name": "BASTON, MACEO",
+        "start": true
+      },
+      {
+        "name": "BEN-CHIMOL, AVI",
+        "start": false
+      },
+      {
+        "name": "BLU, DAVID",
+        "start": false
+      },
+      {
+        "name": "BURSTEIN, TAL",
+        "start": true
+      },
+      {
+        "name": "HALPERIN, YOTAM",
+        "start": false
+      },
+      {
+        "name": "JASIKEVICIUS, SARAS",
+        "start": true
+      },
+      {
+        "name": "PARKER, ANTHONY",
+        "start": true
+      },
+      {
+        "name": "SHARP, DERRICK",
+        "start": false
+      },
+      {
+        "name": "SHELEF, GUR",
+        "start": false
+      },
+      {
+        "name": "SUNDOV, BRUNO",
+        "start": false
+      },
+      {
+        "name": "THOMAS, DEON",
+        "start": false
+      },
+      {
+        "name": "VUJCIC, NIKOLA",
+        "start": true
+      }
+    ]
+  },
+  {
+    "year": 2003,
+    "team": "BAR",
+    "teamName": "FC Barcelona",
+    "opponent": "Benetton Treviso",
+    "date": "2003-05-11",
+    "score": "76–65",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2002/games/220/stats",
+    "roster": [
+      {
+        "name": "ALZAMORA, ALFONSO",
+        "start": false
+      },
+      {
+        "name": "BODIROGA, DEJAN",
+        "start": true
+      },
+      {
+        "name": "BRAVO, CESAR",
+        "start": false
+      },
+      {
+        "name": "DE LA FUENTE, RODRIGO",
+        "start": true
+      },
+      {
+        "name": "DUENAS, ROBERTO",
+        "start": true
+      },
+      {
+        "name": "FEMERLING, PATRICK",
+        "start": false
+      },
+      {
+        "name": "FUCKA, GREGOR",
+        "start": true
+      },
+      {
+        "name": "JASIKEVICIUS, SARAS",
+        "start": true
+      },
+      {
+        "name": "NAVARRO, JUAN CARLOS",
+        "start": false
+      },
+      {
+        "name": "RODRIGUEZ, NACHO",
+        "start": false
+      },
+      {
+        "name": "VAN DE HARE, REMON",
+        "start": false
+      },
+      {
+        "name": "VAREJAO, ANDERSON",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2002,
+    "team": "PAN",
+    "teamName": "Panathinaikos Athens",
+    "opponent": "Kinder Virtus Bologna",
+    "date": "2002-05-05",
+    "score": "89–83",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2001/games/275/stats",
+    "roster": [
+      {
+        "name": "ALVERTIS, FRAGISKOS",
+        "start": true
+      },
+      {
+        "name": "BODIROGA, DEJAN",
+        "start": true
+      },
+      {
+        "name": "KALAITZIS, GEORGIOS",
+        "start": false
+      },
+      {
+        "name": "KUTLUAY, IBRAHIM",
+        "start": true
+      },
+      {
+        "name": "MIDDLETON, DARRYL",
+        "start": true
+      },
+      {
+        "name": "MULAOMEROVIC, DAMIR",
+        "start": true
+      },
+      {
+        "name": "PAPADOPOULOS, LAZAROS",
+        "start": false
+      },
+      {
+        "name": "ROGERS, JOHNNY",
+        "start": false
+      },
+      {
+        "name": "SANCHEZ, PEPE",
+        "start": false
+      }
+    ]
+  },
+  {
+    "year": 2001,
+    "team": "VIR",
+    "teamName": "Kinder Virtus Bologna",
+    "opponent": "Tau Ceramica Vitoria-Gasteiz",
+    "date": "2001-05-10",
+    "score": "82–74",
+    "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/E/seasons/E2000/games/169/stats",
+    "roster": [
+      {
+        "name": "ABBIO, ALESSANDRO",
+        "start": false
+      },
+      {
+        "name": "AMBRASSA, FABRIZIO",
+        "start": false
+      },
+      {
+        "name": "ANDERSEN, DAVID",
+        "start": false
+      },
+      {
+        "name": "BONORA, DAVIDE",
+        "start": false
+      },
+      {
+        "name": "FROSINI, ALESSANDRO",
+        "start": true
+      },
+      {
+        "name": "GINOBILI, EMANUEL",
+        "start": true
+      },
+      {
+        "name": "GRIFFITH, RASHARD",
+        "start": true
+      },
+      {
+        "name": "JARIC, MARKO",
+        "start": true
+      },
+      {
+        "name": "RIGAUDEAU, ANTOINE",
+        "start": true
+      },
+      {
+        "name": "SMODIS, MATJAZ",
+        "start": false
+      }
+    ]
+  }
+]

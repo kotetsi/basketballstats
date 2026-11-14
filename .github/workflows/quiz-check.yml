@@ -6,7 +6,9 @@ on:
     paths:
       - 'build.mjs'
       - 'src/quiz/**'
+      - 'data/quiz-champions.json'
       - 'src/compare/metrics.mjs'
+      - 'test/five.test.mjs'
       - 'test/quiz.test.mjs'
       - 'test/e2e/quiz.e2e.mjs'
       - '.github/workflows/quiz-check.yml'
@@ -27,7 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test test/quiz.test.mjs
+      - run: node --test test/quiz.test.mjs test/five.test.mjs
       - run: node build.mjs --offline
       - run: npm install --no-save --package-lock=false playwright@1.56.1
       - run: node test/e2e/quiz.e2e.mjs

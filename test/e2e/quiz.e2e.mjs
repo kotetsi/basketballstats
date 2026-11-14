@@ -37,7 +37,8 @@ try {
     Object.defineProperty(navigator, 'share', { value: async payload => { window.lastShare = payload; } });
   });
   await page.goto(origin + '/en/');
-  await page.locator('nav [data-v="quiz"]').click();
+  await page.locator('nav [data-v="tools"]').click();
+  await page.locator('main a[href="/en/quiz/"]').first().click();
   assert.equal(new URL(page.url()).pathname, '/en/quiz/');
   await page.getByRole('button', { name: 'Medium', exact: true }).click();
   const buttons = page.locator('.quiz-options button');
@@ -83,6 +84,28 @@ try {
     assert.ok(html.includes('<html lang="' + lang + '">'));
     assert.ok(sitemap.includes(route + '</loc>'));
   }
+  await page.goto(origin + '/en/quiz/');
+  await page.getByRole('link', { name: 'Guess the Starting Five →' }).click();
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  assert.equal(await page.locator('.five-board .five-court li[data-slot]').count(), 5);
+  const match = await page.locator('[name="match"]').inputValue();
+  const { games } = JSON.parse(await page.locator('#five-data').textContent());
+  const lineup = games.find(game => game.id === match).roster;
+  assert.match(await page.locator('#five-game time').textContent(), /^(4:00|3:59)$/);
+  const selector = page.locator('#five-game form select');
+  await selector.selectOption(lineup.find(p => !p.start).name);
+  await page.getByRole('button', { name: 'Guess', exact: true }).click();
+  assert.match(await page.locator('#five-game [role="status"]').textContent(), /^Bench/);
+  for (const {name} of lineup.filter(player => player.start)) {
+    await selector.selectOption(name);
+    await page.getByRole('button', { name: 'Guess', exact: true }).click();
+  }
+  assert.equal(await page.locator('#five-game [role="status"]').textContent(), 'Starters 5/5');
+  assert.equal(await page.locator('.five-court li[data-result="found"]').count(), 5);
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  await page.getByRole('button', { name: 'Reveal lineup' }).click();
+  assert.equal(await page.locator('.five-court li').filter({hasText: 'Revealed'}).count(), 5);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 360);
   assert.deepEqual(errors, []);
   console.log('Quiz browser flow, sharing, mobile layout, Guess the Player and multilingual SEO passed.');
 } finally {

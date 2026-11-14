@@ -53,7 +53,7 @@ const locales = {
 
 export const quizLabels = lang => locales[lang];
 
-export function renderQuiz({ lang, pool, season, seasonLabel, guessUrl, asset, esc }) {
+export function renderQuiz({ lang, pool, season, seasonLabel, guessUrl, fiveUrl, fiveLabel, asset, esc }) {
   const labels = quizLabels(lang);
   const prompts = Object.fromEntries(['pts', 'reb', 'ast', 'm3', 'pir'].map((key, i) => [key, labels.prompts[i]]));
   const context = JSON.stringify({ pool, season, labels: { ...labels, prompts } }).replace(/</g, '\\u003c');
@@ -79,6 +79,7 @@ ${Object.entries(labels.levels).map(([level, label]) => `<button type="button" d
 <textarea aria-label="${esc(labels.copy)}" rows="3" readonly hidden></textarea>
 </div>
 </section>
+<p><a href="${esc(fiveUrl)}">${esc(fiveLabel)} →</a></p>
 <p><a href="${esc(guessUrl)}">${esc(labels.guess)} →</a></p>
 </article>
 <script type="application/json" id="quiz-data">${context}</script>
