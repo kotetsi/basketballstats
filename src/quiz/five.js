@@ -44,8 +44,14 @@ function finish() {
   source.href = game.source;
   source.hidden = false;
   const missed = game.roster.filter(p => p.start && !found.has(p.name));
-  missed.forEach((p, index) => { slots.children[found.size + index].textContent = p.name + ' · ' + labels.missed; });
+  missed.forEach((p, index) => fillSlot(found.size + index, p.name + ' · ' + labels.missed, 'revealed'));
   start.focus();
+}
+
+function fillSlot(index, name, result) {
+  const slot = slots.children[index];
+  slot.firstElementChild.textContent = name;
+  slot.dataset.result = result;
 }
 
 function tick() {
@@ -68,9 +74,10 @@ start.addEventListener('click', () => {
   if (!game) return;
   found = new Set();
   player.replaceChildren(option('', labels.choose), ...game.roster.map(p => option(p.name, p.name)));
-  slots.replaceChildren(...Array.from({ length: 5 }, () => {
+  slots.replaceChildren(...Array.from({ length: 5 }, (_, index) => {
     const slot = document.createElement('li');
-    slot.textContent = '—';
+    slot.dataset.slot = String(index + 1);
+    slot.append(document.createElement('span'));
     return slot;
   }));
   form.hidden = false;
@@ -91,7 +98,7 @@ form.addEventListener('submit', event => {
     return;
   }
   if (found.has(name)) return;
-  slots.children[found.size].textContent = name;
+  fillSlot(found.size, name, 'found');
   found.add(name);
   player.selectedOptions[0].disabled = true;
   player.value = '';

@@ -87,6 +87,7 @@ try {
   await page.goto(origin + '/en/quiz/');
   await page.getByRole('link', { name: 'Guess the Starting Five →' }).click();
   await page.getByRole('button', { name: 'Start', exact: true }).click();
+  assert.equal(await page.locator('.five-board .five-court li[data-slot]').count(), 5);
   const match = await page.locator('[name="match"]').inputValue();
   const { games } = JSON.parse(await page.locator('#five-data').textContent());
   const lineup = games.find(game => game.id === match).roster;
@@ -100,6 +101,7 @@ try {
     await page.getByRole('button', { name: 'Guess', exact: true }).click();
   }
   assert.equal(await page.locator('#five-game [role="status"]').textContent(), 'Starters 5/5');
+  assert.equal(await page.locator('.five-court li[data-result="found"]').count(), 5);
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await page.getByRole('button', { name: 'Reveal lineup' }).click();
   assert.equal(await page.locator('.five-court li').filter({hasText: 'Revealed'}).count(), 5);

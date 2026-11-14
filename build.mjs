@@ -3937,7 +3937,7 @@ ${shCfg({ kind: 'team', api: `${BASE}api/${cp === 'U' ? 'eurocup/' : ''}teams/${
 <label>${T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım')} <select name="team"></select></label>
 <label>${T('Αγώνας', 'Game', 'Partido', 'Utakmica', 'Maç')} <select name="match"></select></label>
 <button type="button" data-start>${T('Έναρξη', 'Start', 'Empezar', 'Počni', 'Başlat')}</button>
-</div><time hidden></time><ol class="five-court"></ol>
+</div><time hidden></time><div class="five-board"><span class="five-lines" aria-hidden="true"></span><ol class="five-court"></ol></div>
 <form hidden><label>${esc(labels.choose)} <select required></select></label>
 <button type="submit">${T('Έλεγχος', 'Guess', 'Adivinar', 'Pogodi', 'Tahmin et')}</button></form>
 <p role="status"></p>
