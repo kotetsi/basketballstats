@@ -39,7 +39,9 @@ jobs:
         run: |
           set -e
           # το κλειδί μπορεί να επικολλήθηκε με κενά, αλλαγή γραμμής ή εισαγωγικά
-          export CLOUDFLARE_API_TOKEN=$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d "[:space:]\"'")
+          # αν επικολλήθηκε η εντολή δοκιμής του Cloudflare (curl … Bearer <κλειδί>), κρατάμε μόνο το κλειδί
+          export CLOUDFLARE_API_TOKEN=$(node -e 'const s=process.env.CLOUDFLARE_API_TOKEN||"";const b=/Bearer\s+([A-Za-z0-9_-]+)/.exec(s);const m=b?b[1]:(s.match(/[A-Za-z0-9_-]+/g)||[]).sort((a,c)=>c.length-a.length)[0]||"";process.stdout.write(m)')
+          echo "::add-mask::$CLOUDFLARE_API_TOKEN"
           export CLOUDFLARE_ACCOUNT_ID=$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d "[:space:]\"'")
           echo "Κλειδί: ${#CLOUDFLARE_API_TOKEN} χαρακτήρες$(printf '%s' "$CLOUDFLARE_API_TOKEN" | grep -qE '^[A-Za-z0-9_-]+$' && echo ', μορφή εντάξει' || echo ', ΜΗ ΕΓΚΥΡΟΙ ΧΑΡΑΚΤΗΡΕΣ')"
           W="npx --yes wrangler@3.114.0"

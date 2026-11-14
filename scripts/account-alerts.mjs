@@ -11,7 +11,8 @@ import { userAlerts } from '../src/account/alerts.mjs';
 
 const SITE = process.env.SITE || 'https://basketballstats.eu';
 const clean = v => String(v || '').replace(/[\s"']/g, '');
-const CF = clean(process.env.CLOUDFLARE_API_TOKEN), ACC = clean(process.env.CLOUDFLARE_ACCOUNT_ID);
+const tok = s => { s = String(s || ''); const b = /Bearer\s+([A-Za-z0-9_-]+)/.exec(s); return b ? b[1] : (s.match(/[A-Za-z0-9_-]+/g) || []).sort((a, c) => c.length - a.length)[0] || ''; };
+const CF = tok(process.env.CLOUDFLARE_API_TOKEN), ACC = clean(process.env.CLOUDFLARE_ACCOUNT_ID);
 const TG = String(process.env.TELEGRAM_TOKEN || '').replace(/\s+/g, '');
 const DRY = process.env.ALERTS_DRY === '1';
 if (!CF || !ACC) { console.log('Ειδοποιήσεις: δεν έχει οριστεί λογαριασμός Cloudflare, παράλειψη.'); process.exit(0); }
