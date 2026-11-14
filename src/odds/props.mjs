@@ -138,6 +138,73 @@ export function leaguePriors(players) {
   return out;
 }
 
+/** ρόστερ ομάδας για τον επόμενο αγώνα: αγώνες που έπαιξε ο καθένας, κατάσταση, απουσίες και λεπτά (με ανακατανομή) */
+function teamRoster(t, { players, FX, inj, teamGames }) {
+  const lastTeam = Math.max(0, ...(teamGames[t] || []));
+  const roster = players.filter(p => p.t.split(';').pop() === t).map(p => {
+    const pl = p.g.filter(r => r[7] > 0).sort((x, y) => x[0] - y[0]);
+    const st = FX[p.c]?.status || 'playing', isOut = inj[p.c]?.m === 1 || st === 'injured' || st === 'rest';
+    // νέα απουσία = έπαιξε στον τελευταίο αγώνα της ομάδας (αλλιώς η απουσία του ήδη «φαίνεται» στα λεπτά των άλλων)
+    const fresh = isOut && pl.length > 0 && pl[pl.length - 1][0] === lastTeam;
+    return { ...p, pl, pos: FX[p.c]?.pos || 'Forward', st, isOut, fresh };
+  });
+  const TM = teamMinutes(roster, new Set(roster.filter(p => p.isOut).map(p => p.c)), new Set(roster.filter(p => p.fresh).map(p => p.c)));
+  for (const p of roster) p.min = TM.base[p.c];
+  return { roster, M: TM.M };
+}
+
+/** Prop Analyzer: πρόβλεψη (μέση τιμή, διασπορά) για κάθε stat και κάθε παίκτη των ομάδων που παίζουν,
+ *  με τα ίδια λεπτά (και ανακατανομή για απουσίες) που χρησιμοποιεί και η σελίδα value.
+ *  Επιστρέφει { [code]: { t, st, out, min, base, pj: { stat: [mu, var] } } }· out = εκτός (χωρίς πρόβλεψη) */
+export function nextProjections(teams, { players, fx = [], inj = {}, teamGames = {}, priors }) {
+  const FX = Object.fromEntries(fx.map(p => [p.c, p])), out = {};
+  for (const t of teams) {
+    const { roster, M } = teamRoster(t, { players, FX, inj, teamGames });
+    for (const p of roster) {
+      if (!p.pl.length) continue;
+      const min = p.isOut ? 0 : M[p.c], pj = {};
+      if (!p.isOut && min > 0 && p.pl.length >= 3) for (const s of Object.keys(STATS)) { const pr = project(p.pl, s, { prior: priors[s], minutes: min }); if (pr) pj[s] = [+pr.mu.toFixed(3), +pr.var.toFixed(3)]; }
+      out[p.c] = { t, st: p.st, out: p.isOut, min: +(min || 0).toFixed(1), base: +(p.min || 0).toFixed(1), pj };
+    }
+  }
+  return out;
+}
+
+/** άμυνα ανά θέση: πόσα δίνει κάθε ομάδα ανά αγώνα σε παίκτες κάθε θέσης (Guard/Forward/Center), ανά stat,
+ *  με κατάταξη 1 = δίνει τα περισσότερα (ευκολότερο ματσάρισμα) και μέσο όρο λίγκας.
+ *  posOf: code → θέση. Επιστρέφει { teams: { T: { pos: { stat: [ανά αγώνα, κατάταξη] } } }, avg: { pos: { stat } }, n } */
+export function defenseVsPos(players, posOf) {
+  const S = {}, G = {};
+  for (const p of players) {
+    const pos = posOf(p); if (!pos) continue;
+    for (const r of p.g || []) {
+      if (!(r[7] > 0)) continue;
+      const o = r[2]; (G[o] ||= new Set()).add(r[0]);
+      const x = ((S[o] ||= {})[pos] ||= {});
+      for (const [s, f] of Object.entries(STATS)) x[s] = (x[s] || 0) + f(r);
+    }
+  }
+  const teams = {}, avg = {}, POS = ['Guard', 'Forward', 'Center'];
+  for (const [o, by] of Object.entries(S)) { teams[o] = {}; for (const pos of POS) { teams[o][pos] = {}; for (const s of Object.keys(STATS)) teams[o][pos][s] = [+((by[pos]?.[s] || 0) / G[o].size).toFixed(2), 0]; } }
+  for (const pos of POS) {
+    avg[pos] = {};
+    for (const s of Object.keys(STATS)) {
+      const L = Object.keys(teams).sort((a, b) => teams[b][pos][s][0] - teams[a][pos][s][0]);
+      L.forEach((o, i) => { teams[o][pos][s][1] = i + 1; });
+      avg[pos][s] = +(L.reduce((a, o) => a + teams[o][pos][s][0], 0) / Math.max(1, L.length)).toFixed(2);
+    }
+  }
+  return { teams, avg, n: Object.keys(teams).length };
+}
+
+/** ποσοστό επιτυχίας μιας γραμμής: over/under/push (push μόνο σε ακέραια γραμμή) */
+export function hitRate(values, line) {
+  let over = 0, under = 0, push = 0;
+  for (const v of values) { if (v > line) over++; else if (v < line) under++; else push++; }
+  const n = values.length;
+  return { n, over, under, push, rate: n - push ? over / (n - push) : null };
+}
+
 /** value στα player props ενός αγώνα.
  *  game: { gid, h, a, books: latest.games[gid].books }, players: data/cache.json players, fx: fantasy players (status, pos),
  *  inj: { [code]: {m:1|0} }, teamGames: { [team]: [rounds που έχει παίξει η ομάδα] }, jur: χώρα αδειοδότησης */
@@ -145,19 +212,8 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
   const FX = Object.fromEntries(fx.map(p => [p.c, p]));
   const teams = {}, absences = [];
   for (const t of [h, a]) {
-    const lastTeam = Math.max(0, ...(teamGames[t] || []));
-    const roster = players.filter(p => p.t.split(';').pop() === t).map(p => {
-      const pl = p.g.filter(r => r[7] > 0).sort((x, y) => x[0] - y[0]);
-      const st = FX[p.c]?.status || 'playing', isOut = inj[p.c]?.m === 1 || st === 'injured' || st === 'rest';
-      // νέα απουσία = έπαιξε στον τελευταίο αγώνα της ομάδας (αλλιώς η απουσία του ήδη «φαίνεται» στα λεπτά των άλλων)
-      const fresh = isOut && pl.length > 0 && pl[pl.length - 1][0] === lastTeam;
-      return { ...p, pl, pos: FX[p.c]?.pos || 'Forward', st, isOut, fresh };
-    });
-    const TM = teamMinutes(roster, new Set(roster.filter(p => p.isOut).map(p => p.c)), new Set(roster.filter(p => p.fresh).map(p => p.c)));
-    const M = TM.M;
-    for (const p of roster) p.min = TM.base[p.c];
-    for (const p of roster.filter(p => p.fresh && p.min > 0)) absences.push({ c: p.c, n: p.n, t, min: p.min });
-    teams[t] = { roster, M };
+    teams[t] = teamRoster(t, { players, FX, inj, teamGames });
+    for (const p of teams[t].roster.filter(p => p.fresh && p.min > 0)) absences.push({ c: p.c, n: p.n, t, min: p.min });
   }
   const rows = [];
   for (const [bk, B] of Object.entries(books || {})) {
