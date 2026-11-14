@@ -10,7 +10,8 @@ import crypto from 'node:crypto';
 import { userAlerts } from '../src/account/alerts.mjs';
 
 const SITE = process.env.SITE || 'https://basketballstats.eu';
-const CF = process.env.CLOUDFLARE_API_TOKEN, ACC = process.env.CLOUDFLARE_ACCOUNT_ID;
+const clean = v => String(v || '').replace(/[\s"']/g, '');
+const CF = clean(process.env.CLOUDFLARE_API_TOKEN), ACC = clean(process.env.CLOUDFLARE_ACCOUNT_ID);
 const TG = String(process.env.TELEGRAM_TOKEN || '').replace(/\s+/g, '');
 const DRY = process.env.ALERTS_DRY === '1';
 if (!CF || !ACC) { console.log('Ειδοποιήσεις: δεν έχει οριστεί λογαριασμός Cloudflare, παράλειψη.'); process.exit(0); }

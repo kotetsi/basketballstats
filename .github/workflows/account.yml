@@ -38,6 +38,10 @@ jobs:
           FB_SECRET: ${{ secrets.META_APP_SECRET }}
         run: |
           set -e
+          # το κλειδί μπορεί να επικολλήθηκε με κενά, αλλαγή γραμμής ή εισαγωγικά
+          export CLOUDFLARE_API_TOKEN=$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d "[:space:]\"'")
+          export CLOUDFLARE_ACCOUNT_ID=$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d "[:space:]\"'")
+          echo "Κλειδί: ${#CLOUDFLARE_API_TOKEN} χαρακτήρες$(printf '%s' "$CLOUDFLARE_API_TOKEN" | grep -qE '^[A-Za-z0-9_-]+$' && echo ', μορφή εντάξει' || echo ', ΜΗ ΕΓΚΥΡΟΙ ΧΑΡΑΚΤΗΡΕΣ')"
           W="npx --yes wrangler@3.114.0"
           ID=$($W d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const d=j.find(x=>x.name==="bs-account");process.stdout.write(d?d.uuid:"")})')
           if [ -z "$ID" ]; then
