@@ -1,0 +1,15 @@
+name = "bs-account"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://basketballstats.eu,https://www.basketballstats.eu"
+SITE = "https://basketballstats.eu"
+FB_APP_ID = "1450163443756295"
+TELEGRAM_BOT = "eubasketball_bot"
+GOOGLE_CLIENT_ID = ""                 # το συμπληρώνει το workflow από το site.config.json (account.googleClientId)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bs-account"
+database_id = "__D1_ID__"             # το συμπληρώνει το workflow (δημιουργεί τη βάση αν δεν υπάρχει)

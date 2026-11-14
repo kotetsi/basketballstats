@@ -1,0 +1,26 @@
+# Προσωπικές ειδοποιήσεις Fantasy (Telegram + browser) για τους συνδεδεμένους χρήστες, κάθε 30 λεπτά.
+# Χωρίς CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID δεν κάνει τίποτα.
+name: Ειδοποιήσεις λογαριασμών
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry: { description: 'Μόνο εμφάνιση (χωρίς αποστολή)', type: boolean, default: false }
+permissions:
+  contents: read
+concurrency: { group: account-alerts, cancel-in-progress: false }
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/account-alerts.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          ALERTS_DRY: ${{ inputs.dry && '1' || '0' }}

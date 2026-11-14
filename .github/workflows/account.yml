@@ -1,0 +1,65 @@
+# Deploy του worker λογαριασμών (workers/account) στο Cloudflare.
+# Χρειάζεται μόνο τα secrets CLOUDFLARE_API_TOKEN και CLOUDFLARE_ACCOUNT_ID. Χωρίς αυτά δεν κάνει τίποτα.
+# Μόνο του: δημιουργεί τη βάση D1 αν δεν υπάρχει, εφαρμόζει το schema, περνά τα secrets, κάνει deploy
+# και γράφει τη διεύθυνση του worker στο site.config.json (account.api), ώστε να εμφανιστεί το κουμπί «Σύνδεση».
+name: Λογαριασμοί (deploy)
+on:
+  push:
+    branches: [main]
+    paths: ['workers/account/**', '.github/workflows/account.yml', 'site.config.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency: { group: account-deploy, cancel-in-progress: false }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Έλεγχος ρυθμίσεων
+        id: chk
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::Δεν έχουν οριστεί CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID· οι λογαριασμοί μένουν ανενεργοί."
+            echo "go=0" >> "$GITHUB_OUTPUT"
+          else echo "go=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.chk.outputs.go == '1'
+        with: { node-version: 22 }
+      - name: Βάση D1, schema, secrets, deploy
+        if: steps.chk.outputs.go == '1'
+        working-directory: workers/account
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FB_SECRET: ${{ secrets.META_APP_SECRET }}
+        run: |
+          set -e
+          W="npx --yes wrangler@3.114.0"
+          ID=$($W d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const d=j.find(x=>x.name==="bs-account");process.stdout.write(d?d.uuid:"")})')
+          if [ -z "$ID" ]; then
+            $W d1 create bs-account >/dev/null
+            ID=$($W d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(j.find(x=>x.name==="bs-account").uuid)})')
+          fi
+          GID=$(node -e 'process.stdout.write((require("../../site.config.json").account||{}).googleClientId||"")')
+          sed -i "s/__D1_ID__/$ID/; s|^GOOGLE_CLIENT_ID = \"\"|GOOGLE_CLIENT_ID = \"$GID\"|" wrangler.toml
+          $W d1 execute bs-account --remote --file schema.sql --yes
+          $W deploy | tee deploy.log
+          if [ -n "$TG_TOKEN" ]; then printf '%s' "$TG_TOKEN" | tr -d '[:space:]' | $W secret put TELEGRAM_BOT_TOKEN; fi
+          if [ -n "$FB_SECRET" ]; then printf '%s' "$FB_SECRET" | tr -d '[:space:]' | $W secret put FB_APP_SECRET; fi
+          URL=$(grep -oE 'https://bs-account\.[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "URL=$URL" >> "$GITHUB_ENV"
+      - name: Διεύθυνση στο site.config.json
+        if: steps.chk.outputs.go == '1' && env.URL != ''
+        run: |
+          node -e 'const fs=require("fs"),f="site.config.json",c=JSON.parse(fs.readFileSync(f));c.account=c.account||{};if(c.account.api===process.env.URL){console.log("ίδια διεύθυνση");process.exit(0)}c.account.api=process.env.URL;fs.writeFileSync(f,JSON.stringify(c,null,2)+"\n");console.log("νέα διεύθυνση",process.env.URL)'
+          if ! git diff --quiet site.config.json; then
+            git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+            git add site.config.json && git commit -m "Λογαριασμοί: διεύθυνση worker" && git pull --rebase -q && git push
+            gh workflow run update.yml --ref main || true
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -35,5 +35,9 @@
       "sr": "Pridruži se kanalu →",
       "tr": "Kanala katıl →"
     }
+  },
+  "account": {
+    "api": "",
+    "googleClientId": ""
   }
 }

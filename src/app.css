@@ -864,3 +864,16 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .pactl,.pactl>*{min-width:0;max-width:100%}.paline{min-width:0}
 @media(max-width:600px){.pashare{margin-left:0}.paline .seg{margin-left:0}.pastat button{padding:6px 8px;font-size:12px}.pahead h2{font-size:24px}}
 .pashare{white-space:nowrap}
+/* ---- λογαριασμός χρήστη */
+.accbtn{font:inherit;font-size:12px;font-weight:600;color:#fff;background:transparent;border:1px solid #3a4152;border-radius:6px;padding:4px 9px;cursor:pointer;white-space:nowrap}.accbtn:hover{border-color:var(--accent,#e4572e)}
+.accdlg{max-width:440px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--surface,#fff);color:var(--ink)}.accdlg::backdrop{background:rgba(10,14,22,.55)}
+.acchead{display:flex;justify-content:space-between;align-items:center;gap:10px}.acchead h2{margin:0;font-size:20px}.accx{font-size:24px;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer}
+.accdlg h3{font-size:15px;margin:16px 0 6px}.accben{padding-left:0;list-style:none;margin:8px 0 14px}.accben li{margin:6px 0}
+.acclog{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin:8px 0 14px}
+.accfb{font:inherit;font-weight:600;background:#1877f2;color:#fff;border:0;border-radius:4px;padding:10px 16px;min-width:260px;cursor:pointer}
+.accdlg button[data-a]{font:inherit;font-size:14px;font-weight:600;background:var(--accent,#e4572e);color:#fff;border:0;border-radius:8px;padding:7px 12px;cursor:pointer}
+.accdlg button.accsec{background:transparent;color:var(--ink);border:1px solid var(--line)}.accdlg button.accdel{background:transparent;color:#b3261e;border:1px solid #e3b4b0}
+.accrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0}.accnote,.accsafe{font-size:13px;color:var(--muted)}
+.acckinds{border:0;padding:0;margin:10px 0 0}.acckinds legend{font-size:14px;font-weight:600;margin-bottom:4px}.acckinds label{display:block;margin:5px 0;font-size:14px}
+.accfoot{display:flex;gap:8px;justify-content:space-between;margin-top:16px}.accmsg{background:#eef6ee;border-radius:8px;padding:6px 10px;font-size:14px}
+.accbtn.inrow{flex:none;align-self:stretch;font-size:14px;padding:0 12px;border-radius:10px;background:#262d3d}.search:has(+ .accbtn){flex:1 1 0;min-width:0}

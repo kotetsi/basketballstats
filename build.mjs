@@ -55,6 +55,7 @@ const SITE_NAME = CONF.siteName || 'BasketballStats';
 // λογαριασμοί social (site.config.json → social): footer κάθε σελίδας και sameAs για τη Google
 const SOCIAL_NAMES = { facebook: 'Facebook', instagram: 'Instagram', x: 'X', twitter: 'X', tiktok: 'TikTok', youtube: 'YouTube', telegram: 'Telegram', threads: 'Threads', discord: 'Discord' };
 // τιμή: URL, ή { url, sameAs: false } για λογαριασμό που δεν είναι του ίδιου του site (π.χ. Sport Arena)
+const ACC_API = /^(https:\/\/|http:\/\/localhost:)/.test(CONF.account?.api || '') ? CONF.account.api.replace(/\/$/, '') : '';
 const SOCIAL = Object.entries(CONF.social || {}).map(([k, v]) => ({ k, n: SOCIAL_NAMES[k] || k, u: typeof v === 'string' ? v : v?.url, same: typeof v === 'string' || v?.sameAs !== false })).filter(x => /^https:\/\//.test(x.u || ''));
 const AD_CLIENT = (process.env.ADSENSE_CLIENT || CONF.adsenseClient || '').trim();
 const AD_SLOT = (process.env.ADSENSE_SLOT || CONF.adsenseSlot || '').trim();
@@ -1091,6 +1092,8 @@ async function main() {
   await fs.writeFile(path.join(OUT, 'assets', 'app.sr.js'), translate(appSrc, SR.APP_CODE, 'app.js (sr)', SR.PHRASES));
   await fs.writeFile(path.join(OUT, 'assets', 'app.tr.js'), translate(appSrc, TRL.APP_CODE, 'app.js (tr)', TRL.PHRASES));
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
+  await fs.mkdir(path.join(OUT, 'assets', 'account'), { recursive: true });
+  await fs.copyFile(path.join(ROOT, 'src', 'account', 'account.js'), path.join(OUT, 'assets', 'account', 'account.js'));
   await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
   for (const f of ['compare.mjs', 'compare.js', 'optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs', 'live.mjs', 'livetracker.js', 'assistant.mjs', 'assistant.js', 'ask.mjs', 'ask.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
   await fs.mkdir(path.join(OUT, 'assets', 'analytics'), { recursive: true });
@@ -1371,7 +1374,10 @@ self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);
   if(r.method!=='GET'||u.origin!==location.origin)return;
   e.respondWith(fetch(r).then(res=>{if(res.ok){const cp=res.clone();caches.open(C).then(c=>c.put(r,cp));}return res;})
     .catch(()=>caches.match(r,{ignoreSearch:u.pathname.endsWith('.css')||u.pathname.endsWith('.js')}).then(m=>m||(r.mode==='navigate'?caches.match(u.pathname.startsWith('${BASE}en/')?OFF_EN:u.pathname.startsWith('${BASE}es/')?OFF_ES:u.pathname.startsWith('${BASE}sr/')?OFF_SR:u.pathname.startsWith('${BASE}tr/')?OFF_TR:OFF):Response.error()))));});
-`);
+${ACC_API ? `// προσωπικές ειδοποιήσεις Fantasy (workers/account): το push δεν έχει περιεχόμενο· το κείμενο έρχεται από /push/pending
+self.addEventListener('push',e=>{e.waitUntil(self.registration.pushManager.getSubscription().then(s=>s?fetch('${ACC_API}/push/pending?ep='+encodeURIComponent(s.endpoint)).then(r=>r.json()):{items:[]}).catch(()=>({items:[]})).then(j=>{const it=(j.items||[]);if(!it.length)return self.registration.showNotification('BasketballStats Fantasy',{body:'🏀',icon:'${BASE}icon-192.png',data:{url:'${BASE}fantasy/manager/'}});return Promise.all(it.slice(0,3).map((x,i)=>self.registration.showNotification('BasketballStats Fantasy',{body:x.text,icon:'${BASE}icon-192.png',badge:'${BASE}icon-192.png',tag:'bsfx'+i,data:{url:x.url||'${BASE}fantasy/manager/'}})));}));});
+self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow(e.notification.data&&e.notification.data.url||'${BASE}'));});
+` : ''}`);
   const pwaStyle = `<style>.only-install{display:none}.can-install .only-install{display:inline-flex}
 .appbox{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:18px 0}
 .appbox>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
@@ -1426,10 +1432,23 @@ ${pwaStyle}`;
     const topband = shellB.slice(0, shellB.indexOf('\n<div id="v'));
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
     const LNAME = { el: ['ΕΛ', 'Ελληνικά'], en: ['EN', 'English'], es: ['ES', 'Español'], sr: ['SR', 'Srpski'], tr: ['TR', 'Türkçe'] };
-    const langSw = alts => `<span class="langs">${OTHERS.map(o => `<a class="langsw" href="${alts[o] || B(o)}" hreflang="${o}" lang="${o}" title="${LNAME[o][1]}">${LNAME[o][0]}</a>`).join('')}</span>`;
+    // λογαριασμός χρήστη (workers/account): κουμπί «Σύνδεση» δίπλα στις γλώσσες, μόνο όταν έχει γίνει deploy (site.config.json → account.api)
+    const ACCJ = ACC_API ? `<script type="application/json" id="acctx">${JSON.stringify({ api: ACC_API, lg: LG, legal: urlFor(LG, 'legal'), manager: urlFor(LG, 'fx:manager'), assistant: urlFor(LG, 'fx:assistant') })}</script><script type="module" src="${BASE}assets/account/account.js?v=${ver}"></script>` : '';
+    const langSw = alts => `<span class="langs">${OTHERS.map(o => `<a class="langsw" href="${alts[o] || B(o)}" hreflang="${o}" lang="${o}" title="${LNAME[o][1]}">${LNAME[o][0]}</a>`).join('')}</span>${ACCJ}`;
     const script = `<script src="${BASE}assets/${LG === 'el' ? 'app.js' : 'app.' + LG + '.js'}?v=${ver}" defer></script>`;
     // εργαλεία: ποιες σελίδες υπάρχουν σε αυτό το build, οικογένειες με καρτέλες, κατάλογος (src/tools.mjs)
     const HAS = { fx: !!FXD?.players?.length, mc: !!MPRED?.games?.length, ana: !!AN.E, ref: REFROWS.length > 0, daytip: !!(DAYT.day || Object.keys(DAYT.hist).length), hist: Object.values(data.hist || {}).some(h => h.rows?.length), transfers: TRF.length > 0 };
+    const ACCLEGAL = () => `<h2>${esc(T('Λογαριασμός χρήστη (προαιρετικός)', 'User account (optional)', 'Cuenta de usuario (opcional)', 'Korisnički nalog (opcionalno)', 'Kullanıcı hesabı (isteğe bağlı)'))}</h2><p>${esc(T(
+      'Αν συνδεθείτε με Google ή Facebook, κρατάμε μόνο: το αναγνωριστικό του λογαριασμού σας στον πάροχο, το όνομά σας, το email σας (αν το δώσει ο πάροχος), την ομάδα Fantasy που αποθηκεύετε, τις ρυθμίσεις ειδοποιήσεων και, αν τα ενεργοποιήσετε, το αναγνωριστικό συνομιλίας Telegram και τη διεύθυνση ειδοποιήσεων του browser σας. Δεν κρατάμε κωδικούς και δεν έχουμε πρόσβαση στον λογαριασμό σας στο EuroLeague Fantasy. Τα δεδομένα αποθηκεύονται στην Cloudflare και χρησιμοποιούνται μόνο για να σας στέλνουμε τις ειδοποιήσεις που επιλέξατε. Δεν τα πουλάμε και δεν τα δίνουμε σε τρίτους.',
+      'If you sign in with Google or Facebook, we keep only: your account identifier at the provider, your name, your email (if the provider shares it), the Fantasy team you save, your alert settings and, if you turn them on, your Telegram chat id and your browser’s push address. We keep no passwords and have no access to your EuroLeague Fantasy account. The data is stored with Cloudflare and used only to send you the alerts you chose. We do not sell or share it.',
+      'Si entras con Google o Facebook, guardamos solo: el identificador de tu cuenta en el proveedor, tu nombre, tu email (si el proveedor lo comparte), el equipo Fantasy que guardas, tus ajustes de avisos y, si los activas, tu id de chat de Telegram y la dirección de avisos de tu navegador. No guardamos contraseñas ni accedemos a tu cuenta de EuroLeague Fantasy. Los datos se almacenan en Cloudflare y solo se usan para enviarte los avisos que elegiste. No los vendemos ni los compartimos.',
+      'Ako se prijaviš preko Google-a ili Facebook-a, čuvamo samo: identifikator tvog naloga kod provajdera, ime, email (ako ga provajder deli), Fantasy tim koji sačuvaš, podešavanja obaveštenja i, ako ih uključiš, ID Telegram četa i adresu obaveštenja pregledača. Ne čuvamo lozinke i nemamo pristup tvom EuroLeague Fantasy nalogu. Podaci se čuvaju na Cloudflare-u i koriste samo za obaveštenja koja si izabrao. Ne prodajemo ih i ne delimo.',
+      'Google veya Facebook ile giriş yaparsan yalnızca şunları saklarız: sağlayıcıdaki hesap kimliğin, adın, e-postan (sağlayıcı paylaşırsa), kaydettiğin Fantasy takımı, bildirim ayarların ve açarsan Telegram sohbet kimliğin ile tarayıcı bildirim adresin. Şifre saklamayız ve EuroLeague Fantasy hesabına erişimimiz yoktur. Veriler Cloudflare’de tutulur ve yalnızca seçtiğin bildirimleri göndermek için kullanılır. Satmayız ve paylaşmayız.'))}</p><p id="delete-data"><b>${esc(T('Διαγραφή δεδομένων:', 'Deleting your data:', 'Eliminar tus datos:', 'Brisanje podataka:', 'Verilerini silme:'))}</b> ${esc(T(
+      'πατήστε «👤» πάνω δεξιά → «Διαγραφή λογαριασμού». Όλα τα δεδομένα του λογαριασμού διαγράφονται αμέσως. Αν δεν έχετε πια πρόσβαση, γράψτε μας και θα τα διαγράψουμε εμείς. Για το Telegram, η εντολή /stop στο bot σταματά τα μηνύματα.',
+      'tap “👤” at the top right → “Delete account”. All account data is deleted immediately. If you no longer have access, write to us and we will delete it. On Telegram, sending /stop to the bot stops the messages.',
+      'pulsa «👤» arriba a la derecha → «Eliminar cuenta». Todos los datos se borran al instante. Si ya no tienes acceso, escríbenos y los borraremos. En Telegram, /stop al bot detiene los mensajes.',
+      'pritisni „👤” gore desno → „Obriši nalog”. Svi podaci se odmah brišu. Ako više nemaš pristup, piši nam i obrisaćemo ih. Na Telegramu, /stop botu zaustavlja poruke.',
+      'sağ üstte “👤” → “Hesabı sil”. Tüm hesap verileri hemen silinir. Artık erişimin yoksa bize yaz, silelim. Telegram’da bota /stop yazmak mesajları durdurur.'))}</p>`;
     const uL = k => urlFor(LG, k), FAMS = TOOLS.families(T, uL, HAS);
     const bodyAttrs = (view, id) => `data-view="${view}"${id ? ` data-id="${esc(id)}"` : ''} data-base="${BL}" data-root="${BASE}"`;
 
@@ -1472,6 +1491,8 @@ ${gaHead(LG, urlFor(LG, 'legal'))}${adHead}${pwaHead(LG)}</head>`;
       if (LG === 'es') html = esEuroliga(html);
       // αποτύπωμα του περιεχομένου (χωρίς υποσέλιδο, scripts και cache-busters) για το lastmod του sitemap
       PAGE_HASH.set(SITE_URL + url, createHash('sha1').update(html.replace(/<footer[\s\S]*?<\/footer>/g, '').replace(/<script\b(?![^>]*ld\+json)[\s\S]*?<\/script>/g, '').replace(/\?v=[\w.-]+/g, '')).digest('base64url').slice(0, 16));
+      // πολιτική απορρήτου: ενότητα για τους λογαριασμούς (μόνο όταν είναι ενεργοί)
+      if (ACC_API && url === urlFor(LG, 'legal')) { const k = html.indexOf('</p>', html.indexOf('<h2>', html.indexOf('class="legal"'))); if (k > 0) html = html.slice(0, k + 4) + ACCLEGAL() + html.slice(k + 4); }
       // καρτέλες οικογένειας (π.χ. Προγνωστικά · Tipsters · Παρολί · Αποδόσεις): κάτω από το μενού του Fantasy ή στην αρχή της σελίδας
       const ft = TOOLS.familyTabs(FAMS, url, esc);
       if (ft) { const fn = html.indexOf('<p class="leadnav fxnav">'); let k = fn > -1 ? html.indexOf('</p>', fn) + 4 : -1; if (k < 0) { const m = html.indexOf('<main class="wrap'); k = m > -1 ? html.indexOf('>', m) + 1 : -1; } if (k > 0) html = html.slice(0, k) + ft + html.slice(k); }
@@ -2602,7 +2623,10 @@ ${notes}</article>`;
         const api = path.join(OUT, 'api', 'fantasy');
         for (const d of ['players', 'projections', 'optimizer', 'round-planner', 'player']) await fs.mkdir(path.join(api, d), { recursive: true });
         const pub = FXP.map(x => ({ ...x, dn: dn(x.c), s: pBy[x.c].s }));
-        const meta = { round: FXD.round, generated: FXD.generated, model: FXD.model, days: FXD.days, disclaimer: 'Projections are statistical estimates and do not guarantee performance.' };
+        // προθεσμία αλλαγών = πρώτο τζάμπολ της αγωνιστικής (για τις ειδοποιήσεις λογαριασμού, workers/account)
+        const yrD = +SEASON.slice(1), isoD = e => { const dg = +e[8], y = Math.floor(yrD / 10) * 10 + dg + (dg < yrD % 10 ? 10 : 0); return `${y}-${e.slice(0, 2)}-${e.slice(2, 4)}T${e.slice(4, 6)}:${e.slice(6, 8)}:00Z`; };
+        const deadlineD = league.games.filter(g => g[0] === FXD.round).map(g => isoD(g[1])).sort()[0] || null;
+        const meta = { round: FXD.round, generated: FXD.generated, model: FXD.model, days: FXD.days, deadline: deadlineD, disclaimer: 'Projections are statistical estimates and do not guarantee performance.' };
         const wj = (f, o) => fs.writeFile(path.join(api, f), JSON.stringify(o));
         await wj(`players/r${FXD.round}.json`, { ...meta, players: pub.map(x => ({ c: x.c, dn: x.dn, s: x.s, t: x.t, pos: x.pos, price: x.price, status: x.status, l5: x.l5, l10: x.l10, pirpm: x.pirpm })) });
         await wj('players/latest.json', { ...meta, players: pub.map(x => ({ c: x.c, dn: x.dn, s: x.s, t: x.t, pos: x.pos, price: x.price, status: x.status, l5: x.l5, l10: x.l10, pirpm: x.pirpm })) });
