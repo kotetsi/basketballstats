@@ -1,14 +1,102 @@
 {
   "name": "Sportarena.gr",
   "public": true,
-  "teams": 160,
+  "teams": 163,
   "game": "https://euroleaguefantasy.euroleaguebasketball.net/",
-  "updated": "2026-11-11",
+  "updated": "2026-11-14",
   "note": "Μόνο ονόματα ομάδων, όχι ονόματα μάνατζερ. Round = πόντοι της αγωνιστικής, total = σύνολο μετά από αυτή.",
   "rounds": {
     "10": {
-      "round": [["RED VELVET CAKE", 226.3], ["Red Drops", 222.85], ["ΑΝΤΙΓΟΝΟΥΛΑ", 218.05], ["Nunn Better Andreas", 211.85], ["Red Drops!", 210.65]],
-      "total": [["χασιωω", 1693.05], ["Red Drops", 1681.25], ["ΑΝΤΙΓΟΝΟΥΛΑ", 1670.7], ["Red Drops!", 1599.7], ["ANS", 1595.23]]
+      "round": [
+        [
+          "RED VELVET CAKE",
+          226.3
+        ],
+        [
+          "Red Drops",
+          222.85
+        ],
+        [
+          "ΑΝΤΙΓΟΝΟΥΛΑ",
+          218.05
+        ],
+        [
+          "Nunn Better Andreas",
+          211.85
+        ],
+        [
+          "Red Drops!",
+          210.65
+        ]
+      ],
+      "total": [
+        [
+          "χασιωω",
+          1693.05
+        ],
+        [
+          "Red Drops",
+          1681.25
+        ],
+        [
+          "ΑΝΤΙΓΟΝΟΥΛΑ",
+          1670.7
+        ],
+        [
+          "Red Drops!",
+          1599.7
+        ],
+        [
+          "ANS",
+          1595.23
+        ]
+      ]
+    },
+    "11": {
+      "round": [
+        [
+          "reds and whites",
+          220.25
+        ],
+        [
+          "rounti4",
+          219.65
+        ],
+        [
+          "Back2Back",
+          210.85
+        ],
+        [
+          "Zelico is your dad 13",
+          210.2
+        ],
+        [
+          "E.D.E.M 7",
+          205.15
+        ]
+      ],
+      "total": [
+        [
+          "χασιωω",
+          1878.75
+        ],
+        [
+          "Red Drops",
+          1859.55
+        ],
+        [
+          "ΑΝΤΙΓΟΝΟΥΛΑ",
+          1852.15
+        ],
+        [
+          "rounti4",
+          1814.35
+        ],
+        [
+          "reds and whites",
+          1814.3
+        ]
+      ]
     }
   }
 }
