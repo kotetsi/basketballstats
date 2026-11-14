@@ -951,6 +951,15 @@ async function main() {
   const TRF = await loadTransfers(players);
   // player props: μοντέλο (λεπτά × ρυθμός, με ανακατανομή λεπτών για νέες απουσίες) vs αποδόσεις αδειοδοτημένων bookmakers ανά χώρα
   const PROPSJ = {};
+  // πλαίσιο αγώνα για τα props: προβλεπόμενοι πόντοι κάθε ομάδας στον επόμενο αγώνα της (Game Predictor, data/matchups/latest.json)
+  const PCTX = {};
+  try {
+    const ML = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'matchups', 'latest.json'), 'utf8'));
+    for (const g of (ML.games || []).filter(g => g.comp === 'E').sort((a, b) => a.t.localeCompare(b.t))) {
+      if (PCTX[g.h] == null) PCTX[g.h] = g.hs;
+      if (PCTX[g.a] == null) PCTX[g.a] = g.as;
+    }
+  } catch { }
   {
     const solo = players.filter(p => !p.t.includes(';')), priors = PROPM.leaguePriors(solo), teamGames = {};
     for (const g of league.games.filter(g => g[6])) { (teamGames[g[2]] ||= []).push(g[0]); (teamGames[g[3]] ||= []).push(g[0]); }
@@ -960,7 +969,7 @@ async function main() {
       for (const [gid, G] of Object.entries(OB.latest?.games || {})) {
         const [, r, h, a] = gid.split('-');
         if (new Date(G.t) - now < -3 * 3600e3 || !Object.values(G.books || {}).some(b => b.props?.length)) continue;
-        const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors });
+        const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors, ctx: PCTX });
         if (R.best.length) games[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
       }
       PROPSJ[jur] = games;
@@ -993,7 +1002,7 @@ async function main() {
     }
     const FXP = Object.fromEntries((FXD?.players || []).map(p => [p.c, p]));
     const posOf = p => FXP[p.c]?.pos || (['Guard', 'Forward', 'Center'].includes(p.pos) ? p.pos : null);
-    const PJ = PROPM.nextProjections(Object.keys(next), { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, priors });
+    const PJ = PROPM.nextProjections(Object.keys(next), { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, priors, ctx: PCTX });
     const DEF = PROPM.defenseVsPos(solo, posOf);
     const row = r => [r[0], r[1], r[2], r[3], r[4] > r[5] ? 1 : 0, r[6], Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[11], r[18], r[20], r[19], r[25], r[4], r[5]];
     const list = solo.filter(p => p.g.some(r => r[7] > 0)).map(p => {

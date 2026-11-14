@@ -26,13 +26,16 @@ export const PARAMS = {
   blend: 0.5,      // τελική πιθανότητα = blend·μοντέλο + (1−blend)·αγορά χωρίς vig (η αγορά ξέρει πράγματα που δεν ξέρουμε)
   share: 0.45,     // ποσοστό των λεπτών μιας νέας απουσίας που πάει στους συμπαίκτες (backtest)
   disp: { pts: 3, reb: 1, ast: 1, fg3: 1.15, pr: 2, pa: 2, pra: 2, ar: 1 },  // υπερδιασπορά (var/mean) για δεδομένα λεπτά
+  // πλαίσιο αγώνα: προβλεπόμενοι πόντοι της ομάδας (Game Predictor) / μέσοι πόντοι της ομάδας στους αγώνες του παίκτη, ^ctxPow.
+  // Backtest 2026-27 (walk-forward προβλέψεις αγώνων): πόντοι MAE 4,30 → 4,29, log-lik −2,996 → −2,994· στα ριμπάουντ χειροτερεύει, γι' αυτό μόνο εδώ.
+  ctxPow: 0.5, ctxStats: ['pts', 'ast', 'fg3', 'pa', 'pra'],
 };
 
 const ew = (xs, half) => { let s = 0, w = 0; xs.forEach((x, i) => { const k = Math.pow(0.5, (xs.length - 1 - i) / half); s += k * x; w += k; }); return w ? s / w : null; };
 
 /** πρόβλεψη για έναν παίκτη: rows = αγώνες που έπαιξε (χρονολογικά), prior = ρυθμός ανά λεπτό της λίγκας για το stat
  *  minutes: προαιρετικά δοσμένα λεπτά (π.χ. μετά από ανακατανομή λόγω απουσίας) */
-export function project(rows, stat, { prior = 0, minutes = null, P = PARAMS } = {}) {
+export function project(rows, stat, { prior = 0, minutes = null, teamPts = null, P = PARAMS } = {}) {
   const pl = rows.filter(r => r[7] > 0);
   if (pl.length < 3) return null;
   const mins = pl.map(r => r[7] / 60), xs = pl.map(STATS[stat]);
@@ -40,9 +43,14 @@ export function project(rows, stat, { prior = 0, minutes = null, P = PARAMS } = 
   // ρυθμός: σταθμισμένος (με χρόνο και πρόσφατη φόρμα) λόγος, με shrinkage προς τον ρυθμό της λίγκας
   let sx = 0, sm = 0; pl.forEach((r, i) => { const k = Math.pow(0.5, (pl.length - 1 - i) / P.rateHalf); sx += k * xs[i]; sm += k * mins[i]; });
   const rate = (sx + P.prior * prior) / (sm + P.prior);
-  const mu = Math.max(0.05, rate * m);
-  const v = (P.disp[stat] || 1.5) * mu + (rate * P.minSd) ** 2;
-  return { min: m, rate, mu, var: v, n: pl.length, last: xs.slice(-5), lastMin: mins.slice(-5) };
+  let ctx = 1;
+  if (teamPts > 0 && P.ctxPow && (P.ctxStats || []).includes(stat)) {
+    const avg = pl.reduce((q, r) => q + (r[4] || 0), 0) / pl.length;
+    if (avg > 40) ctx = Math.pow(Math.min(1.15, Math.max(0.85, teamPts / avg)), P.ctxPow);
+  }
+  const mu = Math.max(0.05, rate * m * ctx);
+  const v = ((P.disp[stat] || 1.5) * mu + (rate * P.minSd) ** 2) * ctx;
+  return { min: m, rate, mu, var: v, ctx, n: pl.length, last: xs.slice(-5), lastMin: mins.slice(-5) };
 }
 
 // αρνητική διωνυμική (mean μ, variance v > μ)· Poisson όταν v ≤ μ
@@ -156,14 +164,14 @@ function teamRoster(t, { players, FX, inj, teamGames }) {
 /** Prop Analyzer: πρόβλεψη (μέση τιμή, διασπορά) για κάθε stat και κάθε παίκτη των ομάδων που παίζουν,
  *  με τα ίδια λεπτά (και ανακατανομή για απουσίες) που χρησιμοποιεί και η σελίδα value.
  *  Επιστρέφει { [code]: { t, st, out, min, base, pj: { stat: [mu, var] } } }· out = εκτός (χωρίς πρόβλεψη) */
-export function nextProjections(teams, { players, fx = [], inj = {}, teamGames = {}, priors }) {
+export function nextProjections(teams, { players, fx = [], inj = {}, teamGames = {}, priors, ctx = {} }) {
   const FX = Object.fromEntries(fx.map(p => [p.c, p])), out = {};
   for (const t of teams) {
     const { roster, M } = teamRoster(t, { players, FX, inj, teamGames });
     for (const p of roster) {
       if (!p.pl.length) continue;
       const min = p.isOut ? 0 : M[p.c], pj = {};
-      if (!p.isOut && min > 0 && p.pl.length >= 3) for (const s of Object.keys(STATS)) { const pr = project(p.pl, s, { prior: priors[s], minutes: min }); if (pr) pj[s] = [+pr.mu.toFixed(3), +pr.var.toFixed(3)]; }
+      if (!p.isOut && min > 0 && p.pl.length >= 3) for (const s of Object.keys(STATS)) { const pr = project(p.pl, s, { prior: priors[s], minutes: min, teamPts: ctx[t] }); if (pr) pj[s] = [+pr.mu.toFixed(3), +pr.var.toFixed(3)]; }
       out[p.c] = { t, st: p.st, out: p.isOut, min: +(min || 0).toFixed(1), base: +(p.min || 0).toFixed(1), pj };
     }
   }
@@ -208,7 +216,7 @@ export function hitRate(values, line) {
 /** value στα player props ενός αγώνα.
  *  game: { gid, h, a, books: latest.games[gid].books }, players: data/cache.json players, fx: fantasy players (status, pos),
  *  inj: { [code]: {m:1|0} }, teamGames: { [team]: [rounds που έχει παίξει η ομάδα] }, jur: χώρα αδειοδότησης */
-export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGames = {}, jur, priors, minEv = 0.08 }) {
+export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGames = {}, jur, priors, minEv = 0.08, ctx = {} }) {
   const FX = Object.fromEntries(fx.map(p => [p.c, p]));
   const teams = {}, absences = [];
   for (const t of [h, a]) {
@@ -223,7 +231,7 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
       for (const tt of [h, a]) { p = matchPlayer(x.name, teams[tt].roster); if (p) { t = tt; break; } }
       if (!p || p.isOut || p.pl.length < 3) continue;
       const min = teams[t].M[p.c]; if (!(min > 0)) continue;
-      const pr = project(p.pl, x.stat, { prior: priors[x.stat], minutes: min }); if (!pr) continue;
+      const pr = project(p.pl, x.stat, { prior: priors[x.stat], minutes: min, teamPts: ctx[t] }); if (!pr) continue;
       const po = pOver(pr.mu, pr.var, x.line), nv = noVig(x.over, x.under);
       const row = { c: p.c, n: p.n, t, stat: x.stat, line: x.line, book: bk, title: B.title, over: x.over || null, under: x.under || null,
         p: +po.toFixed(4), mkt: nv ? +nv.over.toFixed(4) : null, mu: +pr.mu.toFixed(2), sd: +Math.sqrt(pr.var).toFixed(2), min: +min.toFixed(1), base: +p.min.toFixed(1),

@@ -40,6 +40,25 @@ def unavailable_set():
                 s.add(row[0].strip())
     except Exception:
         pass
+    # λίστα τραυματιών του site (traumaties.md): σίγουρες απουσίες (όχι οι αμφίβολοι με «?»), μέχρι την ημερομηνία επιστροφής
+    try:
+        import unicodedata
+        norm = lambda x: ''.join(c for c in unicodedata.normalize('NFD', x) if unicodedata.category(c) != 'Mn').upper().strip()
+        C = json.loads((ROOT / 'data' / 'cache.json').read_text())
+        roster = [(p['c'], norm(p['n'].split(',')[0]), p['t'].split(';')[-1]) for p in C.get('players', [])]
+        today = datetime.now(timezone.utc).date().isoformat()
+        for line in (ROOT / 'traumaties.md').read_text().splitlines():
+            parts = [x.strip() for x in line.split('|')]
+            if len(parts) < 4 or not parts[0][:4].isdigit():
+                continue
+            ret = parts[3].lstrip('!')
+            if ret.startswith('?') or (ret not in ('-', '') and ret < today[:len(ret)]):
+                continue
+            ids = [c for c, ln, t in roster if ln == norm(parts[1]) and t == parts[2]]
+            if len(ids) == 1:
+                s.add(ids[0])
+    except Exception:
+        pass
     return s
 
 

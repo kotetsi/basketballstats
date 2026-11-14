@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from features import SK, I, possessions, rates, Game, build_dataset, TeamState, absent_share  # noqa: E402
+from features import SK, I, possessions, rates, Game, build_dataset, TeamState, absent_share, ridge_fit  # noqa: E402
 from model import log_loss, brier, accuracy, calibration_table, ece, mae, rmse, confidence, Predictor  # noqa: E402
 
 
@@ -105,3 +105,13 @@ class Features(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class Ridge(unittest.TestCase):
+    def test_ratings_and_prior(self):
+        res = [('A', 'B', 90, 70, False), ('B', 'C', 80, 80, False), ('C', 'A', 70, 90, False), ('A', 'C', 88, 72, False)]
+        mu, R = ridge_fit(res)
+        self.assertGreater(R['A'][0] - R['A'][1], R['C'][0] - R['C'][1])   # η A είναι η καλύτερη
+        self.assertAlmostEqual(sum(o for o, d in R.values()), 0, places=6)
+        mu2, _ = ridge_fit([], prior={'A': (4.0, -2.0)}, mu_prior=82.0)
+        self.assertAlmostEqual(mu2, 82.0)

@@ -98,3 +98,12 @@ test('value αγώνα: απουσία ανεβάζει τα λεπτά του �
   const R0 = gameProps({ h: 'PAN', a: 'BAR', books }, { players, fx: fx.map(x => ({ ...x, status: 'playing' })), inj: {}, teamGames, jur: 'gr', priors: leaguePriors(players) });
   assert.ok(R0.best.find(b => b.c === 'P2' && b.side === 'over').ev < bz.ev);
 });
+
+test('πλαίσιο αγώνα: περισσότεροι προβλεπόμενοι πόντοι ομάδας → πιο ψηλά οι πόντοι, όχι τα ριμπάουντ', () => {
+  const row = (r, pts, reb) => { const x = Array(26).fill(0); x[0] = r; x[4] = 80; x[7] = 1500; x[8] = pts; x[15] = 1; x[16] = reb - 1; return x; };
+  const rows = [row(1, 12, 5), row(2, 14, 6), row(3, 10, 4), row(4, 12, 5)];
+  const b = project(rows, 'pts', { prior: 0.4 }), up = project(rows, 'pts', { prior: 0.4, teamPts: 90 }), dn = project(rows, 'pts', { prior: 0.4, teamPts: 70 });
+  assert.ok(up.mu > b.mu && dn.mu < b.mu);
+  assert.ok(up.mu / b.mu <= Math.sqrt(1.15) + 1e-9);   // όριο ±15% στον λόγο
+  assert.equal(project(rows, 'reb', { prior: 0.2, teamPts: 90 }).mu, project(rows, 'reb', { prior: 0.2 }).mu);
+});

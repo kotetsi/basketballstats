@@ -18,6 +18,9 @@ I = {k: i for i, k in enumerate(SK)}
 HALF_LIFE = 8        # αγώνες: ημιζωή της εκθετικής στάθμισης
 PRIOR_GAMES = 6      # πόσους «αγώνες» αξίζει η προηγούμενη σεζόν στην αρχή της νέας
 ELO_K, ELO_HOME, ELO_CARRY = 20.0, 60.0, 0.75
+# Ridge ratings επίθεσης/άμυνας με διόρθωση για τον αντίπαλο (πόντοι = μ + έδρα/2 + επίθεση + άμυνα αντιπάλου).
+# Prior: RIDGE_REG × τα τελικά ratings της προηγούμενης σεζόν, με βάρος RIDGE_LAM «αγώνων». Ελεγμένο σε 3 σεζόν EuroLeague.
+RIDGE_REG, RIDGE_LAM, RIDGE_HOME = 0.75, 8.0, 3.0
 
 
 # ---------- βασικοί δείκτες
@@ -217,6 +220,35 @@ def matchup_row(H: TeamState, A: TeamState, fH: dict, fA: dict, elo: Elo, h: str
     return row
 
 
+def ridge_fit(results, prior=None, mu_prior=None):
+    """results: [(h, a, hs, as, neutral)]. Επιστρέφει (μ, {ομάδα: (o, d)})."""
+    import numpy as np
+    teams = sorted({t for r in results for t in r[:2]} | set(prior or {}))
+    if not teams:
+        return mu_prior or 80.0, {}
+    ix = {t: i for i, t in enumerate(teams)}
+    n = len(teams)
+    pts = [x for r in results for x in r[2:4]]
+    mu0 = mu_prior if mu_prior is not None else (sum(pts) / len(pts) if pts else 80.0)
+    mu = (sum(pts) + 20 * mu0) / (len(pts) + 20) if pts else mu0
+    A, y = [], []
+    for h, a, hs, as_, neu in results:
+        ha = 0.0 if neu else RIDGE_HOME / 2
+        r1 = np.zeros(2 * n); r1[ix[h]] = 1; r1[n + ix[a]] = 1
+        r2 = np.zeros(2 * n); r2[ix[a]] = 1; r2[n + ix[h]] = 1
+        A += [r1, r2]; y += [hs - mu - ha, as_ - mu + ha]
+    w = math.sqrt(RIDGE_LAM)
+    for t in teams:
+        po, pd = (prior or {}).get(t, (0.0, 0.0))
+        r = np.zeros(2 * n); r[ix[t]] = w; A.append(r); y.append(w * RIDGE_REG * po)
+        r = np.zeros(2 * n); r[n + ix[t]] = w; A.append(r); y.append(w * RIDGE_REG * pd)
+    # άθροισμα μηδέν (επίθεση και άμυνα) ώστε το μ να είναι ο μέσος όρος
+    for off in (0, n):
+        r = np.zeros(2 * n); r[off:off + n] = 10; A.append(r); y.append(0.0)
+    x = np.linalg.lstsq(np.array(A), np.array(y), rcond=None)[0]
+    return mu, {t: (float(x[ix[t]]), float(x[n + ix[t]])) for t in teams}
+
+
 def absent_share(T: TeamState, played_now: set | None, unavailable: set | None = None) -> float:
     """Ποσοστό των πρόσφατων λεπτών της ομάδας που λείπουν σε αυτόν τον αγώνα."""
     rm = T.recent_minutes()
@@ -238,6 +270,9 @@ class Builder:
         self.elo = {'E': Elo(), 'U': Elo()}
         self.season_of = {}
         self.last_season = {}
+        self.results = defaultdict(list)     # σεζόν → [(h, a, hs, as, neutral)]
+        self.ridge_prior = {}                # σεζόν → (μ, ratings) της προηγούμενης σεζόν
+        self._ridge_cache = {}
 
     def state(self, season, team):
         k = (season, team)
@@ -279,7 +314,10 @@ class Builder:
         comp = season[0]
         if self.season_of.get(comp) != season:
             if comp in self.season_of:
-                self.last_season_map(comp, self.season_of[comp])
+                prev = self.season_of[comp]
+                self.last_season_map(comp, prev)
+                pm, pr = ridge_fit(self.results[prev], self.ridge_prior.get(prev, (None, None))[1], self.ridge_prior.get(prev, (None, None))[0])
+                self.ridge_prior[season] = (pm, pr)
                 self.elo[comp].new_season()
             self.season_of[comp] = season
 
@@ -296,7 +334,18 @@ class Builder:
         sos = self.sos(season)
         absH = absent_share(H, played_h, unavailable)
         absA = absent_share(A, played_a, unavailable)
-        return matchup_row(H, A, fH, fA, self.elo[season[0]], h, a, d, sos, absH, absA, neutral)
+        row = matchup_row(H, A, fH, fA, self.elo[season[0]], h, a, d, sos, absH, absA, neutral)
+        key = (season, len(self.results[season]))
+        if key not in self._ridge_cache:
+            pm, pr = self.ridge_prior.get(season, (None, None))
+            self._ridge_cache[key] = ridge_fit(self.results[season], pr, pm)
+        mu, R = self._ridge_cache[key]
+        oh, dh = R.get(h, (0.0, 0.0))
+        oa, da = R.get(a, (0.0, 0.0))
+        row['x_rmargin'] = (0.0 if neutral else RIDGE_HOME) + oh + da - oa - dh
+        row['x_rtotal'] = 2 * mu + oh + da + oa + dh
+        row['h_ro'], row['h_rd'], row['a_ro'], row['a_rd'] = oh, dh, oa, da
+        return row
 
     def add_result(self, g: Game):
         H, A = self.state(g.season, g.h), self.state(g.season, g.a)
@@ -308,6 +357,7 @@ class Builder:
             for pid in set(T.mins) | set(pl):
                 T.mins[pid].append(pl.get(pid, 0.0))
         self.elo[g.season[0]].update(g.h, g.a, g.hs - g.as_)
+        self.results[g.season].append((g.h, g.a, g.hs, g.as_, g.ph == 'FF'))
 
 
 def build_dataset(games: list[Game]):
