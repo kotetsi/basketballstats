@@ -9,6 +9,7 @@ const player = form.querySelector('select');
 const slots = root.querySelector('ol');
 const status = root.querySelector('[role="status"]');
 const reveal = root.querySelector('[data-reveal]');
+const source = root.querySelector('[data-source]');
 let timer;
 let deadline;
 let game;
@@ -24,6 +25,7 @@ function reset() {
   form.hidden = true;
   reveal.hidden = true;
   clock.hidden = true;
+  source.hidden = true;
   slots.replaceChildren();
   status.textContent = '';
 }
@@ -31,7 +33,7 @@ function reset() {
 function listMatches() {
   reset();
   match.replaceChildren(...games.filter(game => game.team === team.value).map(game =>
-    option(game.id, game.date + ' · ' + game.opponent)));
+    option(game.id, game.year + ' · ' + game.opponent + ' · ' + game.score)));
 }
 
 function finish() {
@@ -39,6 +41,8 @@ function finish() {
   form.hidden = true;
   reveal.hidden = true;
   status.textContent = labels.score + ' ' + found.size + '/5';
+  source.href = game.source;
+  source.hidden = false;
   const missed = game.roster.filter(p => p.start && !found.has(p.name));
   missed.forEach((p, index) => { slots.children[found.size + index].textContent = p.name + ' · ' + labels.missed; });
   start.focus();

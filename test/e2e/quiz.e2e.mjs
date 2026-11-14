@@ -37,7 +37,8 @@ try {
     Object.defineProperty(navigator, 'share', { value: async payload => { window.lastShare = payload; } });
   });
   await page.goto(origin + '/en/');
-  await page.locator('nav [data-v="quiz"]').click();
+  await page.locator('nav [data-v="tools"]').click();
+  await page.locator('main a[href="/en/quiz/"]').first().click();
   assert.equal(new URL(page.url()).pathname, '/en/quiz/');
   await page.getByRole('button', { name: 'Medium', exact: true }).click();
   const buttons = page.locator('.quiz-options button');
@@ -89,7 +90,7 @@ try {
   const match = await page.locator('[name="match"]').inputValue();
   const { games } = JSON.parse(await page.locator('#five-data').textContent());
   const lineup = games.find(game => game.id === match).roster;
-  assert.match(await page.locator('#five-game time').textContent(), /^4:00|3:59$/);
+  assert.match(await page.locator('#five-game time').textContent(), /^(4:00|3:59)$/);
   const selector = page.locator('#five-game form select');
   await selector.selectOption(lineup.find(p => !p.start).name);
   await page.getByRole('button', { name: 'Guess', exact: true }).click();

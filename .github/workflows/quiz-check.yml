@@ -6,6 +6,7 @@ on:
     paths:
       - 'build.mjs'
       - 'src/quiz/**'
+      - 'data/quiz-champions.json'
       - 'src/compare/metrics.mjs'
       - 'test/five.test.mjs'
       - 'test/quiz.test.mjs'

@@ -38,7 +38,6 @@ import { describe as shDescribe } from './src/shots/zones.mjs';
 import { miniHeat } from './src/shots/court.mjs';
 import * as CB from './src/compare/build-compare.mjs';
 import * as CT from './src/compare/teams.mjs';
-import { startingFives } from './src/quiz/five.mjs';
 import { buildQuizPool } from './src/quiz/questions.mjs';
 import { quizLabels, renderQuiz } from './src/quiz/render.mjs';
 import * as CM from './src/compare/metrics.mjs';
@@ -1046,7 +1045,7 @@ async function main() {
     es: { updated: UPD.es, articles: artList('es'), tips: pendingTips('es'), inj: INJ.es, injL: INJL.es, ui: { ...UI.es, calBase: BASE + 'es/' + 'cal/', cmpUrl: BASE + 'es/' + PATHS.es.compare + '/', modelUrl: BASE + 'es/' + PATHS.es.model + '/' } },
     sr: { updated: UPD.sr, articles: artList('sr'), tips: pendingTips('sr'), inj: INJ.sr, injL: INJL.sr, ui: { ...UI.sr, calBase: BASE + 'sr/' + 'cal/', cmpUrl: BASE + 'sr/' + PATHS.sr.compare + '/', modelUrl: BASE + 'sr/' + PATHS.sr.model + '/' } },
     tr: { updated: UPD.tr, articles: artList('tr'), tips: pendingTips('tr'), inj: INJ.tr, injL: INJL.tr, ui: { ...UI.tr, calBase: BASE + 'tr/' + 'cal/', cmpUrl: BASE + 'tr/' + PATHS.tr.compare + '/', modelUrl: BASE + 'tr/' + PATHS.tr.model + '/' } } }));
-  const fiveGames = startingFives(players, league.games, niceName);
+  const fiveGames = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'quiz-champions.json'), 'utf8'));
   const quizPool = buildQuizPool(players, niceName);
   await fs.mkdir(path.join(OUT, 'assets', 'quiz'), { recursive: true });
   for (const file of ['questions.mjs', 'quiz.js', 'quiz.css', 'five.js', 'five.css']) {
@@ -3914,7 +3913,7 @@ ${shCfg({ kind: 'team', api: `${BASE}api/${cp === 'U' ? 'eurocup/' : ''}teams/${
 
     {
       const title = T('Βρες την πεντάδα', 'Guess the Starting Five', 'Adivina el quinteto titular', 'Pogodi startnu petorku', 'İlk beşi tahmin et');
-      const desc = T('Διάλεξε ομάδα και αγώνα της EuroLeague. Βρες τους πέντε βασικούς σε τέσσερα λεπτά.', 'Pick a EuroLeague team and game. Find all five starters in four minutes.', 'Elige equipo y partido de la Euroliga. Adivina los cinco titulares en cuatro minutos.', 'Izaberi tim i utakmicu Evrolige. Pogodi pet startera za četiri minuta.', 'EuroLeague takımı ve maç seç. Dört dakikada ilk beşi bul.');
+      const desc = T('Διάλεξε πρωταθλήτρια της EuroLeague από το 2001 και βρες τους πέντε βασικούς του αγώνα που της έδωσε τον τίτλο σε τέσσερα λεπτά.', 'Pick a EuroLeague champion since 2001 and find the five starters from its title-clinching game in four minutes.', 'Elige un campeón de la Euroliga desde 2001 y adivina los cinco titulares del partido decisivo en cuatro minutos.', 'Izaberi prvaka Evrolige od 2001. i pogodi pet startera iz odlučujuće utakmice za četiri minuta.', '2001’den beri bir EuroLeague şampiyonu seç ve şampiyonluk maçındaki ilk beşi dört dakikada bul.');
       const labels = {
         choose: T('Διάλεξε παίκτη', 'Choose a player', 'Elige jugador', 'Izaberi igrača', 'Oyuncu seç'),
         wrong: T('Αναπληρωματικός:', 'Bench:', 'Suplente:', 'Rezerva:', 'Yedek:'),
@@ -3922,7 +3921,11 @@ ${shCfg({ kind: 'team', api: `${BASE}api/${cp === 'U' ? 'eurocup/' : ''}teams/${
         missed: T('Αποκάλυψη', 'Revealed', 'Revelado', 'Otkriveno', 'Açıklandı'),
         empty: T('Δεν υπάρχουν διαθέσιμες πεντάδες.', 'No lineups are available.', 'No hay quintetos disponibles.', 'Nema dostupnih petorki.', 'İlk beş verisi yok.'),
       };
-      const games = fiveGames.map((game, id) => ({ ...game, id: String(id), team: tName(game.team), opponent: tName(game.opponent) }));
+      const games = fiveGames.map(({ year, team, teamName, opponent, score, roster, source }) => ({
+        id: String(year), year, team: TEAMS[team] ? tName(team) : teamName, opponent, score, source,
+        roster: roster.map(({ name, start }) => ({ name: niceName(name), start }))
+          .sort((a, b) => a.name.localeCompare(b.name, LG)),
+      }));
       const payload = JSON.stringify({ games, labels }).replace(/</g, '\\u003c');
       await simplePage('five', {
         title: title + ' | ' + SITE_NAME, desc, view: 'quiz',
@@ -3939,6 +3942,7 @@ ${shCfg({ kind: 'team', api: `${BASE}api/${cp === 'U' ? 'eurocup/' : ''}teams/${
 <button type="submit">${T('Έλεγχος', 'Guess', 'Adivinar', 'Pogodi', 'Tahmin et')}</button></form>
 <p role="status"></p>
 <button type="button" data-reveal hidden>${T('Δες την πεντάδα', 'Reveal lineup', 'Ver quinteto', 'Prikaži petorku', 'İlk beşi göster')}</button>
+<p><a data-source hidden>${T('Επίσημα στατιστικά', 'Official box score', 'Estadísticas oficiales', 'Zvanična statistika', 'Resmî istatistikler')}</a></p>
 </section><p><a href="${urlFor(LG, 'quiz')}">${esc(quizLabels(LG).title)} →</a></p></article>
 <script type="application/json" id="five-data">${payload}</script>
 <script type="module" src="${BASE}assets/quiz/five.js?v=${ver}"></script>`,
