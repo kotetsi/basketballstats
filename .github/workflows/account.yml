@@ -64,7 +64,7 @@ jobs:
           node -e 'const fs=require("fs"),f="site.config.json",c=JSON.parse(fs.readFileSync(f));c.account=c.account||{};if(c.account.api===process.env.URL){console.log("ίδια διεύθυνση");process.exit(0)}c.account.api=process.env.URL;fs.writeFileSync(f,JSON.stringify(c,null,2)+"\n");console.log("νέα διεύθυνση",process.env.URL)'
           if ! git diff --quiet site.config.json; then
             git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
-            git add site.config.json && git commit -m "Λογαριασμοί: διεύθυνση worker" && git pull --rebase -q && git push
+            git checkout -- workers/account/wrangler.toml && git add site.config.json && git commit -m "Λογαριασμοί: διεύθυνση worker" && git pull --rebase -q && git push
             gh workflow run update.yml --ref main || true
           fi
         env:

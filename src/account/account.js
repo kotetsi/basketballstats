@@ -136,5 +136,12 @@ btn.addEventListener('click', async () => {
   await render(); dlg.showModal();
 });
 
+// το κουμπί εμφανίζεται μόνο όταν υπάρχει τρόπος σύνδεσης (Google ή Facebook ενεργό στον worker)
+btn.hidden = true;
+(async () => {
+  try { cfg = JSON.parse(sessionStorage.getItem('bsacc-cfg') || 'null'); } catch { }
+  if (!cfg) { try { cfg = await call('/config'); try { sessionStorage.setItem('bsacc-cfg', JSON.stringify(cfg)); } catch { } } catch { return; } }
+  if (cfg.google || cfg.facebook || token) btn.hidden = false;
+})();
 paint();
 if (token) call('/me').then(async m => { me = m; paint(); await sync().catch(() => { }); }).catch(() => { });

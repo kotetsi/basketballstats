@@ -37,7 +37,7 @@
     }
   },
   "account": {
-    "api": "",
+    "api": "https://bs-account.ntsiblakos.workers.dev",
     "googleClientId": ""
   }
 }
