@@ -768,7 +768,7 @@ else if(VIEW==='preds'){show('preds');renderPreds();}
 else if(VIEW==='stand'){show('stand');renderMyTeam();renderStand();renderOdds();}
 else if(VIEW==='compare'){renderCompare();}
 else if(VIEW==='game'){renderGame(VID);document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v==='preds'));}
-else{document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v===VIEW));}
+else{document.querySelectorAll('.nav a').forEach(el=>el.classList.toggle('on',el.dataset.v===VIEW||(el.dataset.alt||'').split(' ').includes(VIEW)));}
 pollLive();
 {const n=document.querySelector('.nav'),a=n&&n.querySelector('a.on');if(a&&a.offsetLeft+a.offsetWidth>n.clientWidth)n.scrollLeft=a.offsetLeft-16;}
 })();

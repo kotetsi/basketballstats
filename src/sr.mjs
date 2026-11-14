@@ -35,6 +35,7 @@ export const APP_CODE = [
 
 // ---- κέλυφος σελίδων: διευθύνσεις
 export const SHELL_CODE = [
+  ['{{BASE}}ergaleia/', '{{BASE}}alati/'],
   ['{{BASE}}thermometro/', '{{BASE}}termometar/'],
   ['{{BASE}}prognostika/', '{{BASE}}prognoze/'],
   ['{{BASE}}arthra/', '{{BASE}}clanci/'],
@@ -43,6 +44,7 @@ export const SHELL_CODE = [
 
 // ---- φράσεις (κοινές για app.js και κέλυφος)
 export const PHRASES = {
+  'Όλα τα εργαλεία': 'Svi alati',
   // app.js
   'Τα δεδομένα δεν φόρτωσαν. Δοκιμάστε ανανέωση της σελίδας.': 'Podaci se nisu učitali. Osvežite stranicu.',
   'Σελίδα ομάδας': 'Stranica tima',
