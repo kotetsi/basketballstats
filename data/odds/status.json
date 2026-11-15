@@ -189,13 +189,13 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-15T21:19:52.497Z",
- "lastSuccess": "2026-11-15T21:19:52.497Z",
+ "lastCall": "2026-11-15T21:25:42.497Z",
+ "lastSuccess": "2026-11-15T21:25:42.497Z",
  "events": 0,
  "matched": 0,
  "added": 0,
  "quota": {
-  "used": 137,
+  "used": 139,
   "cap": 240,
   "month": "2026-11"
  },
