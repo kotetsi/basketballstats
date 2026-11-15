@@ -100,6 +100,21 @@ const MW = {
   sr: { none: '{m} je igrao na svim utakmicama igrača {p} ({n}), pa još nema uzorka „bez”. Broj u zagradi pokazuje koliko utakmica je svaki propustio.', model: 'Model već uračunava odsustvo igrača {m} na sledećoj utakmici: projekcija {v}.' },
   tr: { none: '{m}, {p}’in tüm maçlarında oynadı ({n}); bu yüzden henüz “olmadan” örneği yok. Parantezdeki sayı her birinin kaç maç kaçırdığını gösterir.', model: 'Model, {m}’in sonraki maçtaki yokluğunu zaten hesaba katıyor: tahmin {v}.' },
 }[LG] || null;
+const MN = {
+  el: { mins: 'Λεπτά του {p}: {w}′ χωρίς τον {m} ({n} αγ.), {a}′ μαζί του ({k} αγ.).', out: 'Ο {m} είναι ήδη εκτός για τον επόμενο αγώνα, οπότε το μοντέλο έχει ήδη μοιράσει τα λεπτά του: {p} από {b}′ σε {x}′ (κουτί «Μοντέλο»). Το φίλτρο εδώ αλλάζει μόνο ποιους παλιούς αγώνες βλέπεις.', in: 'Το φίλτρο αλλάζει μόνο ποιους παλιούς αγώνες βλέπεις· η εκτίμηση του μοντέλου μένει ίδια όσο ο {m} δηλώνεται διαθέσιμος. Αν βγει εκτός, το μοντέλο θα μοιράσει αυτόματα τα λεπτά του.' },
+  en: { mins: '{p} minutes: {w}′ without {m} ({n} g), {a}′ with him ({k} g).', out: '{m} is already out for the next game, so the model has already redistributed his minutes: {p} from {b}′ to {x}′ (see “Model”). This filter only changes which past games you see.', in: 'This filter only changes which past games you see; the projection stays the same while {m} is listed as available. If he is ruled out, the model redistributes his minutes automatically.' },
+  es: { mins: 'Minutos de {p}: {w}′ sin {m} ({n} p), {a}′ con él ({k} p).', out: '{m} ya es baja para el próximo partido, así que el modelo ya repartió sus minutos: {p} de {b}′ a {x}′ (ver «Modelo»). Este filtro solo cambia qué partidos pasados ves.', in: 'Este filtro solo cambia qué partidos pasados ves; la proyección no cambia mientras {m} esté disponible. Si causa baja, el modelo reparte sus minutos automáticamente.' },
+  sr: { mins: 'Minuti igrača {p}: {w}′ bez {m} ({n} ut.), {a}′ sa njim ({k} ut.).', out: '{m} je već van tima za sledeću utakmicu, pa je model već raspodelio njegove minute: {p} sa {b}′ na {x}′ (vidi „Model”). Ovaj filter menja samo koje prošle utakmice vidiš.', in: 'Ovaj filter menja samo koje prošle utakmice vidiš; projekcija ostaje ista dok je {m} dostupan. Ako bude van tima, model automatski raspodeljuje njegove minute.' },
+  tr: { mins: '{p} süreleri: {m} yokken {w}′ ({n} maç), onunla {a}′ ({k} maç).', out: '{m} sonraki maçta zaten yok; model süresini zaten dağıttı: {p} {b}′ → {x}′ (bkz. “Model”). Bu filtre yalnızca hangi geçmiş maçları gördüğünü değiştirir.', in: 'Bu filtre yalnızca hangi geçmiş maçları gördüğünü değiştirir; {m} müsait göründükçe tahmin değişmez. Kadro dışı kalırsa model süresini otomatik dağıtır.' },
+}[LG] || null;
+function mateNote(p, mate) {
+  if (!MN) return '';
+  const wo = roundsWithout(p, mate), avgMin = gs => (gs.length ? gs.reduce((s, r) => s + r[6], 0) / gs.length : null);
+  const w = p.g.filter(r => wo.has(r[0])), a = p.g.filter(r => !wo.has(r[0]));
+  let t = fill(MN.mins, { p: nm(p), m: nm(mate), w: f1(avgMin(w)), n: w.length, a: f1(avgMin(a)), k: a.length });
+  t += ' ' + (mate.out ? fill(MN.out, { m: nm(mate), p: nm(p), b: f1(p.base), x: f1(p.min) }) : fill(MN.in, { m: nm(mate) }));
+  return `<p class="sub pamate">${esc(t)}</p>`;
+}
 function chartBox(p) {
   const mates = D.players.filter(q => q.t === p.t && q.c !== p.c && q.g.length >= 3).sort((a, b) => b.g.reduce((s, r) => s + r[6], 0) - a.g.reduce((s, r) => s + r[6], 0));
   const seg = (k, opts) => `<div class="seg" data-f="${k}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${String(S[k]) === String(v) ? 'on' : ''}">${esc(l)}</button>`).join('')}</div>`;
@@ -108,7 +123,7 @@ function chartBox(p) {
   const vals = g.map(VAL[S.s]), H = hits(vals, S.line, S.side);
   return `<section class="pachart"><h3>${esc(X.chart)}</h3><div class="pafil">${seg('range', [[5, 'L5'], [10, 'L10'], [20, 'L20'], [0, X.season]])}${seg('venue', [['all', X.all], ['home', X.home], ['away', X.away]])}${seg('role', [['all', X.all], ['start', X.start], ['bench', X.bench]])}
 <select id="paMate" aria-label="${esc(X.without)}"><option value="">${esc(X.without)}</option>${mates.map(q => { const n = roundsWithout(p, q).size; return `<option value="${q.c}"${q.c === S.mate ? ' selected' : ''}${n ? '' : ' disabled'}>${esc(fill(X.withoutN, { n: nm(q) }))} (${n})${q.out ? ' 🚑' : q.st === 'doubtful' ? ' ⚠️' : ''}</option>`; }).join('')}</select></div>
-${mate && !roundsWithout(p, mate).size ? `<p class="sub">${esc(fill((MW || { none: '{m}: 0', model: '' }).none, { p: nm(p), m: nm(mate), n: p.g.length }))}${p.pj?.[S.s] && mate.out ? ' ' + esc(fill((MW || { model: '' }).model, { m: nm(mate), v: f1(p.pj[S.s][0]) })) : ''}</p>` : g.length ? `<p class="sub"><b class="${H.rate >= 0.6 ? 'pos' : H.rate <= 0.4 ? 'neg' : ''}">${S.side === 'over' ? 'Over' : 'Under'} ${S.line}: ${pc(H.rate)}</b> (${esc(fill(X.of, { w: H.win, n: H.n - H.push }))}) · ${esc(X.avg)} ${f1(vals.reduce((a, b) => a + b, 0) / vals.length)} · ${esc(X.med)} ${f1(median(vals))}</p>${svg(g, vals)}` : `<p class="sub">${esc(X.noFilter)}</p>`}</section>`;
+${mate && roundsWithout(p, mate).size ? mateNote(p, mate) : ''}${mate && !roundsWithout(p, mate).size ? `<p class="sub">${esc(fill((MW || { none: '{m}: 0', model: '' }).none, { p: nm(p), m: nm(mate), n: p.g.length }))}${p.pj?.[S.s] && mate.out ? ' ' + esc(fill((MW || { model: '' }).model, { m: nm(mate), v: f1(p.pj[S.s][0]) })) : ''}</p>` : g.length ? `<p class="sub"><b class="${H.rate >= 0.6 ? 'pos' : H.rate <= 0.4 ? 'neg' : ''}">${S.side === 'over' ? 'Over' : 'Under'} ${S.line}: ${pc(H.rate)}</b> (${esc(fill(X.of, { w: H.win, n: H.n - H.push }))}) · ${esc(X.avg)} ${f1(vals.reduce((a, b) => a + b, 0) / vals.length)} · ${esc(X.med)} ${f1(median(vals))}</p>${svg(g, vals)}` : `<p class="sub">${esc(X.noFilter)}</p>`}</section>`;
 }
 function svg(g, vals) {
   const W = 720, Ht = 250, top = 22, bot = 40, left = 8, n = g.length, bw = (W - left * 2) / Math.max(n, 5);
