@@ -2111,3 +2111,15 @@
 {"provider":"oddspapi","event":"E-13-ZAL-PAN","book":"winamax.es","market":"ml","sel":"away","line":null,"price":1.76,"t":"2026-11-14T20:51:04.097Z","seen":"2026-11-15T18:58:58.562Z"}
 {"provider":"oddspapi","event":"E-13-ZAL-PAN","book":"winamax.es","market":"spread","sel":"home","line":1.5,"price":1.8,"t":"2026-11-14T20:51:04.097Z","seen":"2026-11-15T18:58:58.562Z"}
 {"provider":"oddspapi","event":"E-13-ZAL-PAN","book":"winamax.es","market":"spread","sel":"away","line":-1.5,"price":1.78,"t":"2026-11-14T20:51:04.097Z","seen":"2026-11-15T18:58:58.562Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"betano","market":"ml","sel":"home","line":null,"price":1.32,"t":"2026-11-13T21:56:35.615Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"betano","market":"ml","sel":"away","line":null,"price":3.1,"t":"2026-11-13T21:56:35.615Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"betano","market":"spread","sel":"home","line":-6.5,"price":1.82,"t":"2026-11-13T21:56:35.615Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"betano","market":"spread","sel":"away","line":6.5,"price":1.87,"t":"2026-11-13T21:56:35.615Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"stoiximan","market":"ml","sel":"home","line":null,"price":1.32,"t":"2026-11-13T21:56:24.641Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"stoiximan","market":"ml","sel":"away","line":null,"price":3.1,"t":"2026-11-13T21:56:24.641Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"stoiximan","market":"spread","sel":"home","line":-6.5,"price":1.82,"t":"2026-11-13T21:56:24.641Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"stoiximan","market":"spread","sel":"away","line":6.5,"price":1.87,"t":"2026-11-13T21:56:24.641Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"superbet","market":"spread","sel":"home","line":-6.5,"price":1.88,"t":"2026-11-14T23:45:05.990Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"superbet","market":"spread","sel":"away","line":6.5,"price":1.87,"t":"2026-11-14T23:45:05.990Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"superbet.rs","market":"ml","sel":"home","line":null,"price":1.36,"t":"2026-11-13T21:54:55.380Z","seen":"2026-11-15T19:03:31.292Z"}
+{"provider":"oddspapi","event":"E-13-MUN-BAS","book":"superbet.rs","market":"ml","sel":"away","line":null,"price":3.1,"t":"2026-11-13T21:54:55.380Z","seen":"2026-11-15T19:03:31.292Z"}
