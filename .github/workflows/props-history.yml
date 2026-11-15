@@ -1,0 +1,36 @@
+# Ιστορικές αποδόσεις player props για έλεγχο του μοντέλου (χειροκίνητα). Μετρά στο ίδιο μηνιαίο όριο του παρόχου.
+name: Ιστορικό props (αποδόσεις)
+on:
+  workflow_dispatch:
+    inputs:
+      rounds: { description: 'Αγωνιστικές, π.χ. 9,10', required: true, default: '10' }
+      max: { description: 'Μέγιστες κλήσεις', default: '3' }
+      reserve: { description: 'Απόθεμα κλήσεων για τις τρέχουσες αγωνιστικές', default: '70' }
+      probe: { description: 'Δοκιμή: 1 αγώνας με ωμή απάντηση (artifact)', type: boolean, default: true }
+permissions:
+  contents: write
+concurrency: { group: pages, cancel-in-progress: false }
+jobs:
+  hist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/props-history.mjs
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ROUNDS: ${{ inputs.rounds }}
+          MAX: ${{ inputs.max }}
+          RESERVE: ${{ inputs.reserve }}
+          PROBE: ${{ inputs.probe && '1' || '0' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: props-history-raw, path: data/odds/hist/raw-*.json, if-no-files-found: ignore, retention-days: 7 }
+      - name: Αποθήκευση
+        run: |
+          rm -f data/odds/hist/raw-*.json
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add data/odds/hist data/odds/status.json
+          git diff --cached --quiet || (git commit -m "Ιστορικό props: αγωνιστικές ${{ inputs.rounds }}" && for i in 1 2 3; do git push && break; sleep 10; git pull --rebase -q; done)
