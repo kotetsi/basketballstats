@@ -93,6 +93,13 @@ function cards(p) {
 }
 
 // ---------- γράφημα αγώνα προς αγώνα
+const MW = {
+  el: { none: 'Ο {m} έχει παίξει σε όλους τους αγώνες του {p} ({n}), οπότε δεν υπάρχει ακόμα δείγμα «χωρίς». Ο αριθμός σε παρένθεση δείχνει σε πόσους αγώνες έλειπε ο καθένας.', model: 'Το μοντέλο όμως ήδη υπολογίζει την απουσία του {m} στον επόμενο αγώνα: εκτίμηση {v}.' },
+  en: { none: '{m} has played in all of {p}’s games ({n}), so there is no “without” sample yet. The number in brackets shows how many games each one missed.', model: 'The model already accounts for {m}’s absence next game: projection {v}.' },
+  es: { none: '{m} ha jugado todos los partidos de {p} ({n}), así que aún no hay muestra «sin». El número entre paréntesis indica cuántos partidos se perdió cada uno.', model: 'El modelo ya tiene en cuenta la baja de {m} en el próximo partido: estimación {v}.' },
+  sr: { none: '{m} je igrao na svim utakmicama igrača {p} ({n}), pa još nema uzorka „bez”. Broj u zagradi pokazuje koliko utakmica je svaki propustio.', model: 'Model već uračunava odsustvo igrača {m} na sledećoj utakmici: projekcija {v}.' },
+  tr: { none: '{m}, {p}’in tüm maçlarında oynadı ({n}); bu yüzden henüz “olmadan” örneği yok. Parantezdeki sayı her birinin kaç maç kaçırdığını gösterir.', model: 'Model, {m}’in sonraki maçtaki yokluğunu zaten hesaba katıyor: tahmin {v}.' },
+}[LG] || null;
 function chartBox(p) {
   const mates = D.players.filter(q => q.t === p.t && q.c !== p.c && q.g.length >= 3).sort((a, b) => b.g.reduce((s, r) => s + r[6], 0) - a.g.reduce((s, r) => s + r[6], 0));
   const seg = (k, opts) => `<div class="seg" data-f="${k}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${String(S[k]) === String(v) ? 'on' : ''}">${esc(l)}</button>`).join('')}</div>`;
@@ -100,8 +107,8 @@ function chartBox(p) {
   const g = filterGames(p.g, { range: S.range, venue: S.venue, role: S.role, without: mate ? roundsWithout(p, mate) : null });
   const vals = g.map(VAL[S.s]), H = hits(vals, S.line, S.side);
   return `<section class="pachart"><h3>${esc(X.chart)}</h3><div class="pafil">${seg('range', [[5, 'L5'], [10, 'L10'], [20, 'L20'], [0, X.season]])}${seg('venue', [['all', X.all], ['home', X.home], ['away', X.away]])}${seg('role', [['all', X.all], ['start', X.start], ['bench', X.bench]])}
-<select id="paMate" aria-label="${esc(X.without)}"><option value="">${esc(X.without)}</option>${mates.map(q => `<option value="${q.c}"${q.c === S.mate ? ' selected' : ''}>${esc(fill(X.withoutN, { n: nm(q) }))}</option>`).join('')}</select></div>
-${g.length ? `<p class="sub"><b class="${H.rate >= 0.6 ? 'pos' : H.rate <= 0.4 ? 'neg' : ''}">${S.side === 'over' ? 'Over' : 'Under'} ${S.line}: ${pc(H.rate)}</b> (${esc(fill(X.of, { w: H.win, n: H.n - H.push }))}) · ${esc(X.avg)} ${f1(vals.reduce((a, b) => a + b, 0) / vals.length)} · ${esc(X.med)} ${f1(median(vals))}</p>${svg(g, vals)}` : `<p class="sub">${esc(X.noFilter)}</p>`}</section>`;
+<select id="paMate" aria-label="${esc(X.without)}"><option value="">${esc(X.without)}</option>${mates.map(q => { const n = roundsWithout(p, q).size; return `<option value="${q.c}"${q.c === S.mate ? ' selected' : ''}${n ? '' : ' disabled'}>${esc(fill(X.withoutN, { n: nm(q) }))} (${n})${q.out ? ' 🚑' : q.st === 'doubtful' ? ' ⚠️' : ''}</option>`; }).join('')}</select></div>
+${mate && !roundsWithout(p, mate).size ? `<p class="sub">${esc(fill((MW || { none: '{m}: 0', model: '' }).none, { p: nm(p), m: nm(mate), n: p.g.length }))}${p.pj?.[S.s] && mate.out ? ' ' + esc(fill((MW || { model: '' }).model, { m: nm(mate), v: f1(p.pj[S.s][0]) })) : ''}</p>` : g.length ? `<p class="sub"><b class="${H.rate >= 0.6 ? 'pos' : H.rate <= 0.4 ? 'neg' : ''}">${S.side === 'over' ? 'Over' : 'Under'} ${S.line}: ${pc(H.rate)}</b> (${esc(fill(X.of, { w: H.win, n: H.n - H.push }))}) · ${esc(X.avg)} ${f1(vals.reduce((a, b) => a + b, 0) / vals.length)} · ${esc(X.med)} ${f1(median(vals))}</p>${svg(g, vals)}` : `<p class="sub">${esc(X.noFilter)}</p>`}</section>`;
 }
 function svg(g, vals) {
   const W = 720, Ht = 250, top = 22, bot = 40, left = 8, n = g.length, bw = (W - left * 2) / Math.max(n, 5);
