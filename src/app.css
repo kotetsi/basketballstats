@@ -882,3 +882,4 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .pafav button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface,#fff);color:var(--ink);border-radius:999px;padding:5px 11px;cursor:pointer}.pafav button.on{border-color:var(--accent,#e4572e);font-weight:600}
 .pafav small{flex-basis:100%;color:var(--muted);font-size:12px}
 .pafavbtn{font:inherit;font-size:13px;font-weight:600;margin-top:6px;border:1px solid var(--accent,#e4572e);background:transparent;color:var(--accent,#e4572e);border-radius:8px;padding:5px 10px;cursor:pointer}.pafavbtn.on{background:var(--accent,#e4572e);color:#fff}
+.pawz{font-weight:700;white-space:nowrap}.pawz.yes{color:#1b7a3a}.pawz.mid{color:#9a6a00}.pawz.no{color:#b3261e}
