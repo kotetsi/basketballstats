@@ -1,0 +1,62 @@
+{
+ "E-10-MAD-PAN": {
+  "id": "id1100013873263120",
+  "start": "2026-11-04T19:45:00.000Z",
+  "n1": "Real Madrid",
+  "n2": "Panathinaikos BC"
+ },
+ "E-10-IST-PRS": {
+  "id": "id1100013873263122",
+  "start": "2026-11-05T17:15:00.000Z",
+  "n1": "Anadolu Efes SK",
+  "n2": "Paris Basketball"
+ },
+ "E-10-ULK-BAS": {
+  "id": "id1100013873263118",
+  "start": "2026-11-05T18:00:00.000Z",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "Baskonia Vitoria-Gasteiz"
+ },
+ "E-10-HTA-BAR": {
+  "id": "id1100013873263124",
+  "start": "2026-11-05T18:45:00.000Z",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "FC Barcelona"
+ },
+ "E-10-ASV-MUN": {
+  "id": "id1100013873263126",
+  "start": "2026-11-05T19:00:00.000Z",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "Bayern Munich"
+ },
+ "E-10-MIL-PAM": {
+  "id": "id1100013873263128",
+  "start": "2026-11-05T19:30:00.000Z",
+  "n1": "Olimpia Milano",
+  "n2": "Valencia Basket"
+ },
+ "E-10-BES-ZAL": {
+  "id": "id1100013873263130",
+  "start": "2026-11-06T17:00:00.000Z",
+  "n1": "Besiktas JK",
+  "n2": "BC Zalgiris Kaunas"
+ },
+ "E-10-OLY-RED": {
+  "id": "id1100013873263132",
+  "start": "2026-11-06T19:15:00.000Z",
+  "n1": "BC Olympiakos Piraeus",
+  "n2": "KK Crvena zvezda Belgrade"
+ },
+ "E-10-VIR-DUB": {
+  "id": "id1100013873263134",
+  "start": "2026-11-06T19:30:00.000Z",
+  "n1": "Virtus Bologna",
+  "n2": "Dubai Basketball"
+ },
+ "E-10-PAR-TEL": {
+  "id": "id1100013873263136",
+  "start": "2026-11-06T19:45:00.000Z",
+  "n1": "KK Partizan Belgrade",
+  "n2": "Maccabi Tel-Aviv"
+ }
+}

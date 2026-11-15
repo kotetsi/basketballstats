@@ -1,0 +1,882 @@
+[
+ {
+  "id": "id1100013873262938",
+  "p1": "1149035",
+  "p2": "3540",
+  "n1": "Dubai Basketball",
+  "n2": "Real Madrid",
+  "start": "2026-09-24T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262940",
+  "p1": "82179",
+  "p2": "26071",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "Bayern Munich",
+  "start": "2026-09-24T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262942",
+  "p1": "57183",
+  "p2": "6662",
+  "n1": "KK Crvena zvezda Belgrade",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-09-24T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262944",
+  "p1": "3508",
+  "p2": "476414",
+  "n1": "Panathinaikos BC",
+  "n2": "Paris Basketball",
+  "start": "2026-09-24T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873262946",
+  "p1": "3543",
+  "p2": "3515",
+  "n1": "FC Barcelona",
+  "n2": "Anadolu Efes SK",
+  "start": "2026-09-24T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873262948",
+  "p1": "3553",
+  "p2": "3501",
+  "n1": "Baskonia Vitoria-Gasteiz",
+  "n2": "BC Olympiakos Piraeus",
+  "start": "2026-09-24T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873262950",
+  "p1": "3536",
+  "p2": "6655",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "Maccabi Tel-Aviv",
+  "start": "2026-09-24T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262952",
+  "p1": "6678",
+  "p2": "3545",
+  "n1": "Besiktas JK",
+  "n2": "Valencia Basket",
+  "start": "2026-09-25T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262954",
+  "p1": "3514",
+  "p2": "5621",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "Virtus Bologna",
+  "start": "2026-09-25T17:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262956",
+  "p1": "6637",
+  "p2": "3580",
+  "n1": "KK Partizan Belgrade",
+  "n2": "Olimpia Milano",
+  "start": "2026-09-25T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262958",
+  "p1": "1149035",
+  "p2": "3543",
+  "n1": "Dubai Basketball",
+  "n2": "FC Barcelona",
+  "start": "2026-09-29T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262960",
+  "p1": "3515",
+  "p2": "3540",
+  "n1": "Anadolu Efes SK",
+  "n2": "Real Madrid",
+  "start": "2026-09-29T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262962",
+  "p1": "6662",
+  "p2": "3501",
+  "n1": "BC Zalgiris Kaunas",
+  "n2": "BC Olympiakos Piraeus",
+  "start": "2026-09-29T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262964",
+  "p1": "3514",
+  "p2": "26071",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "Bayern Munich",
+  "start": "2026-09-29T17:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262966",
+  "p1": "57183",
+  "p2": "82179",
+  "n1": "KK Crvena zvezda Belgrade",
+  "n2": "Hapoel Tel-Aviv",
+  "start": "2026-09-29T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262968",
+  "p1": "3545",
+  "p2": "3553",
+  "n1": "Valencia Basket",
+  "n2": "Baskonia Vitoria-Gasteiz",
+  "start": "2026-09-29T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873262970",
+  "p1": "3580",
+  "p2": "5621",
+  "n1": "Olimpia Milano",
+  "n2": "Virtus Bologna",
+  "start": "2026-09-29T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873262972",
+  "p1": "476414",
+  "p2": "6637",
+  "n1": "Paris Basketball",
+  "n2": "KK Partizan Belgrade",
+  "start": "2026-09-29T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262974",
+  "p1": "6655",
+  "p2": "6678",
+  "n1": "Maccabi Tel-Aviv",
+  "n2": "Besiktas JK",
+  "start": "2026-09-30T18:05:00.000Z"
+ },
+ {
+  "id": "id1100013873262976",
+  "p1": "3508",
+  "p2": "3536",
+  "n1": "Panathinaikos BC",
+  "n2": "ASVEL Lyon-Villeurbanne",
+  "start": "2026-09-30T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873262978",
+  "p1": "82179",
+  "p2": "3540",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "Real Madrid",
+  "start": "2026-10-01T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262980",
+  "p1": "57183",
+  "p2": "3515",
+  "n1": "KK Crvena zvezda Belgrade",
+  "n2": "Anadolu Efes SK",
+  "start": "2026-10-01T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262982",
+  "p1": "5621",
+  "p2": "3501",
+  "n1": "Virtus Bologna",
+  "n2": "BC Olympiakos Piraeus",
+  "start": "2026-10-01T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873262984",
+  "p1": "476414",
+  "p2": "6662",
+  "n1": "Paris Basketball",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-10-01T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262986",
+  "p1": "6678",
+  "p2": "3543",
+  "n1": "Besiktas JK",
+  "n2": "FC Barcelona",
+  "start": "2026-10-02T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262988",
+  "p1": "3514",
+  "p2": "1149035",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "Dubai Basketball",
+  "start": "2026-10-02T17:45:00.000Z"
+ },
+ {
+  "id": "id1100013873262990",
+  "p1": "3536",
+  "p2": "3545",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "Valencia Basket",
+  "start": "2026-10-02T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262996",
+  "p1": "26071",
+  "p2": "6637",
+  "n1": "Bayern Munich",
+  "n2": "KK Partizan Belgrade",
+  "start": "2026-10-02T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873262992",
+  "p1": "3508",
+  "p2": "6655",
+  "n1": "Panathinaikos BC",
+  "n2": "Maccabi Tel-Aviv",
+  "start": "2026-10-02T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873262994",
+  "p1": "3553",
+  "p2": "3580",
+  "n1": "Baskonia Vitoria-Gasteiz",
+  "n2": "Olimpia Milano",
+  "start": "2026-10-02T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873262998",
+  "p1": "476414",
+  "p2": "3536",
+  "n1": "Paris Basketball",
+  "n2": "ASVEL Lyon-Villeurbanne",
+  "start": "2026-10-07T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263000",
+  "p1": "6655",
+  "p2": "3580",
+  "n1": "Maccabi Tel-Aviv",
+  "n2": "Olimpia Milano",
+  "start": "2026-10-08T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263010",
+  "p1": "1149035",
+  "p2": "57183",
+  "n1": "Dubai Basketball",
+  "n2": "KK Crvena zvezda Belgrade",
+  "start": "2026-10-08T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263004",
+  "p1": "26071",
+  "p2": "5621",
+  "n1": "Bayern Munich",
+  "n2": "Virtus Bologna",
+  "start": "2026-10-08T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263002",
+  "p1": "3508",
+  "p2": "3514",
+  "n1": "Panathinaikos BC",
+  "n2": "Fenerbahce Istanbul",
+  "start": "2026-10-08T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263006",
+  "p1": "3545",
+  "p2": "82179",
+  "n1": "Valencia Basket",
+  "n2": "Hapoel Tel-Aviv",
+  "start": "2026-10-08T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263008",
+  "p1": "3540",
+  "p2": "6637",
+  "n1": "Real Madrid",
+  "n2": "KK Partizan Belgrade",
+  "start": "2026-10-08T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263012",
+  "p1": "3501",
+  "p2": "3515",
+  "n1": "BC Olympiakos Piraeus",
+  "n2": "Anadolu Efes SK",
+  "start": "2026-10-09T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263014",
+  "p1": "3553",
+  "p2": "6678",
+  "n1": "Baskonia Vitoria-Gasteiz",
+  "n2": "Besiktas JK",
+  "start": "2026-10-09T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263016",
+  "p1": "3543",
+  "p2": "6662",
+  "n1": "FC Barcelona",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-10-09T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263018",
+  "p1": "3514",
+  "p2": "6662",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-10-13T17:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263020",
+  "p1": "3536",
+  "p2": "57183",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "KK Crvena zvezda Belgrade",
+  "start": "2026-10-13T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263022",
+  "p1": "3553",
+  "p2": "1149035",
+  "n1": "Baskonia Vitoria-Gasteiz",
+  "n2": "Dubai Basketball",
+  "start": "2026-10-13T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263024",
+  "p1": "3580",
+  "p2": "3540",
+  "n1": "Olimpia Milano",
+  "n2": "Real Madrid",
+  "start": "2026-10-13T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263026",
+  "p1": "3543",
+  "p2": "6655",
+  "n1": "FC Barcelona",
+  "n2": "Maccabi Tel-Aviv",
+  "start": "2026-10-13T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263028",
+  "p1": "6637",
+  "p2": "3508",
+  "n1": "KK Partizan Belgrade",
+  "n2": "Panathinaikos BC",
+  "start": "2026-10-13T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263030",
+  "p1": "3545",
+  "p2": "3501",
+  "n1": "Valencia Basket",
+  "n2": "BC Olympiakos Piraeus",
+  "start": "2026-10-13T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263032",
+  "p1": "82179",
+  "p2": "6678",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "Besiktas JK",
+  "start": "2026-10-14T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263034",
+  "p1": "3515",
+  "p2": "26071",
+  "n1": "Anadolu Efes SK",
+  "n2": "Bayern Munich",
+  "start": "2026-10-14T17:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263036",
+  "p1": "476414",
+  "p2": "5621",
+  "n1": "Paris Basketball",
+  "n2": "Virtus Bologna",
+  "start": "2026-10-14T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263038",
+  "p1": "3514",
+  "p2": "6637",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "KK Partizan Belgrade",
+  "start": "2026-10-15T17:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263040",
+  "p1": "3580",
+  "p2": "1149035",
+  "n1": "Olimpia Milano",
+  "n2": "Dubai Basketball",
+  "start": "2026-10-15T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263042",
+  "p1": "3545",
+  "p2": "6655",
+  "n1": "Valencia Basket",
+  "n2": "Maccabi Tel-Aviv",
+  "start": "2026-10-15T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263044",
+  "p1": "3540",
+  "p2": "3536",
+  "n1": "Real Madrid",
+  "n2": "ASVEL Lyon-Villeurbanne",
+  "start": "2026-10-15T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263046",
+  "p1": "6678",
+  "p2": "26071",
+  "n1": "Besiktas JK",
+  "n2": "Bayern Munich",
+  "start": "2026-10-16T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263048",
+  "p1": "6662",
+  "p2": "3515",
+  "n1": "BC Zalgiris Kaunas",
+  "n2": "Anadolu Efes SK",
+  "start": "2026-10-16T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263050",
+  "p1": "57183",
+  "p2": "476414",
+  "n1": "KK Crvena zvezda Belgrade",
+  "n2": "Paris Basketball",
+  "start": "2026-10-16T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263052",
+  "p1": "3508",
+  "p2": "82179",
+  "n1": "Panathinaikos BC",
+  "n2": "Hapoel Tel-Aviv",
+  "start": "2026-10-16T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263054",
+  "p1": "3543",
+  "p2": "3501",
+  "n1": "FC Barcelona",
+  "n2": "BC Olympiakos Piraeus",
+  "start": "2026-10-16T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263056",
+  "p1": "5621",
+  "p2": "3553",
+  "n1": "Virtus Bologna",
+  "n2": "Baskonia Vitoria-Gasteiz",
+  "start": "2026-10-16T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263058",
+  "p1": "82179",
+  "p2": "5621",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "Virtus Bologna",
+  "start": "2026-10-21T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263060",
+  "p1": "3515",
+  "p2": "6678",
+  "n1": "Anadolu Efes SK",
+  "n2": "Besiktas JK",
+  "start": "2026-10-22T17:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263068",
+  "p1": "26071",
+  "p2": "1149035",
+  "n1": "Bayern Munich",
+  "n2": "Dubai Basketball",
+  "start": "2026-10-22T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263062",
+  "p1": "6655",
+  "p2": "3540",
+  "n1": "Maccabi Tel-Aviv",
+  "n2": "Real Madrid",
+  "start": "2026-10-22T18:05:00.000Z"
+ },
+ {
+  "id": "id1100013873263064",
+  "p1": "3508",
+  "p2": "3553",
+  "n1": "Panathinaikos BC",
+  "n2": "Baskonia Vitoria-Gasteiz",
+  "start": "2026-10-22T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263066",
+  "p1": "3580",
+  "p2": "3543",
+  "n1": "Olimpia Milano",
+  "n2": "FC Barcelona",
+  "start": "2026-10-22T18:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263070",
+  "p1": "6637",
+  "p2": "57183",
+  "n1": "KK Partizan Belgrade",
+  "n2": "KK Crvena zvezda Belgrade",
+  "start": "2026-10-22T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263072",
+  "p1": "6662",
+  "p2": "3536",
+  "n1": "BC Zalgiris Kaunas",
+  "n2": "ASVEL Lyon-Villeurbanne",
+  "start": "2026-10-23T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263074",
+  "p1": "3501",
+  "p2": "3514",
+  "n1": "BC Olympiakos Piraeus",
+  "n2": "Fenerbahce Istanbul",
+  "start": "2026-10-23T18:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263076",
+  "p1": "476414",
+  "p2": "3545",
+  "n1": "Paris Basketball",
+  "n2": "Valencia Basket",
+  "start": "2026-10-23T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263078",
+  "p1": "1149035",
+  "p2": "476414",
+  "n1": "Dubai Basketball",
+  "n2": "Paris Basketball",
+  "start": "2026-10-27T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263080",
+  "p1": "57183",
+  "p2": "6655",
+  "n1": "KK Crvena zvezda Belgrade",
+  "n2": "Maccabi Tel-Aviv",
+  "start": "2026-10-27T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263084",
+  "p1": "26071",
+  "p2": "3543",
+  "n1": "Bayern Munich",
+  "n2": "FC Barcelona",
+  "start": "2026-10-27T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263082",
+  "p1": "3508",
+  "p2": "3580",
+  "n1": "Panathinaikos BC",
+  "n2": "Olimpia Milano",
+  "start": "2026-10-27T19:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263086",
+  "p1": "3545",
+  "p2": "3514",
+  "n1": "Valencia Basket",
+  "n2": "Fenerbahce Istanbul",
+  "start": "2026-10-27T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263088",
+  "p1": "3553",
+  "p2": "3540",
+  "n1": "Baskonia Vitoria-Gasteiz",
+  "n2": "Real Madrid",
+  "start": "2026-10-27T20:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263092",
+  "p1": "6678",
+  "p2": "3501",
+  "n1": "Besiktas JK",
+  "n2": "BC Olympiakos Piraeus",
+  "start": "2026-10-28T17:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263090",
+  "p1": "82179",
+  "p2": "3515",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "Anadolu Efes SK",
+  "start": "2026-10-28T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263094",
+  "p1": "3536",
+  "p2": "6637",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "KK Partizan Belgrade",
+  "start": "2026-10-28T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263096",
+  "p1": "5621",
+  "p2": "6662",
+  "n1": "Virtus Bologna",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-10-28T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263098",
+  "p1": "57183",
+  "p2": "26071",
+  "n1": "KK Crvena zvezda Belgrade",
+  "n2": "Bayern Munich",
+  "start": "2026-10-29T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263100",
+  "p1": "6655",
+  "p2": "476414",
+  "n1": "Maccabi Tel-Aviv",
+  "n2": "Paris Basketball",
+  "start": "2026-10-29T19:05:00.000Z"
+ },
+ {
+  "id": "id1100013873263102",
+  "p1": "3540",
+  "p2": "3514",
+  "n1": "Real Madrid",
+  "n2": "Fenerbahce Istanbul",
+  "start": "2026-10-29T19:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263104",
+  "p1": "1149035",
+  "p2": "82179",
+  "n1": "Dubai Basketball",
+  "n2": "Hapoel Tel-Aviv",
+  "start": "2026-10-30T16:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263106",
+  "p1": "3515",
+  "p2": "3508",
+  "n1": "Anadolu Efes SK",
+  "n2": "Panathinaikos BC",
+  "start": "2026-10-30T17:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263108",
+  "p1": "6662",
+  "p2": "6637",
+  "n1": "BC Zalgiris Kaunas",
+  "n2": "KK Partizan Belgrade",
+  "start": "2026-10-30T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263110",
+  "p1": "3536",
+  "p2": "3553",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "Baskonia Vitoria-Gasteiz",
+  "start": "2026-10-30T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263112",
+  "p1": "3501",
+  "p2": "3580",
+  "n1": "BC Olympiakos Piraeus",
+  "n2": "Olimpia Milano",
+  "start": "2026-10-30T19:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263114",
+  "p1": "3543",
+  "p2": "3545",
+  "n1": "FC Barcelona",
+  "n2": "Valencia Basket",
+  "start": "2026-10-30T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263116",
+  "p1": "5621",
+  "p2": "6678",
+  "n1": "Virtus Bologna",
+  "n2": "Besiktas JK",
+  "start": "2026-10-30T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263120",
+  "p1": "3540",
+  "p2": "3508",
+  "n1": "Real Madrid",
+  "n2": "Panathinaikos BC",
+  "start": "2026-11-04T19:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263122",
+  "p1": "3515",
+  "p2": "476414",
+  "n1": "Anadolu Efes SK",
+  "n2": "Paris Basketball",
+  "start": "2026-11-05T17:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263118",
+  "p1": "3514",
+  "p2": "3553",
+  "n1": "Fenerbahce Istanbul",
+  "n2": "Baskonia Vitoria-Gasteiz",
+  "start": "2026-11-05T18:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263124",
+  "p1": "82179",
+  "p2": "3543",
+  "n1": "Hapoel Tel-Aviv",
+  "n2": "FC Barcelona",
+  "start": "2026-11-05T18:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263126",
+  "p1": "3536",
+  "p2": "26071",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "Bayern Munich",
+  "start": "2026-11-05T19:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263128",
+  "p1": "3580",
+  "p2": "3545",
+  "n1": "Olimpia Milano",
+  "n2": "Valencia Basket",
+  "start": "2026-11-05T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263130",
+  "p1": "6678",
+  "p2": "6662",
+  "n1": "Besiktas JK",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-11-06T17:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263132",
+  "p1": "3501",
+  "p2": "57183",
+  "n1": "BC Olympiakos Piraeus",
+  "n2": "KK Crvena zvezda Belgrade",
+  "start": "2026-11-06T19:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263134",
+  "p1": "5621",
+  "p2": "1149035",
+  "n1": "Virtus Bologna",
+  "n2": "Dubai Basketball",
+  "start": "2026-11-06T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263136",
+  "p1": "6637",
+  "p2": "6655",
+  "n1": "KK Partizan Belgrade",
+  "n2": "Maccabi Tel-Aviv",
+  "start": "2026-11-06T19:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263138",
+  "p1": "476414",
+  "p2": "3514",
+  "n1": "Paris Basketball",
+  "n2": "Fenerbahce Istanbul",
+  "start": "2026-11-11T19:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263140",
+  "p1": "6637",
+  "p2": "3553",
+  "n1": "KK Partizan Belgrade",
+  "n2": "Baskonia Vitoria-Gasteiz",
+  "start": "2026-11-11T19:45:00.000Z"
+ },
+ {
+  "id": "id1100013873263142",
+  "p1": "6655",
+  "p2": "82179",
+  "n1": "Maccabi Tel-Aviv",
+  "n2": "Hapoel Tel-Aviv",
+  "start": "2026-11-12T19:05:00.000Z"
+ },
+ {
+  "id": "id1100013873263144",
+  "p1": "3501",
+  "p2": "1149035",
+  "n1": "BC Olympiakos Piraeus",
+  "n2": "Dubai Basketball",
+  "start": "2026-11-12T19:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263146",
+  "p1": "3580",
+  "p2": "6662",
+  "n1": "Olimpia Milano",
+  "n2": "BC Zalgiris Kaunas",
+  "start": "2026-11-12T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263148",
+  "p1": "3545",
+  "p2": "26071",
+  "n1": "Valencia Basket",
+  "n2": "Bayern Munich",
+  "start": "2026-11-12T19:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263150",
+  "p1": "3540",
+  "p2": "57183",
+  "n1": "Real Madrid",
+  "n2": "KK Crvena zvezda Belgrade",
+  "start": "2026-11-12T20:00:00.000Z"
+ },
+ {
+  "id": "id1100013873263152",
+  "p1": "3515",
+  "p2": "5621",
+  "n1": "Anadolu Efes SK",
+  "n2": "Virtus Bologna",
+  "start": "2026-11-13T17:30:00.000Z"
+ },
+ {
+  "id": "id1100013873263154",
+  "p1": "3508",
+  "p2": "3543",
+  "n1": "Panathinaikos BC",
+  "n2": "FC Barcelona",
+  "start": "2026-11-13T19:15:00.000Z"
+ },
+ {
+  "id": "id1100013873263156",
+  "p1": "3536",
+  "p2": "6678",
+  "n1": "ASVEL Lyon-Villeurbanne",
+  "n2": "Besiktas JK",
+  "start": "2026-11-13T19:30:00.000Z"
+ }
+]
