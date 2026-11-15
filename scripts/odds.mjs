@@ -122,7 +122,9 @@ const ADAPTERS = {
       const bo = res.bookmakerOdds || {};
       // κύρια γραμμή handicap/συνόλου: η αγορά (marketId) που έχουν οι περισσότεροι bookmakers
       const count = re => { const c = {}; for (const b of Object.values(bo)) for (const mid of Object.keys(b.markets || {})) if (re.test(meta.markets[mid]?.name || '')) c[mid] = (c[mid] || 0) + 1; return Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0]; };
-      const hMid = count(/handicap/i), tMid = count(/over\s*\/\s*under|total/i);
+      // μόνο αγορές ολόκληρου αγώνα (όχι ημίχρονα/περίοδοι/ομάδα/παίκτης)
+      const hMid = count(/^handicap \(incl\. overtime\)$/i);
+      const isOU = mid => /^over under \(incl\. overtime\)$/i.test(meta.markets[mid]?.name || '');
       const books = [];
       for (const [slug, b] of Object.entries(bo)) {
         if (b.bookmakerIsActive === false) continue;
@@ -130,7 +132,19 @@ const ADAPTERS = {
         const two = mid => { const oc = M[mid]?.outcomes || {}; const ids = Object.keys(oc).sort((x, y) => +x - +y); const ps = ids.map(i => price(oc[i])); upd = ids.map(i => changed(oc[i])).filter(Boolean).sort().pop() || upd; return ps.length >= 2 && ps[0] > 1 && ps[1] > 1 ? ps.slice(0, 2) : null; };
         const ml = two('111'); if (ml) m.ml = ml;
         if (hMid) { const p = two(hMid); if (p) m.spread = { line: meta.markets[hMid]?.line != null ? +meta.markets[hMid].line : null, h: p[0], a: p[1] }; }
-        if (tMid) { const p = two(tMid); if (p) m.total = { line: meta.markets[tMid]?.line != null ? +meta.markets[tMid].line : null, over: p[0], under: p[1] }; }
+        // σύνολο πόντων: κύρια γραμμή κάθε bookmaker = η γραμμή με τις πιο ισορροπημένες τιμές Over/Under
+        {
+          let best = null;
+          for (const mid of Object.keys(M).filter(isOU)) {
+            const oc = M[mid]?.outcomes || {}, nm = meta.markets[mid]?.outcomes || [];
+            const idOf = re => nm.find(o => re.test(o.name || ''))?.id;
+            const ov = price(oc[idOf(/^over/i)]), un = price(oc[idOf(/^under/i)]), line = meta.markets[mid]?.line;
+            if (!(ov > 1 && un > 1) || line == null) continue;
+            const d = Math.abs(1 / ov - 1 / un);
+            if (!best || d < best.d) best = { d, line: +line, over: ov, under: un, upd: [oc[idOf(/^over/i)], oc[idOf(/^under/i)]].map(changed).filter(Boolean).sort().pop() };
+          }
+          if (best) { m.total = { line: best.line, over: best.over, under: best.under }; if (best.upd && (!upd || best.upd > upd)) upd = best.upd; }
+        }
         const pr = extractProps(M, meta); if (pr.length) m.props = pr;
         if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, markets: m });
       }

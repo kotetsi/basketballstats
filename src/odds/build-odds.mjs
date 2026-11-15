@@ -99,3 +99,38 @@ export function clvReport(O, jur) {
   }
   return { rows, total: clvSummary(rows), byMonth: clvSummary(rows, x => x.month), byTeam: clvSummary(rows, x => x.team) };
 }
+
+/**
+ * Απολογισμός μοντέλου στα σύνολα πόντων (Over/Under) από εδώ και πέρα: για κάθε αγώνα που παίχτηκε,
+ * η closing κύρια γραμμή (διάμεση των bookmakers της χώρας), οι καλύτερες τιμές σε αυτή, η τελευταία πρόβλεψη
+ * του μοντέλου πριν από το τζάμπολ και το τελικό σύνολο. Πλευρά = όπου είναι η πρόβλεψη σε σχέση με τη γραμμή.
+ * EV με την ίδια μίξη (μισό μοντέλο, μισό αγορά χωρίς vig) που χρησιμοποιεί και η σελίδα value.
+ *  results: { gid: τελικό σύνολο }, sig: σφάλμα συνόλου του backtest
+ */
+export function totalsReport(O, jur, results, { sig = 17, blend = 0.5 } = {}) {
+  const lic = new Set(Object.values(O.latest?.games || {}).flatMap(G => Object.entries(G.books || {}).filter(([, b]) => (b.lic || []).includes(jur)).map(([k]) => k)));
+  const rows = [];
+  for (const gid of [...new Set(O.hist.filter(h => h.market === 'total').map(h => h.event))]) {
+    const y = results[gid], lp = O.plog[gid]?.last;
+    if (y == null || lp?.total == null) continue;
+    const commence = O.latest?.games?.[gid]?.commence || O.hist.find(h => h.event === gid)?.t || '9999';
+    const per = {};
+    for (const h of O.hist) if (h.event === gid && h.market === 'total' && h.seen <= commence && lic.has(h.book)) {
+      const b = (per[h.book] ||= {}); if (b.line !== h.line) { b.line = h.line; b.over = b.under = null; } b[h.sel] = h.price;
+    }
+    const books = Object.entries(per).filter(([, b]) => b.over > 1 && b.under > 1);
+    if (!books.length) continue;
+    const ls = books.map(([, b]) => b.line).sort((a, b) => a - b), line = ls[(ls.length - 1) >> 1];
+    const at = books.filter(([, b]) => b.line === line);
+    const bo = at.reduce((m, [k, b]) => (b.over > m[0] ? [b.over, k] : m), [0, null]), bu = at.reduce((m, [k, b]) => (b.under > m[0] ? [b.under, k] : m), [0, null]);
+    const mk = at.map(([, b]) => devig([b.over, b.under]).fair[0]).reduce((a, c) => a + c, 0) / at.length;
+    const pm = 1 - ncdf((line - lp.total) / sig), pb = blend * pm + (1 - blend) * mk;
+    const side = lp.total >= line ? 'over' : 'under', price = side === 'over' ? bo[0] : bu[0], book = side === 'over' ? bo[1] : bu[1];
+    const p = side === 'over' ? pb : 1 - pb, res = y === line ? 'push' : (y > line) === (side === 'over') ? 'win' : 'loss';
+    const [, r, h, a] = gid.split('-');
+    rows.push({ gid, r: +r, h, a, line, model: +lp.total.toFixed(1), diff: +(lp.total - line).toFixed(1), side, price, book, ev: p * price - 1, y, res, pnl: res === 'win' ? price - 1 : res === 'loss' ? -1 : 0 });
+  }
+  const sum = L => { const n = L.filter(x => x.res !== 'push').length, w = L.filter(x => x.res === 'win').length, pnl = L.reduce((a, x) => a + x.pnl, 0); return { n: L.length, w, rate: n ? w / n : null, pnl, roi: L.length ? pnl / L.length : null }; };
+  const buckets = [['all', () => true], ['d3', x => Math.abs(x.diff) >= 3], ['d5', x => Math.abs(x.diff) >= 5], ['d7', x => Math.abs(x.diff) >= 7], ['ev8', x => x.ev >= 0.08], ['over', x => x.side === 'over'], ['under', x => x.side === 'under']];
+  return { rows: rows.sort((x, y) => y.r - x.r || x.gid.localeCompare(y.gid)), sum: Object.fromEntries(buckets.map(([k, f]) => [k, sum(rows.filter(f))])) };
+}
