@@ -95,7 +95,9 @@ export function board(D, lines, { stats = MODEL_STATS, blend = D.blend ?? 0.5, m
       rows.push({ c: p.c, t: p.t, s, line, src: m ? 'book' : 'model', side, p: side === 'over' ? pOv : 1 - pOv, mu: pj ? pj[0] : null,
         L5: S.L5, L10: S.L10, all: S.all, h2h: S.h2h, avg: S.avg, gid: nx.gid,
         price: m ? (side === 'over' ? m.o?.[0] : m.u?.[0]) ?? null : null, book: m ? (side === 'over' ? m.o?.[1] : m.u?.[1]) ?? null : null,
-        ev: m ? (side === 'over' ? E.evO : E.evU) : null });
+        ev: m ? (side === 'over' ? E.evO : E.evU) : null,
+        // καθαρή πιθανότητα μοντέλου και πιθανότητα της αγοράς (χωρίς το περιθώριο του bookmaker) για την ίδια πλευρά
+        pm: E.pm == null ? null : side === 'over' ? E.pm : 1 - E.pm, mk: E.mk == null ? null : side === 'over' ? E.mk : 1 - E.mk });
     }
   }
   return rows;
