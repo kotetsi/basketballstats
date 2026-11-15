@@ -24,11 +24,14 @@ let last = 0;
 async function call(p, o) {
   if (left() <= 0) throw new Error(`όριο: ${st.calls}/${CAP} κλήσεις, απόθεμα ${RESERVE} για τις τρέχουσες αγωνιστικές`);
   const wait = 5200 - (Date.now() - last); if (wait > 0) await new Promise(r => setTimeout(r, wait));
-  st.calls = (st.calls || 0) + 1; last = Date.now();
-  const r = await fetch(`https://api.oddspapi.io/v4/${p}?${new URLSearchParams({ apiKey: KEY, ...o })}`, { signal: AbortSignal.timeout(60000) });
-  const txt = await r.text();
-  if (!r.ok) throw new Error(`/${p} ${r.status}: ${txt.slice(0, 300)}`);
-  return JSON.parse(txt);
+  for (let attempt = 0; ; attempt++) {
+    st.calls = (st.calls || 0) + 1; last = Date.now();
+    const r = await fetch(`https://api.oddspapi.io/v4/${p}?${new URLSearchParams({ apiKey: KEY, ...o })}`, { signal: AbortSignal.timeout(60000) });
+    const txt = await r.text();
+    if (r.status === 429 && attempt < 3) { const ms = +(txt.match(/"retryMs":(\d+)/)?.[1] || 1000); await new Promise(res => setTimeout(res, ms + 6000)); last = Date.now(); continue; }
+    if (!r.ok) throw new Error(`/${p} ${r.status}: ${txt.slice(0, 300)}`);
+    return JSON.parse(txt);
+  }
 }
 const save = async () => fs.writeFile(statusF, JSON.stringify(status, null, 1));
 
