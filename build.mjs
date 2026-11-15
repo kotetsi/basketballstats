@@ -978,6 +978,16 @@ async function main() {
       }
       PROPSJ[jur] = games;
     }
+    // Superbet Σερβίας χωριστά (μόνο για προβολή ως ενδεικτικές τιμές στο Prop Analyzer, με σαφή σήμανση)
+    const sbg = {};
+    for (const [gid, G] of Object.entries(OB.latest?.games || {})) {
+      const [, r, h, a] = gid.split('-');
+      const books = Object.fromEntries(Object.entries(G.books || {}).filter(([k, b]) => /^superbet/.test(k) && b.props?.length));
+      if (new Date(G.t) - now < -3 * 3600e3 || !Object.keys(books).length) continue;
+      const R = PROPM.gameProps({ h, a, books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur: 'rs', priors, ctx: PCTX });
+      if (R.best.length) sbg[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
+    }
+    PROPSJ.sb = sbg;
     // παρακολούθηση γραμμών (Ελλάδα) και αποτελεσμάτων: data/odds/props-track.json
     const TF = path.join(ROOT, 'data', 'odds', 'props-track.json');
     let TR = { lines: {} }; try { TR = JSON.parse(await fs.readFile(TF, 'utf8')); } catch { }
@@ -3820,13 +3830,16 @@ ${gl.map(([gid, g]) => `<details class="anmeth"><summary><b>${esc(tName(g.h))} �
       // ---- Prop Analyzer: διαλέγεις παίκτη, στατιστικό και γραμμή → hit rates, ημερολόγιο με τη γραμμή, splits, μοντέλο και αποδόσεις.
       // Από πάνω πίνακας με όλα τα props της αγωνιστικής. Τα δεδομένα είναι κοινά (assets/props/data.json)· εδώ μόνο γραμμές και κείμενα.
       if (PADATA) {
-        const PG = PROPSJ[JUR_OF[LG]] || {}, LN = {};
-        for (const [gid, g] of Object.entries(PG)) for (const b of g.best) {
-          const k = `${b.c}|${b.stat}`, L = (LN[k] ||= []);
-          let x = L.find(z => z.l === b.line); if (!x) L.push(x = { l: b.line, gid, t: g.t });
-          const bk = b.books.slice().sort((u, v) => v[1] - u[1]);
-          x[b.side === 'over' ? 'o' : 'u'] = [b.price, bk[0]?.[0] || b.title, bk.slice(0, 6)];
-        }
+        const linesOfJ = PG => { const LN = {};
+          for (const [gid, g] of Object.entries(PG)) for (const b of g.best) {
+            const k = `${b.c}|${b.stat}`, L = (LN[k] ||= []);
+            let x = L.find(z => z.l === b.line); if (!x) L.push(x = { l: b.line, gid, t: g.t });
+            const bk = b.books.slice().sort((u, v) => v[1] - u[1]);
+            x[b.side === 'over' ? 'o' : 'u'] = [b.price, bk[0]?.[0] || b.title, bk.slice(0, 6)];
+          }
+          return LN; };
+        const LN = linesOfJ(PROPSJ[JUR_OF[LG]] || {});
+        const LNSB = LG === 'el' ? linesOfJ(PROPSJ.sb || {}) : null;   // Superbet Σερβίας: ενδεικτικές τιμές, επιλογή του χρήστη
         const nLines = Object.values(LN).reduce((a, L) => a + L.length, 0);
         const X = {
           search: T('Αναζήτησε παίκτη…', 'Search a player…', 'Busca un jugador…', 'Pretraži igrača…', 'Oyuncu ara…'),
@@ -3863,7 +3876,7 @@ ${gl.map(([gid, g]) => `<details class="anmeth"><summary><b>${esc(tName(g.h))} �
           chart: T('Αγώνας προς αγώνα', 'Game by game', 'Partido a partido', 'Utakmica po utakmica', 'Maç maç'), share: T('Αντιγραφή συνδέσμου', 'Copy link', 'Copiar enlace', 'Kopiraj link', 'Bağlantıyı kopyala'), copied: T('Αντιγράφηκε', 'Copied', 'Copiado', 'Kopirano', 'Kopyalandı'),
           profile: T('Προφίλ παίκτη', 'Player profile', 'Perfil del jugador', 'Profil igrača', 'Oyuncu profili'), round: T('Αγων.', 'Rd', 'J', 'K', 'H'),
         };
-        const ctx = { lg: LG, data: `${BASE}assets/props/data.json?v=${ver}`, plBase: B(LG) + PATHS[LG].player + '/', locale: LOCALE, X, lines: LN,
+        const ctx = { lg: LG, data: `${BASE}assets/props/data.json?v=${ver}`, plBase: B(LG) + PATHS[LG].player + '/', locale: LOCALE, X, lines: LN, linesSb: LNSB && Object.keys(LNSB).length ? LNSB : null,
           teams: Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)])) };
         await simplePage('oddsanalyzer', { view: 'lead', title: T(`Prop Analyzer EuroLeague: hit rates, γραμμές και μοντέλο για player props | ${SITE_NAME}`, `EuroLeague Prop Analyzer: hit rates, lines and model for player props | ${SITE_NAME}`, `Prop Analyzer EuroLeague: acierto, líneas y modelo para player props | ${SITE_NAME}`, `Prop Analyzer Evroliga: uspešnost, linije i model za player props | ${SITE_NAME}`, `EuroLeague Prop Analyzer: oyuncu prop’ları için tutma oranı, çizgiler ve model | ${SITE_NAME}`),
           desc: T('Διάλεξε παίκτη EuroLeague, στατιστικό και γραμμή: πόσες φορές πέρασε τη γραμμή στους τελευταίους 5, 10, 20 αγώνες, έδρα/εκτός, με τον αντίπαλο, χωρίς συμπαίκτη, πρόβλεψη μοντέλου και αποδόσεις αδειοδοτημένων bookmakers.', 'Pick a EuroLeague player, stat and line: how often he cleared it in the last 5, 10 and 20 games, home/away, vs the opponent, without a teammate, the model projection and licensed bookmakers’ prices.', 'Elige jugador de EuroLeague, estadística y línea: cuántas veces la superó en los últimos 5, 10 y 20 partidos, casa/fuera, contra el rival, sin un compañero, proyección del modelo y cuotas.', 'Izaberi igrača Evrolige, statistiku i liniju: koliko puta ju je prešao u poslednjih 5, 10 i 20 utakmica, kod kuće/u gostima, protiv protivnika, bez saigrača, projekcija modela i kvote.', 'Bir EuroLeague oyuncusu, istatistik ve çizgi seç: son 5, 10 ve 20 maçta çizgiyi kaç kez geçtiği, iç saha/deplasman, rakibe karşı, bir takım arkadaşı olmadan, model tahmini ve lisanslı oranlar.'),
