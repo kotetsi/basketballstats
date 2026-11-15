@@ -146,6 +146,8 @@ const ADAPTERS = {
           if (best) { m.total = { line: best.line, over: best.over, under: best.under }; if (best.upd && (!upd || best.upd > upd)) upd = best.upd; }
         }
         const pr = extractProps(M, meta); if (pr.length) m.props = pr;
+        // αναγνωριστικό παίκτη του παρόχου → όνομα (το /historical-odds δίνει μόνο αναγνωριστικό)
+        for (const mk of Object.values(M || {})) for (const oc of Object.values(mk?.outcomes || {})) for (const [pid, pe] of Object.entries(oc?.players || {})) if (pid !== '0' && pe?.playerName) (ctx.status.playerNames ||= {})[pid] = pe.playerName;
         if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, markets: m });
       }
       st.props[f.id] = books.reduce((n, b) => n + (b.markets.props?.length || 0), 0);
