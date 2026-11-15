@@ -56,7 +56,7 @@ async function login(env, provider, who) {
   let u = await db.prepare('SELECT id FROM users WHERE provider = ? AND sub = ?').bind(provider, who.sub).first();
   if (!u) {
     const id = rand(12);
-    await db.prepare('INSERT INTO users (id, provider, sub, name, email, created, prefs) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(id, provider, who.sub, who.name, who.email, now(), JSON.stringify({ lang: 'el', kinds: { injury: true, captain: true, swap: true, lock: true }, email: false })).run();
+    await db.prepare('INSERT INTO users (id, provider, sub, name, email, created, prefs) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(id, provider, who.sub, who.name, who.email, now(), JSON.stringify({ lang: 'el', kinds: { injury: true, captain: true, swap: true, lock: true, fav: true }, email: false })).run();
     u = { id };
   } else await db.prepare('UPDATE users SET name = ?, email = COALESCE(?, email) WHERE id = ?').bind(who.name, who.email, u.id).run();
   const tok = rand(32);
@@ -75,7 +75,7 @@ const pub = async (env, u) => {
 };
 function cleanPrefs(p, old = {}) {
   const k = p?.kinds || {};
-  return { lang: LANGS.includes(p?.lang) ? p.lang : old.lang || 'el', kinds: Object.fromEntries(['injury', 'captain', 'swap', 'lock'].map(x => [x, k[x] !== false])), email: !!p?.email };
+  return { lang: LANGS.includes(p?.lang) ? p.lang : old.lang || 'el', kinds: Object.fromEntries(['injury', 'captain', 'swap', 'lock', 'fav'].map(x => [x, k[x] !== false])), email: !!p?.email };
 }
 
 // ---------- Web Push χωρίς περιεχόμενο: στέλνουμε μόνο «ξύπνα» (VAPID)· το service worker φέρνει το κείμενο από /push/pending

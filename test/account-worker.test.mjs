@@ -54,7 +54,7 @@ test('ροή: σύνδεση → ομάδα → ρυθμίσεις → Telegram 
   assert.equal((await call('/state', { method: 'PUT', token, body: JSON.stringify({ data: { teams: [], pad: 'x'.repeat(70000) } }) })).status, 413);
   // ρυθμίσεις: μόνο γνωστά πεδία
   const pr = await (await call('/prefs', { method: 'PUT', token, body: { lang: 'tr', kinds: { lock: false }, evil: 1 } })).json();
-  assert.deepEqual(pr.prefs, { lang: 'tr', kinds: { injury: true, captain: true, swap: true, lock: false }, email: false });
+  assert.deepEqual(pr.prefs, { lang: 'tr', kinds: { injury: true, captain: true, swap: true, lock: false, fav: true }, email: false });
   // Telegram: κωδικός → /start από τον χρήστη → συνδεδεμένο
   const { url } = await (await call('/tg/link', { method: 'POST', token })).json();
   const code = url.split('start=')[1];

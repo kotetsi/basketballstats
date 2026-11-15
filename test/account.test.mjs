@@ -57,3 +57,19 @@ test('ημιτελής ομάδα ή χωρίς ομάδα → καμία ειδ
   assert.deepEqual(userAlerts({ teams: [{ roster: ['x'] }], active: 0 }, D, [], { now: NOW }), []);
   assert.deepEqual(userAlerts(null, D), []);
 });
+
+const PF = new URL('../dist/assets/props/data.json', import.meta.url);
+test('αποθηκευμένα props: αμφίβολος → ειδοποίηση· εκτίμηση μοντέλου μία φορά στις τελευταίες 30 ώρες· και χωρίς ομάδα Fantasy', { skip: !HAS || !fs.existsSync(PF) }, () => {
+  const D = load(), PR = JSON.parse(fs.readFileSync(PF));
+  const R = D.round;
+  const ok = PR.players.filter(p => p.pj?.pts && PR.next[p.t]?.r === R && !p.out && p.st !== 'doubtful' && D.players.find(x => x.c === p.c)?.status === 'playing');
+  const [a, b] = ok;
+  const st = { teams: [], fav: [{ c: a.c, s: 'pts', l: 14.5, side: 'over' }, { c: b.c, s: 'reb', l: 4.5, side: 'under' }] };
+  D.players.find(x => x.c === a.c).status = 'doubtful';
+  const far = userAlerts(st, { ...D, deadline: new Date(NOW + 72 * 36e5).toISOString() }, [], { now: NOW, props: PR, base: 'https://x' });
+  assert.deepEqual(far.map(x => x.key), [`${R}|fav|doubtful|${a.c}`]);
+  assert.match(far[0].text, /αμφίβολος/); assert.match(far[0].url, /^https:\/\/x\/apodoseis\/prop-analyzer\/#p=/); assert.equal(far[0].go, 'Άνοιξε στο Prop Analyzer');
+  const near = userAlerts(st, { ...D, deadline: new Date(NOW + 10 * 36e5).toISOString() }, [], { now: NOW, props: PR, prefs: { lang: 'en' } });
+  assert.ok(near.some(x => x.key === `${R}|favm|${b.c}|reb` && /model projects/.test(x.text)));
+  assert.deepEqual(userAlerts(st, D, [], { now: NOW, props: PR, prefs: { kinds: { fav: false } } }), []);
+});

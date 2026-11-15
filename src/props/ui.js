@@ -18,6 +18,28 @@ const when = t => { try { return new Date(t).toLocaleString(CTX.locale, { timeZo
 const root = $('#pa'), boardEl = $('#paBoard');
 let D, BY = {}, BYS = {}, ROWS = [];
 const S = { c: null, s: 'pts', line: null, src: 'model', side: 'over', range: 10, venue: 'all', role: 'all', mate: '' };
+// ---------- αποθηκευμένα props (localStorage «bs-fav»· με σύνδεση συγχρονίζονται στον λογαριασμό και φέρνουν ειδοποιήσεις)
+const FX = {
+  el: { save: '☆ Αποθήκευση', saved: '★ Αποθηκευμένο', mine: 'Τα αποθηκευμένα μου', hint: 'Συνδέσου (👤 πάνω δεξιά) για ειδοποίηση στο Telegram όταν κάποιος από αυτούς βγει αμφίβολος ή εκτός.', rm: 'Αφαίρεση' },
+  en: { save: '☆ Save', saved: '★ Saved', mine: 'My saved props', hint: 'Sign in (👤 top right) to get a Telegram alert when one of them is doubtful or out.', rm: 'Remove' },
+  es: { save: '☆ Guardar', saved: '★ Guardado', mine: 'Mis props guardados', hint: 'Entra (👤 arriba a la derecha) para recibir un aviso en Telegram si alguno es duda o baja.', rm: 'Quitar' },
+  sr: { save: '☆ Sačuvaj', saved: '★ Sačuvano', mine: 'Moji sačuvani propovi', hint: 'Prijavi se (👤 gore desno) za obaveštenje na Telegramu kad je neko od njih upitan ili van tima.', rm: 'Ukloni' },
+  tr: { save: '☆ Kaydet', saved: '★ Kaydedildi', mine: 'Kaydettiğim proplar', hint: 'Biri şüpheli veya kadro dışı olduğunda Telegram bildirimi için giriş yap (sağ üstte 👤).', rm: 'Kaldır' },
+}[LG] || null;
+const FT = FX || { save: '☆ Save', saved: '★ Saved', mine: 'My saved props', hint: '', rm: 'Remove' };
+const favs = () => { try { const v = JSON.parse(localStorage.getItem('bs-fav')); return Array.isArray(v) ? v : []; } catch { return []; } };
+const setFavs = v => { try { localStorage.setItem('bs-fav', JSON.stringify(v.slice(0, 40))); } catch { } };
+const isFav = () => favs().some(f => f.c === S.c && f.s === S.s);
+function toggleFav() {
+  const v = favs(), i = v.findIndex(f => f.c === S.c && f.s === S.s);
+  if (i > -1) v.splice(i, 1); else v.unshift({ c: S.c, s: S.s, l: S.line, side: S.side });
+  setFavs(v); render();
+}
+function favBar() {
+  const v = favs().filter(f => BY[f.c]);
+  if (!v.length) return '';
+  return `<div class="pafav"><span>${esc(FT.mine)}</span>${v.map(f => `<button type="button" data-fc="${f.c}" data-fs="${f.s}" data-fl="${f.l}" class="${f.c === S.c && f.s === S.s ? 'on' : ''}">${esc(nm(BY[f.c]))} · ${esc(X.stats[f.s] || f.s)} ${f.side === 'under' ? 'U' : 'O'} ${f.l}${BY[f.c].out ? ' 🚑' : BY[f.c].st === 'doubtful' ? ' ⚠️' : ''}</button>`).join('')}${document.getElementById('acctx') && !localStorage.getItem('bsacc') ? `<small>${esc(FT.hint)}</small>` : ''}</div>`;
+}
 
 function linesOf(c, s) { return CTX.lines[`${c}|${s}`] || []; }
 function defaultLine(p, s) {
@@ -55,7 +77,7 @@ function head(p) {
   const nx = D.next[p.t];
   const st = p.out ? `<span class="pabadge out">${esc(X.out)}</span>` : p.st === 'doubtful' ? `<span class="pabadge doubt">${esc(X.doubtful)}</span>` : '';
   return `<div class="pahead"><div><h2><a href="${CTX.plBase}${esc(p.s)}/">${esc(nm(p))}</a></h2><p class="sub">${esc(tn(p.t))} · ${esc(X.pos[p.pos] || p.pos)}${p.no !== '' ? ' · #' + esc(p.no) : ''} · ${p.g.length} ${esc(X.games.toLowerCase())}</p></div>
-<div class="panext"><span>${esc(X.next)}</span>${nx ? `<b>${nx.home ? 'vs' : '@'} ${esc(tn(nx.opp))}</b><small>${esc(when(nx.t))} · ${esc(X.round)} ${nx.r}</small>` : `<b>${esc(X.noNext)}</b>`}${st}</div></div>`;
+<div class="panext"><span>${esc(X.next)}</span>${nx ? `<b>${nx.home ? 'vs' : '@'} ${esc(tn(nx.opp))}</b><small>${esc(when(nx.t))} · ${esc(X.round)} ${nx.r}</small>` : `<b>${esc(X.noNext)}</b>`}${st}<button type="button" class="pafavbtn${isFav() ? ' on' : ''}" id="paFav" aria-pressed="${isFav()}">${esc(isFav() ? FT.saved : FT.save)}</button></div></div>`;
 }
 
 function card(label, h, extra = '') {
@@ -132,7 +154,7 @@ function side(p) {
 
 function render() {
   const p = BY[S.c];
-  root.innerHTML = controls() + (p ? head(p) + cards(p) + `<div class="pagrid">${chartBox(p)}${side(p)}</div>` : '');
+  root.innerHTML = favBar() + controls() + (p ? head(p) + cards(p) + `<div class="pagrid">${chartBox(p)}${side(p)}</div>` : '');
   bind();
 }
 
@@ -157,6 +179,8 @@ function bind() {
   root.querySelectorAll('.paside button').forEach(b => b.addEventListener('click', () => { S.side = b.dataset.side; render(); }));
   root.querySelectorAll('.pafil .seg').forEach(sgm => sgm.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const k = sgm.dataset.f; S[k] = k === 'range' ? +b.dataset.v : b.dataset.v; render(); }));
   const M = $('#paMate'); if (M) M.addEventListener('change', () => { S.mate = M.value; render(); });
+  $('#paFav')?.addEventListener('click', toggleFav);
+  root.querySelector('.pafav')?.addEventListener('click', e => { const b = e.target.closest('button[data-fc]'); if (!b) return; const f = favs().find(x => x.c === b.dataset.fc && x.s === b.dataset.fs); if (f) S.side = f.side || 'over'; setPlayer(b.dataset.fc, b.dataset.fs, +b.dataset.fl); });
   root.querySelectorAll('.pause').forEach(b => b.addEventListener('click', () => setLine(+b.dataset.l)));
   const sh = $('#paShare'); if (sh) sh.addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.href); sh.textContent = '✓ ' + X.copied; } catch { } });
 }

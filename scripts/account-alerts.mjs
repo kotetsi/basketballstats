@@ -27,10 +27,13 @@ if (!DB) { console.log('Ειδοποιήσεις: η βάση bs-account δεν 
 const q = async (sql, params = []) => (await api(`/d1/database/${DB.uuid}/query`, { method: 'POST', body: JSON.stringify({ sql, params }) }))[0].results;
 
 const now = Date.now(), sec = Math.floor(now / 1000);
-const [D, NEWS] = await Promise.all([
+const [D, NEWS, PROPS, SITED] = await Promise.all([
   fetch(`${SITE}/api/fantasy/projections/latest.json?t=${now}`).then(r => r.json()),
   fetch(`${SITE}/api/fantasy/news.json?t=${now}`).then(r => r.json()).then(j => j.items || []).catch(() => []),
+  fetch(`${SITE}/assets/props/data.json?t=${now}`).then(r => r.json()).catch(() => null),              // Prop Analyzer (αποθηκευμένα props)
+  fetch(`${SITE}/assets/data.json?t=${now}`).then(r => r.json()).catch(() => null),
 ]);
+const TEAMS = Object.fromEntries(Object.entries(SITED?.teams || {}).map(([c, v]) => [c, Array.isArray(v) ? v[0] : v]));
 const users = await q('SELECT u.id, u.prefs, s.data, t.chat_id FROM users u JOIN state s ON s.user_id = u.id LEFT JOIN telegram t ON t.user_id = u.id');
 const subs = await q('SELECT id, user_id, endpoint FROM push_subs');
 const sentRows = await q('SELECT user_id, key FROM sent WHERE ts > ?', [sec - 60 * 86400]);
@@ -68,7 +71,7 @@ for (const u of users) {
   let prefs = {}, state = null; try { prefs = JSON.parse(u.prefs || '{}'); state = JSON.parse(u.data); } catch { continue; }
   const ps = subsBy.get(u.id) || [];
   if (!u.chat_id && !ps.length) continue;                       // κανένα κανάλι: τίποτα να σταλεί (ούτε σημειώνεται)
-  const A = userAlerts(state, D, NEWS, { prefs, now, base: SITE }).filter(a => !sent.has(u.id + ' ' + a.key));
+  const A = userAlerts(state, D, NEWS, { prefs, now, base: SITE, props: PROPS, teams: TEAMS }).filter(a => !sent.has(u.id + ' ' + a.key));
   if (!A.length) continue;
   nUsers++;
   for (const a of A.slice(0, 4)) {                              // το πολύ 4 ανά εκτέλεση ανά χρήστη
