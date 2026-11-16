@@ -25,7 +25,7 @@ from sklearn.linear_model import LogisticRegression, Ridge
 LIN = ['l_margin', 'x_rmargin', 'd_net', 'd_net_l5', 'd_net_l10', 'x_margin', 'elo_h', 'elo_a', 'home', 'd_rest', 'h_b2b', 'a_b2b', 'd_absent', 'h_sos', 'a_sos']
 LIN_T = ['l_total', 'x_rtotal', 'x_total', 'x_pace', 'h_pace', 'a_pace', 'h_ortg', 'a_ortg', 'h_drtg', 'a_drtg']
 
-MODEL_VERSION = 'mp-1.3'   # 1.1 παράταση · 1.2 τύχη στα τρίποντα · 1.3 ratings παικτών από τις πεντάδες (RAPM)
+MODEL_VERSION = 'mp-1.4'   # 1.1 παράταση · 1.2 τύχη στα τρίποντα · 1.3 ratings παικτών (RAPM) · 1.4 αφετηρία RAPM από box score
 TARGETS = ['y_margin', 'y_total', 'y_poss']
 
 

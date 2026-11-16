@@ -51,6 +51,27 @@ class TestLineups(unittest.TestCase):
         o2, _ = lineup_strength(PR, {'a5': 40, 'a1': 40, 'a2': 40, 'a3': 40, 'a4': 40})
         self.assertGreater(o, o2)
 
+    def test_box_prior_features(self):
+        import features
+        features.BOX_HIST['E2024'] = {'001': (30.0, 25.0, 14.0, 4.0, 3.0, 15.0)}
+        f = features.player_box_features('001', 'E2025', [20, 0, 30])
+        self.assertEqual(f[0], 1.0)
+        self.assertAlmostEqual(f[2], 36 * 15 / 25)                        # PIR ανά 36′ της προηγούμενης σεζόν
+        self.assertEqual(f[6:8], [1.0, 25.0])                            # λεπτά ανά αγώνα φέτος (μόνο όσους έπαιξε)
+        g = features.player_box_features('999', 'E2025', None)           # νέος παίκτης χωρίς ιστορικό
+        self.assertEqual(g[:6], [0.0] * 6)
+        self.assertEqual(g[6], 0.0)
+
+    def test_prior_pulls_toward_box_score(self):
+        import numpy as np
+        R = RAPM(lam=5000)
+        players = [f'p{i}' for i in range(50)]
+        beta = np.concatenate([np.linspace(-3, 3, 50), np.zeros(50), [0.0]])
+        expo = np.full(50, 1000.0)
+        pri = R._prior(players, beta, expo, lambda p: [float(p[1:])])     # το box score «ξέρει» τη σειρά
+        self.assertIsNotNone(pri)
+        self.assertGreater(pri[-1, 0], pri[0, 0])
+
 
 if __name__ == '__main__':
     unittest.main()

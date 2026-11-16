@@ -20,7 +20,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import lsqr
 
-LAMBDA = float(os.environ.get('PRED_RAPM_LAMBDA', '1500'))     # συρρίκνωση (σε μονάδες κατοχών· ελεγμένο 800–6000)
+LAMBDA = float(os.environ.get('PRED_RAPM_LAMBDA', '3000'))     # συρρίκνωση προς την αφετηρία box score (σε μονάδες κατοχών· ελεγμένο 800–6000)
 HALF_LIFE_DAYS = float(os.environ.get('PRED_RAPM_HL', '240'))  # χρονική απόσβεση των stints
 REFIT_EVERY = 10                                                # νέο fit κάθε τόσους νέους αγώνες
 MIN_POSS = 1.0
@@ -101,8 +101,10 @@ class RAPM:
                 self.rows.append((od, off, dfn, p, pts, hs))
         self.n_games += 1
 
-    def ratings(self):
-        """(μ, home, {παίκτης: (o, d)}) με όσα stints έχουν προστεθεί μέχρι τώρα."""
+    def ratings(self, featfn=None):
+        """(μ, home, {παίκτης: (o, d)}) με όσα stints έχουν προστεθεί μέχρι τώρα.
+        featfn(παίκτης) → λίστα χαρακτηριστικών box score (ή None): αν δοθεί, κάθε παίκτης ξεκινά από μια
+        εκτίμηση από το box score του (αντί για τον μέσο παίκτη) και οι πεντάδες τη διορθώνουν (βλ. _prior)."""
         if self._fit is not None and self.n_games - self._fit_n < REFIT_EVERY:
             return self._fit
         self._fit_n = self.n_games
@@ -129,10 +131,49 @@ class RAPM:
         X = csr_matrix((V, (R, C)), shape=(len(self.rows), 2 * P + 1))
         Xw = X.multiply(sw[:, None]).tocsr()
         yw = np.array(y) * sw
-        beta = lsqr(Xw, yw, damp=float(np.sqrt(self.lam)), atol=1e-8, btol=1e-8, iter_lim=3000)[0]
+        solve = lambda yy: lsqr(Xw, yy, damp=float(np.sqrt(self.lam)), atol=1e-8, btol=1e-8, iter_lim=3000)[0]
+        beta = solve(yw)
+        if featfn is not None and PRIOR_ON:
+            # 2ο βήμα: συρρίκνωση προς την εκτίμηση από το box score αντί για το 0 (b = prior + c, ridge στο c)
+            exposure = np.asarray(abs(X[:, :P]).T @ np.array(w)).ravel() + np.asarray(abs(X[:, P:2 * P]).T @ np.array(w)).ravel()
+            pri = self._prior(players, beta, exposure, featfn)
+            if pri is not None:
+                b0 = np.concatenate([pri[:, 0], pri[:, 1], [0.0]])
+                beta = b0 + solve(yw - Xw @ b0)
         R_ = {p: (float(beta[ix[p]]), float(beta[P + ix[p]])) for p in players}
         self._fit = (mu, float(beta[2 * P]), R_)
         return self._fit
+
+    @staticmethod
+    def _prior(players, beta, exposure, featfn):
+        """Εκτίμηση (o, d) κάθε παίκτη από το box score: γραμμική σχέση ανάμεσα στα χαρακτηριστικά box score και στο
+        RAPM των παικτών με αρκετό δείγμα (μόνο με αγώνες ως τώρα, άρα χωρίς leakage)."""
+        P = len(players)
+        F = [featfn(p) for p in players]
+        k = next((len(f) for f in F if f is not None), 0)
+        if not k:
+            return None
+        Fm = np.array([f if f is not None else [np.nan] * k for f in F], float)
+        has = ~np.isnan(Fm).any(axis=1)
+        good = has & (exposure > 300)
+        if good.sum() < 40:
+            return None
+        out = np.zeros((P, 2))
+        for j, off in ((0, 0), (1, P)):
+            g = _prior_fit(Fm[good], beta[off:off + P][good], np.minimum(exposure[good], 3000.0))
+            out[has, j] = np.hstack([np.ones((has.sum(), 1)), Fm[has]]) @ g
+        return out
+
+
+PRIOR_ON = os.environ.get('PRED_RAPM_PRIOR', '1') != '0'
+
+
+def _prior_fit(F, T, wts, alpha=1.0):
+    """Σταθμισμένη ridge F·γ ≈ T (με σταθερό όρο)."""
+    A = np.hstack([np.ones((F.shape[0], 1)), F])
+    Wd = np.sqrt(wts)[:, None]
+    reg = alpha * np.eye(A.shape[1]); reg[0, 0] = 0
+    return np.linalg.solve((A * Wd).T @ (A * Wd) + reg, (A * Wd).T @ (T * Wd.ravel()))
 
 
 def expected_minutes(mins: dict, available=None, unavailable=None, k=EXP_GAMES) -> dict:

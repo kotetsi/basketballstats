@@ -111,8 +111,35 @@ def load_games(root: Path, seasons=None) -> list[Game]:
                 G.stints = stints_of(g)
             out.append(G)
     attach_expected_threes(root, out)
+    load_box_history(root)
     out.sort(key=lambda x: (x.d, x.season, x.gc))
     return out
+
+
+BOX_HIST: dict = {}   # σεζόν → {παίκτης: (αγώνες, λεπτά, πόντοι, ριμπ., ασίστ, PIR) μ.ο. ανά αγώνα} (EuroLeague, cache.json)
+
+
+def load_box_history(root: Path) -> None:
+    try:
+        H = json.loads((root / 'data' / 'cache.json').read_text()).get('hist') or {}
+    except Exception:
+        return
+    for code, h in H.items():
+        BOX_HIST[code] = {str(r[0]): tuple(float(x or 0) for x in r[4:10]) for r in h.get('rows') or [] if r and r[4]}
+
+
+def player_box_features(pid: str, season: str, cur_minutes: list | None) -> list:
+    """Χαρακτηριστικά box score για την αφετηρία του RAPM: προηγούμενη σεζόν EuroLeague (ανά 36′) και
+    λεπτά ανά αγώνα στην τρέχουσα σεζόν μέχρι τώρα (οι προπονητές δίνουν λεπτά στους καλύτερους)."""
+    prev = f'{season[0]}{int(season[1:]) - 1}'
+    r = BOX_HIST.get(prev, {}).get(pid)
+    f = [0.0] * 6
+    if r and r[1] >= 5 and r[0] >= 5:
+        G, mn, pts, reb, ast, pir = r
+        f = [1.0, mn, 36 * pir / mn, 36 * pts / mn, 36 * reb / mn, 36 * ast / mn]
+    pl = [m for m in (cur_minutes or []) if m > 0]
+    f += [1.0 if pl else 0.0, sum(pl) / len(pl) if pl else 0.0, math.log1p(len(pl))]
+    return f
 
 
 def attach_expected_threes(root: Path, games: list) -> None:
@@ -414,7 +441,7 @@ class Builder:
         row['x_rtotal'] = 2 * mu + oh + da + oa + dh
         row['h_ro'], row['h_rd'], row['a_ro'], row['a_rd'] = oh, dh, oa, da
         if LINEUPS:
-            mu_p, hadv, PR = self.rapm[season[0]].ratings()
+            mu_p, hadv, PR = self.rapm[season[0]].ratings(self._featfn(season))
             if mu_p is not None:
                 emh = expected_minutes(H.mins, played_h, unavailable)
                 ema = expected_minutes(A.mins, played_a, unavailable)
@@ -431,6 +458,14 @@ class Builder:
                         row['l_margin'] = row['l_net'] * pace / 100
                         row['l_total'] = (row['l_h_rtg'] + row['l_a_rtg']) * pace / 100
         return row
+
+    def _featfn(self, season):
+        mins = defaultdict(list)
+        for (s_, t), T in self.teams.items():
+            if s_ == season:
+                for pid, ms in T.mins.items():
+                    mins[pid] += ms
+        return lambda pid: player_box_features(pid, season, mins.get(pid))
 
     def add_result(self, g: Game):
         H, A = self.state(g.season, g.h), self.state(g.season, g.a)
