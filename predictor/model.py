@@ -22,10 +22,10 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression, Ridge
 
 # Γραμμικό «σκελετό» μοντέλο με λίγα, σταθερά features: πολύ λιγότερο overfitting σε μικρά δείγματα
-LIN = ['x_rmargin', 'd_net', 'd_net_l5', 'd_net_l10', 'x_margin', 'elo_h', 'elo_a', 'home', 'd_rest', 'h_b2b', 'a_b2b', 'd_absent', 'h_sos', 'a_sos']
-LIN_T = ['x_rtotal', 'x_total', 'x_pace', 'h_pace', 'a_pace', 'h_ortg', 'a_ortg', 'h_drtg', 'a_drtg']
+LIN = ['l_margin', 'x_rmargin', 'd_net', 'd_net_l5', 'd_net_l10', 'x_margin', 'elo_h', 'elo_a', 'home', 'd_rest', 'h_b2b', 'a_b2b', 'd_absent', 'h_sos', 'a_sos']
+LIN_T = ['l_total', 'x_rtotal', 'x_total', 'x_pace', 'h_pace', 'a_pace', 'h_ortg', 'a_ortg', 'h_drtg', 'a_drtg']
 
-MODEL_VERSION = 'mp-1.2'   # 1.1: διόρθωση συνόλου (παράταση) · 1.2: ratings χωρίς την τύχη στα τρίποντα (shot charts)
+MODEL_VERSION = 'mp-1.3'   # 1.1 παράταση · 1.2 τύχη στα τρίποντα · 1.3 ratings παικτών από τις πεντάδες (RAPM)
 TARGETS = ['y_margin', 'y_total', 'y_poss']
 
 

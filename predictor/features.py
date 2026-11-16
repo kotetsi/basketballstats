@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
+from lineups import RAPM, stints_of, expected_minutes, lineup_strength
+
 SK = ['pts', 'fgm2', 'fga2', 'fgm3', 'fga3', 'ftm', 'fta', 'oreb', 'dreb', 'tov', 'ast', 'stl', 'blk', 'pf']
 I = {k: i for i, k in enumerate(SK)}
 
@@ -25,7 +27,9 @@ RIDGE_REG, RIDGE_LAM, RIDGE_HOME = 0.75, 8.0, 3.0
 # Τύχη στα τρίποντα: τα ratings της ομάδας χτίζονται με τρίποντα «διορθωμένα» προς τα αναμενόμενα εύστοχα
 # (3PA ανά ζώνη × ποσοστό λίγκας της ζώνης, από τα shot charts). LUCK3 = πόσο από την απόκλιση θεωρούμε τύχη.
 LUCK3 = float(os.environ.get('PRED_LUCK3', '1'))
-LUCK2 = float(os.environ.get('PRED_LUCK2', '0'))   # το ίδιο για τα δίποντα (ζώνες καλάθι/ρακέτα/μέση απόσταση)
+LUCK2 = float(os.environ.get('PRED_LUCK2', '0'))
+# ratings παικτών από τις πεντάδες (lineups.py): η ομάδα του αγώνα = όσοι θα παίξουν, με τα αναμενόμενα λεπτά τους
+LINEUPS = os.environ.get('PRED_LINEUPS', '1') != '0'   # το ίδιο για τα δίποντα (ζώνες καλάθι/ρακέτα/μέση απόσταση)
 
 
 # ---------- βασικοί δείκτες
@@ -75,6 +79,7 @@ class Game:
     box: dict
     played: dict = field(default_factory=dict)   # ομάδα → {παίκτης: λεπτά}
     x3: dict = field(default_factory=dict)       # ομάδα → αναμενόμενα εύστοχα τρίποντα (από τις ζώνες των σουτ)
+    stints: dict = field(default_factory=dict)   # ομάδα → πεντάδες (για τα ratings παικτών, lineups.py)
 
     @property
     def key(self):
@@ -100,8 +105,11 @@ def load_games(root: Path, seasons=None) -> list[Game]:
             for pid, v in (g.get('pl') or {}).items():
                 if v[2] > 0:
                     played[v[1]][pid.strip().lstrip('P')] = v[2] / 60
-            out.append(Game(sd.name, int(g['gc']), g.get('d') or '', g.get('ph') or 'RS', g['h'], g['a'], int(g['hs']), int(g['as']),
-                            float(g.get('secs') or 2400), g['box'], dict(played)))
+            G = Game(sd.name, int(g['gc']), g.get('d') or '', g.get('ph') or 'RS', g['h'], g['a'], int(g['hs']), int(g['as']),
+                     float(g.get('secs') or 2400), g['box'], dict(played))
+            if LINEUPS:
+                G.stints = stints_of(g)
+            out.append(G)
     attach_expected_threes(root, out)
     out.sort(key=lambda x: (x.d, x.season, x.gc))
     return out
@@ -327,6 +335,7 @@ class Builder:
     def __init__(self):
         self.teams: dict[tuple, TeamState] = {}
         self.elo = {'E': Elo(), 'U': Elo()}
+        self.rapm = {'E': RAPM(), 'U': RAPM()}
         self.season_of = {}
         self.last_season = {}
         self.results = defaultdict(list)     # σεζόν → [(h, a, hs, as, neutral)]
@@ -404,6 +413,23 @@ class Builder:
         row['x_rmargin'] = (0.0 if neutral else RIDGE_HOME) + oh + da - oa - dh
         row['x_rtotal'] = 2 * mu + oh + da + oa + dh
         row['h_ro'], row['h_rd'], row['a_ro'], row['a_rd'] = oh, dh, oa, da
+        if LINEUPS:
+            mu_p, hadv, PR = self.rapm[season[0]].ratings()
+            if mu_p is not None:
+                emh = expected_minutes(H.mins, played_h, unavailable)
+                ema = expected_minutes(A.mins, played_a, unavailable)
+                ho, hd = lineup_strength(PR, emh)
+                ao, ad = lineup_strength(PR, ema)
+                if ho is not None and ao is not None:
+                    hv = 0.0 if neutral else hadv
+                    row['l_h_o'], row['l_h_d'], row['l_a_o'], row['l_a_d'] = ho, hd, ao, ad
+                    row['l_h_rtg'] = mu_p + ho + ad + hv
+                    row['l_a_rtg'] = mu_p + ao + hd - hv
+                    row['l_net'] = row['l_h_rtg'] - row['l_a_rtg']
+                    pace = row.get('x_pace')
+                    if pace:
+                        row['l_margin'] = row['l_net'] * pace / 100
+                        row['l_total'] = (row['l_h_rtg'] + row['l_a_rtg']) * pace / 100
         return row
 
     def add_result(self, g: Game):
@@ -416,6 +442,8 @@ class Builder:
             for pid in set(T.mins) | set(pl):
                 T.mins[pid].append(pl.get(pid, 0.0))
         self.elo[g.season[0]].update(g.h, g.a, g.hs - g.as_)
+        if LINEUPS and g.stints:
+            self.rapm[g.season[0]].add_game(g.d, g.h, g.stints)
         self.results[g.season].append((g.h, g.a, g.hs, g.as_, g.ph == 'FF'))
 
 

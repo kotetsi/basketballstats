@@ -117,10 +117,10 @@ def main():
             rm = T.recent_minutes()
             tot = sum(rm.values()) or 1
             for pid, m in sorted(rm.items(), key=lambda x: -x[1])[:8]:
-                v = dict(base)
                 out_now = pid in unav
-                v[f'{side}_absent'] = max(0.0, base[f'{side}_absent'] + (-m if out_now else m) / tot)
-                v['d_absent'] = v['h_absent'] - v['a_absent']
+                # ο ίδιος αγώνας με τον παίκτη διαθέσιμο/εκτός: ξαναϋπολογίζονται όλα τα features
+                # (και η δύναμη της πεντάδας από τα ratings παικτών), όχι μόνο το ποσοστό απουσίας
+                v = B.features_for(season, h, a, d, unavailable=(unav - {pid}) if out_now else (unav | {pid}))
                 variants.append(v)
                 keyp.append({'side': side, 'id': pid, 'min': round(m, 1), 'out': out_now})
         o = P.predict(variants)
