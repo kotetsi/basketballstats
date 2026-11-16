@@ -104,6 +104,9 @@ const ADAPTERS = {
       st.fixturesDay = today;
     }
     st.done ||= {};
+    st.propDone ||= {};
+    st.propAttempts ||= {};
+    const PROP_RETRY_MS = 6 * 3600e3, MAX_PROP_ATTEMPTS = 2;
     const now = Date.now(), events = [];
     for (const f of st.fixtures) {
       const hrs = (new Date(f.start) - now) / 3600e3;
@@ -114,10 +117,16 @@ const ADAPTERS = {
       const win = hrs <= 4 ? 'close' : hrs <= 30 ? 'mid' : 'open';
       if (!WINS.includes(win)) continue;
       const done = (st.done[f.id] ||= []);
-      if (done.includes(win) && !FORCE) continue;
+      const propDone = (st.propDone[f.id] ||= []);
+      const attempts = (st.propAttempts[f.id] ||= {});
+      const attempt = attempts[win] || { count: 0, lastAttempt: null };
+      const lastAttemptAt = Date.parse(attempt.lastAttempt || '');
+      if (!FORCE && (propDone.includes(win) || attempt.count >= MAX_PROP_ATTEMPTS ||
+          (Number.isFinite(lastAttemptAt) && now - lastAttemptAt < PROP_RETRY_MS))) continue;
+      attempts[win] = { count: attempt.count + 1, lastAttempt: new Date(now).toISOString() };
       const res = await call('odds', { fixtureId: f.id, oddsFormat: 'decimal' }).catch(e => { console.log('Odds:', e.message); return null; });
       if (!res) continue;
-      done.push(win);
+      if (!done.includes(win)) done.push(win);
       const price = o => { const p = o && (o.players?.['0'] || Object.values(o.players || {})[0]); return p && p.active !== false ? p.price : null; };
       const changed = o => { const p = o && (o.players?.['0'] || Object.values(o.players || {})[0]); return p?.changedAt || null; };
       const bo = res.bookmakerOdds || {};
@@ -152,10 +161,12 @@ const ADAPTERS = {
         if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, window: win || null, markets: m });
       }
       st.props[f.id] = books.reduce((n, b) => n + (b.markets.props?.length || 0), 0);
-      events.push({ eventId: f.id, home: meta.parts[f.p1] || '', away: meta.parts[f.p2] || '', commence: f.start, books });
+      events.push({ eventId: f.id, home: meta.parts[f.p1] || '', away: meta.parts[f.p2] || '', commence: f.start, window: win, books });
     }
     // καθαρισμός παλιών αγώνων από τη μνήμη κατάστασης
-    for (const id of Object.keys(st.done)) if (!st.fixtures.some(f => f.id === id)) { delete st.done[id]; delete st.props?.[id]; }
+    for (const id of Object.keys(st.done)) if (!st.fixtures.some(f => f.id === id)) {
+      delete st.done[id]; delete st.props?.[id]; delete st.propDone?.[id]; delete st.propAttempts?.[id];
+    }
     return { quota: { used: st.calls, cap: CAP, month }, events };
   },
   // γενικός adapter: ένα JSON στο ίδιο σχήμα με το παραπάνω (π.χ. από άλλον αδειοδοτημένο πάροχο μέσω proxy)
@@ -210,6 +221,7 @@ async function main() {
     matched++;
     const gid = `E-${f.r}-${h}-${a}`;
     const G = (latest.games[gid] = { t: f.t, commence: ev.commence, provider: PROVIDER, books: {}, updated: ts });
+    const propSnapStart = propSnaps.length;
     for (const b of ev.books.filter(b => jurisdictions(b.key, b.title).length)) {
       G.books[b.key] = { title: b.title, upd: b.upd, lic: jurisdictions(b.key, b.title), ...b.markets };
       const add = (market, sel, price, line) => price > 1 && snaps.push({ provider: PROVIDER, event: gid, book: b.key, market, sel, line: line ?? null, price, t: b.upd || ts, seen: ts });
@@ -224,6 +236,11 @@ async function main() {
           if (price > 1) propSnaps.push({ provider: PROVIDER, event: gid, commence: ev.commence, book: b.key, market: `prop:${p.stat}`, sel, player: p.name || null, playerId: p.playerId ?? null, line: +p.line, price: +price, t: stamp, seen: ts, window: b.window || null });
         }
       }
+    }
+    if (PROVIDER === 'oddspapi' && ev.window && propSnaps.length > propSnapStart) {
+      const state = status.oddspapi ||= {};
+      const captured = (state.propDone[String(ev.eventId)] ||= []);
+      if (!captured.includes(ev.window)) captured.push(ev.window);
     }
   }
   // ιστορικό: μόνο αλλαγές (idempotent)
