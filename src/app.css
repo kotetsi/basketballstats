@@ -893,3 +893,7 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .teamformboard span{display:block;text-transform:none;letter-spacing:0;font-size:11px}
 .teamformboard small{display:block;margin-top:5px;color:var(--muted);font-size:11px}
 @media(max-width:640px){.teamformboard{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.teamformboard b{font-size:24px}}
+
+.form-swing{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-swing h3{font-family:var(--display);font-size:16px;margin:0 0 8px}
+@media(max-width:640px){.form-swing{grid-template-columns:1fr}}
