@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {playedGames,playerWindow,playerFinderStats,findPlayers} from '../src/finder/metrics.mjs';
+const row=(round,sec,pir,home=1)=>{const r=Array(26).fill(0);r[0]=round;r[1]='2026-10-'+String(round).padStart(2,'0');r[3]=home;r[7]=sec;r[8]=pir+2;r[15]=2;r[16]=3;r[17]=4;r[25]=pir;return r;};
+const p={n:'TEST, PLAYER',t:'OLY',pos:'Guard',g:[row(4,1200,20),row(1,1200,5),row(2,0,99),row(6,900,15,0),row(3,1200,10),row(5,1200,25)]};
+test('last five appearances exclude DNP and sort chronologically',()=>{assert.deepEqual(playedGames(p).map(r=>r[0]),[1,3,4,5,6]);assert.equal(playerWindow(p,5).length,5);});
+test('PIR and minutes are averages per appearance',()=>{const x=playerFinderStats(p);assert.equal(x.pir,15);assert.equal(x.minutes,19);assert.equal(x.rebounds,5);});
+test('minimum 15 minutes is applied to window average',()=>{assert.equal(findPlayers([p],{period:5,minMinutes:15}).length,1);assert.equal(findPlayers([p],{period:5,minMinutes:20}).length,0);});
+test('home/away is applied after last-five selection',()=>{assert.equal(playerFinderStats(p,{period:5,venue:'away'}).games,1);assert.equal(playerFinderStats(p,{period:5,venue:'away'}).pir,15);});
+test('filtering and stable PIR sorting',()=>{const q={...p,n:'ANOTHER, PLAYER',t:'PAN',g:[row(1,1200,30),row(2,1200,30),row(3,1200,30)]};assert.equal(findPlayers([p,q],{team:'OLY'}).length,1);assert.equal(findPlayers([p,q])[0].player.n,'ANOTHER, PLAYER');});
+test('insufficient sample and missing game logs are excluded',()=>{assert.equal(findPlayers([{n:'NO GAMES',g:[]}]).length,0);assert.equal(findPlayers([{...p,g:[row(1,1000,20)]}]).length,0);});
