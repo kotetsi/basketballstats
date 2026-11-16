@@ -1020,12 +1020,28 @@ async function main() {
     const posOf = p => FXP[p.c]?.pos || (['Guard', 'Forward', 'Center'].includes(p.pos) ? p.pos : null);
     const PJ = PROPM.nextProjections(Object.keys(next), { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, priors, ctx: PCTX });
     const DEF = PROPM.defenseVsPos(solo, posOf);
+    // ατομικά splits από το play-by-play (scripts/pbp.mjs → ps): ανά περίοδο και με κάθε συμπαίκτη στο παρκέ
+    const SP = {};
+    try {
+      const dir = path.join(ROOT, 'data', 'pbp', SEASON);
+      for (const f of await fs.readdir(dir)) {
+        const G = JSON.parse(await fs.readFile(path.join(dir, f), 'utf8')); if (!G.ps) continue;
+        const code = i => String(G.ids[i] || '').replace(/^P/, '');
+        for (const arr of Object.values(G.ps)) for (const [pi, q, w] of arr) {
+          const o = (SP[code(pi)] ||= { q: [0, 1, 2, 3, 4].map(() => new Array(8).fill(0)), w: {}, n: 0 });
+          o.n++; q.forEach((row, k) => row.forEach((v, j) => (o.q[k][j] += v)));
+          for (const [xi, ...v] of w) { const z = (o.w[code(xi)] ||= new Array(8).fill(0)); v.forEach((x, j) => (z[j] += x)); }
+        }
+      }
+    } catch { }
+    const spOut = c => { const o = SP[c]; if (!o) return null; const r1 = v => Math.round(v * 10) / 10;
+      return { n: o.n, q: o.q.map(r => r.map(r1)), w: Object.fromEntries(Object.entries(o.w).filter(([, v]) => v[0] >= 60).map(([x, v]) => [x, v.map(r1)])) }; };
     const row = r => [r[0], r[1], r[2], r[3], r[4] > r[5] ? 1 : 0, r[6], Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[11], r[18], r[20], r[19], r[25], r[4], r[5]];
     const list = solo.filter(p => p.g.some(r => r[7] > 0)).map(p => {
       const x = PJ[p.c];
       return { c: p.c, n: niceName(p.n), ...(GRN[p.n] ? { gr: GRN[p.n] } : {}), s: p.s, t: p.t, pos: posOf(p) || 'Forward', no: p.no ?? '',
         st: x?.st || FXP[p.c]?.status || 'playing', out: x?.out ? 1 : 0, min: x?.min ?? null, base: x?.base ?? null, pj: x?.pj || {},
-        g: p.g.filter(r => r[7] > 0).sort((a, b) => a[0] - b[0]).map(row) };
+        g: p.g.filter(r => r[7] > 0).sort((a, b) => a[0] - b[0]).map(row), ...(spOut(p.c) ? { sp: spOut(p.c) } : {}) };
     });
     PADATA = { gen: data.fetchedAt, season: SEASON_LABEL, round: Math.min(...Object.values(next).map(x => x.r), 99), blend: PROPM.PARAMS.blend,
       cols: ['r', 'date', 'opp', 'home', 'win', 'start', 'min', 'pts', 'reb', 'ast', 'fg3', 'stl', 'blk', 'tov', 'pir', 'tsc', 'osc'], next, def: DEF, players: list };

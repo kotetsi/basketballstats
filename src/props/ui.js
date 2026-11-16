@@ -112,6 +112,36 @@ const MN = {
   sr: { mins: 'Minuti igrača {p}: {w}′ bez {m} ({n} ut.), {a}′ sa njim ({k} ut.).', out: '{m} je već van tima za sledeću utakmicu, pa je model već raspodelio njegove minute: {p} sa {b}′ na {x}′ (vidi „Model”). Ovaj filter menja samo koje prošle utakmice vidiš.', in: 'Ovaj filter menja samo koje prošle utakmice vidiš; projekcija ostaje ista dok je {m} dostupan. Ako bude van tima, model automatski raspodeljuje njegove minute.' },
   tr: { mins: '{p} süreleri: {m} yokken {w}′ ({n} maç), onunla {a}′ ({k} maç).', out: '{m} sonraki maçta zaten yok; model süresini zaten dağıttı: {p} {b}′ → {x}′ (bkz. “Model”). Bu filtre yalnızca hangi geçmiş maçları gördüğünü değiştirir.', in: 'Bu filtre yalnızca hangi geçmiş maçları gördüğünü değiştirir; {m} müsait göründükçe tahmin değişmez. Kadro dışı kalırsa model süresini otomatik dağıtır.' },
 }[LG] || null;
+// ---------- splits από το play-by-play: με/χωρίς συμπαίκτη στο παρκέ και ανά δεκάλεπτο
+const SPI = { pts: [1], reb: [2], ast: [3], fg3: [4], stl: [5], blk: [6], tov: [7], pr: [1, 2], pa: [1, 3], pra: [1, 2, 3], ar: [2, 3] };
+const SPX = {
+  el: { on: 'Με τον {m} στο παρκέ: {a} ανά 36′ ({ma}′ συνολικά).', off: 'Χωρίς τον {m} στο παρκέ: {b} ανά 36′ ({mb}′ συνολικά).', impl: 'Με τα {x}′ της εκτίμησης, ο ρυθμός «χωρίς» αντιστοιχεί σε ≈ {v} (με: ≈ {w}).', small: 'λίγα λεπτά χωρίς αυτόν, προσοχή στο δείγμα', title: 'Ανά δεκάλεπτο (σεζόν)', q: ['1ο', '2ο', '3ο', '4ο', 'Παρ.'], mins: 'λεπτά/αγ.', per: '{s}/αγ.', share: 'μερίδιο', src: 'Από το play-by-play: μετράει τα λεπτά που ήταν μαζί ή όχι στο παρκέ, όχι μόνο ολόκληρους αγώνες.' },
+  en: { on: 'With {m} on court: {a} per 36′ ({ma}′ in total).', off: 'With {m} off court: {b} per 36′ ({mb}′ in total).', impl: 'At the projected {x}′, the “without” rate means ≈ {v} (with: ≈ {w}).', small: 'few minutes without him, small sample', title: 'By quarter (season)', q: ['Q1', 'Q2', 'Q3', 'Q4', 'OT'], mins: 'min/g', per: '{s}/g', share: 'share', src: 'From play-by-play: counts the minutes they shared the floor or not, not only whole games.' },
+}[LG === 'el' ? 'el' : 'en'];
+function spRate(sp, ix, mateC) {
+  if (!sp || !ix) return null;
+  const tot = [0, 0, 0, 0, 0, 0, 0, 0]; sp.q.forEach(r => r.forEach((v, j) => (tot[j] += v)));
+  const w = sp.w[mateC] || [0, 0, 0, 0, 0, 0, 0, 0], off = tot.map((v, j) => v - w[j]);
+  const st = a => ix.reduce((x, k) => x + a[k], 0), per36 = a => (a[0] > 0 ? (st(a) / a[0]) * 2160 : null);
+  return { onMin: w[0] / 60, offMin: off[0] / 60, on36: per36(w), off36: per36(off), onRate: w[0] ? st(w) / w[0] : null, offRate: off[0] ? st(off) / off[0] : null };
+}
+function spMate(p, mate) {
+  const r = spRate(p.sp, SPI[S.s], mate.c); if (!r || r.on36 == null) return '';
+  const nmM = nm(mate), x = p.min || null;
+  let t = fill(SPX.on, { m: nmM, a: f1(r.on36), ma: Math.round(r.onMin) }) + ' ' + (r.off36 == null ? '' : fill(SPX.off, { m: nmM, b: f1(r.off36), mb: Math.round(r.offMin) }));
+  if (x && r.offRate != null) t += ' ' + fill(SPX.impl, { x: f1(x), v: f1(r.offRate * x * 60), w: f1(r.onRate * x * 60) });
+  if (r.offMin < 60) t += ` (${SPX.small})`;
+  return `<p class="sub pamate"><b>${esc(t)}</b> <small>${esc(SPX.src)}</small></p>`;
+}
+function quarterBox(p) {
+  const ix = SPI[S.s]; if (!p.sp || !ix) return '';
+  const n = p.sp.n || 1, st = a => ix.reduce((x, k) => x + a[k], 0), all = p.sp.q.reduce((x, r) => x + st(r), 0) || 1;
+  const rows = p.sp.q.map((r, i) => [SPX.q[i], r[0] / 60 / n, st(r) / n, st(r) / all]).filter((r, i) => i < 4 || r[1] > 0.05);
+  return `<div class="paq"><h4>${esc(SPX.title)}</h4><table class="paqt"><thead><tr><th></th>${rows.map(r => `<th>${esc(r[0])}</th>`).join('')}</tr></thead><tbody>
+<tr><td class="l">${esc(SPX.mins)}</td>${rows.map(r => `<td>${f1(r[1])}</td>`).join('')}</tr>
+<tr><td class="l">${esc(fill(SPX.per, { s: X.stats[S.s] || S.s }))}</td>${rows.map(r => `<td>${f1(r[2])}</td>`).join('')}</tr>
+<tr><td class="l">${esc(SPX.share)}</td>${rows.map(r => `<td>${Math.round(100 * r[3])}%</td>`).join('')}</tr></tbody></table></div>`;
+}
 function mateNote(p, mate) {
   if (!MN) return '';
   const wo = roundsWithout(p, mate), avgMin = gs => (gs.length ? gs.reduce((s, r) => s + r[6], 0) / gs.length : null);
@@ -127,8 +157,8 @@ function chartBox(p) {
   const g = filterGames(p.g, { range: S.range, venue: S.venue, role: S.role, without: mate ? roundsWithout(p, mate) : null });
   const vals = g.map(VAL[S.s]), H = hits(vals, S.line, S.side);
   return `<section class="pachart"><h3>${esc(X.chart)}</h3><div class="pafil">${seg('range', [[5, 'L5'], [10, 'L10'], [20, 'L20'], [0, X.season]])}${seg('venue', [['all', X.all], ['home', X.home], ['away', X.away]])}${seg('role', [['all', X.all], ['start', X.start], ['bench', X.bench]])}
-<select id="paMate" aria-label="${esc(X.without)}"><option value="">${esc(X.without)}</option>${mates.map(q => { const n = roundsWithout(p, q).size; return `<option value="${q.c}"${q.c === S.mate ? ' selected' : ''}${n ? '' : ' disabled'}>${esc(fill(X.withoutN, { n: nm(q) }))} (${n})${q.out ? ' 🚑' : q.st === 'doubtful' ? ' ⚠️' : ''}</option>`; }).join('')}</select></div>
-${mate && roundsWithout(p, mate).size ? mateNote(p, mate) : ''}${mate && !roundsWithout(p, mate).size ? `<p class="sub">${esc(fill((MW || { none: '{m}: 0', model: '' }).none, { p: nm(p), m: nm(mate), n: p.g.length }))}${p.pj?.[S.s] && mate.out ? ' ' + esc(fill((MW || { model: '' }).model, { m: nm(mate), v: f1(p.pj[S.s][0]) })) : ''}</p>` : g.length ? `<p class="sub"><b class="${H.rate >= 0.6 ? 'pos' : H.rate <= 0.4 ? 'neg' : ''}">${S.side === 'over' ? 'Over' : 'Under'} ${S.line}: ${pc(H.rate)}</b> (${esc(fill(X.of, { w: H.win, n: H.n - H.push }))}) · ${esc(X.avg)} ${f1(vals.reduce((a, b) => a + b, 0) / vals.length)} · ${esc(X.med)} ${f1(median(vals))}</p>${svg(g, vals)}` : `<p class="sub">${esc(X.noFilter)}</p>`}</section>`;
+<select id="paMate" aria-label="${esc(X.without)}"><option value="">${esc(X.without)}</option>${mates.map(q => { const n = roundsWithout(p, q).size; return `<option value="${q.c}"${q.c === S.mate ? ' selected' : ''}${n || p.sp?.w?.[q.c] ? '' : ' disabled'}>${esc(fill(X.withoutN, { n: nm(q) }))} (${n})${q.out ? ' 🚑' : q.st === 'doubtful' ? ' ⚠️' : ''}</option>`; }).join('')}</select></div>
+${mate ? spMate(p, mate) : ''}${mate && roundsWithout(p, mate).size ? mateNote(p, mate) : ''}${mate && !roundsWithout(p, mate).size ? `<p class="sub">${esc(fill((MW || { none: '{m}: 0', model: '' }).none, { p: nm(p), m: nm(mate), n: p.g.length }))}${p.pj?.[S.s] && mate.out ? ' ' + esc(fill((MW || { model: '' }).model, { m: nm(mate), v: f1(p.pj[S.s][0]) })) : ''}</p>` : g.length ? `<p class="sub"><b class="${H.rate >= 0.6 ? 'pos' : H.rate <= 0.4 ? 'neg' : ''}">${S.side === 'over' ? 'Over' : 'Under'} ${S.line}: ${pc(H.rate)}</b> (${esc(fill(X.of, { w: H.win, n: H.n - H.push }))}) · ${esc(X.avg)} ${f1(vals.reduce((a, b) => a + b, 0) / vals.length)} · ${esc(X.med)} ${f1(median(vals))}</p>${svg(g, vals)}` : `<p class="sub">${esc(X.noFilter)}</p>`}</section>`;
 }
 function svg(g, vals) {
   const W = 720, Ht = 250, top = 22, bot = 40, left = 8, n = g.length, bw = (W - left * 2) / Math.max(n, 5);
@@ -181,7 +211,7 @@ function side(p) {
 
 function render() {
   const p = BY[S.c];
-  root.innerHTML = favBar() + controls() + (p ? head(p) + cards(p) + `<div class="pagrid">${chartBox(p)}${side(p)}</div>` : '');
+  root.innerHTML = favBar() + controls() + (p ? head(p) + cards(p) + `<div class="pagrid">${chartBox(p)}${side(p)}</div>${quarterBox(p)}` : '');
   bind();
 }
 

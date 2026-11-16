@@ -884,3 +884,4 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .pafavbtn{font:inherit;font-size:13px;font-weight:600;margin-top:6px;border:1px solid var(--accent,#e4572e);background:transparent;color:var(--accent,#e4572e);border-radius:8px;padding:5px 10px;cursor:pointer}.pafavbtn.on{background:var(--accent,#e4572e);color:#fff}
 .pawz{font-weight:700;white-space:nowrap}.pawz.yes{color:#1b7a3a}.pawz.mid{color:#9a6a00}.pawz.no{color:#b3261e}
 .pasbwarn{background:#fff4d6;border:1px solid #f0d58a;border-radius:8px;padding:8px 12px;color:#6b4e00}
+.paq{margin:14px 0}.paq h4{margin:0 0 6px}.paqt{border-collapse:collapse;font-size:14px}.paqt th,.paqt td{padding:4px 10px;text-align:right;border-bottom:1px solid var(--line)}.paqt td.l{text-align:left;color:var(--muted)}
