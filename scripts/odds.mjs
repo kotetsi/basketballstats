@@ -6,13 +6,14 @@
 //   node scripts/odds.mjs [--force]           · --force: αγνοεί το rate limit
 //
 // Αρχεία:
-//   data/odds/history.jsonl   κάθε αλλαγή τιμής (append-only, idempotent) → line movement, closing lines, CLV
+//   data/odds/history.jsonl        αλλαγές main markets (append-only, idempotent)
+//   data/odds/props-history.jsonl  αλλαγές player props (append-only, idempotent)
 //   data/odds/latest.json     τρέχουσες τιμές ανά αγώνα/bookmaker (για το build)
 //   data/odds/status.json     τελευταία επιτυχία, quota, για alerting
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appendChanges } from '../src/odds/core.mjs';
+import { appendChanges, appendPropSnapshots } from '../src/odds/core.mjs';
 import { extractProps } from '../src/odds/props.mjs';
 import { confirmedFeeds } from '../src/odds/value.mjs';
 
@@ -148,7 +149,7 @@ const ADAPTERS = {
         const pr = extractProps(M, meta); if (pr.length) m.props = pr;
         // αναγνωριστικό παίκτη του παρόχου → όνομα (το /historical-odds δίνει μόνο αναγνωριστικό)
         for (const mk of Object.values(M || {})) for (const oc of Object.values(mk?.outcomes || {})) for (const [pid, pe] of Object.entries(oc?.players || {})) if (pid !== '0' && pe?.playerName) (ctx.status.playerNames ||= {})[pid] = pe.playerName;
-        if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, markets: m });
+        if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, window: win || null, markets: m });
       }
       st.props[f.id] = books.reduce((n, b) => n + (b.markets.props?.length || 0), 0);
       events.push({ eventId: f.id, home: meta.parts[f.p1] || '', away: meta.parts[f.p2] || '', commence: f.start, books });
@@ -199,7 +200,7 @@ async function main() {
   try { res = await ADAPTERS[PROVIDER]({ status, fx }); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); status.lastError = new Date().toISOString(); status.error = e.message; await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(status, true); }
   const ts = new Date().toISOString();
   // αντιστοίχιση με τους δικούς μας αγώνες
-  const snaps = [], latest = await readJSON(path.join(DIR, 'latest.json'), { games: {} });
+  const snaps = [], propSnaps = [], latest = await readJSON(path.join(DIR, 'latest.json'), { games: {} });
   let matched = 0;
   for (const ev of res.events) {
     const h = codeOf(ev.home), a = codeOf(ev.away);
@@ -215,19 +216,32 @@ async function main() {
       if (b.markets.ml) { add('ml', 'home', b.markets.ml[0]); add('ml', 'away', b.markets.ml[1]); }
       if (b.markets.spread) { add('spread', 'home', b.markets.spread.h, b.markets.spread.line); add('spread', 'away', b.markets.spread.a, -b.markets.spread.line); }
       if (b.markets.total) { add('total', 'over', b.markets.total.over, b.markets.total.line); add('total', 'under', b.markets.total.under, b.markets.total.line); }
+      // Ιστορικό player props: ξεχωριστό κλειδί παίκτη + stat + γραμμή, ώστε να μην ενώνονται διαφορετικοί παίκτες.
+      for (const p of b.markets.props || []) {
+        if (!p.name || !p.stat || !Number.isFinite(+p.line)) continue;
+        const stamp = p.upd || b.upd || ts;
+        for (const [sel, price] of [['over', p.over], ['under', p.under]]) {
+          if (price > 1) propSnaps.push({ provider: PROVIDER, event: gid, commence: ev.commence, book: b.key, market: `prop:${p.stat}`, sel, player: p.name, line: +p.line, price: +price, t: stamp, seen: ts, window: b.window || null });
+        }
+      }
     }
   }
   // ιστορικό: μόνο αλλαγές (idempotent)
+  const readHistory = async file => (await fs.readFile(file, 'utf8').catch(() => '')).split('\n').filter(Boolean).map(l => JSON.parse(l));
   const hf = path.join(DIR, 'history.jsonl');
-  const hist = (await fs.readFile(hf, 'utf8').catch(() => '')).split('\n').filter(Boolean).map(l => JSON.parse(l));
+  const phf = path.join(DIR, 'props-history.jsonl');
+  const [hist, propHist] = await Promise.all([readHistory(hf), readHistory(phf)]);
   const added = appendChanges(hist, snaps);
+  const propAdded = appendPropSnapshots(propHist, propSnaps);
   if (added.length) await fs.appendFile(hf, added.map(x => JSON.stringify(x)).join('\n') + '\n');
+  if (propAdded.length) await fs.appendFile(phf, propAdded.map(x => JSON.stringify(x)).join('\n') + '\n');
+  const totalAdded = added.length + propAdded.length;
   latest.provider = PROVIDER; latest.updated = ts;
   await fs.writeFile(path.join(DIR, 'latest.json'), JSON.stringify(latest));
-  Object.assign(status, { provider: PROVIDER, lastCall: ts, lastSuccess: ts, events: res.events.length, matched, added: added.length, quota: res.quota, error: null });
-  if (added.length) status.lastChange = ts;
+  Object.assign(status, { provider: PROVIDER, lastCall: ts, lastSuccess: ts, events: res.events.length, matched, added: totalAdded, propAdded: propAdded.length, quota: res.quota, error: null });
+  if (totalAdded) status.lastChange = ts;
   await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1));
-  console.log(`Odds (${PROVIDER}): ${res.events.length} αγώνες από τον πάροχο, ${matched} αντιστοιχίστηκαν, ${added.length} νέες τιμές · quota: ${res.quota.remaining ?? '?'}`);
+  console.log(`Odds (${PROVIDER}): ${res.events.length} αγώνες από τον πάροχο, ${matched} αντιστοιχίστηκαν, ${totalAdded} νέες τιμές (${propAdded.length} player props) · quota: ${res.quota.remaining ?? '?'}`);
   return 0;
 }
 

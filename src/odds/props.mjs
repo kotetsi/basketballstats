@@ -1,3 +1,4 @@
+import { consensusProbability } from './core.mjs';
 // Player props: στατιστικό μοντέλο (λεπτά × ρυθμός ανά λεπτό, αρνητική διωνυμική κατανομή) και σύγκριση με αποδόσεις
 // αδειοδοτημένων bookmakers. Καθαρές συναρτήσεις: ίδιος κώδικας στο build, στα tests και στο backtest.
 //   γραμμή αγώνα (data/cache.json players[].g): r[0] αγωνιστική, r[7] δευτερόλεπτα, r[8] πόντοι, r[11] τρίποντα εύστοχα,
@@ -248,8 +249,25 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
     if (!best[k] || price > best[k].price) best[k] = { ...r, side, price, evModel: e, pm: side === 'over' ? r.p : 1 - r.p, books: [] };
   }
   for (const r of rows) for (const side of ['over', 'under']) { const b = best[`${r.c}|${r.stat}|${r.line}|${side}`]; if (b && r[side]) b.books.push([r.title, r[side]]); }
+  // Market benchmark: median of de-vigged Over probabilities from distinct books,
+  // only when at least two books quote both sides at the exact same player/market/line.
+  const marketQuotes = new Map();
+  for (const r of rows) {
+    if (r.mkt == null) continue;
+    const k = `${r.c}|${r.stat}|${r.line}`;
+    const q = (marketQuotes.get(k) || []);
+    if (!q.some(x => x.book === r.book)) q.push({ book: r.book, probability: r.mkt });
+    marketQuotes.set(k, q);
+  }
+  const marketByKey = new Map([...marketQuotes].map(([k, q]) => [k, consensusProbability(q)]));
   const all = Object.values(best);
   for (const b of all) {
+    const market = marketByKey.get(`${b.c}|${b.stat}|${b.line}`);
+    b.mkt = market?.probability ?? null;
+    b.marketBooks = market?.books ?? 0;
+    b.marketSpread = market?.spread ?? null;
+    b.modelEdgePP = market ? +(100 * (b.pm - (b.side === 'over' ? market.probability : 1 - market.probability))).toFixed(2) : null;
+    b.modelEv = +ev(b.pm, b.price).toFixed(4);
     const pmk = b.mkt == null ? null : b.side === 'over' ? b.mkt : 1 - b.mkt;
     b.pb = pmk == null ? b.pm : PARAMS.blend * b.pm + (1 - PARAMS.blend) * pmk;   // συντηρητική πιθανότητα
     b.ev = +ev(b.pb, b.price).toFixed(4);

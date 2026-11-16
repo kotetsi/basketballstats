@@ -51,7 +51,7 @@ jobs:
       - name: Βιβλιοθήκες για το μοντέλο Fantasy
         run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
       - name: Unit tests (on/off, lineups, δείκτες, Game Predictor, simulator)
-        run: node --test test/assistant.test.mjs test/dom.test.mjs test/press.test.mjs test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/compare-v2.test.mjs test/odds.test.mjs test/props.test.mjs test/odds-value.test.mjs && python -m unittest predictor/test_predictor.py predictor/test_lineups.py && python -m unittest fantasy/tests/test_perf.py fantasy/tests/test_translate.py
+        run: node --test test/assistant.test.mjs test/dom.test.mjs test/press.test.mjs test/perf.test.mjs test/live.test.mjs test/insight.test.mjs test/optimizer.test.mjs test/fantasy-strategy.test.mjs test/fantasy-manager.test.mjs src/game/wp.test.mjs test/analytics.test.mjs test/matchup.test.mjs test/shots.test.mjs test/compare.test.mjs test/compare-v2.test.mjs test/odds.test.mjs test/props.test.mjs test/odds-value.test.mjs test/fantasy-status-history.test.mjs && python -m unittest predictor/test_predictor.py predictor/test_lineups.py && python -m unittest fantasy/tests/test_perf.py fantasy/tests/test_translate.py
       - name: Λήψη δεδομένων και παραγωγή σελίδων
         run: node build.mjs
       - name: Play-by-play → lineups και on/off (μόνο οι νέοι αγώνες)
@@ -65,6 +65,10 @@ jobs:
         run: python fantasy/perf_run.py --rollback "$ROLLBACK_TO" --reason "GitHub Actions workflow_dispatch"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill - σφάλμα")
+      - name: Αρχειοθέτηση pregame status παικτών για backtest απουσιών
+        run: node scripts/fantasy-status-history.mjs
+      - name: Walk-forward σύγκριση κατανομής Player Props με baseline
+        run: node scripts/props-distribution-compare.mjs
       - name: "Fantasy model performance - ιστορικές σεζόν (μία φορά), walk-forward backtest, optimizer backtest"
         run: |
           timeout 1500 node fantasy/hist_fetch.mjs || echo "hist_fetch - σφάλμα"
@@ -82,6 +86,9 @@ jobs:
           ODDS_PROVIDER: ${{ vars.ODDS_PROVIDER }}
         run: node scripts/odds.mjs ${{ github.event.inputs.odds_force == 'true' && '--force' || '' }}; echo "rc=$?" >> "$GITHUB_OUTPUT"
         continue-on-error: true
+      - name: "Market Data Audit: ελληνικά Player Props και freshness"
+        if: always()
+        run: node scripts/props-market-audit.mjs | tee data/odds/props-market-audit.json
       - name: "Alert: το feed αποδόσεων σταμάτησε"
         if: steps.odds.outcome == 'failure'
         env:

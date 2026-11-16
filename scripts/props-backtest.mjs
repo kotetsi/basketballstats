@@ -8,6 +8,7 @@ const F = JSON.parse(fs.readFileSync(new URL('../data/fantasy/latest.json', impo
 const POS = Object.fromEntries(F.players.map(p => [p.c, p.pos]));
 const teamRounds = {}; for (const g of C.league.games.filter(g => g[6])) { (teamRounds[g[2]] ||= []).push(g[0]); (teamRounds[g[3]] ||= []).push(g[0]); }
 const TEAM = process.argv.includes('--team');
+if (TEAM) throw new Error('--team is disabled: minutesAt() infers absences from target-game participation, which is look-ahead leakage. Use archived pregame injury/status snapshots before enabling historical absence backtests.');
 // λεπτά με γνώση των απουσιών του αγώνα (όπως θα ήταν γνωστές πριν από το τζάμπολ)
 const minCache = new Map();
 function minutesAt(p, R, P) {
@@ -17,7 +18,7 @@ function minutesAt(p, R, P) {
   const out = new Set(team.filter(q => !q.now).map(q => q.c)), fresh = new Set(team.filter(q => !q.now && q.pl[q.pl.length - 1][0] === prevR).map(q => q.c));
   const M = teamMinutes(team, out, fresh, P).M; minCache.set(k, M); return M[p.c];
 }
-const prior = {}; for (const s of Object.keys(STATS)) { let x = 0, m = 0; for (const p of players) for (const r of p.g) if (r[7] > 0) { x += STATS[s](r); m += r[7] / 60; } prior[s] = x / m; }
+const allRounds = [...new Set(players.flatMap(p => (p.g || []).filter(r => r[7] > 0).map(r => +r[0])))].sort((a,b)=>a-b);\nconst priorAtRound = new Map();\nconst cumulative = Object.fromEntries(Object.keys(STATS).map(s => [s, 0]));\nlet cumulativeMinutes = 0;\nfor (const round of allRounds) {\n  priorAtRound.set(round, Object.fromEntries(Object.keys(STATS).map(s => [s, cumulativeMinutes ? cumulative[s] / cumulativeMinutes : 0])));\n  for (const p of players) for (const row of p.g || []) if (+row[0] === round && row[7] > 0) { for (const s of Object.keys(STATS)) cumulative[s] += STATS[s](row); cumulativeMinutes += row[7] / 60; }\n}
 function run(P, stats = Object.keys(STATS)) {
   const res = {};
   for (const s of stats) {
@@ -25,7 +26,7 @@ function run(P, stats = Object.keys(STATS)) {
     for (const p of players) {
       const pl = p.g.filter(r => r[7] > 0).sort((a, b) => a[0] - b[0]);
       for (let i = 3; i < pl.length; i++) {
-        const pr = project(pl.slice(0, i), s, { prior: prior[s], P, minutes: TEAM ? minutesAt(p, pl[i][0], P) : null }); if (!pr || pr.min < 10) continue;
+        const pr = project(pl.slice(0, i), s, { prior: priorAtRound.get(+pl[i][0])[s], P }); if (!pr || pr.min < 10) continue;
         const y = STATS[s](pl[i]); ll += Math.log(Math.max(1e-12, pmf(y, pr.mu, pr.var))); n++;
         // γραμμές γύρω από την πρόβλεψη, όπως θα τις έβαζε ένας bookmaker
         for (const d of [-2, 0, 2]) { const line = Math.max(0.5, Math.floor(pr.mu) + 0.5 + d * Math.sqrt(pr.var) / 2); const q = pOver(pr.mu, pr.var, line); const b = bins[Math.min(9, Math.floor(q * 10))]; b[0] += q; b[1] += y > line ? 1 : 0; b[2]++; }

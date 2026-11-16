@@ -89,17 +89,51 @@ export function minutesRisk(mins, status) {
   return cv > 0.2 ? 'medium' : 'low';
 }
 
+// Robust consensus of de-vigged probabilities across distinct bookmakers.
+// Requires at least two complete two-way quotes; never treats a single book as market consensus.
+export function consensusProbability(quotes, minBooks = 2) {
+  const byBook = new Map();
+  for (const q of quotes || []) {
+    if (!q?.book || !(q.probability > 0 && q.probability < 1)) continue;
+    if (!byBook.has(q.book)) byBook.set(q.book, q.probability);
+  }
+  const values = [...byBook.values()].sort((a, b) => a - b);
+  if (values.length < minBooks) return null;
+  const mid = Math.floor(values.length / 2);
+  const median = values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+  return { probability: median, mean: values.reduce((a, b) => a + b, 0) / values.length,
+    min: values[0], max: values[values.length - 1], books: values.length, spread: values[values.length - 1] - values[0] };
+}
+
 // ---- normalisation ενός snapshot παρόχου: idempotent κλειδί
 export const snapKey = s => [s.provider, s.event, s.book, s.market, s.sel, s.line ?? '', s.price].join('|');
 // προσθέτει μόνο όσα άλλαξαν σε σχέση με την τελευταία γνωστή τιμή κάθε (event, book, market, sel, line)
 export function appendChanges(history, snaps) {
   const last = new Map();
-  for (const h of history) last.set([h.provider, h.event, h.book, h.market, h.sel, h.line ?? ''].join('|'), h.price);
+  for (const h of history) last.set([h.provider, h.event, h.book, h.market, h.sel, h.line ?? '', h.player || ''].join('|'), h.price);
   const added = [];
   for (const s of snaps) {
-    const k = [s.provider, s.event, s.book, s.market, s.sel, s.line ?? ''].join('|');
+    const k = [s.provider, s.event, s.book, s.market, s.sel, s.line ?? '', s.player || ''].join('|');
     if (last.get(k) === s.price) continue;
     last.set(k, s.price); added.push(s);
+  }
+  return added;
+}
+
+
+
+// Player-prop snapshots must retain repeated unchanged quotes: a later capture proves
+// that the quote was still available at that time (needed for closing-line analysis).
+// Exact capture identity makes reruns idempotent without discarding unchanged prices.
+export function appendPropSnapshots(history, snaps) {
+  const key = s => [s.provider, s.event, s.book, s.market, s.sel, s.player || '', s.line ?? '', s.seen || ''].join('|');
+  const seen = new Set((history || []).map(key));
+  const added = [];
+  for (const s of snaps || []) {
+    const k = key(s);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    added.push(s);
   }
   return added;
 }

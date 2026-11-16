@@ -1,0 +1,70 @@
+name: Player Props Calibration
+on:
+  push:
+    branches:
+      - 'feature/props-walk-forward-backtest'
+    paths:
+      - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-residual-diagnostics.mjs'
+      - 'scripts/props-minutes-diagnostics.mjs'
+      - 'scripts/props-market-audit.mjs'
+      - 'test/props-market-audit.test.mjs'
+      - 'scripts/props-market-audit.mjs'
+      - 'test/props-market-audit.test.mjs'
+      - 'src/odds/role.mjs'
+      - 'scripts/odds.mjs'
+      - 'src/odds/core.mjs'
+      - 'src/odds/props.mjs'
+      - 'test/odds.test.mjs'
+      - 'test/props.test.mjs'
+      - 'data/cache.json'
+      - '.github/workflows/props-calibration.yml'
+      - '.github/workflows/update.yml'
+  pull_request:
+    paths:
+      - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-market-audit.mjs'
+      - 'test/props-market-audit.test.mjs'
+      - '.github/workflows/update.yml'
+      - 'src/odds/props.mjs'
+      - 'data/cache.json'
+      - '.github/workflows/props-calibration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: props-calibration-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  calibration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Test odds and player-prop calculations
+        run: node --test test/odds.test.mjs test/props.test.mjs
+      - name: Audit real Greek player-prop market coverage
+        run: node --test test/props-market-audit.test.mjs && node scripts/props-market-audit.mjs | tee props-market-audit.json
+      - name: Test player-prop market audit
+        run: node --test test/props-market-audit.test.mjs
+      - name: Run player-prop market data audit
+        run: node scripts/props-market-audit.mjs | tee props-market-audit.json
+      - name: Run walk-forward calibration report
+        run: node scripts/props-distribution-compare.mjs | tee props-calibration-report.json
+      - name: Run walk-forward residual diagnostics
+        run: node scripts/props-residual-diagnostics.mjs | tee props-residual-diagnostics.json
+      - name: Run walk-forward minutes diagnostics
+        run: node scripts/props-minutes-diagnostics.mjs | tee props-minutes-diagnostics.json
+      - name: Upload calibration report
+        uses: actions/upload-artifact@v4
+        with:
+          name: props-calibration-report
+          path: |
+            props-calibration-report.json
+            props-residual-diagnostics.json
+            props-minutes-diagnostics.json
+            props-market-audit.json
+            props-market-audit.json
+          if-no-files-found: error
