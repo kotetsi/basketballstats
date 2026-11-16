@@ -6,7 +6,8 @@
 //   node scripts/odds.mjs [--force]           · --force: αγνοεί το rate limit
 //
 // Αρχεία:
-//   data/odds/history.jsonl   κάθε αλλαγή τιμής (append-only, idempotent) → line movement, closing lines, CLV
+//   data/odds/history.jsonl        αλλαγές main markets (append-only, idempotent)
+//   data/odds/props-history.jsonl  αλλαγές player props (append-only, idempotent)
 //   data/odds/latest.json     τρέχουσες τιμές ανά αγώνα/bookmaker (για το build)
 //   data/odds/status.json     τελευταία επιτυχία, quota, για alerting
 import fs from 'node:fs/promises';
@@ -226,7 +227,7 @@ async function main() {
     }
   }
   // ιστορικό: μόνο αλλαγές (idempotent)
-  const hf = path.join(DIR, 'history.jsonl');
+  const hf = path.join(DIR, 'props-history.jsonl');
   const hist = (await fs.readFile(hf, 'utf8').catch(() => '')).split('\n').filter(Boolean).map(l => JSON.parse(l));
   const added = appendChanges(hist, snaps);
   if (added.length) await fs.appendFile(hf, added.map(x => JSON.stringify(x)).join('\n') + '\n');
