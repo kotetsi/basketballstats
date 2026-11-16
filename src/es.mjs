@@ -190,4 +190,12 @@ export const PHRASES = {
   'Διαφορά πόντων': 'Diferencia de puntos',
   'μ.ό. σεζόν ': 'promedio de temporada ',
 
+  'Μεταβολή φόρμας': 'Cambio de forma',
+  'Η μεγαλύτερη άνοδος και πτώση στη διαφορά πόντων των 5 τελευταίων αγώνων σε σχέση με τον μέσο όρο της σεζόν. Δεν προσαρμόζεται στη δυσκολία των αντιπάλων.': 'Mayores subidas y bajadas de la diferencia de puntos en los últimos 5 partidos frente al promedio de temporada. No se ajusta a la dificultad de los rivales.',
+  'Μεγαλύτερη βελτίωση': 'Mayor mejora',
+  'Μεγαλύτερη πτώση': 'Mayor caída',
+  'Τελευταίοι 5: ': 'Últimos 5: ',
+  ' · Σεζόν: ': ' · Temporada: ',
+  'π./αγ.': 'pts/part.',
+
 };
