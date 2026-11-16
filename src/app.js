@@ -253,6 +253,18 @@ function renderStand(){
   const ng=GAMES.filter(g=>g[0]===nr);
   document.getElementById('nextSub').textContent=nr+'η αγωνιστική · ώρα Ελλάδας';
   document.getElementById('nextRound').innerHTML=ng.map(g=>'<div class="fx" data-g="'+g[0]+'|'+g[2]+'|'+g[3]+'"><span class="when">'+when(g[1])+(g[6]?' · τελικό':'')+'</span><div class="row"><a href="'+tUrl(g[2])+'\">'+crest(g[2])+' '+tName(g[2])+'</a><span class="rk">'+(g[6]?g[4]:recOf(g[2]))+'</span></div><div class="row"><a href="'+tUrl(g[3])+'\">'+crest(g[3])+' '+tName(g[3])+'</a><span class="rk">'+(g[6]?g[5]:recOf(g[3]))+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>').join('');
+  const formSwing=STAND.map(row=>{
+    const c=row[1], recent=teamGamesOf(c).slice(-5), seasonGames=(+row[2]||0)+(+row[3]||0);
+    if(recent.length<5||!seasonGames)return null;
+    const recentDiff=avgOf(recent,g=>g.us-g.them), seasonDiff=(row[4]-row[5])/seasonGames;
+    return{c,recentDiff,seasonDiff,change:recentDiff-seasonDiff};
+  }).filter(x=>x&&isFinite(x.change)).sort((a,b)=>b.change-a.change);
+  if(formSwing.length>=2){
+    document.getElementById('formSwingSec').hidden=false;
+    const rows=(items,positive)=>items.map(x=>'<a class="hrow" href="'+tUrl(x.c)+'"><span class="deg" style="background:var(--'+(positive?'good':'low')+')">'+sgn(x.change)+'</span><span class="nm">'+tName(x.c)+'<small>Τελευταίοι 5: '+sgn(x.recentDiff)+' · Σεζόν: '+sgn(x.seasonDiff)+'</small></span><span class="tr">π./αγ.</span></a>').join('');
+    document.getElementById('formRisers').innerHTML=rows(formSwing.slice(0,3),true);
+    document.getElementById('formFallers').innerHTML=rows(formSwing.slice(-3).reverse(),false);
+  }
   const codes=STAND.map(s=>s[1]).filter(c=>TS[c]);
   const cols=[
     {k:'team',h:'Ομάδα',l:1,v:c=>tName(c),f:c=>tlink(c),d:1},
