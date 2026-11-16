@@ -85,7 +85,9 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
 
   return {
     generatedAt: new Date(now).toISOString(), provider: latest.provider || null,
-    collectorUpdated: latest.updated || null, collectorUpdatedAgeHours: round(collectorUpdatedAge),\n    lastIngestAt: status.lastSuccess || status.lastCall || null, lastIngestEvents: status.events ?? null, lastIngestMatched: status.matched ?? null,\n    latestQuoteUpdated, latestQuoteAgeHours: round(latestQuoteAge),
+    collectorUpdated: latest.updated || null, collectorUpdatedAgeHours: round(collectorUpdatedAge),
+    lastIngestAt: status.lastSuccess || status.lastCall || null, lastIngestEvents: status.events ?? null, lastIngestMatched: status.matched ?? null,
+    latestQuoteUpdated, latestQuoteAgeHours: round(latestQuoteAge),
     upcomingGames: games.length, gamesWithGreekBooks: gameRows.filter(g => g.greekBooks > 0).length,
     greekBookGameQuotes: greekGameCount, gamesWithPlayerProps: gamesWithProps,
     totalDistinctPlayerProps: totalProps, completeOverUnderPairs: completeProps, oneSidedProps,
