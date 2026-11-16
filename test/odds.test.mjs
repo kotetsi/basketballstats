@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { implied, devig, edgePP, classify, tier, bestAndAverage, movement, clv, clvSummary, pirOverProb, internalLine, hitRate, minutesRisk, appendChanges } from '../src/odds/core.mjs';
+import { implied, devig, edgePP, classify, tier, bestAndAverage, movement, clv, clvSummary, pirOverProb, internalLine, hitRate, minutesRisk, appendChanges, appendPropSnapshots } from '../src/odds/core.mjs';
 const near = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} ≈ ${b}`);
 
 test('implied probability', () => { near(implied(2), 0.5); near(implied(1.25), 0.8); assert.equal(implied(1), null); });
@@ -39,4 +39,17 @@ test('idempotent ingestion: μόνο αλλαγές', () => {
   const add = appendChanges(h, [{ provider: 'p', event: 'e', book: 'b', market: 'ml', sel: 'home', price: 1.8 }, { provider: 'p', event: 'e', book: 'b', market: 'ml', sel: 'away', price: 2.0 }]);
   assert.equal(add.length, 1); assert.equal(add[0].sel, 'away');
   assert.equal(appendChanges([...h, ...add], add).length, 0);
+});
+
+
+test('player prop snapshots: retain unchanged quotes at later captures and deduplicate reruns', () => {
+  const base = { provider: 'p', event: 'e', book: 'b', market: 'prop:pts', sel: 'over', player: 'Player A', line: 15.5, price: 1.9, t: '2026-11-16T10:00:00Z' };
+  const first = { ...base, seen: '2026-11-16T10:01:00Z', commence: '2026-11-16T19:00:00Z', window: 'open' };
+  const close = { ...base, seen: '2026-11-16T15:00:00Z', window: 'close' };
+  const added = appendPropSnapshots([], [first]);
+  assert.equal(added.length, 1);
+  const later = appendPropSnapshots(added, [close]);
+  assert.equal(later.length, 1, 'unchanged price at a later capture is still a new snapshot');
+  assert.equal(later[0].price, first.price);
+  assert.equal(appendPropSnapshots([...added, ...later], [close]).length, 0, 'same capture rerun is idempotent');
 });
