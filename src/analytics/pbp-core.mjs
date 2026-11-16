@@ -60,6 +60,11 @@ export function buildStints(pbp, starters) {
   const acc = { [A]: new Map(), [B]: new Map() };
   const total = { [A]: new Array(NS).fill(0), [B]: new Array(NS).fill(0) };
   const lost = { secs: 0, events: 0 };
+  // ατομικά splits για τα props: ανά περίοδο και με/χωρίς κάθε συμπαίκτη (δευτερόλεπτα + ατομικά στατιστικά του παίκτη)
+  // PS = [secs, pts, reb, ast, fg3m, stl, blk, tov]
+  const PSN = 8, ps = { [A]: {}, [B]: {} };
+  const pso = (tm, pid) => (ps[tm][pid] ||= { q: [0, 1, 2, 3, 4].map(() => new Array(PSN).fill(0)), w: {} });
+  const qi = q => Math.min(q, 5) - 1;
   let t0 = 0, q0 = 1, curQ = 0;
   // Πρώτη «εμφάνιση» κάθε παίκτη σε κάθε περίοδο: αν πρώτα βγαίνει (OUT) ή κάνει φάση, ήταν ήδη στο παρκέ·
   // αν πρώτα μπαίνει (IN), δεν ήταν. Έτσι διορθώνονται αλλαγές ανάμεσα σε περιόδους που δεν καταγράφηκαν.
@@ -101,6 +106,10 @@ export function buildStints(pbp, starters) {
     if (t > t0) {
       const cl = isClutch(t0, q0, score[A] - score[B]) ? 1 : 0;
       if (valid()) { cell(A, cl).s += t - t0; cell(B, cl).s += t - t0; } else lost.secs += t - t0;
+      for (const tm of [A, B]) if (on[tm].size === 5) for (const pid of on[tm]) {
+        const o = pso(tm, pid); o.q[qi(q0)][0] += t - t0;
+        for (const x of on[tm]) if (x !== pid) (o.w[x] ||= new Array(PSN).fill(0))[0] += t - t0;
+      }
     }
     t0 = Math.max(t0, t);
   };
@@ -122,6 +131,14 @@ export function buildStints(pbp, starters) {
       const mine = cell(e.team, cl), theirs = cell(opp, cl);
       for (const [k, v] of Object.entries(eff)) { mine.own[IX[k]] += v; theirs.opp[IX[k]] += v; }
     } else lost.events++;
+    if (e.pid && on[e.team].has(e.pid)) {
+      const v = [0, eff.pts || 0, (eff.oreb || 0) + (eff.dreb || 0), eff.ast || 0, eff.fgm3 || 0, eff.stl || 0, eff.blk || 0, eff.tov || 0];
+      if (v.some(Boolean)) {
+        const o = pso(e.team, e.pid), row = o.q[qi(e.q)];
+        for (let k = 1; k < PSN; k++) row[k] += v[k];
+        for (const x of on[e.team]) if (x !== e.pid) { const w = (o.w[x] ||= new Array(PSN).fill(0)); for (let k = 1; k < PSN; k++) w[k] += v[k]; }
+      }
+    }
     if (FG[e.type] && e.pid) {
       const [made, three] = FG[e.type], mg = e.team === A ? score[A] - score[B] : score[B] - score[A];
       shots.push({ n: e.NUMBEROFPLAY, i: e.i, team: e.team, pid: e.pid, q: e.q, t: e.t, clk: trim(e.MARKERTIME), made, three, margin: mg, clutch: cl,
@@ -147,7 +164,7 @@ export function buildStints(pbp, starters) {
   const out = { [A]: [...acc[A].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)), [B]: [...acc[B].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)) };
   const sumPts = tm => out[tm].reduce((a, x) => a + x.own[0], 0);
   return {
-    teams: [A, B], stints: out, total, secs: end, shots, scoring,
+    teams: [A, B], stints: out, total, secs: end, shots, scoring, ps,
     checks: { scoreA: score[A], scoreB: score[B], stintPtsA: sumPts(A), stintPtsB: sumPts(B), lostSecs: lost.secs, lostEvents: lost.events },
   };
 }

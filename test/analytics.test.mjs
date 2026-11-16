@@ -91,3 +91,14 @@ test('percentile / rank', () => {
   assert.equal(rank([1, 2, 3], 3), 1); assert.equal(rank([1, 2, 3], 1, false), 1);
   assert.equal(percentile([1, 2, 3], 3), 100); assert.equal(percentile([1, 2, 3], 1), 0);
 });
+
+test('player splits (props): λεπτά/στατιστικά ανά περίοδο και με/χωρίς συμπαίκτη', () => {
+  const r = buildStints(game, { AAA: A5, BBB: B5 });
+  const a1 = r.ps.AAA.a1, a6 = r.ps.AAA.a6, a2 = r.ps.AAA.a2;
+  assert.equal(a1.q.reduce((s, q) => s + q[0], 0), 2400);          // όλο τον αγώνα στο παρκέ
+  assert.equal(a1.q[0][1], 2);                                      // 2 πόντοι στην 1η περίοδο
+  assert.equal(a1.w.a5[0], 300); assert.equal(a1.w.a6[0], 2100);    // με τον a5 5', με τον a6 35'
+  assert.equal(a1.w.a5[1], 2);                                      // οι πόντοι του a1 έγιναν με τον a5 στο παρκέ
+  assert.equal(a6.q[0][0], 300); assert.equal(a6.q[0][4], 1);       // a6: 5' στην 1η, 1 τρίποντο
+  assert.equal(a2.q[3][1], 1); assert.equal(a2.w.a6[1], 1); assert.ok(!a2.w.a5?.[1]);
+});
