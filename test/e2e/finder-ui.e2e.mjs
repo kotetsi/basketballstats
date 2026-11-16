@@ -34,8 +34,8 @@ try {
 
     for (const [lang, root] of Object.entries(languages)) {
       const finder = root + 'player-finder/';
-      await page.goto(origin + root);
-      await page.locator('.nav a[data-v="finder"]').click();
+      await page.goto(origin + root + 'ergaleia/');
+      await page.locator(`a[href="${finder}"]`).click();
       assert.equal(new URL(page.url()).pathname, finder);
       assert.equal(await page.locator('html').getAttribute('lang'), lang);
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
