@@ -1615,7 +1615,17 @@ ${low ? `<p><b>${esc(low)}</b></p>` : ''}
 <div class="gcols"><div><h3>${T('Οι κρίσιμες φάσεις', 'Key moments', 'Momentos clave', 'Ključni trenuci', 'Kritik anlar')}</h3><ol class="wpkm">${km}</ol></div>
 <div><h3>${T('Ποιος έκρινε τον αγώνα', 'Who decided the game', 'Quién decidió el partido', 'Ko je odlučio utakmicu', 'Maçı kim belirledi')}</h3><p class="sub">${T('Άθροισμα της αλλαγής στην πιθανότητα νίκης από τους πόντους κάθε παίκτη (WPA)', 'Sum of the change in win probability from each player’s points (WPA)', 'Suma del cambio en la probabilidad de victoria por los puntos de cada jugador (WPA)', 'Zbir promene verovatnoće pobede od poena svakog igrača (WPA)', 'Her oyuncunun sayılarıyla kazanma ihtimalinde yarattığı değişimin toplamı (WPA)')}</p><ol class="wpkm">${dec}</ol></div></div></section>`;
     }
+    // Σελίδες χαμηλής αξίας για την αναζήτηση: μένουν στο site για τους επισκέπτες, αλλά με noindex,follow
+    // και εκτός sitemap, ώστε η Google να ξοδεύει το crawl στις σελίδες που φέρνουν κίνηση.
+    // (Search Console, 28 ημέρες έως 15/11/2026: ~5.500 τέτοια URL σε 5 γλώσσες έφεραν ~240 εμφανίσεις, 11 κλικ.)
+    //   shp:  shot chart παίκτη          (υπάρχει ήδη η σελίδα παίκτη)
+    //   shg:  shot chart αγώνα           (υπάρχει ήδη η σελίδα αγώνα)
+    //   fx:player/…  fantasy σελίδα παίκτη (σχεδόν ίδια με τη σελίδα παίκτη)
+    //   cmptu: ζευγάρια EuroCup, εκτός από όσα έχουν Άρη ή ΠΑΟΚ
+    const lowValue = key => /^(shp|shg):/.test(key) || key.startsWith('fx:player/')
+      || (key.startsWith('cmptu:') && !key.slice(6).split('|').some(c => c === 'ARI' || c === 'PAO'));
     async function simplePage(key, { title, desc, view, main, id = '', ld = null, noindex = false }) {
+      noindex = noindex || lowValue(key);
       if (CATS[ck(key)]) { main = main + catFaq(key).replace('<section class="wrap catfaq">', '<section class="catfaq">'); ld = withLd(ld, key); }
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); if (!noindex) urls.push(SITE_URL + url);
       let hd = head(title, desc, url, alt); if (noindex) hd = hd.replace('</head>', '<meta name="robots" content="noindex,follow"></head>');
