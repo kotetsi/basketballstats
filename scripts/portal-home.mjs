@@ -12,7 +12,8 @@ const L = {
   tr:{dir:'tr/',stand:'puan-durumu',r:['bugun','fikstur','oranlar','oranlar/prop-analyzer','oranlar/clv','tahminler','araclar','fantasy','liderler','takim-analizi','karsilastir','model','tipsters'],lang:'Bölümler',copy:['Oyunu verilerle anla. Maçlar, istatistiksel analiz, tahminler ve piyasa görünümü tek yerde.','Fikstür, sonuçlar ve yaklaşan maçların görünümü.','Oranlar, piyasa hareketleri, value ve oyuncu prop analizi.','Oyuncu karşılaştırmaları, profiller, eşleşmeler ve analiz araçları.','Maç tahminleri, oyuncu projeksiyonları ve model doğruluğu.','Puan durumu, takım ve oyuncu istatistikleri, tarihsel veriler.','EuroLeague Fantasy araçları kendi bölümünde kullanılmaya devam ediyor.','Bölümü keşfet','Hızlı erişim','Bugünün maçları','Tüm fikstür','Betting Insights','Prop Analyzer','Closing Line Value','Oyuncu karşılaştırma','Tüm araçlar','Maç tahminleri','Model doğruluğu','EuroLeague puan durumu','Oyuncu liderleri','Takım istatistikleri','Fantasy’yi aç','Analiz ve tahminler istatistiksel değerlendirmelerdir; garanti veya bahis tavsiyesi değildir. 18+ · Sorumlu oyna.']}
 };
 const esc = s => String(s).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
-const routeIndex = {today:0,schedule:1,odds:2,props:3,clv:4,pred:5,tools:6,fantasy:7,leaders:8,analytics:9,compare:10,model:11,tips:12};\nconst route = (lang,key) => '/' + L[lang].dir + (key==='stand' ? L[lang].stand : L[lang].r[routeIndex[key]]) + '/';
+const routeIndex = {today:0,schedule:1,odds:2,props:3,clv:4,pred:5,tools:6,fantasy:7,leaders:8,analytics:9,compare:10,model:11,tips:12};
+const route = (lang,key) => '/' + L[lang].dir + (key==='stand' ? L[lang].stand : L[lang].r[routeIndex[key]]) + '/';
 const nav = lang => {
   const names=['Match Center','Betting Intelligence','Player Lab','Predictions','Basketball Data','Fantasy'];
   const icons=['🏀','🎯','📊','🧠','📈','🏆'];
@@ -74,8 +75,8 @@ async function updateNavigation(dir, lang) {
     if (entry.isDirectory()) { await updateNavigation(file, lang); continue; }
     if (!entry.isFile() || !entry.name.endsWith('.html')) continue;
     let html = await fs.readFile(file, 'utf8');
-    html = html.replace(/<nav class="nav"[\s\\S]*?<\/nav>/, nav(lang));
-    html = html.replace(/(<nav class="foot">[\s\\S]*?<a href=")[^"]*(")/, '$1' + route(lang, 'stand') + '$2');
+    html = html.replace(/<nav class="nav"[\s\S]*?<\/nav>/, nav(lang));
+    html = html.replace(/(<nav class="foot">[\s\S]*?<a href=")[^"]*(")/, "$1" + route(lang, "stand") + "$2");
     await fs.writeFile(file, html);
   }
 }
