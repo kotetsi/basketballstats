@@ -1,0 +1,30 @@
+name: Player Props Calibration
+on:
+  pull_request:
+    paths:
+      - 'scripts/props-distribution-compare.mjs'
+      - 'src/odds/props.mjs'
+      - 'data/cache.json'
+      - '.github/workflows/props-calibration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: props-calibration-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  calibration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run walk-forward calibration report
+        run: node scripts/props-distribution-compare.mjs | tee props-calibration-report.json
+      - name: Upload calibration report
+        uses: actions/upload-artifact@v4
+        with:
+          name: props-calibration-report
+          path: props-calibration-report.json
+          if-no-files-found: error
