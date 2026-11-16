@@ -1,0 +1,25 @@
+name: Portal PR checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/portal-home.mjs"
+      - "src/app.css"
+      - "src/app.js"
+      - "test/seo.test.mjs"
+      - ".github/workflows/portal-pr-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  portal-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check portal generator syntax
+        run: node --check scripts/portal-home.mjs
