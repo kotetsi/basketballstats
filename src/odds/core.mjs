@@ -94,7 +94,7 @@ export const snapKey = s => [s.provider, s.event, s.book, s.market, s.sel, s.lin
 // προσθέτει μόνο όσα άλλαξαν σε σχέση με την τελευταία γνωστή τιμή κάθε (event, book, market, sel, line)
 export function appendChanges(history, snaps) {
   const last = new Map();
-  for (const h of history) last.set([h.provider, h.event, h.book, h.market, h.sel, h.line ?? ''].join('|'), h.price);
+  for (const h of history) last.set([h.provider, h.event, h.book, h.market, h.sel, h.line ?? '', h.player || ''].join('|'), h.price);
   const added = [];
   for (const s of snaps) {
     const k = [s.provider, s.event, s.book, s.market, s.sel, s.line ?? '', s.player || ''].join('|');
