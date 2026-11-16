@@ -108,7 +108,7 @@ const ADAPTERS = {
     for (const f of st.fixtures) {
       const hrs = (new Date(f.start) - now) / 3600e3;
       if (hrs < -1 || hrs > 96) continue;
-      const WINS = (process.env.ODDSPAPI_WINDOWS || 'open,close').split(',');
+      const WINS = (process.env.ODDSPAPI_WINDOWS || 'open,mid,close').split(',');
       // player props συνήθως ανεβαίνουν ~1 μέρα πριν: αν η πρώτη λήψη δεν είχε props, παίρνουμε και το «mid» παράθυρο
       if ((st.props ||= {})[f.id] === 0 && !WINS.includes('mid')) WINS.push('mid');
       const win = hrs <= 4 ? 'close' : hrs <= 30 ? 'mid' : 'open';
