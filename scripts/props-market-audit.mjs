@@ -61,6 +61,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
       booksWithProps: withProps.length, props: books.reduce((n, b) => n + b.props, 0), books });
   }
 
+  const propBookmakers = [...bookAgg.values()].filter(x => x.props > 0);
   const snapshots = (history || []).filter(x => confirmed.has(x.book));
   const windows = { open: 0, mid: 0, close: 0, unknown: 0 };
   const seenByEventBook = new Map();
@@ -83,6 +84,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   if (!snapshots.length) warnings.push('Δεν υπάρχει ακόμη αρχείο ιστορικών Player Props snapshots στο branch/data.');
   if (games.length && gamesWithProps === 0) warnings.push('Δεν βρέθηκαν ελληνικά feeds με Player Props στους προσεχείς αγώνες.');
   if (gameRows.some(g => g.booksWithProps > 0 && g.books.filter(b => b.props > 0).length < 2)) warnings.push('Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.');
+  if (totalProps > 0 && propBookmakers.length < 2) warnings.push('Τα Player Props προέρχονται από μία μόνο επιβεβαιωμένη ελληνική εταιρεία· δεν μπορεί να υπολογιστεί πολυεταιρική συναίνεση αγοράς.');
   if (latestQuoteAge == null || latestQuoteAge > 12) warnings.push('Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).');
   if (status.lastSuccess && (status.events === 0 || status.matched === 0)) warnings.push('Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς.');
 
@@ -92,7 +94,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
     lastIngestAt: status.lastSuccess || status.lastCall || null, lastIngestEvents: status.events ?? null, lastIngestMatched: status.matched ?? null,
     latestQuoteUpdated, latestQuoteAgeHours: round(latestQuoteAge),
     upcomingGames: games.length, gamesWithGreekBooks: gameRows.filter(g => g.greekBooks > 0).length,
-    greekBookGameQuotes: greekGameCount, gamesWithPlayerProps: gamesWithProps,
+    greekBookGameQuotes: greekGameCount, gamesWithPlayerProps: gamesWithProps, independentGreekPropBookmakers: propBookmakers.length,
     totalDistinctPlayerProps: totalProps, completeOverUnderPairs: completeProps, oneSidedProps,
     bookmakers: [...bookAgg.values()].map(x => ({ ...x, newestAgeHours: round(ageHours(x.newest, now)) })).sort((a, b) => b.props - a.props),
     events: gameRows,
