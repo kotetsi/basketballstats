@@ -8,6 +8,7 @@ on:
       - "src/app.css"
       - "src/app.js"
       - "test/seo.test.mjs"
+      - "test/portal-home.test.mjs"
       - ".github/workflows/portal-pr-check.yml"
 
 permissions:
@@ -23,5 +24,7 @@ jobs:
           node-version: 20
       - name: Check portal generator syntax
         run: node --check scripts/portal-home.mjs
-      - name: Test generated homepage and localized standings routes
-        run: node --test test/portal-home.test.mjs
+      - name: Build site from repository cache (no deployment)
+        run: node build.mjs --offline
+      - name: Generate portal pages and run SEO tests
+        run: node scripts/portal-home.mjs && node --test test/seo.test.mjs
