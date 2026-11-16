@@ -178,3 +178,87 @@ Dva tima koja postižu, ali se ne brane: Asvel prima **93,0 poena** po utakmici,
 Od 20 utakmica ova dva tima, **13** je prešlo 174,5. Bešiktaš je na gostovanjima prešao granicu u **4 od 5** (202, 176, 182, 204), a poslednja domaća utakmica Asvela, protiv Bajerna, donela je 194 poena. Produžetak se računa.
 
 Rizik: u Lionu Asvel igra zatvorenije, sa 4 od 6 domaćih utakmica ispod 174,5 (158, 166, 157, 173). I Bešiktaš je ostao na 154 i 150 u poslednje dve domaće utakmice.
+
+12 | PAR-PAM | under 176.5 | 1.87
+Η Παρτιζάν παίζει από τα πιο «κλειστά» παιχνίδια της EuroLeague: δέχεται **77.7 πόντους** ανά αγώνα και σε **κανένα από τα 11** ματς της το σύνολο δεν έφτασε τους 176.5 (το μεγαλύτερο ήταν 171). Στο Βελιγράδι ο μέσος όρος είναι μόλις 152.6 (168, 127, 167, 155, 146).
+
+Η Βαλένθια είναι η καλύτερη επίθεση της λίγκας (96.4 πόντοι) και τα ματς της περνούν το 176.5 στα 8 από τα 11. Έρχεται όμως χωρίς Mirotic και Reuvers, ενώ στην Παρτιζάν οι Hayes, Thompson και Allman είναι αμφίβολοι και ο Willis εκτός. Το μοντέλο δίνει **63%** για το under, ενώ η απόδοση 1.87 αντιστοιχεί σε περίπου 53%.
+
+Το ρίσκο: αν η Βαλένθια επιβάλει τον ρυθμό της, όπως στο 104-93 στο Παρίσι, η γραμμή περνιέται εύκολα.
+
+EN:
+Partizan play some of the tightest games in the EuroLeague: they allow **77.7 points** per game and in **none of their 11** games has the total reached 176.5 (the highest was 171). In Belgrade the average total is just 152.6 (168, 127, 167, 155, 146).
+
+Valencia are the league's best offense (96.4 points) and their games have gone over 176.5 in 8 of 11. But they arrive without Mirotic and Reuvers, while for Partizan Hayes, Thompson and Allman are doubtful and Willis is out. The model gives the under **63%**, while odds of 1.87 imply about 53%.
+
+The risk: if Valencia impose their pace, as in the 104-93 win in Paris, the line goes over easily.
+
+ES:
+El Partizan juega algunos de los partidos más cerrados de la Euroliga: recibe **77,7 puntos** por partido y en **ninguno de sus 11** partidos el total llegó a 176,5 (el máximo fue 171). En Belgrado la media es de solo 152,6 (168, 127, 167, 155, 146).
+
+El Valencia es el mejor ataque de la liga (96,4 puntos) y sus partidos superan 176,5 en 8 de 11. Pero llega sin Mirotic ni Reuvers, y en el Partizan Hayes, Thompson y Allman son duda y Willis está de baja. El modelo da **63%** al under, mientras que la cuota 1,87 implica alrededor del 53%.
+
+El riesgo: si el Valencia impone su ritmo, como en el 104-93 en París, la línea se supera con facilidad.
+
+SR:
+Partizan igra neke od najzatvorenijih utakmica u Evroligi: prima **77,7 poena** po utakmici i ni u **jednoj od 11** utakmica zbir nije stigao do 176,5 (najviše je bilo 171). U Beogradu je prosečan zbir samo 152,6 (168, 127, 167, 155, 146).
+
+Valensija je najbolji napad lige (96,4 poena) i njene utakmice prelaze 176,5 u 8 od 11. Ali dolazi bez Mirotića i Rojversa, dok su kod Partizana Hejs, Tompson i Olman upitni, a Vilis van terena. Model daje under-u **63%**, dok kvota 1,87 odgovara oko 53%.
+
+Rizik: ako Valensija nametne svoj ritam, kao u pobedi 104-93 u Parizu, linija se lako prelazi.
+
+12 | TEL-OLY | over 174.5 | 1.91
+Η Μακάμπι έχει μία από τις πιο «ανοιχτές» άμυνες της λίγκας: δέχεται **92.1 πόντους** ανά αγώνα και τα ματς της περνούν το 174.5 στα **7 από τα 11**. Ο Ολυμπιακός εκτός έδρας παίζει πολύ πιο γρήγορα απ' ό,τι στο ΣΕΦ: σε 5 από τα 6 εκτός έδρας ματς το σύνολο πέρασε το 174.5 (195, 184, 190, 199, 205).
+
+Ο Ολυμπιακός είναι χωρίς τον Milutinov, που λείπει από τη ρακέτα και στις δύο πλευρές του γηπέδου. Το μοντέλο δίνει **57%** για το over, ενώ η απόδοση 1.91 αντιστοιχεί σε περίπου 50%.
+
+Το ρίσκο: ο Ολυμπιακός έχει παίξει και πολύ χαμηλά ματς (61-64 με Φενέρ, 57-62 με Ερυθρό), αν και αυτά ήταν στο ΣΕΦ.
+
+EN:
+Maccabi have one of the most open defenses in the league: they allow **92.1 points** per game and their games have gone over 174.5 in **7 of 11**. Olympiacos play much faster on the road than at home: in 5 of their 6 away games the total went over 174.5 (195, 184, 190, 199, 205).
+
+Olympiacos are without Milutinov, a big absence in the paint at both ends. The model gives the over **57%**, while odds of 1.91 imply about 50%.
+
+The risk: Olympiacos have also played some very low-scoring games (61-64 vs Fenerbahce, 57-62 vs Crvena Zvezda), although those were at home.
+
+ES:
+El Maccabi tiene una de las defensas más abiertas de la liga: recibe **92,1 puntos** por partido y sus partidos superan 174,5 en **7 de 11**. El Olympiacos juega mucho más rápido a domicilio que en casa: en 5 de sus 6 partidos fuera el total superó 174,5 (195, 184, 190, 199, 205).
+
+El Olympiacos no tiene a Milutinov, una baja importante en la pintura en ambos lados de la pista. El modelo da **57%** al over, mientras que la cuota 1,91 implica alrededor del 50%.
+
+El riesgo: el Olympiacos también ha jugado partidos de muy pocos puntos (61-64 ante el Fenerbahçe, 57-62 ante el Estrella Roja), aunque fueron en casa.
+
+SR:
+Makabi ima jednu od najotvorenijih odbrana u ligi: prima **92,1 poen** po utakmici i njene utakmice prelaze 174,5 u **7 od 11**. Olimpijakos u gostima igra mnogo brže nego kod kuće: u 5 od 6 gostujućih utakmica zbir je prešao 174,5 (195, 184, 190, 199, 205).
+
+Olimpijakos je bez Milutinova, što je veliki gubitak pod košem na obe strane terena. Model daje over-u **57%**, dok kvota 1,91 odgovara oko 50%.
+
+Rizik: Olimpijakos je igrao i utakmice sa vrlo malo poena (61-64 protiv Fenerbahčea, 57-62 protiv Crvene zvezde), ali su one bile kod kuće.
+
+12 | MIL-RED | 2 | 1.78
+Η Αρμάνι είναι στο **1-10** με πέντε σερί ήττες, τρεις από αυτές στο Μιλάνο (Μπαρτσελόνα, Βαλένθια, Ζαλγκίρις). Σκοράρει 81.3 και δέχεται 89.3 πόντους ανά αγώνα, και ο Booker είναι εκτός μέχρι τον Ιανουάριο.
+
+Ο Ερυθρός Αστέρας είναι στο 7-4 με την καλύτερη άμυνα της λίγκας (**77.7 πόντοι** κατά, μαζί με την Παρτιζάν). Το μοντέλο τον δίνει νικητή με **68%**, ενώ η απόδοση 1.78 αντιστοιχεί σε περίπου 54%. Είναι η μεγαλύτερη διαφορά μοντέλου και αγοράς στη βραδιά.
+
+Το ρίσκο: ο Ερυθρός ηττήθηκε 105-84 στη Μαδρίτη στην προηγούμενη αγωνιστική και ο Motley είναι αμφίβολος λόγω ίωσης. Όταν η αγορά διαφωνεί τόσο με το μοντέλο, μπορεί να ξέρει κάτι που δεν φαίνεται στα στατιστικά.
+
+EN:
+Olimpia Milano are **1-10** with five straight losses, three of them in Milan (Barcelona, Valencia, Zalgiris). They score 81.3 and allow 89.3 points per game, and Booker is out until January.
+
+Crvena Zvezda are 7-4 with the best defense in the league (**77.7 points** allowed, level with Partizan). The model makes them winners at **68%**, while odds of 1.78 imply about 54%. It is the biggest gap between model and market tonight.
+
+The risk: Zvezda lost 105-84 in Madrid last round and Motley is doubtful with a virus. When the market disagrees this much with the model, it may know something the numbers do not show.
+
+ES:
+El Olimpia Milano está **1-10** con cinco derrotas seguidas, tres de ellas en Milán (Barça, Valencia, Zalgiris). Anota 81,3 y recibe 89,3 puntos por partido, y Booker está de baja hasta enero.
+
+El Estrella Roja está 7-4 con la mejor defensa de la liga (**77,7 puntos** en contra, igual que el Partizan). El modelo le da la victoria con un **68%**, mientras que la cuota 1,78 implica alrededor del 54%. Es la mayor diferencia entre modelo y mercado de la noche.
+
+El riesgo: el Estrella Roja perdió 105-84 en Madrid en la jornada anterior y Motley es duda por un virus. Cuando el mercado discrepa tanto del modelo, puede saber algo que no se ve en los números.
+
+SR:
+Olimpija Milano je na **1-10** sa pet uzastopnih poraza, od kojih tri u Milanu (Barselona, Valensija, Žalgiris). Postiže 81,3 i prima 89,3 poena po utakmici, a Buker je van terena do januara.
+
+Crvena zvezda je na 7-4 sa najboljom odbranom lige (**77,7 poena** primljeno, isto kao Partizan). Model joj daje pobedu sa **68%**, dok kvota 1,78 odgovara oko 54%. To je najveća razlika između modela i tržišta večeras.
+
+Rizik: Zvezda je izgubila 105-84 u Madridu u prošlom kolu, a Motli je upitan zbog virusa. Kada se tržište ovoliko ne slaže sa modelom, možda zna nešto što se ne vidi u brojkama.
