@@ -56,6 +56,10 @@ try {
   for (const [locale, url] of locales) {
     const response = await desktop.goto('http://127.0.0.1:4173' + url, { waitUntil: 'networkidle' });
     if (!response?.ok()) throw new Error('Homepage failed to load for ' + locale + ': ' + response?.status());
+    const legacyHeader = desktop.locator('.shero');
+    if (await legacyHeader.count() && await legacyHeader.first().isVisible()) {
+      throw new Error('Legacy standings header is still visible on ' + locale + ' portal homepage');
+    }
     await desktop.screenshot({ path: path.join(output, 'portal-' + locale + '-desktop.png'), fullPage: true });
   }
 
