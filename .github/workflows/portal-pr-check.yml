@@ -9,6 +9,7 @@ on:
       - "src/app.js"
       - "test/seo.test.mjs"
       - "test/portal-home.test.mjs"
+      - "test/portal-screenshots.mjs"
       - ".github/workflows/portal-pr-check.yml"
 
 permissions:
@@ -28,3 +29,17 @@ jobs:
         run: node build.mjs --offline
       - name: Generate portal pages and run SEO tests
         run: node scripts/portal-home.mjs && node --test test/seo.test.mjs test/portal-home.test.mjs
+      - name: Install browser for visual preview
+        run: |
+          npm install --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Capture desktop and mobile portal screenshots
+        run: node test/portal-screenshots.mjs
+      - name: Upload visual preview (no deployment)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: basketball-intelligence-portal-preview
+          path: artifacts/portal-preview/
+          if-no-files-found: warn
+          retention-days: 7
