@@ -119,6 +119,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     readJson(path.join(DIR, 'latest.json'), {}),
     readJson(path.join(DIR, 'bookmakers-gr.json'), {}),
     readJsonl(path.join(DIR, 'props-history.jsonl')),
+    readJson(path.join(DIR, 'status.json'), {}),
   ]);
-  console.log(JSON.stringify(auditPropsMarket({ latest, registry, history }), null, 2));
+  console.log(JSON.stringify(auditPropsMarket({ latest, registry, history, status }), null, 2));
 }
