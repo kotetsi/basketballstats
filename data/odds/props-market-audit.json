@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T06:26:18.676Z",
+  "generatedAt": "2026-11-16T10:26:47.339Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-16T06:26:18.587Z",
+  "collectorUpdated": "2026-11-16T10:26:47.244Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-16T06:26:18.587Z",
+  "lastIngestAt": "2026-11-16T10:26:47.244Z",
   "lastIngestEvents": 0,
   "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-15T20:49:31.925Z",
-  "latestQuoteAgeHours": 9.61,
+  "latestQuoteAgeHours": 13.62,
   "upcomingGames": 16,
   "gamesWithGreekBooks": 16,
   "greekBookGameQuotes": 23,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-15T20:49:31.925Z",
       "oldest": "2026-11-13T04:44:28.653Z",
-      "newestAgeHours": 9.61
+      "newestAgeHours": 13.62
     },
     {
       "feed": "bet365.gr",
@@ -37,7 +37,7 @@
       "oneSided": 0,
       "newest": "2026-11-15T20:38:43.673Z",
       "oldest": "2026-11-15T16:40:12.157Z",
-      "newestAgeHours": 9.79
+      "newestAgeHours": 13.8
     }
   ],
   "events": [
@@ -56,7 +56,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T16:40:12.157Z",
-          "ageHours": 13.77
+          "ageHours": 17.78
         },
         {
           "feed": "stoiximan",
@@ -66,7 +66,7 @@
           "complete": 74,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:13.288Z",
-          "ageHours": 10.23
+          "ageHours": 14.24
         }
       ]
     },
@@ -85,7 +85,7 @@
           "complete": 90,
           "oneSided": 0,
           "updated": "2026-11-15T20:10:38.586Z",
-          "ageHours": 10.26
+          "ageHours": 14.27
         }
       ]
     },
@@ -104,7 +104,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T17:05:01.663Z",
-          "ageHours": 13.35
+          "ageHours": 17.36
         },
         {
           "feed": "stoiximan",
@@ -114,7 +114,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:10:38.914Z",
-          "ageHours": 10.26
+          "ageHours": 14.27
         }
       ]
     },
@@ -133,7 +133,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:49:31.925Z",
-          "ageHours": 9.61
+          "ageHours": 13.62
         }
       ]
     },
@@ -152,7 +152,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T18:13:09.808Z",
-          "ageHours": 12.22
+          "ageHours": 16.23
         },
         {
           "feed": "stoiximan",
@@ -162,7 +162,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:17.635Z",
-          "ageHours": 10.23
+          "ageHours": 14.24
         }
       ]
     },
@@ -181,7 +181,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:35.107Z",
-          "ageHours": 10.23
+          "ageHours": 14.24
         },
         {
           "feed": "stoiximan",
@@ -191,7 +191,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:18.183Z",
-          "ageHours": 10.23
+          "ageHours": 14.24
         }
       ]
     },
@@ -210,7 +210,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:05:08.934Z",
-          "ageHours": 10.35
+          "ageHours": 14.36
         },
         {
           "feed": "stoiximan",
@@ -220,7 +220,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:45.708Z",
-          "ageHours": 10.23
+          "ageHours": 14.23
         }
       ]
     },
@@ -239,7 +239,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T18:13:45.477Z",
-          "ageHours": 12.21
+          "ageHours": 16.22
         },
         {
           "feed": "stoiximan",
@@ -249,7 +249,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:48.073Z",
-          "ageHours": 10.23
+          "ageHours": 14.23
         }
       ]
     },
@@ -268,7 +268,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-15T20:38:43.673Z",
-          "ageHours": 9.79
+          "ageHours": 13.8
         },
         {
           "feed": "stoiximan",
@@ -278,7 +278,7 @@
           "complete": 89,
           "oneSided": 0,
           "updated": "2026-11-15T20:12:21.824Z",
-          "ageHours": 10.23
+          "ageHours": 14.24
         }
       ]
     },
@@ -297,7 +297,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-14T19:16:38.733Z",
-          "ageHours": 35.16
+          "ageHours": 39.17
         }
       ]
     },
@@ -316,7 +316,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:29.302Z",
-          "ageHours": 73.7
+          "ageHours": 77.71
         }
       ]
     },
@@ -335,7 +335,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:28.653Z",
-          "ageHours": 73.7
+          "ageHours": 77.71
         }
       ]
     },
@@ -354,7 +354,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T21:56:24.641Z",
-          "ageHours": 56.5
+          "ageHours": 60.51
         }
       ]
     },
@@ -373,7 +373,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:29.722Z",
-          "ageHours": 73.7
+          "ageHours": 77.7
         }
       ]
     },
@@ -392,7 +392,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:31.359Z",
-          "ageHours": 73.7
+          "ageHours": 77.7
         }
       ]
     },
@@ -411,7 +411,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:32.368Z",
-          "ageHours": 73.7
+          "ageHours": 77.7
         }
       ]
     }
@@ -439,6 +439,7 @@
     "Δεν υπάρχει ακόμη αρχείο ιστορικών Player Props snapshots στο branch/data.",
     "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.",
     "Τα Player Props προέρχονται από μία μόνο επιβεβαιωμένη ελληνική εταιρεία· δεν μπορεί να υπολογιστεί πολυεταιρική συναίνεση αγοράς.",
+    "Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).",
     "Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς."
   ]
 }
