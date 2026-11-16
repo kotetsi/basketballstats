@@ -42,7 +42,8 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
       const complete = [...distinct.values()].filter(x => x.over && x.under).length;
       const oneSided = [...distinct.values()].filter(x => x.over !== x.under).length;
       const brand = brands[brandKey];
-      const updated = quote.upd || props.map(p => p.upd).filter(Boolean).sort().at(-1) || null;\n      if (updated) sourceQuoteTimes.push(updated);
+      const updated = quote.upd || props.map(p => p.upd).filter(Boolean).sort().at(-1) || null;
+      if (updated) sourceQuoteTimes.push(updated);
       const row = { feed, brand: brand.brand || brandKey, games: 1, props: distinct.size, complete, oneSided, updated,
         ageHours: round(ageHours(updated, now)) };
       books.push(row);
@@ -79,7 +80,8 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   if (!snapshots.length) warnings.push('Δεν υπάρχει ακόμη αρχείο ιστορικών Player Props snapshots στο branch/data.');
   if (games.length && gamesWithProps === 0) warnings.push('Δεν βρέθηκαν ελληνικά feeds με Player Props στους προσεχείς αγώνες.');
   if (gameRows.some(g => g.booksWithProps > 0 && g.books.filter(b => b.props > 0).length < 2)) warnings.push('Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.');
-  if (latestQuoteAge == null || latestQuoteAge > 12) warnings.push('Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).');\n  if (status.lastSuccess && (status.events === 0 || status.matched === 0)) warnings.push('Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς.');
+  if (latestQuoteAge == null || latestQuoteAge > 12) warnings.push('Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).');
+  if (status.lastSuccess && (status.events === 0 || status.matched === 0)) warnings.push('Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς.');
 
   return {
     generatedAt: new Date(now).toISOString(), provider: latest.provider || null,
