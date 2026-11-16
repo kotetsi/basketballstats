@@ -14,6 +14,14 @@ const L = {
 const esc = s => String(s).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const routeIndex = {today:0,schedule:1,odds:2,props:3,clv:4,pred:5,tools:6,fantasy:7,leaders:8,analytics:9,compare:10,model:11,tips:12};
 const route = (lang,key) => '/' + L[lang].dir + (key==='stand' ? L[lang].stand : L[lang].r[routeIndex[key]]) + '/';
+const standingsUrl = lang => SITE + '/' + L[lang].dir + L[lang].stand + '/';
+const fixStandingsAlternates = html => html.replace(
+  /(<link rel="alternate" hreflang=")(el|en|es|sr|tr)("[^>]*href=")[^"]*(")/g,
+  (_, before, lang, middle, after) => before + lang + middle + standingsUrl(lang) + after
+).replace(
+  /(<link rel="alternate" hreflang="x-default"[^>]*href=")[^"]*(")/,
+  (_, before, after) => before + standingsUrl('el') + after
+);
 const nav = lang => {
   const names=['Match Center','Betting Intelligence','Player Lab','Predictions','Basketball Data','Fantasy'];
   const icons=['🏀','🎯','📊','🧠','📈','🏆'];
@@ -36,7 +44,7 @@ for (const [lang,cfg] of Object.entries(L)) {
   let old;
   try { old=await fs.readFile(index,'utf8'); } catch { console.warn('Missing '+index); continue; }
   const c=cfg.copy, standUrl=SITE+'/'+cfg.dir+cfg.stand+'/';
-  let stand=meta(old,lang==='el'?'Βαθμολογία EuroLeague | Basketball Stats':'EuroLeague Standings | Basketball Stats',lang==='el'?'Βαθμολογία, αποτελέσματα, πρόγραμμα και στατιστικά EuroLeague.':'EuroLeague standings, results, schedule and team and player statistics.',standUrl);
+  let stand=fixStandingsAlternates(meta(old,lang==='el'?'Βαθμολογία EuroLeague | Basketball Stats':'EuroLeague Standings | Basketball Stats',lang==='el'?'Βαθμολογία, αποτελέσματα, πρόγραμμα και στατιστικά EuroLeague.':'EuroLeague standings, results, schedule and team and player statistics.',standUrl));
   stand=stand.replace(/<nav class="nav"[\s\S]*?<\/nav>/,nav(lang));
   const standFile=path.join(folder,cfg.stand,'index.html');
   await fs.mkdir(path.dirname(standFile),{recursive:true});
