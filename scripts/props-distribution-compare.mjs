@@ -8,7 +8,7 @@ const rounds=[...new Set(players.flatMap(p=>(p.g||[]).filter(r=>r[7]>0).map(r=>+
 if(rounds.length<5) throw new Error('Χρειάζονται τουλάχιστον 5 αγωνιστικές.');
 const splitAt=Math.max(4,Math.floor(rounds.length*.7)),validation=new Set(rounds.slice(splitAt)),stats=Object.keys(STATS);
 const offsets=[-2,-1.5,-1,-.5,0,.5,1,1.5,2];
-const makeMetric=()=>({n:0,logLoss:0,rps:0,brier:0,bins:Array.from({length:10},()=>({p:0,y:0,n:0}))});
+const makeMetric=()=>({n:0,logLoss:0,rps:0,brier:0,lineN:0,bins:Array.from({length:10},()=>({p:0,y:0,n:0}))});
 const metrics=Object.fromEntries(stats.map(s=>[s,{model:makeMetric(),seasonBaseline:makeMetric()}]));
 const totals=new Map(rounds.map(r=>[r,Object.fromEntries(stats.map(s=>[s,0]))])),minutes=new Map(rounds.map(r=>[r,0]));
 for(const p of players) for(const row of p.g||[]) {
@@ -34,6 +34,7 @@ function addScore(metric,actual,mu,variance,lines) {
   for(const line of lines) {
     const probability=pOver(mu,variance,line),observed=actual>line?1:0;
     metric.brier+=(probability-observed)**2;
+    metric.lineN++;
     const bin=metric.bins[Math.min(9,Math.floor(probability*10))];
     bin.p+=probability;bin.y+=observed;bin.n++;
   }
@@ -57,7 +58,7 @@ for(const p of players) {
 }
 const summarize=m=>({
   n:m.n,meanLogLoss:m.n?+(m.logLoss/m.n).toFixed(4):null,meanRPS:m.n?+(m.rps/m.n).toFixed(4):null,
-  brierPerLine:m.n?+(m.brier/(m.n*offsets.length)).toFixed(4):null,
+  brierPerLine:m.lineN?+(m.brier/m.lineN).toFixed(4):null,lineObservations:m.lineN,
   calibration:m.bins.map((b,i)=>({range:(i/10).toFixed(1)+'-'+((i+1)/10).toFixed(1),predicted:b.n?+(b.p/b.n).toFixed(3):null,observed:b.n?+(b.y/b.n).toFixed(3):null,n:b.n,absGap:b.n?+Math.abs(b.p/b.n-b.y/b.n).toFixed(3):null})).filter(b=>b.n>=20)
 });
 const output={
