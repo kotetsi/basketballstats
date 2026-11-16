@@ -23,3 +23,5 @@ jobs:
           node-version: 20
       - name: Check portal generator syntax
         run: node --check scripts/portal-home.mjs
+      - name: Test generated homepage and localized standings routes
+        run: node --test test/portal-home.test.mjs
