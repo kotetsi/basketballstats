@@ -185,6 +185,14 @@ export const PHRASES = {
   'πλεονέκτημα έδρας σε πόντους': 'home advantage in points',
   ' παίκτες': ' players',
   ' πόντοι': ' points',
+  'Φόρμα τελευταίων αγώνων': 'Recent form',
+  'Τα 5 πιο πρόσφατα παιχνίδια σε σύγκριση με τον μέσο όρο της σεζόν': 'The 5 most recent games compared with the season average',
+  'Ρεκόρ τελευταίων 5': 'Last 5 record',
+  'Πόντοι υπέρ': 'Points scored',
+  'Πόντοι κατά': 'Points allowed',
+  'Διαφορά πόντων': 'Point differential',
+  'μ.ό. σεζόν ': 'season avg ',
+
 };
 
 // Εφαρμογή: πρώτα τα κομμάτια κώδικα, μετά οι φράσεις (οι μεγαλύτερες πρώτες)
