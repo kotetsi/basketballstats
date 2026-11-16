@@ -74,8 +74,8 @@ async function updateNavigation(dir, lang) {
     if (entry.isDirectory()) { await updateNavigation(file, lang); continue; }
     if (!entry.isFile() || !entry.name.endsWith('.html')) continue;
     let html = await fs.readFile(file, 'utf8');
-    html = html.replace(/<nav class="nav"[\\s\\S]*?<\\/nav>/, nav(lang));
-    html = html.replace(/(<nav class="foot">[\\s\\S]*?<a href=")[^"]*(")/, '$1' + route(lang, 'stand') + '$2');
+    html = html.replace(/<nav class="nav"[\s\\S]*?<\/nav>/, nav(lang));
+    html = html.replace(/(<nav class="foot">[\s\\S]*?<a href=")[^"]*(")/, '$1' + route(lang, 'stand') + '$2');
     await fs.writeFile(file, html);
   }
 }
