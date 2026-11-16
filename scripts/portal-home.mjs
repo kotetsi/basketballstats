@@ -65,6 +65,8 @@ for (const [lang,cfg] of Object.entries(L)) {
   body+='<section class="portal-fantasy"><div><span class="portal-kicker">05 / 05</span><h2>🏆 Fantasy Zone</h2><p>'+c[6]+'</p></div><a href="'+route(lang,'fantasy')+'">'+c[21]+' →</a></section><p class="portal-disclosure">'+c[22]+'</p></main>';
   let home=old.replace(/<main class="wrap one">[\s\S]*?<\/main>/,body).replace('data-view="stand"','data-view="portal"');
   home=home.replace(/<nav class="nav"[\s\S]*?<\/nav>/,nav(lang));
+  // The source standings header is outside <main>; hide its band on portal homepages.
+  home=home.replace('</head>', '<style>body[data-view="portal"] .band:has(.shero){display:none!important}body[data-view="portal"] .shero{display:none!important}</style></head>');
   home=meta(home,'Basketball Intelligence Portal | Basketball Stats',c[0],SITE+'/'+cfg.dir);
   await fs.writeFile(index,home);
 
