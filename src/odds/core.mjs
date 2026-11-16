@@ -95,7 +95,7 @@ export function consensusProbability(quotes, minBooks = 2) {
   const byBook = new Map();
   for (const q of quotes || []) {
     if (!q?.book || !(q.probability > 0 && q.probability < 1)) continue;
-    byBook.set(q.book, q.probability);
+    if (!byBook.has(q.book)) byBook.set(q.book, q.probability);
   }
   const values = [...byBook.values()].sort((a, b) => a - b);
   if (values.length < minBooks) return null;
