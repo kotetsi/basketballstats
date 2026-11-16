@@ -104,7 +104,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
 async function readJson(file, fallback) { try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch { return fallback; } }
 async function readJsonl(file) {
   const raw = await fs.readFile(file, 'utf8').catch(() => '');
-  return raw.split('\\n').filter(Boolean).map(line => JSON.parse(line));
+  return raw.split('\n').filter(Boolean).map(line => JSON.parse(line));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
