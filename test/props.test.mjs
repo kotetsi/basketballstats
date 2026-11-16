@@ -25,7 +25,7 @@ test('εξαγωγή props: over/under από τα ονόματα των outcome
   };
   const out = extractProps(markets, meta);
   assert.equal(out.length, 1);
-  assert.deepEqual(out[0], { name: 'Tanaskovic, Nikola', stat: 'pts', line: 13.5, over: 1.8, under: 1.95, upd: '2026-11-10T10:00:00Z' });
+  assert.deepEqual(out[0], { playerId: '77', name: 'Tanaskovic, Nikola', stat: 'pts', line: 13.5, over: 1.8, under: 1.95, upd: '2026-11-10T10:00:00Z' });
 });
 
 test('κατανομή: Poisson όταν var = mean, αθροίζει στο 1, P(Over) φθίνει με τη γραμμή', () => {
