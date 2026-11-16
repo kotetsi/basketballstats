@@ -10,7 +10,7 @@ const round = (x, n = 2) => Number.isFinite(x) ? +x.toFixed(n) : null;
 const ageHours = (stamp, now) => stamp && Number.isFinite(new Date(stamp).getTime()) ? (now - new Date(stamp).getTime()) / 36e5 : null;
 const keyOf = p => [p.name || p.player || '', p.stat || p.market || '', p.line ?? ''].join('|');
 
-export function auditPropsMarket({ latest = {}, registry = {}, history = [], now = Date.now() } = {}) {
+export function auditPropsMarket({ latest = {}, registry = {}, history = [], status = {}, now = Date.now() } = {}) {
   const brands = registry.brands || {};
   const confirmed = new Map();
   for (const [brandKey, brand] of Object.entries(brands)) {
@@ -42,7 +42,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], now
       const complete = [...distinct.values()].filter(x => x.over && x.under).length;
       const oneSided = [...distinct.values()].filter(x => x.over !== x.under).length;
       const brand = brands[brandKey];
-      const updated = quote.upd || props.map(p => p.upd).filter(Boolean).sort().at(-1) || null;
+      const updated = quote.upd || props.map(p => p.upd).filter(Boolean).sort().at(-1) || null;\n      if (updated) sourceQuoteTimes.push(updated);
       const row = { feed, brand: brand.brand || brandKey, games: 1, props: distinct.size, complete, oneSided, updated,
         ageHours: round(ageHours(updated, now)) };
       books.push(row);
@@ -79,11 +79,11 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], now
   if (!snapshots.length) warnings.push('Δεν υπάρχει ακόμη αρχείο ιστορικών Player Props snapshots στο branch/data.');
   if (games.length && gamesWithProps === 0) warnings.push('Δεν βρέθηκαν ελληνικά feeds με Player Props στους προσεχείς αγώνες.');
   if (gameRows.some(g => g.booksWithProps > 0 && g.books.filter(b => b.props > 0).length < 2)) warnings.push('Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.');
-  if (latestAge == null || latestAge > 12) warnings.push('Το latest odds snapshot είναι παλιό ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).');
+  if (latestQuoteAge == null || latestQuoteAge > 12) warnings.push('Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).');\n  if (status.lastSuccess && (status.events === 0 || status.matched === 0)) warnings.push('Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς.');
 
   return {
     generatedAt: new Date(now).toISOString(), provider: latest.provider || null,
-    latestUpdated: latest.updated || null, latestAgeHours: round(latestAge),
+    collectorUpdated: latest.updated || null, collectorUpdatedAgeHours: round(collectorUpdatedAge),\n    lastIngestAt: status.lastSuccess || status.lastCall || null, lastIngestEvents: status.events ?? null, lastIngestMatched: status.matched ?? null,\n    latestQuoteUpdated, latestQuoteAgeHours: round(latestQuoteAge),
     upcomingGames: games.length, gamesWithGreekBooks: gameRows.filter(g => g.greekBooks > 0).length,
     greekBookGameQuotes: greekGameCount, gamesWithPlayerProps: gamesWithProps,
     totalDistinctPlayerProps: totalProps, completeOverUnderPairs: completeProps, oneSidedProps,
@@ -106,7 +106,7 @@ async function readJsonl(file) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [latest, registry, history] = await Promise.all([
+  const [latest, registry, history, status] = await Promise.all([
     readJson(path.join(DIR, 'latest.json'), {}),
     readJson(path.join(DIR, 'bookmakers-gr.json'), {}),
     readJsonl(path.join(DIR, 'props-history.jsonl')),
