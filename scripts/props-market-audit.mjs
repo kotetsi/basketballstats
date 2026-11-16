@@ -76,7 +76,9 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   }
   const capturesPerEventBook = [...seenByEventBook.values()].map(x => x.size);
   const snapshotTimes = snapshots.map(x => x.seen).filter(Boolean).sort();
-  const latestAge = ageHours(latest.updated, now);
+  const collectorUpdatedAge = ageHours(latest.updated, now);
+  const latestQuoteUpdated = sourceQuoteTimes.sort().at(-1) || null;
+  const latestQuoteAge = ageHours(latestQuoteUpdated, now);
   const warnings = [];
   if (!snapshots.length) warnings.push('Δεν υπάρχει ακόμη αρχείο ιστορικών Player Props snapshots στο branch/data.');
   if (games.length && gamesWithProps === 0) warnings.push('Δεν βρέθηκαν ελληνικά feeds με Player Props στους προσεχείς αγώνες.');
