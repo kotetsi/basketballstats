@@ -3,7 +3,7 @@
   "public": true,
   "teams": 163,
   "game": "https://euroleaguefantasy.euroleaguebasketball.net/",
-  "updated": "2026-11-14",
+  "updated": "2026-11-16",
   "note": "Μόνο ονόματα ομάδων, όχι ονόματα μάνατζερ. Round = πόντοι της αγωνιστικής, total = σύνολο μετά από αυτή.",
   "rounds": {
     "10": {
