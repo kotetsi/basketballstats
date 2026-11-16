@@ -14,7 +14,7 @@ const stats = Object.keys(STATS);
 const methods = ['ewMinutes3', 'seasonMinutes', 'last5Minutes', 'last3Minutes'];
 const minute = Object.fromEntries(methods.map(m => [m, {n:0,abs:0,sq:0}]));
 const roleGroups = Object.fromEntries(['stable','increase5','decrease5'].map(k=>[k,{ewMinutes3:{n:0,abs:0,sq:0},seasonMinutes:{n:0,abs:0,sq:0}}]));
-const rate = Object.fromEntries(stats.map(s => [{
+const rate = Object.fromEntries(stats.map(s => [s, {
   season:{n:0,abs:0,sq:0}, last5:{n:0,abs:0,sq:0}, ew8:{n:0,abs:0,sq:0}
 }]));
 const ew = (xs, half) => {
