@@ -47,7 +47,10 @@ test('market audit reports snapshot coverage and missing archive', () => {
   assert.equal(r.history.snapshots, 2);
   assert.equal(r.history.windows.open, 1);
   assert.equal(r.history.windows.close, 1);
-  assert.equal(r.history.eventBookPairs, 1);\n  assert.equal(r.latestQuoteUpdated, '2026-11-15T22:00:00Z');\n  assert.equal(r.latestQuoteAgeHours, 2);\n  assert.ok(r.warnings.some(x => x.includes('χωρίς να φέρει/αντιστοιχίσει')));
+  assert.equal(r.history.eventBookPairs, 1);
+  assert.equal(r.latestQuoteUpdated, '2026-11-15T22:00:00Z');
+  assert.equal(r.latestQuoteAgeHours, 2);
+  assert.ok(r.warnings.some(x => x.includes('χωρίς να φέρει/αντιστοιχίσει')));
   const empty = auditPropsMarket({ latest, registry, now });
   assert.equal(empty.history.available, false);
   assert.ok(empty.warnings.some(x => x.includes('Δεν υπάρχει ακόμη αρχείο')));
