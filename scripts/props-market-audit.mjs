@@ -24,6 +24,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   });
   const bookAgg = new Map();
   const gameRows = [];
+  const sourceQuoteTimes = [];
   let greekGameCount = 0, gamesWithProps = 0, totalProps = 0, completeProps = 0, oneSidedProps = 0;
 
   for (const [event, game] of games) {
