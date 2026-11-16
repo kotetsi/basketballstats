@@ -25,7 +25,7 @@ from sklearn.linear_model import LogisticRegression, Ridge
 LIN = ['x_rmargin', 'd_net', 'd_net_l5', 'd_net_l10', 'x_margin', 'elo_h', 'elo_a', 'home', 'd_rest', 'h_b2b', 'a_b2b', 'd_absent', 'h_sos', 'a_sos']
 LIN_T = ['x_rtotal', 'x_total', 'x_pace', 'h_pace', 'a_pace', 'h_ortg', 'a_ortg', 'h_drtg', 'a_drtg']
 
-MODEL_VERSION = 'mp-1.0'
+MODEL_VERSION = 'mp-1.1'   # 1.1: διόρθωση συνόλου ανά διοργάνωση (παράταση)
 TARGETS = ['y_margin', 'y_total', 'y_poss']
 
 
@@ -205,3 +205,13 @@ def confidence(p, n_h, n_a):
     if e >= 0.08:
         return 'medium'
     return 'low'
+
+
+def total_shift(bt, comp, k=200):
+    """Διόρθωση συνόλου ανά διοργάνωση από το walk-forward backtest: μέσο υπόλοιπο (πραγματικό − πρόβλεψη),
+    συρρικνωμένο προς το 0 για μικρά δείγματα. Στην EuroLeague είναι ουσιαστικά οι πόντοι της παράτασης
+    (οι γραμμές των bookmakers τη συμπεριλαμβάνουν, το μοντέλο προβλέπει σαν κανονική διάρκεια):
+    σε 785 αγώνες, χωρίς παράταση η απόκλιση ήταν ~0, με παράταση (4%) ~−29, άρα ~−1.1 συνολικά."""
+    r = [x['y_total'] - x['total'] for x in bt if x['season'].startswith(comp)]
+    return (sum(r) / len(r)) * len(r) / (len(r) + k) if r else 0.0
+

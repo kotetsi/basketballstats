@@ -16,6 +16,14 @@ def S(**kw):
 
 
 class Metrics(unittest.TestCase):
+    def test_total_shift(self):
+        from model import total_shift
+        bt = [{'season': 'E2025', 'total': 160, 'y_total': 160}] * 96 + [{'season': 'E2025', 'total': 160, 'y_total': 190}] * 4 + [{'season': 'U2025', 'total': 160, 'y_total': 158}] * 100
+        self.assertAlmostEqual(total_shift(bt, 'E', k=0), 1.2)                 # 4% παρατάσεις × 30 πόντοι
+        self.assertAlmostEqual(total_shift(bt, 'E', k=100), 0.6)               # συρρίκνωση για μικρό δείγμα
+        self.assertAlmostEqual(total_shift(bt, 'U', k=0), -2.0)
+        self.assertEqual(total_shift([], 'E'), 0.0)
+
     def test_possessions(self):
         self.assertAlmostEqual(possessions(S(fga2=40, fga3=25, oreb=10, tov=12, fta=20)), 75.8)
 

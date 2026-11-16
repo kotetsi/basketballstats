@@ -16,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from features import load_games, build_dataset, Builder  # noqa: E402
-from model import Predictor, backtest, summarize, confidence, MODEL_VERSION, ENGINE  # noqa: E402
+from model import Predictor, backtest, summarize, confidence, total_shift, MODEL_VERSION, ENGINE  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'data' / 'matchups'
@@ -79,6 +79,7 @@ def main():
         calib_rows, calib_pred = None, None
     P = Predictor().fit(rows, calib_rows, calib_pred)
     sigma = summ.get('margin_rmse') or 12.0
+    TSHIFT = {c: total_shift(bt, c) for c in ('E', 'U')}   # παράταση/συστηματική απόκλιση συνόλου ανά διοργάνωση
     P.sigma = sigma
 
     fx = json.loads((OUT / 'fixtures.json').read_text())
@@ -124,6 +125,7 @@ def main():
                 keyp.append({'side': side, 'id': pid, 'min': round(m, 1), 'out': out_now})
         o = P.predict(variants)
         p0, m0, tot0, pos0 = float(o['p'][0]), float(o['y_margin'][0]), float(o['y_total'][0]), float(o['y_poss'][0])
+        tot0 += TSHIFT[f['comp']]
         k = 2
         rest = {}
         for side in ('h', 'a'):
@@ -140,12 +142,12 @@ def main():
             'conf': confidence(p0, base.get('h_n_games') or 0, base.get('a_n_games') or 0),
             'n_h': base.get('h_n_games'), 'n_a': base.get('a_n_games'),
             'h_rest': base['h_rest'], 'a_rest': base['a_rest'], 'h_absent': round(base['h_absent'], 3), 'a_absent': round(base['a_absent'], 3),
-            'sim': {'sigma': round(sigma, 2), 'swap': {'p_home': round(1 - float(o['p'][1]), 4), 'margin': round(-float(o['y_margin'][1]), 1), 'total': round(float(o['y_total'][1]), 1)},
+            'sim': {'sigma': round(sigma, 2), 'swap': {'p_home': round(1 - float(o['p'][1]), 4), 'margin': round(-float(o['y_margin'][1]), 1), 'total': round(float(o['y_total'][1]) + TSHIFT[f['comp']], 1)},
                     'rest': rest, 'players': keyp},
         })
     gen = now.isoformat(timespec='seconds')
     OUT.mkdir(parents=True, exist_ok=True)
-    meta = {'model_version': MODEL_VERSION, 'engine': ENGINE, 'generated_at': gen, 'train_games': len(rows), 'features': len(P.names)}
+    meta = {'model_version': MODEL_VERSION, 'engine': ENGINE, 'generated_at': gen, 'train_games': len(rows), 'features': len(P.names), 'total_shift': {c: round(v, 2) for c, v in TSHIFT.items()}}
     (OUT / 'latest.json').write_text(json.dumps({**meta, 'sigma': sigma, 'home_adv': P.home_adv, 'games': preds}, ensure_ascii=False))
     if bt:
         (OUT / 'backtest.json').write_text(json.dumps({**meta, 'summary': summ, 'by_season': {s: summarize([x for x in bt if x['season'] == s]) for s in sorted({x['season'] for x in bt})}}, ensure_ascii=False))
