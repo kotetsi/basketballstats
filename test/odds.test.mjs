@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { implied, devig, edgePP, classify, tier, bestAndAverage, movement, clv, clvSummary, pirOverProb, internalLine, hitRate, minutesRisk, appendChanges, appendPropSnapshots } from '../src/odds/core.mjs';
+import { implied, devig, edgePP, classify, tier, bestAndAverage, movement, clv, clvSummary, pirOverProb, internalLine, hitRate, minutesRisk, appendChanges, appendPropSnapshots, consensusProbability } from '../src/odds/core.mjs';
 const near = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} ≈ ${b}`);
 
 test('implied probability', () => { near(implied(2), 0.5); near(implied(1.25), 0.8); assert.equal(implied(1), null); });
@@ -52,4 +52,16 @@ test('player prop snapshots: retain unchanged quotes at later captures and dedup
   assert.equal(later.length, 1, 'unchanged price at a later capture is still a new snapshot');
   assert.equal(later[0].price, first.price);
   assert.equal(appendPropSnapshots([...added, ...later], [close]).length, 0, 'same capture rerun is idempotent');
+});
+
+
+test('multi-book market consensus: de-vig probabilities, median, and minimum coverage', () => {
+  const c = consensusProbability([
+    { book: 'A', probability: 0.54 }, { book: 'B', probability: 0.56 },
+    { book: 'C', probability: 0.91 }, { book: 'A', probability: 0.99 },
+  ]);
+  near(c.probability, 0.56); assert.equal(c.books, 3); near(c.mean, (0.54 + 0.56 + 0.91) / 3);
+  near(c.spread, 0.37);
+  assert.equal(consensusProbability([{ book: 'A', probability: 0.55 }]), null);
+  assert.equal(consensusProbability([{ book: 'A', probability: 0.55 }, { book: 'A', probability: 0.57 }]), null);
 });
