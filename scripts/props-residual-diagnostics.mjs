@@ -10,6 +10,23 @@ if (rounds.length < 5) throw new Error('Χρειάζονται τουλάχισ�
 const splitAt = Math.max(4, Math.floor(rounds.length * 0.7));
 const validation = new Set(rounds.slice(splitAt));
 const stats = Object.keys(STATS);
+const totals = new Map(rounds.map(r => [r, Object.fromEntries(stats.map(s => [s, 0]))]));
+const roundMinutes = new Map(rounds.map(r => [r, 0]));
+for (const p of players) for (const row of p.g || []) {
+  if (!(row[7] > 0)) continue;
+  const r = +row[0];
+  if (!totals.has(r)) continue;
+  for (const stat of stats) totals.get(r)[stat] += STATS[stat](row);
+  roundMinutes.set(r, roundMinutes.get(r) + row[7] / 60);
+}
+const priorAt = new Map();
+const cumulative = Object.fromEntries(stats.map(s => [s, 0]));
+let cumulativeMinutes = 0;
+for (const round of rounds) {
+  priorAt.set(round, Object.fromEntries(stats.map(s => [s, cumulativeMinutes ? cumulative[s] / cumulativeMinutes : 0])));
+  for (const stat of stats) cumulative[stat] += totals.get(round)[stat];
+  cumulativeMinutes += roundMinutes.get(round);
+}
 const byStat = Object.fromEntries(stats.map(s => [s, []]));
 const byPlayer = new Map();
 
@@ -21,7 +38,7 @@ for (const p of players) {
     const history = rows.slice(0, i).filter(r => +r[0] < round);
     if (history.length < 3) continue;
     for (const stat of stats) {
-      const prediction = project(history, stat, { P: PARAMS });
+      const prediction = project(history, stat, { prior: priorAt.get(round)[stat], P: PARAMS });
       if (!prediction || prediction.min < 10) continue;
       const actual = STATS[stat](target);
       const residual = actual - prediction.mu;
