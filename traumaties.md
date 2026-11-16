@@ -18,6 +18,7 @@
 - Αμφίβολος (μπορεί να παίξει): βάλε «?» μπροστά στην επιστροφή, π.χ. ?- ή ?2026-11-20
 - Πηγή (προαιρετικά): 9η στήλη με το link της είδησης, μετά τα σερβικά
 - Αν η απουσία δεν είναι τραυματισμός (τιμωρία, εκτός αποστολής), βάλε «!» μπροστά στην επιστροφή, π.χ. !2026-12 ή !-
+- Επέστρεψε / είναι διαθέσιμος: βάλε «+» στην επιστροφή (ακυρώνει και το αυτόματο πορτοκαλί ✚ για όσους έλειψαν 2+ αγώνες)
 - Τα κείμενα σε άλλες γλώσσες είναι προαιρετικά (αν λείπουν, γράφει απλώς «Injured» κ.λπ.)
 
 Η γραμμή σβήνει μόνη της από το site μόλις ο παίκτης ξαναπαίξει, οπότε δεν χρειάζεται να τη σβήνεις.
@@ -30,7 +31,6 @@
 2026-11-11 | Dozier | IST | - | Μέση, εκτός από την 7η αγωνιστική | Back, out since Round 7 | Espalda, de baja desde la jornada 7 | Leđa, van terena od 7. kola | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-10-29 | Smith Jr | MAD | - | Ενόχληση στο πέλμα του δεξιού ποδιού | Discomfort in the sole of the right foot | Molestias en la planta del pie derecho | Bol u tabanu desnog stopala
 2026-10-30 | Reuvers | PAM | - | Πόδι | Foot | Pie | Stopalo | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
-2026-10-30 | Maledon | MAD | - | Διάστρεμμα στο δεξί γόνατο, χρόνος απουσίας άγνωστος | Right knee sprain, no timetable for his return | Esguince en la rodilla derecha, sin plazo de regreso | Uganuće desnog kolena, rok povratka nepoznat | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-10-30 | Jantunen | MAD | 2027-01 | Πλήρης ρήξη της πελματιαίας περιτονίας στο αριστερό πόδι, εκτός 2-3 μήνες | Complete plantar fascia tear in the left foot, out 2-3 months | Rotura completa de la fascia plantar del pie izquierdo, 2-3 meses de baja | Potpuno pucanje plantarne fascije levog stopala, van terena 2-3 meseca | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-11-02 | Campazzo | MAD | - | Μυϊκός τραυματισμός, αναμένονται εξετάσεις για τη σοβαρότητα | Muscle injury, awaiting tests on its severity | Lesión muscular, pendiente de pruebas | Povreda mišića, čekaju se snimanja | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-11-09 | Punter | BAR | 2026-12 | Διάστρεμμα στον αριστερό αστράγαλο, εκτός 3 έως 6 εβδομάδες | Left ankle sprain, out 3 to 6 weeks | Esguince en el tobillo izquierdo, de 3 a 6 semanas de baja | Uganuće levog skočnog zgloba, van terena 3 do 6 nedelja | https://www.eurohoops.net/en/euroleague/2032663/kevin-punter-sidelined-for-three-weeks-with-ankle-injury/
@@ -42,7 +42,6 @@
 2026-11-10 | Walkup | DUB | - | Μέση, δεν ταξιδεύει για τον αγώνα με τον Ολυμπιακό | Back, not travelling for the game against Olympiacos | Espalda, no viaja para el partido ante Olympiacos | Leđa, ne putuje na utakmicu protiv Olimpijakosa | https://www.eurohoops.net/en/euroleague/2032675/thomas-walkup-will-miss-the-clash-against-olympiacos-due-to-injury/
 2026-11-11 | Williams-Goss | ZAL | - | Οπίσθιοι μηριαίοι, εκτός από την 6η αγωνιστική | Hamstring, out since Round 6 | Isquiotibiales, de baja desde la jornada 6 | Zadnja loža, van terena od 6. kola | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-11-10 | Miljenovic | RED | - | Χειρουργείο στον αστράγαλο | Ankle surgery | Operado del tobillo | Operacija skočnog zgloba | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
-2026-11-11 | Rogkavopoulos | PAN | - | Οπίσθιοι μηριαίοι, εκτός από την 5η αγωνιστική | Hamstring, out since Round 5 | Isquiotibiales, de baja desde la jornada 5 | Zadnja loža, van terena od 5. kola | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-11-11 | James | IST | 2027-06 | Αχίλλειος τένοντας, εκτός 7 έως 9 μήνες | Achilles tendon, out 7 to 9 months | Tendón de Aquiles, de 7 a 9 meses de baja | Ahilova tetiva, van terena 7 do 9 meseci | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-11-11 | Cordinier | IST | - | Αποθεραπεία μετά από χειρουργείο | Recovering from surgery | Recuperándose de una operación | Oporavak posle operacije | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
 2026-11-11 | Jeffries | BES | - | Χειρουργείο στον καρπό | Wrist surgery | Operado de la muñeca | Operacija ručnog zgloba | https://www.eurohoops.net/en/euroleague/2033031/injury-report-round-11-partizans-vildoza-jekiri-gtd-hayes-out/
@@ -66,3 +65,5 @@
 2026-11-13 | Mantzoukas | PAN | - | Εκτός με την Μπαρτσελόνα | Out against Barcelona | Baja ante el Barcelona | Van terena protiv Barselone | https://sportando.basketball/en/euroleague-injury-report-november-13-round-11-absences-and-returns/
 2026-11-13 | Hackett | VIR | ?- | Εκτός με την Εφές, άγνωστος λόγος | Out against Efes, reason undisclosed | Baja ante el Efes, motivo no revelado | Van terena protiv Efesa, razlog nepoznat | https://sportando.basketball/en/euroleague-injury-report-november-13-round-11-absences-and-returns/
 2026-11-13 | Ugurlu | BES | !- | Εκτός με τη Βιλερμπάν, άγνωστος λόγος | Out against ASVEL, reason undisclosed | Baja ante el ASVEL, motivo no revelado | Van terena protiv ASVEL-a, razlog nepoznat | https://sportando.basketball/en/euroleague-injury-report-november-13-round-11-absences-and-returns/
+2026-11-16 | Maledon | MAD | + | Επέστρεψε | Back | De vuelta | Vratio se
+2026-11-16 | Rogkavopoulos | PAN | + | Επέστρεψε | Back | De vuelta | Vratio se

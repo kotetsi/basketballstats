@@ -426,6 +426,8 @@ async function loadInjuries(players, games) {
     const key = who.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     const p = players.find(x => x.t.split(';').pop() === team.toUpperCase() && x.n.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().includes(key));
     if (!p) { console.warn('Τραυματίες: δεν βρέθηκε ο παίκτης', who, team); continue; }
+    // «+» στην επιστροφή = επέστρεψε (διαθέσιμος): ακυρώνει και τον αυτόματο κανόνα «έλειψε από 2+ αγώνες»
+    if (ret === '+') { for (const lg of Object.keys(out)) delete out[lg][p.c]; console.log('Τραυματίες: ο', who, 'δηλώθηκε διαθέσιμος'); continue; }
     if (p.g.some(r => r[7] > 0 && r[1] > date)) { console.log('Τραυματίες: ο', who, 'έχει ξαναπαίξει, αγνοείται'); continue; }
     if (/^\d{4}-\d{2}-\d{2}$/.test(ret) && ret < today && !out.el[p.c]) continue;
     ['el', 'en', 'es', 'sr', 'tr'].forEach((lg, i) => {
