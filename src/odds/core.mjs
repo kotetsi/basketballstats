@@ -97,7 +97,7 @@ export function appendChanges(history, snaps) {
   for (const h of history) last.set([h.provider, h.event, h.book, h.market, h.sel, h.line ?? ''].join('|'), h.price);
   const added = [];
   for (const s of snaps) {
-    const k = [s.provider, s.event, s.book, s.market, s.sel, s.line ?? ''].join('|');
+    const k = [s.provider, s.event, s.book, s.market, s.sel, s.line ?? '', s.player || ''].join('|');
     if (last.get(k) === s.price) continue;
     last.set(k, s.price); added.push(s);
   }
