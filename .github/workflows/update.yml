@@ -67,6 +67,8 @@ jobs:
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill - σφάλμα")
       - name: Αρχειοθέτηση pregame status παικτών για backtest απουσιών
         run: node scripts/fantasy-status-history.mjs
+      - name: Walk-forward σύγκριση κατανομής Player Props με baseline
+        run: node scripts/props-distribution-compare.mjs
       - name: "Fantasy model performance - ιστορικές σεζόν (μία φορά), walk-forward backtest, optimizer backtest"
         run: |
           timeout 1500 node fantasy/hist_fetch.mjs || echo "hist_fetch - σφάλμα"
