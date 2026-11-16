@@ -1,0 +1,33 @@
+name: Advanced Player Finder checks
+on:
+  pull_request:
+    paths:
+      - 'src/finder/**'
+      - 'build.mjs'
+      - 'src/app.css'
+      - 'src/app.js'
+      - 'src/shell.html'
+      - 'test/finder.test.mjs'
+      - 'test/e2e/finder-ui.e2e.mjs'
+      - '.github/workflows/finder-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  finder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit tests
+        run: node --test test/finder.test.mjs
+      - name: Build site offline
+        run: node build.mjs --offline
+      - name: Install browser for Finder QA
+        run: |
+          npm install --no-save --package-lock=false playwright@1.65.0
+          npx playwright install --with-deps chromium
+      - name: Check Finder navigation, SEO and mobile layout
+        run: node test/e2e/finder-ui.e2e.mjs
