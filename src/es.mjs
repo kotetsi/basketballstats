@@ -182,4 +182,12 @@ export const PHRASES = {
   'ώρα Ελλάδας': 'tu hora local',
   ' παίκτες': ' jugadores',
   ' πόντοι': ' puntos',
+  'Φόρμα τελευταίων αγώνων': 'Forma reciente',
+  'Τα 5 πιο πρόσφατα παιχνίδια σε σύγκριση με τον μέσο όρο της σεζόν': 'Los 5 partidos más recientes frente al promedio de la temporada',
+  'Ρεκόρ τελευταίων 5': 'Balance de los últimos 5',
+  'Πόντοι υπέρ': 'Puntos a favor',
+  'Πόντοι κατά': 'Puntos en contra',
+  'Διαφορά πόντων': 'Diferencia de puntos',
+  'μ.ό. σεζόν ': 'promedio de temporada ',
+
 };
