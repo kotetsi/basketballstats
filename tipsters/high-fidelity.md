@@ -262,3 +262,31 @@ Olimpija Milano je na **1-10** sa pet uzastopnih poraza, od kojih tri u Milanu (
 Crvena zvezda je na 7-4 sa najboljom odbranom lige (**77,7 poena** primljeno, isto kao Partizan). Model joj daje pobedu sa **68%**, dok kvota 1,78 odgovara oko 54%. To je najveća razlika između modela i tržišta večeras.
 
 Rizik: Zvezda je izgubila 105-84 u Madridu u prošlom kolu, a Motli je upitan zbog virusa. Kada se tržište ovoliko ne slaže sa modelom, možda zna nešto što se ne vidi u brojkama.
+
+12 | DUB-IST | Petrusev ριμπάουντ under 3.5 | 1.80
+Ο Filip Petrusev έχει φέτος ρόλο δεύτερου σέντερ στη Ντουμπάι: γύρω στα **15 λεπτά** ανά αγώνα. Στα τελευταία 10 ματς έμεινε στα 3 ριμπάουντ ή λιγότερα στα **8** (6, 2, 1, 1, 3, 3, 3, 3, 3, 4), και μόνο μία φορά πέρασε τα 4.
+
+Το μοντέλο τον βγάζει στα **2.8 ριμπάουντ** και δίνει περίπου **69%** για το under, ενώ η απόδοση 1.80 αντιστοιχεί σε περίπου 53%. Τα ριμπάουντ είναι η κατηγορία props όπου το μοντέλο μας τα έχει πάει μέχρι τώρα καλύτερα από την αγορά.
+
+Το ρίσκο: η Εφές είναι χωρίς τον Bruno Fernando, άρα η ρακέτα της είναι πιο αδύναμη. Αν ο Petrusev πάρει περισσότερα λεπτά από το συνηθισμένο, το 4 είναι ένα καλό βράδυ μακριά. Είναι επιλογή μικρότερης σιγουριάς από τις υπόλοιπες της αγωνιστικής.
+
+EN:
+Filip Petrusev has a backup center role at Dubai this season: around **15 minutes** per game. In his last 10 games he stayed at 3 rebounds or fewer in **8** (6, 2, 1, 1, 3, 3, 3, 3, 3, 4), and only once went past 4.
+
+The model projects him at **2.8 rebounds** and gives the under about **69%**, while odds of 1.80 imply about 53%. Rebounds are the prop category where our model has done better than the market so far.
+
+The risk: Efes are without Bruno Fernando, so their paint is weaker. If Petrusev gets more minutes than usual, 4 is one good night away. This is a lower-confidence pick than the others this round.
+
+ES:
+Filip Petrusev tiene esta temporada un rol de pívot suplente en el Dubai: unos **15 minutos** por partido. En sus últimos 10 partidos se quedó en 3 rebotes o menos en **8** (6, 2, 1, 1, 3, 3, 3, 3, 3, 4), y solo una vez pasó de 4.
+
+El modelo lo proyecta en **2,8 rebotes** y da alrededor del **69%** al under, mientras que la cuota 1,80 implica alrededor del 53%. Los rebotes son la categoría de props en la que nuestro modelo ha superado al mercado hasta ahora.
+
+El riesgo: el Efes no tiene a Bruno Fernando, así que su pintura es más débil. Si Petrusev juega más minutos de lo habitual, llegar a 4 está a una buena noche de distancia. Es una apuesta de menor confianza que las demás de la jornada.
+
+SR:
+Filip Petrušev ove sezone ima ulogu rezervnog centra u Dubaiju: oko **15 minuta** po utakmici. U poslednjih 10 utakmica ostao je na 3 skoka ili manje u **8** (6, 2, 1, 1, 3, 3, 3, 3, 3, 4), a samo jednom je prešao 4.
+
+Model ga projektuje na **2,8 skokova** i daje under-u oko **69%**, dok kvota 1,80 odgovara oko 53%. Skokovi su kategorija propsa u kojoj je naš model do sada bio bolji od tržišta.
+
+Rizik: Efes je bez Bruna Fernanda, pa je njihov reket slabiji. Ako Petrušev dobije više minuta nego obično, 4 skoka su udaljena jednu dobru večer. Ovo je tip manje sigurnosti od ostalih u kolu.
