@@ -75,6 +75,7 @@ const output = {
   scope: 'Conditional on appearing (actual minutes > 0). This does not evaluate DNP, injury availability, or pregame lineup uncertainty.',
   note: 'Repeated player observations are correlated. Small early-season samples are diagnostic only; do not retune production parameters from this report alone.',
   overall: byMethod(currentScored),
+  roleAdjustedMatchedSample: byMethod(currentScored.filter(x => Number.isFinite(x.predictions.role_adjusted))),
   byRound: Object.fromEntries([...new Set(currentScored.map(x => x.round))].sort((a,b)=>a-b).map(r => [r, byMethod(currentScored.filter(x=>x.round===r))])),
   byCurrentMinuteBucket: Object.fromEntries(Object.entries(buckets).map(([k,test]) => [k, byMethod(currentScored.filter(test))])),
   byPriorVolatility: {
