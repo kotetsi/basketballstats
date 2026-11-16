@@ -89,6 +89,22 @@ export function minutesRisk(mins, status) {
   return cv > 0.2 ? 'medium' : 'low';
 }
 
+// Robust consensus of de-vigged probabilities across distinct bookmakers.
+// Requires at least two complete two-way quotes; never treats a single book as market consensus.
+export function consensusProbability(quotes, minBooks = 2) {
+  const byBook = new Map();
+  for (const q of quotes || []) {
+    if (!q?.book || !(q.probability > 0 && q.probability < 1)) continue;
+    byBook.set(q.book, q.probability);
+  }
+  const values = [...byBook.values()].sort((a, b) => a - b);
+  if (values.length < minBooks) return null;
+  const mid = Math.floor(values.length / 2);
+  const median = values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+  return { probability: median, mean: values.reduce((a, b) => a + b, 0) / values.length,
+    min: values[0], max: values[values.length - 1], books: values.length, spread: values[values.length - 1] - values[0] };
+}
+
 // ---- normalisation ενός snapshot παρόχου: idempotent κλειδί
 export const snapKey = s => [s.provider, s.event, s.book, s.market, s.sel, s.line ?? '', s.price].join('|');
 // προσθέτει μόνο όσα άλλαξαν σε σχέση με την τελευταία γνωστή τιμή κάθε (event, book, market, sel, line)
