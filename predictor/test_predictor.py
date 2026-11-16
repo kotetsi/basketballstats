@@ -16,6 +16,16 @@ def S(**kw):
 
 
 class Metrics(unittest.TestCase):
+    def test_luck_adjusted_threes(self):
+        from features import luck_adjusted, I
+        box = [80, 20, 40, 10, 25, 10, 12, 8, 24, 12, 15, 6, 2, 18]   # 10/25 τρίποντα
+        b = luck_adjusted(box, [7.5, 21.0], k3=1, k2=0)               # αναμενόμενα 7.5 από τις ζώνες
+        self.assertAlmostEqual(b[I['fgm3']], 7.5)
+        self.assertAlmostEqual(b[I['pts']], 72.5)                      # −2.5 τρίποντα × 3
+        self.assertEqual(b[I['fgm2']], 20)                             # τα δίποντα μένουν (k2 = 0)
+        self.assertEqual(luck_adjusted(box, None), box)                # χωρίς shot chart: ίδιο box
+        self.assertEqual(box[I['pts']], 80)                            # δεν αλλάζει το αρχικό
+
     def test_total_shift(self):
         from model import total_shift
         bt = [{'season': 'E2025', 'total': 160, 'y_total': 160}] * 96 + [{'season': 'E2025', 'total': 160, 'y_total': 190}] * 4 + [{'season': 'U2025', 'total': 160, 'y_total': 158}] * 100

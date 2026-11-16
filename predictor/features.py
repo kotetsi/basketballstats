@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import os
 import math
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -21,6 +22,10 @@ ELO_K, ELO_HOME, ELO_CARRY = 20.0, 60.0, 0.75
 # Ridge ratings επίθεσης/άμυνας με διόρθωση για τον αντίπαλο (πόντοι = μ + έδρα/2 + επίθεση + άμυνα αντιπάλου).
 # Prior: RIDGE_REG × τα τελικά ratings της προηγούμενης σεζόν, με βάρος RIDGE_LAM «αγώνων». Ελεγμένο σε 3 σεζόν EuroLeague.
 RIDGE_REG, RIDGE_LAM, RIDGE_HOME = 0.75, 8.0, 3.0
+# Τύχη στα τρίποντα: τα ratings της ομάδας χτίζονται με τρίποντα «διορθωμένα» προς τα αναμενόμενα εύστοχα
+# (3PA ανά ζώνη × ποσοστό λίγκας της ζώνης, από τα shot charts). LUCK3 = πόσο από την απόκλιση θεωρούμε τύχη.
+LUCK3 = float(os.environ.get('PRED_LUCK3', '1'))
+LUCK2 = float(os.environ.get('PRED_LUCK2', '0'))   # το ίδιο για τα δίποντα (ζώνες καλάθι/ρακέτα/μέση απόσταση)
 
 
 # ---------- βασικοί δείκτες
@@ -69,6 +74,7 @@ class Game:
     secs: float
     box: dict
     played: dict = field(default_factory=dict)   # ομάδα → {παίκτης: λεπτά}
+    x3: dict = field(default_factory=dict)       # ομάδα → αναμενόμενα εύστοχα τρίποντα (από τις ζώνες των σουτ)
 
     @property
     def key(self):
@@ -96,8 +102,61 @@ def load_games(root: Path, seasons=None) -> list[Game]:
                     played[v[1]][pid.strip().lstrip('P')] = v[2] / 60
             out.append(Game(sd.name, int(g['gc']), g.get('d') or '', g.get('ph') or 'RS', g['h'], g['a'], int(g['hs']), int(g['as']),
                             float(g.get('secs') or 2400), g['box'], dict(played)))
+    attach_expected_threes(root, out)
     out.sort(key=lambda x: (x.d, x.season, x.gc))
     return out
+
+
+def attach_expected_threes(root: Path, games: list) -> None:
+    """Για κάθε αγώνα με shot chart (data/shots/<σεζόν>/<αγώνας>.json): αναμενόμενα εύστοχα τρίποντα κάθε ομάδας
+    = Σ τρίποντα × ποσοστό λίγκας στη ζώνη τους (γωνία/πλάγια/κορυφή). Τα ποσοστά ζώνης είναι ενιαία για όλες τις σεζόν
+    (σταθερά χαρακτηριστικά του αθλήματος, όχι πληροφορία για συγκεκριμένο αγώνα)."""
+    base = root / 'data' / 'shots'
+    if not base.exists():
+        return
+    shots = {}
+    for g in games:
+        f = base / g.season / f'{g.gc}.json'
+        if f.exists():
+            try:
+                shots[g.key] = json.loads(f.read_text()).get('s') or []
+            except Exception:
+                pass
+    zm, za = defaultdict(int), defaultdict(int)
+    for S in shots.values():
+        for r in S:
+            if len(r) > 8:
+                k = (r[8], bool(r[5]))
+                za[k] += 1
+                zm[k] += 1 if r[4] else 0
+    if not za:
+        return
+    avg = {t: sum(zm[k] for k in za if k[1] == t) / max(1, sum(za[k] for k in za if k[1] == t)) for t in (True, False)}
+    pct = {k: (zm[k] + 50 * avg[k[1]]) / (za[k] + 50) for k in za}
+    for g in games:
+        S = shots.get(g.key)
+        if not S:
+            continue
+        e = {g.h: [0.0, 0.0], g.a: [0.0, 0.0]}   # [αναμενόμενα τρίποντα, αναμενόμενα δίποντα]
+        for r in S:
+            if len(r) > 8:
+                t = bool(r[5])
+                e[g.h if r[1] else g.a][0 if t else 1] += pct.get((r[8], t), avg[t])
+        g.x3 = e
+
+
+def luck_adjusted(box: list, exp: list | None, k3: float = None, k2: float = None) -> list:
+    """Box score ομάδας με τα εύστοχα σουτ (και τους πόντους) μετακινημένα κατά k προς τα αναμενόμενα της ζώνης τους."""
+    k3 = LUCK3 if k3 is None else k3
+    k2 = LUCK2 if k2 is None else k2
+    if not exp or (not k3 and not k2):
+        return box
+    b = list(box)
+    d3, d2 = k3 * (box[I['fgm3']] - exp[0]), k2 * (box[I['fgm2']] - exp[1])
+    b[I['fgm3']] -= d3
+    b[I['fgm2']] -= d2
+    b[I['pts']] -= 3 * d3 + 2 * d2
+    return b
 
 
 def days(a: str, b: str) -> int:
@@ -349,7 +408,7 @@ class Builder:
 
     def add_result(self, g: Game):
         H, A = self.state(g.season, g.h), self.state(g.season, g.a)
-        bh, ba = g.box[g.h], g.box[g.a]
+        bh, ba = luck_adjusted(g.box[g.h], g.x3.get(g.h)), luck_adjusted(g.box[g.a], g.x3.get(g.a))
         H.hist.append((g.d, bh, ba, g.secs, True, g.a, g.hs - g.as_))
         A.hist.append((g.d, ba, bh, g.secs, False, g.h, g.as_ - g.hs))
         for T, tm in ((H, g.h), (A, g.a)):
