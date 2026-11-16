@@ -1049,6 +1049,7 @@ async function main() {
     await fs.writeFile(path.join(OUT, 'assets', 'props', 'data.json'), JSON.stringify(PADATA));
     for (const f of ['ui.js', 'calc.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'props', f), path.join(OUT, 'assets', 'props', f));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'props.mjs'), path.join(OUT, 'assets', 'props', 'model.mjs'));
+    await fs.copyFile(path.join(ROOT, 'src', 'odds', 'core.mjs'), path.join(OUT, 'assets', 'props', 'core.mjs'));   // το model.mjs (= odds/props.mjs) το εισάγει
     console.log('Prop Analyzer:', list.length, 'παίκτες,', Object.keys(next).length, 'ομάδες με επόμενο αγώνα,', list.filter(p => Object.keys(p.pj).length).length, 'με πρόβλεψη');
   }
   // ---- στοίχημα της ημέρας: το πιο σίγουρο σημείο, το αουτσάιντερ και ένα combo (νίκη + πόντοι παίκτη), μόνο από το μοντέλο.

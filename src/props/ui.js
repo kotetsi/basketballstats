@@ -115,8 +115,8 @@ const MN = {
 // ---------- splits από το play-by-play: με/χωρίς συμπαίκτη στο παρκέ και ανά δεκάλεπτο
 const SPI = { pts: [1], reb: [2], ast: [3], fg3: [4], stl: [5], blk: [6], tov: [7], pr: [1, 2], pa: [1, 3], pra: [1, 2, 3], ar: [2, 3] };
 const SPX = {
-  el: { on: 'Με τον {m} στο παρκέ: {a} ανά 36′ ({ma}′ συνολικά).', off: 'Χωρίς τον {m} στο παρκέ: {b} ανά 36′ ({mb}′ συνολικά).', impl: 'Με τα {x}′ της εκτίμησης, ο ρυθμός «χωρίς» αντιστοιχεί σε ≈ {v} (με: ≈ {w}).', small: 'λίγα λεπτά χωρίς αυτόν, προσοχή στο δείγμα', title: 'Ανά δεκάλεπτο (σεζόν)', q: ['1ο', '2ο', '3ο', '4ο', 'Παρ.'], mins: 'λεπτά/αγ.', per: '{s}/αγ.', share: 'μερίδιο', src: 'Από το play-by-play: μετράει τα λεπτά που ήταν μαζί ή όχι στο παρκέ, όχι μόνο ολόκληρους αγώνες.' },
-  en: { on: 'With {m} on court: {a} per 36′ ({ma}′ in total).', off: 'With {m} off court: {b} per 36′ ({mb}′ in total).', impl: 'At the projected {x}′, the “without” rate means ≈ {v} (with: ≈ {w}).', small: 'few minutes without him, small sample', title: 'By quarter (season)', q: ['Q1', 'Q2', 'Q3', 'Q4', 'OT'], mins: 'min/g', per: '{s}/g', share: 'share', src: 'From play-by-play: counts the minutes they shared the floor or not, not only whole games.' },
+  el: { on: 'Με τον {m} στο παρκέ: {a} ανά 36′ ({ma}′ συνολικά).', off: 'Χωρίς τον {m} στο παρκέ: {b} ανά 36′ ({mb}′ συνολικά).', impl: 'Με τα {x}′ της εκτίμησης, ο ρυθμός «χωρίς» αντιστοιχεί σε ≈ {v} (με: ≈ {w}).', impl1: 'Με τα {x}′ της εκτίμησης, ο ρυθμός του αντιστοιχεί σε ≈ {v}.', never: 'Με τον {m} σχεδόν ποτέ μαζί στο παρκέ ({ma}′ συνολικά): παίζουν στην ίδια θέση, οπότε η απουσία του κρίνεται κυρίως από τα λεπτά.', small: 'λίγα λεπτά χωρίς αυτόν, προσοχή στο δείγμα', title: 'Ανά δεκάλεπτο (σεζόν)', q: ['1ο', '2ο', '3ο', '4ο', 'Παρ.'], mins: 'λεπτά/αγ.', per: '{s}/αγ.', share: 'μερίδιο', src: 'Από το play-by-play: μετράει τα λεπτά που ήταν μαζί ή όχι στο παρκέ, όχι μόνο ολόκληρους αγώνες.' },
+  en: { on: 'With {m} on court: {a} per 36′ ({ma}′ in total).', off: 'With {m} off court: {b} per 36′ ({mb}′ in total).', impl: 'At the projected {x}′, the “without” rate means ≈ {v} (with: ≈ {w}).', impl1: 'At the projected {x}′, his rate means ≈ {v}.', never: 'Almost never on court with {m} ({ma}′ in total): same position, so his absence matters mainly through minutes.', small: 'few minutes without him, small sample', title: 'By quarter (season)', q: ['Q1', 'Q2', 'Q3', 'Q4', 'OT'], mins: 'min/g', per: '{s}/g', share: 'share', src: 'From play-by-play: counts the minutes they shared the floor or not, not only whole games.' },
 }[LG === 'el' ? 'el' : 'en'];
 function spRate(sp, ix, mateC) {
   if (!sp || !ix) return null;
@@ -126,10 +126,10 @@ function spRate(sp, ix, mateC) {
   return { onMin: w[0] / 60, offMin: off[0] / 60, on36: per36(w), off36: per36(off), onRate: w[0] ? st(w) / w[0] : null, offRate: off[0] ? st(off) / off[0] : null };
 }
 function spMate(p, mate) {
-  const r = spRate(p.sp, SPI[S.s], mate.c); if (!r || r.on36 == null) return '';
-  const nmM = nm(mate), x = p.min || null;
-  let t = fill(SPX.on, { m: nmM, a: f1(r.on36), ma: Math.round(r.onMin) }) + ' ' + (r.off36 == null ? '' : fill(SPX.off, { m: nmM, b: f1(r.off36), mb: Math.round(r.offMin) }));
-  if (x && r.offRate != null) t += ' ' + fill(SPX.impl, { x: f1(x), v: f1(r.offRate * x * 60), w: f1(r.onRate * x * 60) });
+  const r = spRate(p.sp, SPI[S.s], mate.c); if (!r || (r.on36 == null && r.off36 == null)) return '';
+  const nmM = nm(mate), x = p.min || null, rare = r.onMin < 30;
+  let t = (rare ? fill(SPX.never, { m: nmM, ma: Math.round(r.onMin) }) : fill(SPX.on, { m: nmM, a: f1(r.on36), ma: Math.round(r.onMin) })) + ' ' + (r.off36 == null ? '' : fill(SPX.off, { m: nmM, b: f1(r.off36), mb: Math.round(r.offMin) }));
+  if (x && r.offRate != null) t += ' ' + (rare ? fill(SPX.impl1, { x: f1(x), v: f1(r.offRate * x * 60) }) : fill(SPX.impl, { x: f1(x), v: f1(r.offRate * x * 60), w: f1(r.onRate * x * 60) }));
   if (r.offMin < 60) t += ` (${SPX.small})`;
   return `<p class="sub pamate"><b>${esc(t)}</b> <small>${esc(SPX.src)}</small></p>`;
 }
