@@ -191,4 +191,12 @@ export const PHRASES = {
   'Διαφορά πόντων': 'Koš-razlika',
   'μ.ό. σεζόν ': 'prosek sezone ',
 
+  'Μεταβολή φόρμας': 'Promena forme',
+  'Η μεγαλύτερη άνοδος και πτώση στη διαφορά πόντων των 5 τελευταίων αγώνων σε σχέση με τον μέσο όρο της σεζόν. Δεν προσαρμόζεται στη δυσκολία των αντιπάλων.': 'Najveći rast i pad koš-razlike u poslednjih 5 utakmica u poređenju sa prosekom sezone. Nije prilagođeno težini protivnika.',
+  'Μεγαλύτερη βελτίωση': 'Najveći napredak',
+  'Μεγαλύτερη πτώση': 'Najveći pad',
+  'Τελευταίοι 5: ': 'Poslednjih 5: ',
+  ' · Σεζόν: ': ' · Sezona: ',
+  'π./αγ.': 'poena/ut.',
+
 };
