@@ -126,7 +126,7 @@ export function appendChanges(history, snaps) {
 // that the quote was still available at that time (needed for closing-line analysis).
 // Exact capture identity makes reruns idempotent without discarding unchanged prices.
 export function appendPropSnapshots(history, snaps) {
-  const key = s => [s.provider, s.event, s.book, s.market, s.sel, s.player || '', s.line ?? '', s.seen || ''].join('|');
+  const key = s => [s.provider, s.event, s.book, s.market, s.sel, s.playerId != null ? `id:${s.playerId}` : (s.player || ''), s.line ?? '', s.seen || ''].join('|');
   const seen = new Set((history || []).map(key));
   const added = [];
   for (const s of snaps || []) {
