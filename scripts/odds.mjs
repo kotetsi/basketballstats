@@ -215,6 +215,14 @@ async function main() {
       if (b.markets.ml) { add('ml', 'home', b.markets.ml[0]); add('ml', 'away', b.markets.ml[1]); }
       if (b.markets.spread) { add('spread', 'home', b.markets.spread.h, b.markets.spread.line); add('spread', 'away', b.markets.spread.a, -b.markets.spread.line); }
       if (b.markets.total) { add('total', 'over', b.markets.total.over, b.markets.total.line); add('total', 'under', b.markets.total.under, b.markets.total.line); }
+      // Ιστορικό player props: ξεχωριστό κλειδί παίκτη + stat + γραμμή, ώστε να μην ενώνονται διαφορετικοί παίκτες.
+      for (const p of b.markets.props || []) {
+        if (!p.name || !p.stat || !Number.isFinite(+p.line)) continue;
+        const stamp = p.upd || b.upd || ts;
+        for (const [sel, price] of [['over', p.over], ['under', p.under]]) {
+          if (price > 1) snaps.push({ provider: PROVIDER, event: gid, book: b.key, market: `prop:${p.stat}`, sel, player: p.name, line: +p.line, price: +price, t: stamp, seen: ts });
+        }
+      }
     }
   }
   // ιστορικό: μόνο αλλαγές (idempotent)
