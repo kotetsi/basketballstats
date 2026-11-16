@@ -28,6 +28,7 @@ for (const round of rounds) {
   cumulativeMinutes += roundMinutes.get(round);
 }
 const byStat = Object.fromEntries(stats.map(s => [s, []]));
+const byRound = new Map([...validation].map(r => [r, Object.fromEntries(stats.map(s => [s, []]))]));
 const byPlayer = new Map();
 
 for (const p of players) {
@@ -51,6 +52,7 @@ for (const p of players) {
         historyGames: prediction.n,
       };
       byStat[stat].push(item);
+      byRound.get(round)[stat].push(item);
       const key = p.c + ':' + stat;
       if (!byPlayer.has(key)) byPlayer.set(key, { code: p.c, player: p.n, team: p.t, stat, rows: [] });
       byPlayer.get(key).rows.push(item);
@@ -75,7 +77,7 @@ const summarize = rows => {
 
 const playerRows = [...byPlayer.values()]
   .filter(x => x.rows.length >= 3)
-  .map(x => ({ code: x.code, player: x.player, team: x.team, stat: x.stat, ...summarize(x.rows) }))
+  .map(x => ({ code: x.code, player: x.player, team: x.team, stat: x.stat, ...summarize(x.rows), observations: x.rows.map(r => ({ round: r.round, actual: r.actual, predicted: +r.predicted.toFixed(2), actualMinutes: +r.actualMinutes.toFixed(1), predictedMinutes: +r.minutes.toFixed(1), residual: +r.residual.toFixed(2) })) }))
   .sort((a,b) => Math.abs(b.bias) - Math.abs(a.bias));
 
 const output = {
@@ -83,6 +85,13 @@ const output = {
   method: 'One prediction per eligible player-game-stat, using only games and league priors before the target round. Player summaries require at least 3 held-out observations.',
   note: 'Positive bias means the model underpredicted actual production; negative bias means it overpredicted. This is a small early-season diagnostic, not evidence of a betting edge. Player rows are repeated observations and may be correlated.',
   stats: Object.fromEntries(stats.map(stat => [stat, summarize(byStat[stat])])),
+  byRound: Object.fromEntries([...byRound].sort((a,b) => a[0]-b[0]).map(([round, values]) => [round, Object.fromEntries(stats.map(stat => [stat, summarize(values[stat])]))])),
+  byPredictedMinutes: Object.fromEntries([
+    ['under_15', x => x.minutes < 15],
+    ['15_to_20', x => x.minutes >= 15 && x.minutes < 20],
+    ['20_to_25', x => x.minutes >= 20 && x.minutes < 25],
+    ['25_plus', x => x.minutes >= 25],
+  ].map(([bucket, test]) => [bucket, Object.fromEntries(stats.map(stat => [stat, summarize(byStat[stat].filter(test))]))])),
   playerDiagnostics: playerRows,
   biggestOverestimates: playerRows.filter(x => x.bias < 0).slice(0, 15),
   biggestUnderestimates: playerRows.filter(x => x.bias > 0).slice(0, 15),
