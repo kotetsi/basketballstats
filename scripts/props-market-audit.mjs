@@ -8,7 +8,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'data', 'odds');
 const round = (x, n = 2) => Number.isFinite(x) ? +x.toFixed(n) : null;
 const ageHours = (stamp, now) => stamp && Number.isFinite(new Date(stamp).getTime()) ? (now - new Date(stamp).getTime()) / 36e5 : null;
-const keyOf = p => [p.name || p.player || '', p.stat || p.market || '', p.line ?? ''].join('|');
+const keyOf = p => [p.playerId != null ? `id:${p.playerId}` : (p.name || p.player || ''), p.stat || p.market || '', p.line ?? ''].join('|');
 
 export function auditPropsMarket({ latest = {}, registry = {}, history = [], status = {}, now = Date.now() } = {}) {
   const brands = registry.brands || {};
@@ -69,7 +69,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   for (const s of snapshots) {
     const w = ['open', 'mid', 'close'].includes(s.window) ? s.window : 'unknown';
     windows[w]++;
-    uniqueQuotes.add([s.provider, s.event, s.book, s.market, s.sel, s.player || '', s.line ?? '', s.seen || ''].join('|'));
+    uniqueQuotes.add([s.provider, s.event, s.book, s.market, s.sel, s.playerId != null ? `id:${s.playerId}` : (s.player || ''), s.line ?? '', s.seen || ''].join('|'));
     const k = [s.event, s.book].join('|');
     const a = seenByEventBook.get(k) || new Set();
     if (s.seen) a.add(s.seen);

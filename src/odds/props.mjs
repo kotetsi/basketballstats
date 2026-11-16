@@ -152,8 +152,8 @@ export function extractProps(markets, meta) {
     for (const [oid, oc] of Object.entries(mk.outcomes || {})) {
       const s = side[oid]; if (!s) continue;
       for (const [pid, pe] of Object.entries(oc.players || {})) {
-        if (pid === '0' || pe.active === false || !(pe.price > 1) || !pe.playerName) continue;
-        const x = (by[pid] ||= { name: pe.playerName, stat, line: +md.line });
+        if (pid === '0' || pe.active === false || !(pe.price > 1)) continue;
+        const x = (by[pid] ||= { playerId: String(pid), name: pe.playerName || null, stat, line: +md.line });
         x[s] = pe.price; x.upd = [x.upd, pe.changedAt].filter(Boolean).sort().pop() || null;
       }
     }

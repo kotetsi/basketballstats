@@ -218,10 +218,10 @@ async function main() {
       if (b.markets.total) { add('total', 'over', b.markets.total.over, b.markets.total.line); add('total', 'under', b.markets.total.under, b.markets.total.line); }
       // Ιστορικό player props: ξεχωριστό κλειδί παίκτη + stat + γραμμή, ώστε να μην ενώνονται διαφορετικοί παίκτες.
       for (const p of b.markets.props || []) {
-        if (!p.name || !p.stat || !Number.isFinite(+p.line)) continue;
+        if ((!p.name && p.playerId == null) || !p.stat || !Number.isFinite(+p.line)) continue;
         const stamp = p.upd || b.upd || ts;
         for (const [sel, price] of [['over', p.over], ['under', p.under]]) {
-          if (price > 1) propSnaps.push({ provider: PROVIDER, event: gid, commence: ev.commence, book: b.key, market: `prop:${p.stat}`, sel, player: p.name, line: +p.line, price: +price, t: stamp, seen: ts, window: b.window || null });
+          if (price > 1) propSnaps.push({ provider: PROVIDER, event: gid, commence: ev.commence, book: b.key, market: `prop:${p.stat}`, sel, player: p.name || null, playerId: p.playerId ?? null, line: +p.line, price: +price, t: stamp, seen: ts, window: b.window || null });
         }
       }
     }
