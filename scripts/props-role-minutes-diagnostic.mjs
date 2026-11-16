@@ -13,7 +13,8 @@ const validation = new Set(rounds.slice(splitAt));
 const stats = Object.keys(STATS);
 const methods = ['ewMinutes3', 'seasonMinutes', 'last5Minutes', 'last3Minutes'];
 const minute = Object.fromEntries(methods.map(m => [m, {n:0,abs:0,sq:0}]));
-const rate = Object.fromEntries(stats.map(s => [s, {
+const roleGroups = Object.fromEntries(['stable','increase5','decrease5'].map(k=>[k,{ewMinutes3:{n:0,abs:0,sq:0},seasonMinutes:{n:0,abs:0,sq:0}}]));
+const rate = Object.fromEntries(stats.map(s => [{
   season:{n:0,abs:0,sq:0}, last5:{n:0,abs:0,sq:0}, ew8:{n:0,abs:0,sq:0}
 }]));
 const ew = (xs, half) => {
@@ -38,6 +39,10 @@ for (const p of players) {
       last3Minutes:mins.slice(-3).reduce((a,b)=>a+b,0)/Math.min(3,mins.length)
     };
     for(const m of methods)add(minute[m],actualMin,minutePred[m]);
+    // Ex-post diagnostic only: target minutes define the subgroup, never a prediction input.
+    const delta = actualMin - minutePred.seasonMinutes;
+    const group = delta >= 5 ? 'increase5' : delta <= -5 ? 'decrease5' : 'stable';
+    for (const m of ['ewMinutes3','seasonMinutes']) add(roleGroups[group][m], actualMin, minutePred[m]);
 
     for(const s of stats){
       const vals=h.map(r=>STATS[s](r)/(r[7]/60));
@@ -56,6 +61,7 @@ const output={
   split:{trainRounds:rounds.slice(0,splitAt),validationRounds:rounds.slice(splitAt)},
   note:'Minute MAE/RMSE are in minutes. Rate MAE/RMSE are stat units per minute. Only players who appeared in the target game are evaluated; this measures conditional minutes/rates, not pregame availability classification.',
   minutes:Object.fromEntries(methods.map(m=>[m,fmt(minute[m])])),
+  roleChangeSlices:Object.fromEntries(Object.entries(roleGroups).map(([k,v])=>[k,Object.fromEntries(Object.entries(v).map(([m,x])=>[m,fmt(x)]))])),
   perMinute:Object.fromEntries(stats.map(s=>[s,Object.fromEntries(Object.entries(rate[s]).map(([m,x])=>[m,fmt(x)]))]))
 };
 console.log(JSON.stringify(output,null,2));
