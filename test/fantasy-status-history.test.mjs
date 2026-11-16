@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { statusRows } from '../scripts/fantasy-status-history.mjs';
+import { statusRows, freshStatusRows } from '../scripts/fantasy-status-history.mjs';
 
 test('status snapshots retain source and timestamp for each player', () => {
   const rows = statusRows({ generated:'2026-11-16T10:00:00Z',round:12,players:[
@@ -16,4 +16,22 @@ test('status snapshots retain source and timestamp for each player', () => {
 
 test('invalid or missing player snapshot is rejected', () => {
   assert.throws(()=>statusRows({players:[]}),/Invalid/);
+});
+
+test('re-running the same snapshot does not append duplicate player rows', () => {
+  const rows = statusRows({generated:'2026-11-16T10:00:00Z',players:[{c:'1'},{c:'2'}]},'2026-11-16T10:01:00Z');
+  const existing = [JSON.stringify(rows[0])];
+  assert.deepEqual(freshStatusRows(existing, rows).map(x=>x.player_id), ['2']);
+  assert.deepEqual(freshStatusRows([...existing, JSON.stringify(rows[1])], rows), []);
+});
+
+test('a later snapshot is retained even when status is unchanged', () => {
+  const first = statusRows({generated:'2026-11-16T10:00:00Z',players:[{c:'1',status:'playing'}]});
+  const later = statusRows({generated:'2026-11-16T15:00:00Z',players:[{c:'1',status:'playing'}]});
+  assert.equal(freshStatusRows([JSON.stringify(first[0])], later).length, 1);
+});
+
+test('malformed legacy lines do not block valid status rows', () => {
+  const rows = statusRows({generated:'2026-11-16T10:00:00Z',players:[{c:'1'}]});
+  assert.equal(freshStatusRows(['{not json'], rows).length, 1);
 });
