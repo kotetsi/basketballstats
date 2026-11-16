@@ -27,4 +27,4 @@ jobs:
       - name: Build site from repository cache (no deployment)
         run: node build.mjs --offline
       - name: Generate portal pages and run SEO tests
-        run: node scripts/portal-home.mjs && node --test test/seo.test.mjs
+        run: node scripts/portal-home.mjs && node --test test/seo.test.mjs test/portal-home.test.mjs
