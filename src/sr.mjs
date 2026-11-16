@@ -183,4 +183,20 @@ export const PHRASES = {
   'ώρα Ελλάδας': 'po vašem lokalnom vremenu',
   ' παίκτες': ' igrača',
   ' πόντοι': ' poena',
+  'Φόρμα τελευταίων αγώνων': 'Nedavna forma',
+  'Τα 5 πιο πρόσφατα παιχνίδια σε σύγκριση με τον μέσο όρο της σεζόν': 'Poslednjih 5 utakmica u poređenju sa prosekom sezone',
+  'Ρεκόρ τελευταίων 5': 'Skor u poslednjih 5',
+  'Πόντοι υπέρ': 'Postignuti poeni',
+  'Πόντοι κατά': 'Primljeni poeni',
+  'Διαφορά πόντων': 'Koš-razlika',
+  'μ.ό. σεζόν ': 'prosek sezone ',
+
+  'Μεταβολή φόρμας': 'Promena forme',
+  'Η μεγαλύτερη άνοδος και πτώση στη διαφορά πόντων των 5 τελευταίων αγώνων σε σχέση με τον μέσο όρο της σεζόν. Δεν προσαρμόζεται στη δυσκολία των αντιπάλων.': 'Najveći rast i pad koš-razlike u poslednjih 5 utakmica u poređenju sa prosekom sezone. Nije prilagođeno težini protivnika.',
+  'Μεγαλύτερη βελτίωση': 'Najveći napredak',
+  'Μεγαλύτερη πτώση': 'Najveći pad',
+  'Τελευταίοι 5: ': 'Poslednjih 5: ',
+  ' · Σεζόν: ': ' · Sezona: ',
+  'π./αγ.': 'poena/ut.',
+
 };

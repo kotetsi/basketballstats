@@ -182,4 +182,20 @@ export const PHRASES = {
   'ώρα Ελλάδας': 'yerel saatinle',
   ' παίκτες': ' oyuncu',
   ' πόντοι': ' sayı',
+  'Φόρμα τελευταίων αγώνων': 'Son maçlardaki form',
+  'Τα 5 πιο πρόσφατα παιχνίδια σε σύγκριση με τον μέσο όρο της σεζόν': 'Son 5 maçın sezon ortalamasıyla karşılaştırması',
+  'Ρεκόρ τελευταίων 5': 'Son 5 maçın derecesi',
+  'Πόντοι υπέρ': 'Atılan sayı',
+  'Πόντοι κατά': 'Yenilen sayı',
+  'Διαφορά πόντων': 'Sayı farkı',
+  'μ.ό. σεζόν ': 'sezon ort. ',
+
+  'Μεταβολή φόρμας': 'Form değişimi',
+  'Η μεγαλύτερη άνοδος και πτώση στη διαφορά πόντων των 5 τελευταίων αγώνων σε σχέση με τον μέσο όρο της σεζόν. Δεν προσαρμόζεται στη δυσκολία των αντιπάλων.': 'Son 5 maçtaki sayı farkının sezon ortalamasına göre en büyük artış ve düşüşü. Rakip gücüne göre ayarlanmamıştır.',
+  'Μεγαλύτερη βελτίωση': 'En büyük yükseliş',
+  'Μεγαλύτερη πτώση': 'En büyük düşüş',
+  'Τελευταίοι 5: ': 'Son 5: ',
+  ' · Σεζόν: ': ' · Sezon: ',
+  'π./αγ.': 'sayı/maç',
+
 };

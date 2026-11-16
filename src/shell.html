@@ -3,6 +3,7 @@
     <a class="brand" href="{{BASE}}"><b>Basketball<i>Stats</i></b><span>Στατιστικά EuroLeague {{SEASON}}</span></a>
     <nav class="nav" aria-label="Ενότητες">
       <a href="{{BASE}}fantasy/" data-v="fantasy" data-alt="fx">Fantasy</a>
+      <a href="{{BASE}}fantasy/assistant/" data-alt="assistant">Fantasy Assistant</a>
       <a href="{{BASE}}" data-v="stand">Βαθμολογία</a>
       <a href="{{BASE}}prognostika/" data-v="preds" data-alt="tipsters odds game">Προγνωστικά &amp; Picks</a>
       <a href="{{BASE}}arthra/" data-v="articles" data-alt="article">Άρθρα</a>
@@ -33,6 +34,14 @@
     <section>
       <div class="head"><div><h2>Επόμενη αγωνιστική</h2><p class="sub" id="nextSub"></p></div></div>
       <div class="fixtures" id="nextRound"></div>
+    </section>
+    <section id="formSwingSec" hidden>
+      <h2>Μεταβολή φόρμας</h2>
+      <p class="sub">Η μεγαλύτερη άνοδος και πτώση στη διαφορά πόντων των 5 τελευταίων αγώνων σε σχέση με τον μέσο όρο της σεζόν. Δεν προσαρμόζεται στη δυσκολία των αντιπάλων.</p>
+      <div class="form-swing">
+        <div><h3>Μεγαλύτερη βελτίωση</h3><div class="heatlist" id="formRisers"></div></div>
+        <div><h3>Μεγαλύτερη πτώση</h3><div class="heatlist" id="formFallers"></div></div>
+      </div>
     </section>
     <section>
       <h2>Ομαδικά στατιστικά</h2>
@@ -145,6 +154,11 @@
         <p class="sub">Διαφορά πόντων ανά αγωνιστική (πάνω από τη γραμμή: νίκη)</p>
         <div class="chart" id="tChart"></div>
         <div class="results" id="tResults"></div>
+      </section>
+      <section id="teamFormSec" hidden>
+        <h2>Φόρμα τελευταίων αγώνων</h2>
+        <p class="sub">Τα 5 πιο πρόσφατα παιχνίδια σε σύγκριση με τον μέσο όρο της σεζόν</p>
+        <div class="board teamformboard" id="tFormBoard"></div>
       </section>
       <section>
         <h2>Ρόστερ</h2>

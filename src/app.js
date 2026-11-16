@@ -253,6 +253,18 @@ function renderStand(){
   const ng=GAMES.filter(g=>g[0]===nr);
   document.getElementById('nextSub').textContent=nr+'η αγωνιστική · ώρα Ελλάδας';
   document.getElementById('nextRound').innerHTML=ng.map(g=>'<div class="fx" data-g="'+g[0]+'|'+g[2]+'|'+g[3]+'"><span class="when">'+when(g[1])+(g[6]?' · τελικό':'')+'</span><div class="row"><a href="'+tUrl(g[2])+'\">'+crest(g[2])+' '+tName(g[2])+'</a><span class="rk">'+(g[6]?g[4]:recOf(g[2]))+'</span></div><div class="row"><a href="'+tUrl(g[3])+'\">'+crest(g[3])+' '+tName(g[3])+'</a><span class="rk">'+(g[6]?g[5]:recOf(g[3]))+'</span></div><a class="fxl" href="'+gUrl(g[0],g[2],g[3])+'">'+U.gameLink+'</a></div>').join('');
+  const formSwing=STAND.map(row=>{
+    const c=row[1], recent=teamGamesOf(c).slice(-5), seasonGames=(+row[2]||0)+(+row[3]||0);
+    if(recent.length<5||!seasonGames)return null;
+    const recentDiff=avgOf(recent,g=>g.us-g.them), seasonDiff=(row[4]-row[5])/seasonGames;
+    return{c,recentDiff,seasonDiff,change:recentDiff-seasonDiff};
+  }).filter(x=>x&&isFinite(x.change)).sort((a,b)=>b.change-a.change);
+  if(formSwing.length>=2){
+    document.getElementById('formSwingSec').hidden=false;
+    const rows=(items,positive)=>items.map(x=>'<a class="hrow" href="'+tUrl(x.c)+'"><span class="deg" style="background:var(--'+(positive?'good':'low')+')">'+sgn(x.change)+'</span><span class="nm">'+tName(x.c)+'<small>Τελευταίοι 5: '+sgn(x.recentDiff)+' · Σεζόν: '+sgn(x.seasonDiff)+'</small></span><span class="tr">π./αγ.</span></a>').join('');
+    document.getElementById('formRisers').innerHTML=rows(formSwing.slice(0,3),true);
+    document.getElementById('formFallers').innerHTML=rows(formSwing.slice(-3).reverse(),false);
+  }
   const codes=STAND.map(s=>s[1]).filter(c=>TS[c]);
   const cols=[
     {k:'team',h:'Ομάδα',l:1,v:c=>tName(c),f:c=>tlink(c),d:1},
@@ -293,6 +305,22 @@ function renderTeam(c){
     res.forEach((r,i)=>{const m=r.us-r.them,x=pl+i*bw+bw*.2,w=bw*.6;sv+='<rect x="'+x.toFixed(1)+'" y="'+y(Math.max(m,0)).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+Math.abs(y(m)-y(0)).toFixed(1)+'" rx="2" fill="'+(m>0?'var(--good)':'var(--low)')+'"><title>'+r.r+'η αγ. '+(r.home?'vs ':'@ ')+tName(r.opp)+': '+r.us+'-'+r.them+'</title></rect><text x="'+(pl+i*bw+bw/2)+'" y="'+(H-pb+15)+'" text-anchor="middle">'+r.r+'</text><text x="'+(pl+i*bw+bw/2)+'" y="'+(H-pb+28)+'" text-anchor="middle" style="font-size:9px">'+r.opp+'</text>';});
     el.innerHTML=sv+'</svg>';}else el.innerHTML='<p class="sub">Δεν έχει παίξει ακόμη.</p>';
   document.getElementById('tResults').innerHTML=res.slice().reverse().map(r=>'<div class="rs"><span class="res '+(r.us>r.them?'w':'l')+'">'+(r.us>r.them?'Ν':'Η')+'</span><a href="'+gUrl(r.r,r.home?c:r.opp,r.home?r.opp:c)+'\">'+(r.home?'vs ':'@ ')+tName(r.opp)+'</a><small>'+r.us+'-'+r.them+'</small></div>').join('');
+  const recent=res.slice().sort((a,b)=>a.r-b.r).slice(-5);
+  const formSection=document.getElementById('teamFormSec');
+  formSection.hidden=!recent.length;
+  if(recent.length){
+    const seasonGames=(+s[2]||0)+(+s[3]||0);
+    const recentFor=avgOf(recent,r=>r.us), recentAgainst=avgOf(recent,r=>r.them);
+    const seasonFor=seasonGames?s[4]/seasonGames:0, seasonAgainst=seasonGames?s[5]/seasonGames:0;
+    const wins=recent.filter(r=>r.us>r.them).length;
+    const cell=(label,value,season)=>'<div><b>'+value+'</b><span>'+label+'</span><small>μ.ό. σεζόν '+f1(season)+' · '+sgn(value-season)+'</small></div>';
+    document.getElementById('tFormBoard').innerHTML=
+      '<div><b>'+wins+'–'+(recent.length-wins)+'</b><span>Ρεκόρ τελευταίων 5</span><small>'+recent.length+'/5</small></div>'+
+      cell('Πόντοι υπέρ',recentFor,seasonFor)+
+      cell('Πόντοι κατά',recentAgainst,seasonAgainst)+
+      cell('Διαφορά πόντων',recentFor-recentAgainst,seasonFor-seasonAgainst);
+  }
+
   // roster
   const ros=P.filter(p=>p.t===c||p.t.split(';').pop()===c);
   const g1=p=>p.A.G||1;
