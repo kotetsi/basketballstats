@@ -67,4 +67,18 @@ for (const [lang,cfg] of Object.entries(L)) {
     await fs.writeFile(sitemap,xml);
   } catch(e) { console.warn('Sitemap update skipped for '+lang+': '+e.message); }
 }
+
+async function updateNavigation(dir, lang) {
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) { await updateNavigation(file, lang); continue; }
+    if (!entry.isFile() || !entry.name.endsWith('.html')) continue;
+    let html = await fs.readFile(file, 'utf8');
+    html = html.replace(/<nav class="nav"[\\s\\S]*?<\\/nav>/, nav(lang));
+    html = html.replace(/(<nav class="foot">[\\s\\S]*?<a href=")[^"]*(")/, '$1' + route(lang, 'stand') + '$2');
+    await fs.writeFile(file, html);
+  }
+}
+for (const [lang, cfg] of Object.entries(L)) await updateNavigation(path.join(root, cfg.dir), lang);
+
 console.log('Basketball Intelligence homepage and localized standings pages generated.');
