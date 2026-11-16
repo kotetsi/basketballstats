@@ -9,8 +9,6 @@ on:
       - 'scripts/props-minutes-diagnostics.mjs'
       - 'scripts/props-market-audit.mjs'
       - 'test/props-market-audit.test.mjs'
-      - 'scripts/props-market-audit.mjs'
-      - 'test/props-market-audit.test.mjs'
       - 'src/odds/role.mjs'
       - 'scripts/odds.mjs'
       - 'src/odds/core.mjs'
@@ -45,8 +43,6 @@ jobs:
           node-version: 20
       - name: Test odds and player-prop calculations
         run: node --test test/odds.test.mjs test/props.test.mjs
-      - name: Audit real Greek player-prop market coverage
-        run: node --test test/props-market-audit.test.mjs && node scripts/props-market-audit.mjs | tee props-market-audit.json
       - name: Test player-prop market audit
         run: node --test test/props-market-audit.test.mjs
       - name: Run player-prop market data audit
@@ -65,6 +61,5 @@ jobs:
             props-calibration-report.json
             props-residual-diagnostics.json
             props-minutes-diagnostics.json
-            props-market-audit.json
             props-market-audit.json
           if-no-files-found: error
