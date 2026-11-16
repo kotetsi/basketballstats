@@ -72,8 +72,6 @@ jobs:
           timeout 1500 node fantasy/hist_fetch.mjs || echo "hist_fetch - σφάλμα"
           timeout 2700 python fantasy/perf_run.py || echo "perf_run - σφάλμα"
           timeout 1500 node fantasy/optbt.mjs || echo "optbt - σφάλμα"
-      - name: Αρχειοθέτηση pregame status παικτών για backtest απουσιών
-        run: node scripts/fantasy-status-history.mjs
       - name: "Ειδήσεις τύπου (RSS, μόνο τίτλοι + links) και λεπτά στην ABA"
         run: |
           timeout 120 node fantasy/press_fetch.mjs || echo "press - σφάλμα"
