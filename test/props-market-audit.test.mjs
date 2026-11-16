@@ -29,6 +29,7 @@ test('market audit counts only confirmed Greek feeds and complete prop pairs', (
   assert.equal(r.gamesWithGreekBooks, 2);
   assert.equal(r.greekBookGameQuotes, 3);
   assert.equal(r.gamesWithPlayerProps, 1);
+  assert.equal(r.independentGreekPropBookmakers, 2);
   assert.equal(r.totalDistinctPlayerProps, 3);
   assert.equal(r.completeOverUnderPairs, 2);
   assert.equal(r.oneSidedProps, 1);
