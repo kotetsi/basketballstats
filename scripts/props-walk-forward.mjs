@@ -14,13 +14,22 @@ const validationRounds = new Set(rounds.slice(splitAt));
 const stats = Object.keys(STATS);
 const binsFor = () => Array.from({length:10},()=>({p:0,y:0,n:0}));
 const result = Object.fromEntries(stats.map(s=>[s,{n:0,abs:0,sq:0,ll:0,brier:0,bins:binsFor()}]));
-const leaguePrior = (stat, targetRound) => {
-  let total=0, minutes=0;
-  for (const p of players) for (const r of p.g || []) {
-    if (r[7] > 0 && +r[0] < targetRound) { total += STATS[stat](r); minutes += r[7]/60; }
-  }
-  return minutes ? total/minutes : 0;
-};
+// Cumulative league priors: for round R, include only box scores from rounds < R.
+const totalsByRound = new Map(rounds.map(r => [r, Object.fromEntries(stats.map(s => [s, 0]))]));
+const minutesByRound = new Map(rounds.map(r => [r, 0]));
+for (const {round, row} of allGames) {
+  const totals = totalsByRound.get(round);
+  for (const stat of stats) totals[stat] += STATS[stat](row);
+  minutesByRound.set(round, minutesByRound.get(round) + row[7] / 60);
+}
+const priorByRound = new Map();
+const cumulative = Object.fromEntries(stats.map(s => [s, 0]));
+let cumulativeMinutes = 0;
+for (const round of rounds) {
+  priorByRound.set(round, Object.fromEntries(stats.map(s => [s, cumulativeMinutes ? cumulative[s] / cumulativeMinutes : 0])));
+  for (const stat of stats) cumulative[stat] += totalsByRound.get(round)[stat];
+  cumulativeMinutes += minutesByRound.get(round);
+}
 for (const p of players) {
   const rows=(p.g||[]).filter(r=>r[7]>0).sort((a,b)=>a[0]-b[0]);
   for(let i=3;i<rows.length;i++){
@@ -28,7 +37,7 @@ for (const p of players) {
     if(!validationRounds.has(round)) continue;
     const history=rows.slice(0,i).filter(r=>+r[0]<round);
     for(const stat of stats){
-      const prior=leaguePrior(stat,round);
+      const prior=priorByRound.get(round)[stat];
       const pred=project(history,stat,{prior,P:PARAMS});
       if(!pred || pred.min<10) continue;
       const actual=STATS[stat](target), x=result[stat];
