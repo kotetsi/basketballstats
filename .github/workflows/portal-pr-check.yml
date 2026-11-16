@@ -9,6 +9,7 @@ on:
       - "src/app.js"
       - "test/seo.test.mjs"
       - "test/portal-home.test.mjs"
+      - "test/portal-routes.test.mjs"
       - "test/portal-screenshots.mjs"
       - ".github/workflows/portal-pr-check.yml"
 
@@ -28,7 +29,7 @@ jobs:
       - name: Build site from repository cache (no deployment)
         run: node build.mjs --offline
       - name: Generate portal pages and run SEO tests
-        run: node scripts/portal-home.mjs && node --test test/seo.test.mjs test/portal-home.test.mjs
+        run: node scripts/portal-home.mjs && node --test test/seo.test.mjs test/portal-home.test.mjs test/portal-routes.test.mjs
       - name: Install browser for visual preview
         run: |
           npm install --no-save playwright@1.48.2
