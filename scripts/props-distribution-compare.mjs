@@ -10,6 +10,7 @@ const splitAt=Math.max(4,Math.floor(rounds.length*.7)),validation=new Set(rounds
 const offsets=[-2,-1.5,-1,-.5,0,.5,1,1.5,2];
 const makeMetric=()=>({n:0,logLoss:0,rps:0,brier:0,lineN:0,bins:Array.from({length:10},()=>({p:0,y:0,n:0}))});
 const metrics=Object.fromEntries(stats.map(s=>[s,{model:makeMetric(),seasonBaseline:makeMetric()}]));
+const byRound=new Map([...validation].map(r=>[r,Object.fromEntries(stats.map(s=>[s,{model:makeMetric(),seasonBaseline:makeMetric()}]))]));
 const totals=new Map(rounds.map(r=>[r,Object.fromEntries(stats.map(s=>[s,0]))])),minutes=new Map(rounds.map(r=>[r,0]));
 for(const p of players) for(const row of p.g||[]) {
   if(!(row[7]>0)) continue;
@@ -53,6 +54,8 @@ for(const p of players) {
       const lines=[...new Set(offsets.map(z=>Math.max(.5,Math.floor(model.mu+z*Math.sqrt(model.var))+.5)))];
       addScore(metrics[stat].model,actual,model.mu,model.var,lines);
       addScore(metrics[stat].seasonBaseline,actual,baselineMu,baselineVar,lines);
+      addScore(byRound.get(round)[stat].model,actual,model.mu,model.var,lines);
+      addScore(byRound.get(round)[stat].seasonBaseline,actual,baselineMu,baselineVar,lines);
     }
   }
 }
@@ -65,7 +68,8 @@ const output={
   split:{trainRounds:rounds.slice(0,splitAt),validationRounds:rounds.slice(splitAt)},
   calibrationMethod:'For each held-out player-game, evaluate up to nine distinct half-point lines at model mean plus offsets [-2,-1.5,-1,-0.5,0,0.5,1,1.5,2] model standard deviations. Both distributions are evaluated on the same lines. Bins use predicted over probability deciles.',
   note:'All features and league priors use games strictly before the target round. The validation lines are synthetic model-centred lines, not historical bookmaker lines. This evaluates probability calibration and forecast distributions, not betting ROI. Bins are descriptive and observations within a player-game are correlated.',
-  stats:{}
+  stats:{},
+  byRound:Object.fromEntries([...byRound].sort((a,b)=>a[0]-b[0]).map(([round,perStat])=>[round,Object.fromEntries(stats.map(stat=>{const m=perStat[stat].model,b=perStat[stat].seasonBaseline;return [stat,{model:summarize(m),seasonBaseline:summarize(b),improvementPct:{logLoss:m.n===b.n&&m.n?+((b.logLoss-m.logLoss)/b.logLoss*100).toFixed(2):null,rps:m.n===b.n&&m.n?+((b.rps-m.rps)/b.rps*100).toFixed(2):null,brier:m.lineN===b.lineN&&m.lineN?+((b.brier-m.brier)/b.brier*100).toFixed(2):null}}]}))]))
 };
 for(const stat of stats) {
   const m=metrics[stat].model,b=metrics[stat].seasonBaseline;
