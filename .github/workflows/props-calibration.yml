@@ -1,5 +1,13 @@
 name: Player Props Calibration
 on:
+  push:
+    branches:
+      - 'feature/props-walk-forward-backtest'
+    paths:
+      - 'scripts/props-distribution-compare.mjs'
+      - 'src/odds/props.mjs'
+      - 'data/cache.json'
+      - '.github/workflows/props-calibration.yml'
   pull_request:
     paths:
       - 'scripts/props-distribution-compare.mjs'
