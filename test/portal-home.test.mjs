@@ -45,6 +45,10 @@ test('portal generator creates localized homepages and preserves standings pages
         assert.ok(oldStandings.includes('hreflang="' + (altDir ? altDir.slice(0,-1) : 'el') + '" href="' + expected + '"'), expected);
       }
       assert.ok(oldStandings.includes('hreflang="x-default" href="https://basketballstats.eu/vathmologia/"'));
+      const sitemapName = 'sitemap-' + (dir ? dir.slice(0,-1) : 'el') + '.xml';
+      const sitemap = await fs.readFile(path.join(dist, sitemapName), 'utf8');
+      assert.ok(sitemap.includes('<loc>https://basketballstats.eu/' + dir + standings + '/</loc>'));
+      assert.ok(!sitemap.includes('<loc>https://basketballstats.eu/' + dir + '</loc>'));
     }
   } finally {
     await fs.rm(tmp, { recursive: true, force: true });
