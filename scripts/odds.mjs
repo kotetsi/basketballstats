@@ -13,7 +13,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appendChanges } from '../src/odds/core.mjs';
+import { appendChanges, appendPropSnapshots } from '../src/odds/core.mjs';
 import { extractProps } from '../src/odds/props.mjs';
 import { confirmedFeeds } from '../src/odds/value.mjs';
 
@@ -149,7 +149,7 @@ const ADAPTERS = {
         const pr = extractProps(M, meta); if (pr.length) m.props = pr;
         // αναγνωριστικό παίκτη του παρόχου → όνομα (το /historical-odds δίνει μόνο αναγνωριστικό)
         for (const mk of Object.values(M || {})) for (const oc of Object.values(mk?.outcomes || {})) for (const [pid, pe] of Object.entries(oc?.players || {})) if (pid !== '0' && pe?.playerName) (ctx.status.playerNames ||= {})[pid] = pe.playerName;
-        if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, markets: m });
+        if (Object.keys(m).length) books.push({ key: slug, title: meta.books[slug] || slug, upd, window: win || null, markets: m });
       }
       st.props[f.id] = books.reduce((n, b) => n + (b.markets.props?.length || 0), 0);
       events.push({ eventId: f.id, home: meta.parts[f.p1] || '', away: meta.parts[f.p2] || '', commence: f.start, books });
@@ -221,7 +221,7 @@ async function main() {
         if (!p.name || !p.stat || !Number.isFinite(+p.line)) continue;
         const stamp = p.upd || b.upd || ts;
         for (const [sel, price] of [['over', p.over], ['under', p.under]]) {
-          if (price > 1) propSnaps.push({ provider: PROVIDER, event: gid, book: b.key, market: `prop:${p.stat}`, sel, player: p.name, line: +p.line, price: +price, t: stamp, seen: ts });
+          if (price > 1) propSnaps.push({ provider: PROVIDER, event: gid, commence: ev.commence, book: b.key, market: `prop:${p.stat}`, sel, player: p.name, line: +p.line, price: +price, t: stamp, seen: ts, window: b.window || null });
         }
       }
     }
@@ -232,7 +232,7 @@ async function main() {
   const phf = path.join(DIR, 'props-history.jsonl');
   const [hist, propHist] = await Promise.all([readHistory(hf), readHistory(phf)]);
   const added = appendChanges(hist, snaps);
-  const propAdded = appendChanges(propHist, propSnaps);
+  const propAdded = appendPropSnapshots(propHist, propSnaps);
   if (added.length) await fs.appendFile(hf, added.map(x => JSON.stringify(x)).join('\n') + '\n');
   if (propAdded.length) await fs.appendFile(phf, propAdded.map(x => JSON.stringify(x)).join('\n') + '\n');
   const totalAdded = added.length + propAdded.length;
