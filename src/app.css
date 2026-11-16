@@ -1,7 +1,7 @@
 /* Layout: a scoreboard-style header band, then a two-column sheet (profile left, ranks right) that stacks on phones */
 :root{
-  --bg:#f3f1ec; --surface:#fffdf9; --ink:#1d2330; --muted:#5f6573; --line:#dcd7cc;
-  --accent:#c4501f; --accent-soft:#f6e1d6; --band:#1d2330; --band-ink:#f3f1ec;
+  --bg:#F3F5F8; --surface:#ffffff; --ink:#142A43; --muted:#64748b; --line:#dbe2ea;
+  --accent:#F28C28; --accent-soft:#fff0df; --band:#142A43; --band-ink:#F3F5F8;
   --good:#2f7d55; --ok:#8a9a3a; --mid:#c79a2a; --low:#b9473a; --hot:#c8361f; --warm:#d9792b; --flat:#7c8290; --cool:#3f7fb5; --cold:#25528f;
   --display:"Fira Sans Extra Condensed","Arial Narrow",Arial,sans-serif;
   --body:"Fira Sans","Segoe UI",Roboto,Arial,sans-serif;
@@ -897,3 +897,37 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .form-swing{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-swing h3{font-family:var(--display);font-size:16px;margin:0 0 8px}
 @media(max-width:640px){.form-swing{grid-template-columns:1fr}}
+
+
+/* Basketball Intelligence Portal */
+.portal-home{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;padding-top:24px;padding-bottom:48px}
+.portal-home>section{min-width:0}
+.portal-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#142A43 0%,#263B55 72%,#304b68 100%);color:#F3F5F8;border:0;min-height:245px;padding:clamp(24px,5vw,48px);display:flex;flex-direction:column;justify-content:center}
+.portal-kicker{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#F28C28}
+.portal-hero h1{font-family:var(--display);font-size:clamp(34px,6vw,58px);line-height:.98;max-width:720px;margin:12px 0}
+.portal-hero p{font-size:16px;max-width:650px;color:#e2e8f0;margin:4px 0 18px}
+.portal-hero-links{display:flex;flex-wrap:wrap;gap:10px}
+.portal-hero-links a,.portal-section-head>a,.portal-fantasy>a{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;border:1px solid rgba(242,140,40,.65);border-radius:8px;padding:9px 13px;font-weight:600}
+.portal-hero-links a:first-child,.portal-fantasy>a{background:#F28C28;color:#142A43;border-color:#F28C28}
+.portal-ball{position:absolute;right:clamp(14px,6vw,76px);top:50%;transform:translateY(-50%);font-size:clamp(80px,14vw,160px);opacity:.13;pointer-events:none}
+.portal-section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.portal-section-head h2{font-family:var(--display);font-size:26px;margin:3px 0;text-transform:uppercase}
+.portal-section-head p{color:var(--muted);margin:0;font-size:13px}
+.portal-section-head>a{color:var(--ink);border-color:var(--line);white-space:nowrap}
+.portal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.portal-card{display:flex;align-items:flex-start;gap:14px;padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-decoration:none;min-width:0;transition:border-color .15s,transform .15s}
+.portal-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.portal-icon{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:10px;background:#fff0df;font-size:23px}
+.portal-card-body{display:grid;gap:5px;min-width:0}
+.portal-card-body>b{font-size:16px}
+.portal-card-body small{font-size:12px;line-height:1.45;color:var(--muted)}
+.portal-card-body em{font-size:12px;font-style:normal;font-weight:700;color:#d97706;margin-top:4px}
+.portal-match{border-top:3px solid #F28C28}
+.portal-match .todayhome{margin-top:14px}
+.portal-fantasy{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#eef2f7;border:1px solid #dbe2ea}
+.portal-fantasy h2{font-family:var(--display);font-size:24px;margin:4px 0}
+.portal-fantasy p{margin:0;color:var(--muted);font-size:13px}
+.portal-fantasy>a{white-space:nowrap;text-decoration:none;font-weight:700}
+.portal-disclosure{font-size:11px;color:var(--muted);margin:0;padding:0 4px}
+@media(max-width:760px){.portal-grid{grid-template-columns:1fr 1fr}.portal-card{padding:14px;gap:10px}.portal-icon{width:38px;height:38px;font-size:20px}}
+@media(max-width:480px){.portal-grid{grid-template-columns:1fr}.portal-hero{min-height:230px}.portal-ball{right:12px;top:18px;transform:none;font-size:78px}.portal-hero p{font-size:14px}.portal-section-head h2{font-size:23px}}
