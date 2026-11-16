@@ -20,6 +20,26 @@ export function statusRows(snapshot, capturedAt = new Date().toISOString()) {
   }));
 }
 
+// Deduplicate by source snapshot + player, while retaining later snapshots
+// even when the player's status did not change (they establish continued availability).
+export function freshStatusRows(existingLines, rows) {
+  const seen = new Set();
+  for (const line of existingLines || []) {
+    try {
+      const x = JSON.parse(line);
+      seen.add(x.snapshot_generated_at + '|' + x.player_id);
+    } catch { /* Ignore malformed legacy lines; do not let them block capture. */ }
+  }
+  const fresh = [];
+  for (const row of rows) {
+    const key = row.snapshot_generated_at + '|' + row.player_id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    fresh.push(row);
+  }
+  return fresh;
+}
+
 function main() {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const latestPath = path.join(root, 'data/fantasy/latest.json');
@@ -29,11 +49,7 @@ function main() {
   const existing = fs.existsSync(historyPath)
     ? fs.readFileSync(historyPath, 'utf8').split(/\r?\n/).filter(Boolean)
     : [];
-  const seen = new Set(existing.map(line => {
-    try { const x = JSON.parse(line); return x.snapshot_generated_at + '|' + x.player_id; }
-    catch { return ''; }
-  }));
-  const fresh = rows.filter(x => !seen.has(x.snapshot_generated_at + '|' + x.player_id));
+  const fresh = freshStatusRows(existing, rows);
   if (fresh.length) fs.appendFileSync(historyPath, fresh.map(x => JSON.stringify(x)).join('\n') + '\n');
   console.log(JSON.stringify({ snapshot: snapshot.generated, round: snapshot.round, players: rows.length, appended: fresh.length, history: historyPath }));
 }
