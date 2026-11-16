@@ -29,6 +29,9 @@ export const PARAMS = {
   disp: { pts: 3, reb: 1, ast: 1, fg3: 1.15, pr: 2, pa: 2, pra: 2, ar: 1 },  // υπερδιασπορά (var/mean) για δεδομένα λεπτά
   // πλαίσιο αγώνα: προβλεπόμενοι πόντοι της ομάδας (Game Predictor) / μέσοι πόντοι της ομάδας στους αγώνες του παίκτη, ^ctxPow.
   // Backtest 2026-27 (walk-forward προβλέψεις αγώνων): πόντοι MAE 4,30 → 4,29, log-lik −2,996 → −2,994· στα ριμπάουντ χειροτερεύει, γι' αυτό μόνο εδώ.
+  // on/off συμπαικτών (onoffFactor): backtest αγωνιστικών 1–11 2026-27 (scripts/props-onoff-backtest.mjs), 899 εμφανίσεις με απόντα βασικό·
+  // χωρίς shrinkage χειροτερεύει όλα τα stats (log-lik −0,01 έως −0,03), με ισχυρό shrinkage ±0,001 = θόρυβος. Ανενεργό (∞) μέχρι να υπάρξει δείγμα.
+  onoffK: Infinity,
   ctxPow: 0.5, ctxStats: ['pts', 'ast', 'fg3', 'pa', 'pra'],
 };
 
@@ -106,6 +109,25 @@ export function redistribute(team, outCodes, cap = 36, fromCodes = outCodes) {
     }
   }
   return M;
+}
+
+/** on/off: συντελεστής του ρυθμού ανά λεπτό ενός παίκτη όταν λείπουν οι absent (από τα splits του play-by-play).
+ *  sp = { tot:[8] } ή { q:[5][8] }, w:{ code:[8] } με [secs, pts, reb, ast, fg3, stl, blk, tov].
+ *  Ρυθμός χωρίς τον x = (stat χωρίς x + K·ρυθμός συνολικά) / (λεπτά χωρίς x + K): shrinkage K λεπτών προς τον συνολικό ρυθμό. */
+const SPI = { pts: [1], reb: [2], ast: [3], fg3: [4], pr: [1, 2], pa: [1, 3], pra: [1, 2, 3], ar: [2, 3] };
+export function onoffFactor(sp, absent, stat, K = PARAMS.onoffK, lim = [0.75, 1.35]) {
+  if (!sp || !absent?.length || !(K < Infinity)) return 1;
+  const tot = sp.tot || sp.q?.reduce((a, r) => a.map((v, j) => v + r[j]), new Array(8).fill(0));
+  const val = v => SPI[stat].reduce((s, j) => s + v[j], 0);
+  if (!tot || tot[0] < 600) return 1;
+  const all = val(tot) / (tot[0] / 60); if (!(all > 0)) return 1;
+  let f = 1;
+  for (const x of absent) {
+    const w = sp.w?.[x]; if (!w) continue;                       // ποτέ μαζί: τα «χωρίς» = όλα, κανένα σήμα
+    const offMin = (tot[0] - w[0]) / 60, offX = val(tot) - val(w);
+    f *= ((Math.max(0, offX) + K * all) / (Math.max(0, offMin) + K)) / all;
+  }
+  return Math.min(lim[1], Math.max(lim[0], f));
 }
 
 /** λεπτά ομάδας για τον επόμενο αγώνα.
