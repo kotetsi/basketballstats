@@ -16,10 +16,14 @@ on:
       - 'test/odds.test.mjs'
       - 'test/props.test.mjs'
       - 'data/cache.json'
-      - '.github/workflows/props-calibration.yml'\n      - '.github/workflows/update.yml'
+      - '.github/workflows/props-calibration.yml'
+      - '.github/workflows/update.yml'
   pull_request:
     paths:
       - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-market-audit.mjs'
+      - 'test/props-market-audit.test.mjs'
+      - '.github/workflows/update.yml'
       - 'src/odds/props.mjs'
       - 'data/cache.json'
       - '.github/workflows/props-calibration.yml'
