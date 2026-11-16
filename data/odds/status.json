@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 161,
+  "calls": 163,
   "fixtures": [
    {
     "id": "id1100013873263158",
@@ -136,11 +136,13 @@
    ],
    "id1100013873263160": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263162": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263166": [
     "open",
@@ -194,8 +196,8 @@
   "props": {
    "id1100013873263158": 1445,
    "id1100013873263164": 1126,
-   "id1100013873263160": 0,
-   "id1100013873263162": 0,
+   "id1100013873263160": 2338,
+   "id1100013873263162": 5768,
    "id1100013873263166": 0,
    "id1100013873263168": 0,
    "id1100013873263170": 0,
@@ -213,16 +215,50 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-16T11:30:42.257Z",
- "lastSuccess": "2026-11-16T11:30:42.257Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-16T12:16:32.881Z",
+ "lastSuccess": "2026-11-16T12:16:32.881Z",
+ "events": 2,
+ "matched": 2,
+ "added": 2213,
  "quota": {
-  "used": 161,
+  "used": 163,
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-15T20:51:42.670Z",
- "propAdded": 0
+ "lastChange": "2026-11-16T12:16:32.881Z",
+ "propAdded": 2149,
+ "playerNames": {
+  "607934": "Mills, Patty",
+  "607942": "Crowder, Jae",
+  "607970": "Valanciunas, Jonas",
+  "861676": "Lucic, Vladimir",
+  "921106": "Obst, Andreas",
+  "921120": "Thiemann, John",
+  "925894": "Grigonis, Marius",
+  "928648": "Butkevicius, Arnas",
+  "928894": "Ulanovas, Edgaras",
+  "996303": "Baldwin, Wade",
+  "1142682": "Brown, Sterling",
+  "1162692": "Wiley, Austin",
+  "1164354": "Key, Braxton",
+  "1166670": "Jessup, Justinian",
+  "1169046": "Edwards, Carsen",
+  "1296698": "Lee, Saben",
+  "1307672": "Waters, Tremont",
+  "1320588": "Da Silva, Oscar",
+  "1491954": "Washington, Duane",
+  "1491966": "Bingham, Marcus",
+  "1493507": "Horton-Tucker, Talen",
+  "1512657": "Evans, Keenan",
+  "1588382": "Gach, Both",
+  "1607956": "Besson, Hugo",
+  "1608032": "Shields, Shavon",
+  "1611210": "Clyburn, William",
+  "1632786": "Akobundu-Ehiogu, Kaodirichi",
+  "1645416": "Jokubaitis, Rokas",
+  "1889914": "Tubelis, Azuolas",
+  "2218434": "Washington Jr., Tyty",
+  "2227308": "Sleva, Dustin",
+  "2299173": "Beauchamp, MarJon"
+ }
 }
