@@ -5,6 +5,7 @@ on:
       - 'feature/props-walk-forward-backtest'
     paths:
       - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-residual-diagnostics.mjs'
       - 'scripts/odds.mjs'
       - 'src/odds/core.mjs'
       - 'src/odds/props.mjs'
@@ -36,9 +37,13 @@ jobs:
         run: node --test test/odds.test.mjs test/props.test.mjs
       - name: Run walk-forward calibration report
         run: node scripts/props-distribution-compare.mjs | tee props-calibration-report.json
+      - name: Run walk-forward residual diagnostics
+        run: node scripts/props-residual-diagnostics.mjs | tee props-residual-diagnostics.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
           name: props-calibration-report
-          path: props-calibration-report.json
+          path: |
+            props-calibration-report.json
+            props-residual-diagnostics.json
           if-no-files-found: error
