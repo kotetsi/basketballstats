@@ -42,12 +42,12 @@ test('market audit reports snapshot coverage and missing archive', () => {
     { book: 'stoiximan', event: 'E-1-OLY-PAN', market: 'prop:pts', sel: 'over', player: 'Player A', line: 15.5, seen: '2026-11-16T00:00:00Z', window: 'close' },
     { book: 'foreign', event: 'E-1-OLY-PAN', market: 'prop:pts', sel: 'under', player: 'Player A', line: 15.5, seen: '2026-11-16T00:00:00Z', window: 'close' },
   ];
-  const r = auditPropsMarket({ latest, registry, history, now });
+  const r = auditPropsMarket({ latest, registry, history, status: { lastSuccess: '2026-11-16T00:00:00Z', events: 0, matched: 0 }, now });
   assert.equal(r.history.available, true);
   assert.equal(r.history.snapshots, 2);
   assert.equal(r.history.windows.open, 1);
   assert.equal(r.history.windows.close, 1);
-  assert.equal(r.history.eventBookPairs, 1);
+  assert.equal(r.history.eventBookPairs, 1);\n  assert.equal(r.latestQuoteUpdated, '2026-11-15T22:00:00Z');\n  assert.equal(r.latestQuoteAgeHours, 2);\n  assert.ok(r.warnings.some(x => x.includes('χωρίς να φέρει/αντιστοιχίσει')));
   const empty = auditPropsMarket({ latest, registry, now });
   assert.equal(empty.history.available, false);
   assert.ok(empty.warnings.some(x => x.includes('Δεν υπάρχει ακόμη αρχείο')));
