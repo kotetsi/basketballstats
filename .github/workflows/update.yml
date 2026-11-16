@@ -86,6 +86,9 @@ jobs:
           ODDS_PROVIDER: ${{ vars.ODDS_PROVIDER }}
         run: node scripts/odds.mjs ${{ github.event.inputs.odds_force == 'true' && '--force' || '' }}; echo "rc=$?" >> "$GITHUB_OUTPUT"
         continue-on-error: true
+      - name: "Market Data Audit: ελληνικά Player Props και freshness"
+        if: always()
+        run: node scripts/props-market-audit.mjs | tee data/odds/props-market-audit.json
       - name: "Alert: το feed αποδόσεων σταμάτησε"
         if: steps.odds.outcome == 'failure'
         env:
