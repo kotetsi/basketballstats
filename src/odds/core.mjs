@@ -103,3 +103,21 @@ export function appendChanges(history, snaps) {
   }
   return added;
 }
+
+
+
+// Player-prop snapshots must retain repeated unchanged quotes: a later capture proves
+// that the quote was still available at that time (needed for closing-line analysis).
+// Exact capture identity makes reruns idempotent without discarding unchanged prices.
+export function appendPropSnapshots(history, snaps) {
+  const key = s => [s.provider, s.event, s.book, s.market, s.sel, s.player || '', s.line ?? '', s.seen || ''].join('|');
+  const seen = new Set((history || []).map(key));
+  const added = [];
+  for (const s of snaps || []) {
+    const k = key(s);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    added.push(s);
+  }
+  return added;
+}
