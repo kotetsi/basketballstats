@@ -69,7 +69,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   for (const s of snapshots) {
     const w = ['open', 'mid', 'close'].includes(s.window) ? s.window : 'unknown';
     windows[w]++;
-    uniqueQuotes.add([s.provider, s.event, s.book, s.market, s.sel, s.player || '', s.line ?? '', s.seen || ''].join('|'));
+    uniqueQuotes.add([s.provider, s.event, s.book, s.market, s.sel, s.playerId != null ? `id:${s.playerId}` : (s.player || ''), s.line ?? '', s.seen || ''].join('|'));
     const k = [s.event, s.book].join('|');
     const a = seenByEventBook.get(k) || new Set();
     if (s.seen) a.add(s.seen);
