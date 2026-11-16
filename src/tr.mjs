@@ -182,4 +182,12 @@ export const PHRASES = {
   'ώρα Ελλάδας': 'yerel saatinle',
   ' παίκτες': ' oyuncu',
   ' πόντοι': ' sayı',
+  'Φόρμα τελευταίων αγώνων': 'Son maçlardaki form',
+  'Τα 5 πιο πρόσφατα παιχνίδια σε σύγκριση με τον μέσο όρο της σεζόν': 'Son 5 maçın sezon ortalamasıyla karşılaştırması',
+  'Ρεκόρ τελευταίων 5': 'Son 5 maçın derecesi',
+  'Πόντοι υπέρ': 'Atılan sayı',
+  'Πόντοι κατά': 'Yenilen sayı',
+  'Διαφορά πόντων': 'Sayı farkı',
+  'μ.ό. σεζόν ': 'sezon ort. ',
+
 };
