@@ -668,7 +668,7 @@ function renderTOdds(c){
   const bars=x.p.map((v,i)=>'<i title="'+hx(ord(i+1)+': '+pc0(v))+'" style="height:'+Math.max(2,Math.round(v/Math.max(...x.p)*100))+'%" class="'+(i<6?'z1':i<10?'z2':'z0')+'"></i>').join('');
   el.innerHTML='<h2>'+U.po.teamT+'</h2><p class="sub">'+fm(U.po.teamSub,{r:Math.round(x.w)+'–'+(x.g-Math.round(x.w)),b:ord(x.best)})+'</p>'+
     '<div class="otiles"><div><b>'+pc0(x.top4)+'</b><span>'+U.po.top4+'</span></div><div><b>'+pc0(x.top6)+'</b><span>'+U.po.top6+'</span></div><div><b>'+pc0(x.pin)+'</b><span>'+U.po.pin+'</span></div><div><b>'+pc0(x.out)+'</b><span>'+U.po.out+'</span></div></div>'+
-    '<div class="odist" role="img" aria-label="'+hx(U.po.dist)+'">'+bars+'</div><div class="odistl"><span>1</span><span>'+x.p.length+'</span></div><p class="note">'+U.po.dist+' · <a href="'+BASE+'#standOdds">'+U.po.all+'</a></p>';
+    '<div class="odist" role="img" aria-label="'+hx(U.po.dist)+'">'+bars+'</div><div class="odistl"><span>1</span><span>'+x.p.length+'</span></div><p class="note">'+U.po.dist+' · <a href="'+BASE+({el:'vathmologia/',en:'standings/',es:'clasificacion/',sr:'tabela/',tr:'puan-durumu/'}[LGK]||'')+'#standOdds">'+U.po.all+'</a></p>';
 }
 
 // ---- 6. YouTube videos: click-to-play (nothing loads from YouTube before the click)
