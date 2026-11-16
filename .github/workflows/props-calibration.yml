@@ -6,6 +6,8 @@ on:
     paths:
       - 'scripts/props-distribution-compare.mjs'
       - 'scripts/props-residual-diagnostics.mjs'
+      - 'scripts/props-minutes-diagnostics.mjs'
+      - 'src/odds/role.mjs'
       - 'scripts/odds.mjs'
       - 'src/odds/core.mjs'
       - 'src/odds/props.mjs'
@@ -39,6 +41,8 @@ jobs:
         run: node scripts/props-distribution-compare.mjs | tee props-calibration-report.json
       - name: Run walk-forward residual diagnostics
         run: node scripts/props-residual-diagnostics.mjs | tee props-residual-diagnostics.json
+      - name: Run walk-forward minutes diagnostics
+        run: node scripts/props-minutes-diagnostics.mjs | tee props-minutes-diagnostics.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
@@ -46,4 +50,5 @@ jobs:
           path: |
             props-calibration-report.json
             props-residual-diagnostics.json
+            props-minutes-diagnostics.json
           if-no-files-found: error
