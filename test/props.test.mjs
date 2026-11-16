@@ -113,13 +113,13 @@ test('role detector: classifies only from prior minutes and waits for minimum sa
   const { roleMinutes } = await import('../src/odds/role.mjs');
   const row = (round, min) => { const x = new Array(26).fill(0); x[0] = round; x[7] = min * 60; return x; };
   assert.equal(roleMinutes([row(1,20),row(2,20),row(3,20)]), null);
-  const rising = roleMinutes([row(1,20),row(2,20),row(3,20),row(4,30),row(5,30)]);
+  const rising = roleMinutes([row(1,20),row(2,20),row(3,20),row(4,35),row(5,35)]);
   assert.equal(rising.state, 'increasing');
   assert.ok(rising.minutes > rising.season && rising.minutes < rising.recent);
   const stable = roleMinutes([row(1,24),row(2,24),row(3,24),row(4,24),row(5,24)]);
   assert.equal(stable.state, 'stable');
   assert.equal(stable.minutes, 24);
-  const falling = roleMinutes([row(1,30),row(2,30),row(3,30),row(4,20),row(5,20)]);
+  const falling = roleMinutes([row(1,30),row(2,30),row(3,30),row(4,15),row(5,15)]);
   assert.equal(falling.state, 'decreasing');
   assert.ok(falling.minutes < falling.season && falling.minutes > falling.recent);
 });
