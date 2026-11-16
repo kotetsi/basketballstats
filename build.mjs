@@ -1648,7 +1648,7 @@ ${ldTag(ld)}${script}
     const finder = finderPage({ lang: LG, T, esc, base: BASE, urlFor, players, niceName });
     await simplePage('finder', { ...finder, title: `${finder.title} | ${SITE_NAME}` });
 
-    async function page(key, { title, desc, view, id = '', h1p = '', ledep = '', h1t = '', ledet = '', ld = null, extra = '', top = '' })
+    async function page(key, { title, desc, view, id = '', h1p = '', ledep = '', h1t = '', ledet = '', ld = null, extra = '', top = '' }) {
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
         .replace('{{PLAYER_H1}}', esc(h1p)).replace('{{PLAYER_LEDE}}', ledep ? `<p class="lede">${esc(ledep)}</p>` : '')
