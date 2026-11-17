@@ -49,7 +49,7 @@ The Worker includes a Paddle integration in `billing.mjs`:
 ### Paddle configuration
 
 1. Create and verify a Paddle seller account. Create the Premium product and a single monthly €9.90 price. Confirm how Paddle presents tax and the payout/transaction fees in your account.
-2. Use Paddle **sandbox** credentials first. Create a notification destination for `https://<worker-host>/billing/webhook` and subscribe to `subscription.created` and `subscription.updated`. Keep the destination's secret private.
+2. Use Paddle **sandbox** credentials first. Create a notification destination for `https://<worker-host>/billing/webhook` and subscribe to `subscription.created`, `subscription.updated`, and `subscription.past_due`. The dedicated `subscription.past_due` event revokes Premium immediately after a failed payment. Keep the destination's secret private.
 3. After the Worker code and D1 schema are deployed under a separately approved release, add these values as **Worker secrets directly in the Cloudflare dashboard** for `bs-account` (Settings → Variables and Secrets):
    - `PADDLE_API_KEY` — sandbox API key with transaction and customer-portal permissions.
    - `PADDLE_WEBHOOK_SECRET` — signing secret for that sandbox notification destination.
