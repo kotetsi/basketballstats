@@ -73,7 +73,7 @@ This branch adds tests for:
 - Free routes remaining available without an account.
 - Customer-portal authorization and user/customer ownership checks.
 
-The PR adds a GitHub Actions workflow to run account and billing tests. These tests still need to pass in CI. Keep provider calls mocked in unit tests; perform a separate sandbox checkout before production launch.
+The PR's account and billing test workflow passed on run 12. Keep provider calls mocked in unit tests; perform a separate sandbox checkout before production launch.
 
 ## Setup requirements for a future implementation
 
