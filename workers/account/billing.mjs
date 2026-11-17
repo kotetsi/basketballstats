@@ -64,8 +64,23 @@ export async function createPortal(env, db, userId) {
 }
 
 export async function paddleWebhook(req, env) {
-  const raw = await req.text();
-  if (raw.length > 256 * 1024) return new Response('too large', { status: 413 });
+  const maxBytes = 256 * 1024;
+  if (Number(req.headers.get('content-length')) > maxBytes) return new Response('too large', { status: 413 });
+  const reader = req.body?.getReader();
+  if (!reader) return new Response('invalid payload', { status: 400 });
+  const chunks = [];
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > maxBytes) { await reader.cancel(); return new Response('too large', { status: 413 }); }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  const raw = new TextDecoder().decode(bytes);
   if (!await verifyPaddleSignature(raw, req.headers.get('paddle-signature'), env.PADDLE_WEBHOOK_SECRET)) return new Response('invalid signature', { status: 401 });
   let event;
   try { event = JSON.parse(raw); } catch { return new Response('invalid payload', { status: 400 }); }
