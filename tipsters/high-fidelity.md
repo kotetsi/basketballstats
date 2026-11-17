@@ -290,3 +290,43 @@ Filip Petrušev ove sezone ima ulogu rezervnog centra u Dubaiju: oko **15 minuta
 Model ga projektuje na **2,8 skokova** i daje under-u oko **69%**, dok kvota 1,80 odgovara oko 53%. Skokovi su kategorija propsa u kojoj je naš model do sada bio bolji od tržišta.
 
 Rizik: Efes je bez Bruna Fernanda, pa je njihov reket slabiji. Ako Petrušev dobije više minuta nego obično, 4 skoka su udaljena jednu dobru večer. Ovo je tip manje sigurnosti od ostalih u kolu.
+
+12 | BAR-PRS | 2 +7.5 | 1.70
+Η απρόσμενα καλή Μπαρτσελόνα αντιμετωπίζει σε ένα φαινομενικά ανοιχτό παιχνίδι τη θρασύτατη Παρί. Λόγω κλειστού rotation της Μπάρτσα και της μαχητικότητας των Παριζιάνων, ποντάρουμε σε νίκη των μπλαουγκράνα κάτω από 7,5 πόντους.
+
+EN:
+A surprisingly good Barcelona face a bold Paris side in what looks like an open game. With Barça's short rotation and the Parisians' fighting spirit, we are betting on a Barcelona win by less than 7.5 points.
+
+ES:
+Un Barça sorprendentemente bueno se mide en un partido aparentemente abierto a un atrevido París. Por la rotación corta del Barça y la combatividad de los parisinos, apostamos por una victoria azulgrana por menos de 7,5 puntos.
+
+SR:
+Iznenađujuće dobra Barselona u naizgled otvorenoj utakmici dočekuje drski Pariz. Zbog kratke rotacije Barse i borbenosti Parižana, igramo na pobedu Barselone manjom razlikom od 7,5 poena.
+
+12 | BES-MAD | over 177.5 | 1.88
+Η Ρεάλ έχει μία από τις καλύτερες επιθέσεις της λίγκας με **98.5 πόντους** ανά αγώνα, και τα ματς της περνούν το 177.5 στα **8 από τα 11**. Η Μπεσίκτας δέχεται 90.9 πόντους και τα δικά της ματς πέρασαν τη γραμμή στα 6 από τα 11.
+
+Το μοντέλο δίνει **63%** για το over, ενώ η απόδοση 1.88 αντιστοιχεί σε περίπου 51%.
+
+Το ρίσκο: η Ρεάλ είναι χωρίς Campazzo, Deck και Jantunen. Χωρίς τον βασικό της πλέι μέικερ ο ρυθμός μπορεί να πέσει.
+
+EN:
+Real Madrid have one of the best offenses in the league with **98.5 points** per game, and their games have gone over 177.5 in **8 of 11**. Besiktas allow 90.9 points and their games went over the line in 6 of 11.
+
+The model gives the over **63%**, while odds of 1.88 imply about 51%.
+
+The risk: Real are without Campazzo, Deck and Jantunen. Without their main playmaker the pace may drop.
+
+ES:
+El Real Madrid tiene uno de los mejores ataques de la liga con **98,5 puntos** por partido, y sus partidos superan 177,5 en **8 de 11**. El Besiktas recibe 90,9 puntos y sus partidos superaron la línea en 6 de 11.
+
+El modelo da **63%** al over, mientras que la cuota 1,88 implica alrededor del 51%.
+
+El riesgo: el Real no tiene a Campazzo, Deck ni Jantunen. Sin su base titular el ritmo puede bajar.
+
+SR:
+Real Madrid ima jedan od najboljih napada lige sa **98,5 poena** po utakmici, a njegove utakmice prelaze 177,5 u **8 od 11**. Bešiktaš prima 90,9 poena i njegove utakmice su prešle liniju u 6 od 11.
+
+Model daje over-u **63%**, dok kvota 1,88 odgovara oko 51%.
+
+Rizik: Real je bez Kampaca, Deka i Jantunena. Bez glavnog plejmejkera ritam može da padne.
