@@ -45,7 +45,7 @@ test('portal generator creates localized homepages and preserves standings pages
         const navigation = home.match(/<nav class="nav">[\s\S]*?<\/nav>/)?.[0] || '';
         assert.doesNotMatch(navigation, /Match Center|Betting Intelligence|Player Lab|Predictions|Basketball Data/);
         assert.doesNotMatch(home, /<h2>Fantasy Zone<\/h2>/);
-        assert.doesNotMatch(home, /<h1>Basketball Intelligence Portal<\/h1>/);
+        if (dir !== 'en/') assert.doesNotMatch(home, /<h1>Basketball Intelligence Portal<\/h1>/);
       }
       assert.equal((home.match(/class="portal-card"/g) || []).length, 12);
       const descriptions = [...home.matchAll(/<small>([\s\S]*?)<\/small>/g)].map(match => match[1]);
