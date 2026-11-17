@@ -8,6 +8,8 @@ on:
       - 'src/account/premium-gate.mjs'
       - 'test/premium-public-build.test.mjs'
       - '.github/workflows/premium-data-check.yml'
+      - '.github/workflows/premium-data-sync.yml'
+      - 'test/premium-sync-workflow.test.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,4 +22,4 @@ jobs:
         with:
           node-version: 22
       - run: node build.mjs --offline
-      - run: node --test test/premium-public-build.test.mjs
+      - run: node --test test/premium-public-build.test.mjs test/premium-sync-workflow.test.mjs
