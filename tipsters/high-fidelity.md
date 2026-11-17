@@ -303,7 +303,7 @@ Un Barça sorprendentemente bueno se mide en un partido aparentemente abierto a 
 SR:
 Iznenađujuće dobra Barselona u naizgled otvorenoj utakmici dočekuje drski Pariz. Zbog kratke rotacije Barse i borbenosti Parižana, igramo na pobedu Barselone manjom razlikom od 7,5 poena.
 
-12 | BAS-HTA | Kurucs πόντοι over 6.5
+12 | BAS-HTA | Kurucs πόντοι over 6.5 | 1.88
 Ο Rodions Kurucs έχει ανεβάσει αισθητά τους μέσους όρους του στο παιχνίδι της Μπασκόνια και στα δύο τελευταία του παιχνίδια έπαιξε πάνω από 25 λεπτά. Με τόσο χρόνο στο παρκέ, και με τη Μπασκόνια να έχει πολλές απουσίες (Faried, Santos, Sedekerskis), το 7 είναι στα μέτρα του: στην επιστροφή του στην EuroLeague, στην 11η αγωνιστική, σημείωσε 10 πόντους σε 29 λεπτά.
 
 Το ρίσκο: φέτος έχει μείνει δύο φορές στο μηδέν, και αν η Μπασκόνια χρησιμοποιήσει τις νέες της μεταγραφές (Smits, Kamenjas), τα λεπτά του μπορεί να μειωθούν.
