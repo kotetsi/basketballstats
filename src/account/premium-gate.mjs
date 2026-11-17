@@ -71,7 +71,7 @@ export async function requirePremium(root, related = []) {
     <h2 id="premiumLockTitle">${esc(L.title)}</h2><p>${esc(message)}</p>${action}
     <button type="button" class="accsec" data-premium-action="retry">${esc(L.retry)}</button>
   </section>`;
-  root.querySelector('[data-premium-action]')?.addEventListener('click', async e => {
+  root.querySelectorAll('[data-premium-action]').forEach(button => button.addEventListener('click', async e => {
     const action = e.currentTarget.dataset.premiumAction;
     if (action === 'signin') { document.querySelector('.accbtn')?.click(); return; }
     if (action === 'retry') { location.reload(); return; }
@@ -85,6 +85,6 @@ export async function requirePremium(root, related = []) {
       root.querySelector('[role="status"]')?.remove();
       const note = document.createElement('p'); note.setAttribute('role', 'status'); note.textContent = L.unavailable; root.querySelector('.premium-lock')?.append(note);
     }
-  });
+  }));
   return false;
 }
