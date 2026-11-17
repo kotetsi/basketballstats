@@ -1221,7 +1221,7 @@ async function main() {
     }
   }
   {
-    const api = (p, o) => fs.mkdir(path.dirname(path.join(PREMIUM_OUT, 'compare', p)), { recursive: true }).then(() => fs.writeFile(path.join(PREMIUM_OUT, 'compare', p), JSON.stringify(o)));
+    const api = (p, o) => fs.mkdir(path.dirname(path.join(PREMIUM_OUT, p)), { recursive: true }).then(() => fs.writeFile(path.join(PREMIUM_OUT, p), JSON.stringify(o)));
     await fs.mkdir(path.join(OUT, 'assets', 'compare'), { recursive: true });
     for (const f of ['metrics.mjs', 'ui.js', 'catalog.mjs', 'pairs.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'compare', f), path.join(OUT, 'assets', 'compare', f));
     await api('compare/players/metrics.json', { current: SEASON, defaultKeys: CB.DEFAULT_KEYS, allKeys: CB.ALL_KEYS, per36: CB.PER36, per100: CB.PER100, seasons: CMP.seasons, similar: CMP.similar });
