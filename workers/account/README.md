@@ -60,5 +60,18 @@ The Worker includes a Paddle integration in `billing.mjs`:
 
 Never put Paddle keys or webhook secrets in `site.config.json`, source files, or browser JavaScript. Checkout remains unavailable unless the server has the API key and fixed price ID. Sandbox is the configured default. Setting production credentials or deploying the Worker is a separate release action and is not done by this change.
 
+### Προστασία δεδομένων Premium (υπό υλοποίηση)
+
+Το Prop Analyzer και οι συγκρίσεις ζητούν τα datasets μέσω `GET /premium/data/{key}`. Ο Worker απαιτεί υπάρχουσα συνεδρία και ενεργό entitlement στο D1 πριν διαβάσει το ιδιωτικό R2 binding `PREMIUM_DATA`. Επιτρεπόμενα keys:
+
+- `props/data.json`
+- `compare/players/metrics.json`
+- `compare/players/similar/{playerId}.json`
+- `compare/teams/metrics.json`
+
+Το build τα γράφει στο αγνοημένο `.premium-data/`, έξω από το δημόσιο `dist`. Δεν έχει δημιουργηθεί ακόμη R2 bucket, δεν έχουν ανέβει αντικείμενα και δεν υπάρχει ενεργός συγχρονισμός. Χωρίς αυτά, ο Worker αποτυγχάνει κλειστά και τα Premium εργαλεία δεν φορτώνουν δεδομένα.
+
+Η αυτόματη αναθεώρηση απέρριψε αλλαγή στο nightly deployment workflow που θα πρόσθετε credentials και `aws s3 sync --delete`. Δεν έγινε δεύτερη προσπάθεια μέσω άλλου workflow. Πριν από οποιοδήποτε sync χρειάζεται ξεχωριστή έγκριση για bucket-scoped credentials και περιορισμένη ροή συγχρονισμού. Μην χρησιμοποιήσεις τα Paddle secrets ή το Worker deploy token για το R2.
+
 ## Tests
-`node --test test/account.test.mjs test/account-worker.test.mjs test/billing.test.mjs` (D1 σε node:sqlite, ψεύτικοι Google/Telegram, χωρίς δίκτυο).
+`node --test test/account.test.mjs test/account-worker.test.mjs test/billing.test.mjs test/premium-gate.test.mjs` (D1 σε node:sqlite, ψεύτικοι Google/Telegram, χωρίς δίκτυο).
