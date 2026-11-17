@@ -11,3 +11,18 @@ CREATE TABLE IF NOT EXISTS push_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, sub
 -- τι έχει ήδη σταλεί (κλειδί ειδοποίησης ανά χρήστη): τίποτα δεν στέλνεται δύο φορές
 CREATE TABLE IF NOT EXISTS sent (user_id TEXT NOT NULL, key TEXT NOT NULL, ts INTEGER NOT NULL, PRIMARY KEY (user_id, key));
 CREATE TABLE IF NOT EXISTS config (k TEXT PRIMARY KEY, v TEXT NOT NULL);
+
+-- Paddle billing: only provider-confirmed subscription state grants Premium access.
+CREATE TABLE IF NOT EXISTS premium_subscriptions (
+  user_id TEXT PRIMARY KEY,
+  customer_id TEXT UNIQUE,
+  subscription_id TEXT UNIQUE,
+  price_id TEXT NOT NULL,
+  status TEXT NOT NULL,
+  current_period_end TEXT,
+  last_event_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS premium_billing_events (
+  event_id TEXT PRIMARY KEY,
+  processed_at INTEGER NOT NULL
+);
