@@ -24,6 +24,12 @@ Keep scores, schedule, standings, and basic statistics free. Premium is intended
 
 The account login already present should be reused. Do not create a second account system.
 
+## Provider recommendation
+
+Recommend **Paddle** for the first release, subject to the owner completing Paddle's seller onboarding and approving its terms and fees. Paddle acts as Merchant of Record and states it handles VAT/tax collection and remittance; its published supported-country list includes Greece, and its tax table lists Greek VAT handling. This reduces the initial tax operations burden compared with using Stripe Billing/Tax, where the business remains responsible for its own tax obligations and filings. Paddle currently publishes a fee of 5% + $0.50 per checkout transaction; confirm the applicable currency-converted fee and payout terms in the seller account before launch.
+
+Use Paddle hosted checkout and customer portal. Keep the provider behind a small billing adapter in the Worker so another provider can be substituted later if onboarding, terms, or economics do not work.
+
 ## Launch blocker
 
 There is no safe payment integration today. Do not display a working-looking checkout button, grant access from a query parameter or browser storage, or treat a client-side flag as proof of payment.
@@ -32,7 +38,7 @@ A static page can be inspected and its data/scripts downloaded. Therefore, Premi
 
 ## Recommended implementation sequence
 
-1. **Choose the payment provider and merchant model.** Evaluate Stripe Billing versus a merchant-of-record provider for Greece/EU tax handling, recurring payments, refunds, and customer support. Use hosted checkout and a hosted customer portal; never handle card data directly.
+1. **Approve and onboard the provider.** Confirm Paddle seller eligibility, terms, fee/payout details, and the digital-service product category. Use hosted checkout and a hosted customer portal; never handle card data directly.
 2. **Create provider products outside the application.** Configure the €9.90 monthly price, currency, tax treatment, cancellation behavior, and production/test environments. Store provider price identifiers as deployment secrets/configuration, not hard-coded checkout amounts.
 3. **Extend the account Worker and D1 schema.** Add provider customer ID, subscription ID, status, current-period end, cancellation state, and audit timestamps. Associate provider objects only with the authenticated internal user ID. Keep payment details in the provider.
 4. **Add trusted billing endpoints.** Require the existing authenticated session for checkout and portal creation. Accept only the configured price ID. Validate webhook signatures against the raw request body, reject invalid signatures, and process event IDs idempotently. Handle checkout completion, invoice payment success/failure, subscription updates, and deletion.
@@ -70,8 +76,8 @@ Also run the existing account-worker tests and site build. Keep provider calls m
 
 ## Setup requirements for a future implementation
 
-- Provider account with test and production API credentials.
-- Monthly €9.90 product/price IDs for each environment.
+- Paddle seller account approved for the site and product.
+- Monthly €9.90 product/price IDs for sandbox and production. Confirm whether the displayed €9.90 is tax-inclusive and configure localized tax display accordingly.
 - Webhook signing secret stored as a deployment secret.
 - Public Worker/API URL and registered webhook endpoint.
 - Cloudflare D1 migration applied before Worker deployment.
