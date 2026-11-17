@@ -1377,9 +1377,9 @@ gtag('js',new Date());gtag('config','${GA_ID}');
 var T=${JSON.stringify(CC[lg])};
 function set(v){try{localStorage.setItem('bsConsent',v);}catch(e){}gtag('consent','update',{analytics_storage:v==='y'?'granted':'denied'});var b=document.getElementById('ccb');if(b)b.remove();}
 function show(){if(document.getElementById('ccb'))return;var d=document.createElement('div');d.id='ccb';d.setAttribute('role','dialog');d.setAttribute('aria-label',T[4]);
-d.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:560px;margin:0 auto;background:#1d2330;color:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.35);font:14px/1.45 Fira Sans,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:10px;align-items:center';
+d.style.cssText='position:relative;width:calc(100% - 24px);max-width:560px;margin:12px auto;z-index:1;background:#1d2330;color:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.18);font:14px/1.45 Fira Sans,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:10px;align-items:center';
 d.innerHTML='<span style="flex:1 1 260px">'+T[0]+' <a href="${legalUrl}" style="color:#9fc3ff">'+T[3]+'</a></span><span style="display:flex;gap:8px"><button type="button" data-v="n" style="background:transparent;color:#fff;border:1px solid #8a93a6;border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer">'+T[2]+'</button><button type="button" data-v="y" style="background:#e8562a;color:#fff;border:0;border-radius:8px;padding:7px 14px;font:inherit;font-weight:600;cursor:pointer">'+T[1]+'</button></span>';
-d.addEventListener('click',function(e){var v=e.target.getAttribute&&e.target.getAttribute('data-v');if(v)set(v);});document.body.appendChild(d);}
+d.addEventListener('click',function(e){var v=e.target.getAttribute&&e.target.getAttribute('data-v');if(v)set(v);});document.body.insertBefore(d,document.body.firstChild);}
 window.bsCookies=show;
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-cc]');if(a){e.preventDefault();show();}});
 if(c!=='y'&&c!=='n')document.addEventListener('DOMContentLoaded',show);})();
