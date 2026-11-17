@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { devig, edgePP, classify, tier, bestAndAverage, movement, clv, clvSummary, ncdf } from './core.mjs';
+import { jurisdictions } from '../../scripts/odds.mjs';
 
 const readJSON = async (f, d) => { try { return JSON.parse(await fs.readFile(f, 'utf8')); } catch { return d; } };
 
@@ -13,6 +14,10 @@ export async function loadOdds(ROOT) {
   const licensed = await readJSON(path.join(dir, 'licensed.json'), {});
   const plog = await readJSON(path.join(ROOT, 'data', 'matchups', 'pred_log.json'), {});
   const hist = (await fs.readFile(path.join(dir, 'history.jsonl'), 'utf8').catch(() => '')).split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+  // οι χώρες αδειοδότησης ξαναϋπολογίζονται με το τρέχον μητρώο: παλιοί αγώνες στο latest.json κρατούν ετικέτες από
+  // παλαιότερη αντιστοίχιση (π.χ. το σερβικό feed «superbet» ή το «bet365» σημειωμένα ως ελληνικά)
+  const grReg = await readJSON(path.join(dir, 'bookmakers-gr.json'), null);
+  if (Object.keys(licensed).length) for (const G of Object.values(latest?.games || {})) for (const [k, b] of Object.entries(G.books || {})) b.lic = jurisdictions(k, b.title || k, licensed, grReg);
   return { latest, status, affiliates, plog, hist, licensed };
 }
 
@@ -82,7 +87,7 @@ export function gameIntel(O, gid, pred, sig, jur) {
 }
 
 // Closing Line Value για όλους τους αγώνες που έχουν ξεκινήσει
-export function clvReport(O, jur) {
+export function clvReport(O, jur, now = new Date().toISOString()) {
   const lic = new Set(Object.values(O.latest?.games || {}).flatMap(G => Object.entries(G.books || {}).filter(([, b]) => (b.lic || []).includes(jur)).map(([k]) => k)));
   const ok = k => lic.has(k);
   const rows = [];
@@ -90,12 +95,21 @@ export function clvReport(O, jur) {
   for (const gid of gids) {
     const lp = O.plog[gid]?.last; if (!lp) continue;
     const commence = O.hist.find(h => h.event === gid)?.t; // ώρα από το πρώτο snapshot (ο πάροχος)
-    const c = closing(O.hist, gid, 'ml', ['home', 'away'], O.latest?.games?.[gid]?.commence || commence || '9999', ok);
+    const tip = O.latest?.games?.[gid]?.commence || commence || '9999';
+    if (tip > now) continue;                                     // μόνο αγώνες που έχουν ξεκινήσει (αλλιώς δεν υπάρχει closing)
+    const c = closing(O.hist, gid, 'ml', ['home', 'away'], tip, ok);
     if (!c) continue;
-    const model = [lp.p, 1 - lp.p];
-    const side = model[0] - c.fair[0] >= model[1] - c.fair[1] ? 0 : 1; // η πλευρά που «έβλεπε» το μοντέλο
+    // CLV χωρίς να «κρυφοκοιτάμε» το κλείσιμο: η πλευρά επιλέγεται απέναντι στις πρώτες τιμές της αγοράς (άνοιγμα, πρώτη λήψη)
+    // με την πρόβλεψη που υπήρχε τότε, και το CLV είναι πόσο κινήθηκε η αγορά από το άνοιγμα ως το κλείσιμο προς αυτή την πλευρά.
+    // (Παλιότερα η πλευρά διαλεγόταν με την closing τιμή, οπότε το «CLV» έβγαινε θετικό εξ ορισμού.)
+    const seen = O.hist.filter(h => h.event === gid && h.market === 'ml' && ok(h.book)).map(h => h.seen).sort();
+    const d = seen.length && closing(O.hist, gid, 'ml', ['home', 'away'], seen[0], ok);
+    if (!d) continue;
+    const fp = O.plog[gid]?.first, pDec = fp?.p != null && (!fp.t || new Date(fp.t).toISOString() <= seen[0]) ? fp.p : lp.p;
+    const model = [pDec, 1 - pDec];
+    const side = model[0] - d.fair[0] >= model[1] - d.fair[1] ? 0 : 1; // η πλευρά που «έβλεπε» το μοντέλο απέναντι στην αγορά εκείνης της ώρας
     const [, r, h, a] = gid.split('-');
-    rows.push({ gid, r: +r, h, a, side, model: model[side], closing: c.fair[side], clv: clv(model[side], c.fair[side]), month: (lp.t || '').slice(0, 7), team: side ? a : h });
+    rows.push({ gid, r: +r, h, a, side, model: model[side], taken: d.fair[side], closing: c.fair[side], edge: clv(model[side], d.fair[side]), clv: clv(c.fair[side], d.fair[side]), month: (lp.t || '').slice(0, 7), team: side ? a : h });
   }
   return { rows, total: clvSummary(rows), byMonth: clvSummary(rows, x => x.month), byTeam: clvSummary(rows, x => x.team) };
 }

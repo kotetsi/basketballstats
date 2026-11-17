@@ -118,7 +118,14 @@ ${kpi(L('Αρχηγός στο top 10', 'Captain in top 10'), cap.hidden ? '–'
   const cmpRows = (rep.compare.all || []).map(x => [`${x.best ? '★ ' : ''}${esc(mname(x.model))}${x.model === act ? ` <span class="pfact">${esc(L('ενεργό', 'active'))}</span>` : ''}`, x.n, f(x.mae), f(x.rmse), f(x.corr), f(x.r2), pc(x.ou_hit), pc(x.coverage_80), f(x.ece, 3), optS[x.model] ? pc(optS[x.model].median_pct) : '–', x.captain_top10 == null ? `<span title="n=${x.captain_n}">–</span>` : pc(x.captain_top10)]);
   const verTable = table('pf-versions', [L('Μοντέλο', 'Model'), 'n', 'MAE', 'RMSE', 'Corr', 'R²', 'Hit O/U', 'P10–P90', 'ECE', L('Optimizer pct', 'Optimizer pct'), L('Αρχηγός top 10', 'Captain top 10')], cmpRows);
   const reg = rep.registry || {};
-  const regRows = (reg.versions || []).map(v => [esc(v.id), esc(v.engine || ''), esc(v.status || ''), esc(v.created || ''), esc(v.description || '')]);
+  // οι περιγραφές του data/fantasy/models.json είναι στα ελληνικά· description_en (αν υπάρχει) ή μετάφραση των γνωστών εκδόσεων
+  const DESC_EN = {
+    'pir-2stage-v1': 'Two stages: minutes × PIR per minute with HistGradientBoosting (scikit-learn) on top of a Bayesian baseline, P10/P50/P90 with quantile regression and conformal widening',
+    'pir-lgbm-v1': 'Same features and structure as pir-2stage-v1, with LightGBM instead of HistGradientBoosting',
+    'pir-2stage-v2': "As v1, plus: the player's previous season as a starting point, training on 2 previous seasons as well (predicts from round 2), travel, fouls per 36', minutes of missing teammates",
+  };
+  const descOf = v => L(v.description || '', v.description_en || DESC_EN[v.id] || v.description || '');
+  const regRows = (reg.versions || []).map(v => [esc(v.id), esc(v.engine || ''), esc(v.status || ''), esc(v.created || ''), esc(descOf(v))]);
 
   // ---------- optimizer
   let optSec = '';

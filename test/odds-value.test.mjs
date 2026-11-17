@@ -102,3 +102,37 @@ test('αξιοπιστία: «υπό αξιολόγηση» μέχρι να υπ
   assert.equal(reliability({ summary: { n: 1207, ece: 0.08 } }, { all: { n: 150, mean: 1.2 } }).status, 'evaluating');
   assert.equal(reliability(null, null).status, 'evaluating');
 });
+
+test('build: οι παλιές ετικέτες χωρών στο latest.json ξαναϋπολογίζονται (σερβικό superbet / γενικό bet365 όχι ελληνικά)', async () => {
+  const { loadOdds } = await import('../src/odds/build-odds.mjs');
+  const os = await import('node:os'), path = await import('node:path');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bs-odds-')), dir = path.join(root, 'data', 'odds');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'licensed.json'), JSON.stringify(LIC));
+  fs.writeFileSync(path.join(dir, 'bookmakers-gr.json'), JSON.stringify(REG));
+  fs.writeFileSync(path.join(dir, 'latest.json'), JSON.stringify({ games: { 'E-11-OLY-DUB': { books: {
+    superbet: { title: 'Superbet', lic: ['gr'] }, bet365: { title: 'bet365', lic: ['gr', 'uk'] }, stoiximan: { title: 'Stoiximan', lic: [] } } } } }));
+  const B = (await loadOdds(root)).latest.games['E-11-OLY-DUB'].books;
+  assert.ok(!B.superbet.lic.includes('gr'));
+  assert.ok(!B.bet365.lic.includes('gr'));
+  assert.deepEqual(B.stoiximan.lic, ['gr']);
+});
+
+test('CLV: η πλευρά διαλέγεται με τις τιμές ανοίγματος, άρα το CLV μπορεί να είναι και αρνητικό· μόνο αγώνες που ξεκίνησαν', async () => {
+  const { clvReport } = await import('../src/odds/build-odds.mjs');
+  const q = (event, seen, home, away) => [{ event, book: 'stoiximan', market: 'ml', sel: 'home', price: home, seen }, { event, book: 'stoiximan', market: 'ml', sel: 'away', price: away, seen }];
+  const O = {
+    latest: { games: { 'E-1-AAA-BBB': { commence: '2026-11-01T19:00:00.000Z', books: { stoiximan: { lic: ['gr'] } } }, 'E-1-CCC-DDD': { commence: '2026-11-01T19:00:00.000Z' }, 'E-2-EEE-FFF': { commence: '2099-01-01T00:00:00.000Z' } } },
+    hist: [
+      ...q('E-1-AAA-BBB', '2026-11-01T08:00:00.000Z', 2.0, 1.8), ...q('E-1-AAA-BBB', '2026-11-01T18:00:00.000Z', 2.4, 1.55),   // η αγορά πήγε αντίθετα
+      ...q('E-1-CCC-DDD', '2026-11-01T08:00:00.000Z', 2.0, 1.8), ...q('E-1-CCC-DDD', '2026-11-01T18:00:00.000Z', 1.7, 2.1),    // η αγορά πήγε με το μοντέλο
+      ...q('E-2-EEE-FFF', '2026-11-01T08:00:00.000Z', 2.0, 1.8),
+    ],
+    plog: { 'E-1-AAA-BBB': { last: { p: 0.6, t: '2026-11-01T18:30:00Z' } }, 'E-1-CCC-DDD': { last: { p: 0.6, t: '2026-11-01T18:30:00Z' } }, 'E-2-EEE-FFF': { last: { p: 0.6 } } },
+  };
+  const R = clvReport(O, 'gr', '2026-11-02T00:00:00.000Z');
+  const by = Object.fromEntries(R.rows.map(x => [x.gid, x]));
+  assert.equal(R.rows.length, 2);                       // ο μελλοντικός αγώνας δεν μετράει
+  assert.equal(by['E-1-AAA-BBB'].side, 0); assert.ok(by['E-1-AAA-BBB'].clv < 0);
+  assert.equal(by['E-1-CCC-DDD'].side, 0); assert.ok(by['E-1-CCC-DDD'].clv > 0);
+});
