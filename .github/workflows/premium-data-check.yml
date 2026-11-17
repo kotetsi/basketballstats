@@ -1,0 +1,23 @@
+name: Premium data privacy checks
+on:
+  pull_request:
+    paths:
+      - 'build.mjs'
+      - 'src/props/**'
+      - 'src/compare/**'
+      - 'src/account/premium-gate.mjs'
+      - 'test/premium-public-build.test.mjs'
+      - '.github/workflows/premium-data-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node build.mjs --offline
+      - run: node --test test/premium-public-build.test.mjs
