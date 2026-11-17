@@ -74,6 +74,7 @@ test('portal generator creates localized homepages and preserves standings pages
       const oldStandings = await fs.readFile(path.join(dist, dir, standings, 'index.html'), 'utf8');
       assert.match(oldStandings, /id="standTbl"/);
       assert.match(oldStandings, /data-v="today"/);
+      assert.match(oldStandings, /<title>[^<]*BasketballStats<\/title>/);
       for (const [altDir, altStandings] of locales) {
         const expected = 'https://basketballstats.eu/' + altDir + altStandings + '/';
         assert.ok(oldStandings.includes('hreflang="' + (altDir ? altDir.slice(0,-1) : 'el') + '" href="' + expected + '"'), expected);
