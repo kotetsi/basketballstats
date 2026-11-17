@@ -1140,6 +1140,7 @@ async function main() {
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
   await fs.mkdir(path.join(OUT, 'assets', 'account'), { recursive: true });
   await fs.copyFile(path.join(ROOT, 'src', 'account', 'account.js'), path.join(OUT, 'assets', 'account', 'account.js'));
+  await fs.copyFile(path.join(ROOT, 'src', 'account', 'premium-gate.mjs'), path.join(OUT, 'assets', 'account', 'premium-gate.mjs'));
   await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
   for (const f of ['compare.mjs', 'compare.js', 'optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs', 'live.mjs', 'livetracker.js', 'assistant.mjs', 'assistant.js', 'ask.mjs', 'ask.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
   await fs.mkdir(path.join(OUT, 'assets', 'analytics'), { recursive: true });
