@@ -71,7 +71,13 @@ Never put Paddle keys or webhook secrets in `site.config.json`, source files, or
 
 Το build τα γράφει στο αγνοημένο `.premium-data/`, έξω από το δημόσιο `dist`. Δεν έχει δημιουργηθεί ακόμη R2 bucket, δεν έχουν ανέβει αντικείμενα και δεν υπάρχει ενεργός συγχρονισμός. Χωρίς αυτά, ο Worker αποτυγχάνει κλειστά και τα Premium εργαλεία δεν φορτώνουν δεδομένα.
 
-Η αυτόματη αναθεώρηση απέρριψε αλλαγή στο nightly deployment workflow που θα πρόσθετε credentials και `aws s3 sync --delete`. Δεν έγινε δεύτερη προσπάθεια μέσω άλλου workflow. Πριν από οποιοδήποτε sync χρειάζεται ξεχωριστή έγκριση για bucket-scoped credentials και περιορισμένη ροή συγχρονισμού. Μην χρησιμοποιήσεις τα Paddle secrets ή το Worker deploy token για το R2.
+Το αρχικό αίτημα για προσθήκη sync στο nightly Pages/deployment workflow απορρίφθηκε από την αυτόματη αναθεώρηση, επειδή θα πρόσθετε credentials και `aws s3 sync --delete`. Με ξεχωριστή έγκριση του ιδιοκτήτη προστέθηκε διαφορετικό workflow, `.github/workflows/premium-data-sync.yml`: έχει μόνο `contents: read`, ξαναχτίζει τα δεδομένα από το `main`, ελέγχει ότι δεν μπήκαν στο `dist` και κάνει μόνο `aws s3 cp` ανά JSON αρχείο — χωρίς download artifacts, διαγραφές, αλλαγές Pages ή Worker deployment.
+
+Πριν το ενεργοποιήσεις, δημιούργησε το bucket `bs-premium-data` με **Public Access απενεργοποιημένο** και ρύθμισε GitHub Actions:
+- Repository Variables: `CLOUDFLARE_ACCOUNT_ID`, `PREMIUM_R2_BUCKET=bs-premium-data`.
+- Repository Secrets: `PREMIUM_R2_ACCESS_KEY_ID`, `PREMIUM_R2_SECRET_ACCESS_KEY` από R2 token περιορισμένο στο συγκεκριμένο bucket και με Object Write μόνο. Μην χρησιμοποιήσεις Paddle secrets ή Worker deploy token.
+
+Το workflow τρέχει μετά από επιτυχημένη ενημέρωση του site στο `main` ή χειροκίνητα. Μέχρι να προστεθούν οι μεταβλητές/secrets και να γεμίσει το bucket, το Premium data endpoint παραμένει κλειστό.
 
 ## Tests
 `node --test test/account.test.mjs test/account-worker.test.mjs test/billing.test.mjs test/premium-gate.test.mjs` (D1 σε node:sqlite, ψεύτικοι Google/Telegram, χωρίς δίκτυο).
