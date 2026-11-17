@@ -34,6 +34,7 @@ function addUser(id) {
 test('Paddle signatures validate raw body, age, and secret', async () => {
   const raw = '{"ok":true}', sig = signed(raw);
   assert.equal(await verifyPaddleSignature(raw, sig, SECRET), true);
+  assert.equal(await verifyPaddleSignature(raw, sig + ';h1=wrong', SECRET), true, 'accepts valid signature during key rotation');
   assert.equal(await verifyPaddleSignature(raw + ' ', sig, SECRET), false);
   assert.equal(await verifyPaddleSignature(raw, sig, 'wrong'), false);
   assert.equal(await verifyPaddleSignature(raw, signed(raw, 1), SECRET), false);
