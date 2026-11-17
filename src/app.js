@@ -16,6 +16,7 @@ function nice(n){const [a,b]=n.split(',').map(s=>s.trim());const cap=s=>s.toLowe
 const f1=x=>isFinite(x)?x.toFixed(1):'–';
 const pc=(m,a)=>a?(100*m/a).toFixed(1)+'%':'–';
 const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const splitWinProbability=p=>{const home=Math.round(100*p);return [home,100-home];};
 const ddmm=d=>{const [y,m,dd]=d.split('-');return dd+'/'+m;};
 
 // ---- derive per-player aggregates
@@ -480,9 +481,9 @@ function renderPreds(){
     const h2h=GAMES.filter(z=>z[6]&&((z[2]===h&&z[3]===a)||(z[2]===a&&z[3]===h)));
     let mid='';
     if(pl)mid='<div class="pscore"><b>'+hs+' – '+as+'</b><span class="rk">τελικό</span></div>';
-    else if(x){const fav=x.prob>=.5?h:a,pp=Math.round(100*Math.max(x.prob,1-x.prob));
+    else if(x){const fav=x.prob>=.5?h:a,pp=Math.round(100*Math.max(x.prob,1-x.prob)),[homePct,awayPct]=splitWinProbability(x.prob);
       mid='<div class="pscore"><b>'+Math.round(x.ph)+' – '+Math.round(x.pa)+'</b><span class="rk">εκτίμηση σκορ</span></div>'+
-      '<div class="pbar" title="Πιθανότητα νίκης"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div>'+
+      '<div class="pbar" title="Πιθανότητα νίκης"><i style="width:'+homePct+'%;background:'+tColor(h)+'"></i><i style="width:'+awayPct+'%;background:'+tColor(a)+'"></i></div>'+
       '<div class="rk pfacts">Φαβορί: <b>'+tName(fav)+'</b> ('+pp+'%) · Σύνολο ~'+Math.round(x.total)+' πόντοι'+(h2h.length?' · Φέτος: '+h2h.map(z=>z[2]+' '+z[4]+'-'+z[5]+' '+z[3]).join(', '):'')+'</div>';}
     return '<article class="pcard" data-g="'+r+'|'+h+'|'+a+'"><div class="when">'+when(w)+'</div><div class="pgrid">'+side(h,1)+'<div class="pmid">'+mid+'</div>'+side(a,0)+'</div>'+
       '<a class="pread" href="'+gUrl(r,h,a)+'">'+U.gameLink+'</a>'+(art?'<a class="pread" href="'+art.url+'">Διάβασε το προγνωστικό μας →</a>':'')+((D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).length?'<div class="ptips"><a href="'+BASE+'tipsters/">Tipsters</a>: '+(D.tips||[]).filter(t=>t.g===h+'-'+a&&t.r===r).map(t=>'<a class="tipa" href="'+(t.u||BASE+'tipsters/')+'"><b>'+t.n.replace(/</g,'')+'</b> '+t.l.replace(/</g,'')+'</a>').join(' · ')+'</div>':'')+'</article>';}).join('');
