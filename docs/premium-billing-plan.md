@@ -45,7 +45,7 @@ Still required before launch:
 2. **Create provider products outside the application.** Configure the €9.90 monthly price, tax presentation, cancellation behavior, and sandbox/live environments. Store the provider price identifier in server configuration, never in browser-controlled requests.
 3. **Apply the D1 schema and configure secrets.** Create Paddle sandbox credentials, fixed monthly price ID, and webhook signing secret. The existing deployment workflow does not propagate Paddle secrets. The attempted workflow edit was rejected by the automatic review because it would extend a workflow that can deploy Workers and write secrets. Keep that wiring for a separately approved release; the production deployment itself still needs your approval. Keep payment details in Paddle.
 4. **Complete webhook lifecycle coverage.** Current integration handles signed subscription creation/updates; before launch, test payment-failure, renewal, scheduled cancellation, deletion, retries, and event ordering against Paddle's simulator and update behavior as needed.
-5. **Define remaining entitlement policy.** Current implementation grants only Paddle-confirmed active subscriptions and revokes when the provider reports a non-active state. Confirm scheduled cancellation and past-due behavior. Never trust a browser redirect as proof of payment.
+5. **Define remaining entitlement policy.** The owner confirmed that a failed payment removes access to paid Premium features immediately; free pages remain available. The implementation grants access only while Paddle reports `active`, so `past_due`, paused, trialing, and canceled states have no Premium entitlement. Never trust a browser redirect as proof of payment.
 6. **Protect Premium functionality.** Move sensitive data/calculations behind Worker endpoints and check the current entitlement on each request. This is not yet implemented; the static Finder, Prop Analyzer, and comparison assets remain accessible. Keep public basic pages available without login.
 7. **Add account and tool UX.** Connect account UI and Premium entry points to these APIs only after server configuration and protected tool endpoints are ready.
 8. **Configure and verify before release.** Add provider credentials and webhook secrets through the deployment secret store, register the webhook URL, test in provider sandbox, and only then enable production checkout. No deployment is part of this plan.
@@ -57,7 +57,7 @@ The owner approved Paddle and agreed to one €9.90 monthly plan without a trial
 Still confirm before launch:
 
 - Whether €9.90 is the consumer-facing tax-inclusive amount or the pre-tax price.
-- Cancellation timing and treatment of past-due payments. Current behavior removes access when Paddle reports a non-active state.
+- Cancellation timing for subscriptions canceled before the next renewal. Paddle's current status determines access; the account UI should explain whether access continues through the already-paid period.
 - Paddle seller approval, final fees, and payout terms.
 - Whether purchase is web-only or app-store billing is also expected.
 
