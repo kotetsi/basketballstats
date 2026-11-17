@@ -10,6 +10,14 @@ const TXT = {
   tr: { in: 'Giriş', title: 'Hesabın', why: 'Giriş yap ve:', b1: 'Fantasy takımın telefonda ve bilgisayarda hazır olsun, tekrar girmeden', b2: 'oyuncun sakatlandığında veya şüpheli olduğunda bildirim al', b3: 'hafta kapanmadan kimi kaptan yapacağını ve hangi transferin değdiğini öğren', g: 'Google ile giriş', f: 'Facebook ile giriş', safe: 'Şifre saklamıyoruz ve EuroLeague Fantasy hesabında hiçbir şeyi değiştirmiyoruz. Değişiklikleri resmi oyunda sen yaparsın.', priv: 'Gizlilik politikası', hi: 'Merhaba', team: 'Takımın', synced: 'hesabına kaydedildi', noteam: 'Henüz takım girmedin.', addteam: 'Takımını gir', shot: 'veya ekran görüntüsü yükle', notif: 'Bildirimler', tg: 'Telegram', tgOn: 'bağlı', tgGo: 'Telegram’ı bağla', tgOff: 'Bağlantıyı kes', push: 'Bu cihazda bildirimler', pushOn: 'açık', pushGo: 'Aç', pushNo: 'Bu tarayıcı bildirimleri desteklemiyor. iPhone’da önce siteyi ana ekrana ekle.', pushDenied: 'Bildirimler tarayıcı ayarlarında engelli.', what: 'Neleri bilmek istersin', k: { injury: 'Takımımdaki sakat ve şüpheli oyuncular', captain: 'Kaptan değişikliği', swap: 'Haftada bir transfer önerisi', lock: 'Hafta kapanmadan 3 saat önce hatırlatma', fav: 'Kaydettiğim proplar (şüpheli, kadro dışı, model tahmini)' }, out: 'Çıkış', del: 'Hesabı sil', delQ: 'Hesabın ve tüm verileri silinsin mi? Takımın yalnızca bu tarayıcıda kalacak.', err: 'Bir şeyler ters gitti. Tekrar dene.', close: 'Kapat', saved: 'Kaydedildi' },
 };
 const L = TXT[LG] || TXT.en;
+const BILL = ({
+  el: { title: 'BasketballStats Premium', price: '9,90 € / μήνα', active: 'Η συνδρομή σου είναι ενεργή.', failed: 'Η πληρωμή απέτυχε. Η Premium πρόσβαση έχει διακοπεί.', inactive: 'Δεν υπάρχει ενεργή Premium συνδρομή.', subscribe: 'Εγγραφή στο Premium', manage: 'Διαχείριση συνδρομής', unavailable: 'Οι συνδρομές δεν είναι ακόμη διαθέσιμες.' },
+  en: { title: 'BasketballStats Premium', price: '€9.90 / month', active: 'Your subscription is active.', failed: 'Payment failed. Premium access is paused.', inactive: 'No active Premium subscription.', subscribe: 'Subscribe to Premium', manage: 'Manage subscription', unavailable: 'Subscriptions are not available yet.' },
+  es: { title: 'BasketballStats Premium', price: '9,90 € / mes', active: 'Tu suscripción está activa.', failed: 'El pago falló. El acceso Premium está pausado.', inactive: 'No hay una suscripción Premium activa.', subscribe: 'Suscribirse a Premium', manage: 'Gestionar suscripción', unavailable: 'Las suscripciones aún no están disponibles.' },
+  sr: { title: 'BasketballStats Premium', price: '9,90 € / mesec', active: 'Tvoja pretplata je aktivna.', failed: 'Plaćanje nije uspelo. Premium pristup je pauziran.', inactive: 'Nema aktivne Premium pretplate.', subscribe: 'Pretplati se na Premium', manage: 'Upravljaj pretplatom', unavailable: 'Pretplate još nisu dostupne.' },
+  tr: { title: 'BasketballStats Premium', price: 'Ayda 9,90 €', active: 'Aboneliğin etkin.', failed: 'Ödeme başarısız. Premium erişimi duraklatıldı.', inactive: 'Etkin bir Premium aboneliği yok.', subscribe: 'Premium’a abone ol', manage: 'Aboneliği yönet', unavailable: 'Abonelikler henüz kullanılamıyor.' },
+})[LG] || { title: 'BasketballStats Premium', price: '€9.90 / month', active: 'Your subscription is active.', failed: 'Payment failed. Premium access is paused.', inactive: 'No active Premium subscription.', subscribe: 'Subscribe to Premium', manage: 'Manage subscription', unavailable: 'Subscriptions are not available yet.' };
+
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { origSet.call(localStorage, k, v); } catch { } }, del: k => { try { localStorage.removeItem(k); } catch { } } };
 const origSet = Storage.prototype.setItem;
@@ -112,10 +120,16 @@ async function render() {
   } else {
     let st = null; try { st = JSON.parse(ls.get(KEY)); } catch { }
     const t = st?.teams?.[st.active ?? 0], has = t?.roster?.length === 10;
+    const premiumStatus = me.premium || { premium: false, status: 'free' };
+    const premiumCopy = premiumStatus.status === 'active' ? BILL.active : premiumStatus.status === 'past_due' ? BILL.failed : BILL.inactive;
+    const premiumAction = cfg?.billing ? (premiumStatus.status === 'free'
+      ? `<button type="button" data-a="premium-checkout">${esc(BILL.subscribe)}</button>`
+      : `<button type="button" data-a="premium-portal">${esc(BILL.manage)}</button>`) : `<p class="accnote">${esc(BILL.unavailable)}</p>`;
     const sub = pushOK() ? await pushSub().catch(() => null) : null;
     const k = me.prefs?.kinds || {};
     dlg.innerHTML = `${head}
 <section><h3>${esc(L.team)}</h3>${has ? `<p>✅ ${esc(t.name || L.team)} · ${esc(L.synced)} · <a href="${X.manager}">${esc(L.team)} →</a></p>` : `<p>${esc(L.noteam)} <a href="${X.manager}">${esc(L.addteam)}</a> · <a href="${X.assistant}">${esc(L.shot)}</a></p>`}</section>
+<section class="accpremium"><h3>🏀 ${esc(BILL.title)}</h3><p>${esc(premiumCopy)} · ${esc(BILL.price)}</p>${premiumAction}</section>
 <section><h3>${esc(L.notif)}</h3>
 ${cfg.telegram ? `<p class="accrow"><span>✈️ ${esc(L.tg)}${me.telegram ? ` · <b>${esc(L.tgOn)}</b>` : ''}</span>${me.telegram ? `<button type="button" data-a="tgoff" class="accsec">${esc(L.tgOff)}</button>` : `<button type="button" data-a="tg">${esc(L.tgGo)}</button>`}</p>` : ''}
 <p class="accrow"><span>🔔 ${esc(L.push)}${sub ? ` · <b>${esc(L.pushOn)}</b>` : ''}</span>${!pushOK() ? '' : sub ? `<button type="button" data-a="pushoff" class="accsec">${esc(L.tgOff)}</button>` : `<button type="button" data-a="push">${esc(L.pushGo)}</button>`}</p>
@@ -134,6 +148,8 @@ dlg.addEventListener('change', async e => {
 dlg.addEventListener('click', async e => {
   const a = e.target.closest('button[data-a]')?.dataset.a; if (!a) return;
   try {
+    if (a === 'premium-checkout') { const { url } = await call('/billing/checkout', 'POST'); location.assign(url); return; }
+    if (a === 'premium-portal') { const { url } = await call('/billing/portal', 'POST'); location.assign(url); return; }
     if (a === 'tg') { const w = window.open('', '_blank'); const { url } = await call('/tg/link', 'POST'); if (w) w.location = url; else location.href = url; const poll = setInterval(async () => { me = await call('/me').catch(() => me); if (me.telegram) { clearInterval(poll); if (dlg.open) render(); } }, 4000); setTimeout(() => clearInterval(poll), 180e3); }
     if (a === 'tgoff') { await call('/tg', 'DELETE'); me = await call('/me'); render(); }
     if (a === 'push') await pushOn();
@@ -143,7 +159,7 @@ dlg.addEventListener('click', async e => {
   } catch { msg(L.err); }
 });
 btn.addEventListener('click', async () => {
-  try { cfg = cfg || await call('/config'); } catch { return; }
+  try { cfg = await call('/config'); } catch { return; }
   await render(); dlg.showModal();
 });
 
