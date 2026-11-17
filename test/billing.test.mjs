@@ -92,7 +92,7 @@ test('verified, matching subscription webhooks grant and revoke Premium idempote
   await sendWebhook(stale);
   assert.equal((await premiumStatus(db, 'user-1')).premium, true);
 
-  const pastDue = event({ id: 'evt_past_due', type: 'subscription.updated', at: '2026-11-17T18:00:00Z', status: 'past_due' });
+  const pastDue = event({ id: 'evt_past_due', type: 'subscription.past_due', at: '2026-11-17T18:00:00Z', status: 'past_due' });
   await sendWebhook(pastDue);
   assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: false, status: 'past_due', currentPeriodEnd: '2026-12-17T12:00:00Z' }, 'failed payment removes paid access immediately');
 
