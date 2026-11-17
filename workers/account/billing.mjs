@@ -74,7 +74,7 @@ export async function paddleWebhook(req, env) {
     const status = ['active', 'trialing', 'past_due', 'paused', 'canceled'].includes(data.status) ? data.status : 'inactive';
       const owner = typeof userId === 'string' && userId ? userId : (await db.prepare('SELECT user_id FROM premium_subscriptions WHERE subscription_id = ? OR customer_id = ?').bind(data.id, data.customer_id || '').first())?.user_id;
     if (typeof owner === 'string' && owner && priceId && itemPriceIds.includes(priceId)) {
-      const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
+      const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(owner).first();
       if (user) statements.push(db.prepare(`INSERT INTO premium_subscriptions (user_id, customer_id, subscription_id, price_id, status, current_period_end, last_event_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id, subscription_id = excluded.subscription_id, price_id = excluded.price_id, status = excluded.status, current_period_end = excluded.current_period_end, last_event_at = excluded.last_event_at
