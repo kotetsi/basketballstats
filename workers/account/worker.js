@@ -151,6 +151,26 @@ export default {
       }
       const u = await auth(req, env);
       if (!u) return R({ error: 'auth' }, 401);
+      if (p.startsWith('/premium/data/')) {
+        if (req.method !== 'GET') return R({ error: 'method_not_allowed' }, 405);
+        const entitlement = await premiumStatus(env.DB, u.id);
+        if (!entitlement.premium) return R({ error: 'premium_required', status: entitlement.status }, 403);
+        const key = p.slice('/premium/data/'.length);
+        const allowed = key === 'props/data.json'
+          || key === 'compare/players/metrics.json'
+          || key === 'compare/teams/metrics.json'
+          || /^compare\/players\/similar\/[A-Za-z0-9_-]+\.json$/.test(key);
+        if (!allowed) return R({ error: 'not_found' }, 404);
+        if (!env.PREMIUM_DATA) return R({ error: 'premium_data_unavailable' }, 503);
+        const object = await env.PREMIUM_DATA.get(key);
+        if (!object) return R({ error: 'not_found' }, 404);
+        return new Response(object.body, { headers: {
+          ...h,
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'private, no-store',
+          'x-content-type-options': 'nosniff',
+        } });
+      }
       ctx.waitUntil(tgEnsureWebhook(env, url.origin).catch(() => { }));
       if (p === '/me' && req.method === 'GET') return R(await pub(env, u));
       if (p === '/billing/status' && req.method === 'GET') return R(await premiumStatus(env.DB, u.id));
