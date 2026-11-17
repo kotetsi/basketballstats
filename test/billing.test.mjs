@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { makeD1 } from './d1-shim.mjs';
 import { createCheckout, createPortal, paddleWebhook, premiumStatus, verifyPaddleSignature } from '../workers/account/billing.mjs';
+import Worker from '../workers/account/worker.js';
 
 const SECRET = 'test-webhook-secret';
 const PRICE = 'pri_test_premium';
@@ -92,6 +93,23 @@ test('verified, matching subscription webhooks grant and revoke Premium idempote
   const canceled = event({ id: 'evt_canceled', type: 'subscription.updated', at: '2026-11-18T12:00:00Z', status: 'canceled' });
   await sendWebhook(canceled);
   assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: false, status: 'canceled', currentPeriodEnd: '2026-12-17T12:00:00Z' });
+});
+
+test('billing status and checkout require the existing account session', async () => {
+  const token = 'known-session-token';
+  const hash = crypto.createHash('sha256').update(token).digest('base64url');
+  addUser('user-route');
+  db.raw.prepare('INSERT OR REPLACE INTO sessions (hash, user_id, exp) VALUES (?, ?, ?)').run(hash, 'user-route', Math.floor(Date.now() / 1000) + 3600);
+  const call = (path, auth = false) => Worker.fetch(new Request('https://worker.example' + path, {
+    method: path.endsWith('/checkout') ? 'POST' : 'GET',
+    headers: { origin: 'https://basketballstats.eu', ...(auth ? { authorization: 'Bearer ' + token } : {}) },
+  }), { DB: db, ALLOWED_ORIGINS: 'https://basketballstats.eu', PADDLE_ENV: 'sandbox' }, { waitUntil: p => p });
+  assert.equal((await call('/billing/status')).status, 401);
+  assert.equal((await call('/billing/checkout')).status, 401);
+  const status = await call('/billing/status', true);
+  assert.equal(status.status, 200);
+  assert.deepEqual(await status.json(), { premium: false, status: 'free', currentPeriodEnd: null });
+  assert.equal((await call('/billing/checkout', true)).status, 400, 'checkout stays unavailable without Paddle config');
 });
 
 test('unknown account and non-matching product cannot create an entitlement', async () => {
