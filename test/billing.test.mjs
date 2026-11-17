@@ -76,7 +76,7 @@ test('portal session is created only for the signed-in user customer', async () 
 test('verified, matching subscription webhooks grant and revoke Premium idempotently', async () => {
   addUser('user-1');
   assert.equal((await sendWebhook(event({ id: 'evt_bad' }), 'ts=1;h1=bad')).status, 401);
-  assert.equal((await sendWebhook(event({ id: 'evt_wrong_price', price: 'pri_other' })).status, 200);
+  assert.equal((await sendWebhook(event({ id: 'evt_wrong_price', price: 'pri_other' }))).status, 200);
   assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: false, status: 'free', currentPeriodEnd: null });
 
   const active = event({ id: 'evt_active' });
