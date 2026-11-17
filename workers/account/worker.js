@@ -138,7 +138,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
     const R = (o, s = 200) => J(o, s, h);
     try {
-      if (p === '/config') return R({ google: env.GOOGLE_CLIENT_ID || null, facebook: env.FB_APP_SECRET ? env.FB_APP_ID : null, telegram: !!env.TELEGRAM_BOT_TOKEN, vapid: (await vapidKeys(env.DB)).pub, bot: env.TELEGRAM_BOT || null });
+      if (p === '/config') return R({ google: env.GOOGLE_CLIENT_ID || null, facebook: env.FB_APP_SECRET ? env.FB_APP_ID : null, telegram: !!env.TELEGRAM_BOT_TOKEN, billing: !!env.PADDLE_API_KEY && !!env.PADDLE_PRICE_ID, vapid: (await vapidKeys(env.DB)).pub, bot: env.TELEGRAM_BOT || null });
       if (p === '/auth/google' && req.method === 'POST') {
         if (!env.GOOGLE_CLIENT_ID) return R({ error: 'google_off' }, 400);
         const { credential } = await req.json(); const who = await verifyGoogle(credential, env.GOOGLE_CLIENT_ID);
