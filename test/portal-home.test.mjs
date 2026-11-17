@@ -35,7 +35,7 @@ test('portal generator creates localized homepages and preserves standings pages
       assert.match(home, /Basketball Intelligence Portal/);
       assert.match(home, /data-view="portal"/);
       assert.equal((home.match(/class="portal-card"/g) || []).length, 12);
-      const descriptions = [...home.matchAll(/<small>([\\s\\S]*?)<\\/small>/g)].map(match => match[1]);
+      const descriptions = [...home.matchAll(/<small>([\s\S]*?)<\/small>/g)].map(match => match[1]);
       assert.equal(descriptions.length, 12);
       assert.equal(new Set(descriptions).size, 12, "each portal card must have a distinct description");
       assert.match(home, /class="todayhome"/);
