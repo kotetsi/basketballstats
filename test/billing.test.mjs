@@ -118,6 +118,36 @@ test('billing status and checkout require the existing account session', async (
   assert.equal((await call('/billing/checkout', true)).status, 400, 'checkout stays unavailable without Paddle config');
 });
 
+test('private Premium data is available only to an active authenticated account', async () => {
+  const user = 'premium-data-user';
+  addUser(user);
+  const token = 'premium-data-session';
+  const hash = crypto.createHash('sha256').update(token).digest('base64url');
+  db.raw.prepare('INSERT OR REPLACE INTO sessions (hash, user_id, exp) VALUES (?, ?, ?)').run(hash, user, Math.floor(Date.now() / 1000) + 3600);
+  db.raw.prepare('INSERT OR REPLACE INTO premium_subscriptions (user_id, customer_id, subscription_id, price_id, status, current_period_end, last_event_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(user, 'ctm-data', 'sub-data', PRICE, 'active', null, '2026-11-17T12:00:00Z');
+  const reads = [];
+  const bucket = { get: async key => { reads.push(key); return { body: JSON.stringify({ private: true }) }; } };
+  const call = (path, auth = true, binding = bucket) => Worker.fetch(new Request('https://worker.example' + path, {
+    method: 'GET',
+    headers: { origin: 'https://basketballstats.eu', ...(auth ? { authorization: 'Bearer ' + token } : {}) },
+  }), { DB: db, ALLOWED_ORIGINS: 'https://basketballstats.eu', PREMIUM_DATA: binding }, { waitUntil: p => p });
+
+  assert.equal((await call('/premium/data/props/data.json', false)).status, 401);
+  assert.equal((await call('/premium/data/../secret.json')).status, 404);
+  assert.deepEqual(reads, [], 'unauthorized and unknown paths never access R2');
+  const data = await call('/premium/data/props/data.json');
+  assert.equal(data.status, 200);
+  assert.equal(data.headers.get('cache-control'), 'private, no-store');
+  assert.deepEqual(await data.json(), { private: true });
+  assert.deepEqual(reads, ['props/data.json']);
+
+  db.raw.prepare('UPDATE premium_subscriptions SET status = ? WHERE user_id = ?').run('past_due', user);
+  assert.equal((await call('/premium/data/props/data.json')).status, 403);
+  assert.deepEqual(reads, ['props/data.json'], 'past_due does not fetch the protected object');
+  db.raw.prepare('UPDATE premium_subscriptions SET status = ? WHERE user_id = ?').run('active', user);
+  assert.equal((await call('/premium/data/props/data.json', true, null)).status, 503, 'missing private storage fails closed');
+});
+
 test('unknown account and non-matching product cannot create an entitlement', async () => {
   await sendWebhook(event({ id: 'evt_unknown', user: 'missing-user' }));
   await sendWebhook(event({ id: 'evt_other_product', user: 'user-2', price: 'pri_other' }));
