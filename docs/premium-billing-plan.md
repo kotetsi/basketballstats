@@ -35,7 +35,7 @@ Paddle backend routes and webhook-backed D1 entitlements are implemented in this
 
 GitHub Pages cannot check a subscription before serving a static Premium page. A page-level JavaScript check is only a user-experience gate: its scripts and data remain downloadable, and GitHub Pages itself remains a bypass. Before charging users, move Premium interactions and their required datasets behind authenticated Worker endpoints and keep those datasets out of the public build artifacts.
 
-Recommended least-disruptive hosting layout: keep free pages on GitHub Pages and serve the Premium app on a dedicated Cloudflare-backed subdomain. The existing account Worker can be extended to authorize Premium API requests using the Paddle-backed D1 entitlement. This requires the basketballstats.eu DNS zone to be available in Cloudflare and a separately approved DNS/hosting release.
+Recommended least-disruptive hosting layout: keep free pages on GitHub Pages and serve the Premium app on `premium.basketballstats.eu`. The owner confirmed the domain's DNS zone is in Cloudflare. Extend the existing account Worker to authorize Premium API requests using the Paddle-backed D1 entitlement. Adding the subdomain route and deploying it still require separate approval.
 
 ## Implementation status and remaining launch work
 
@@ -50,7 +50,7 @@ Still required before launch:
 5. **Define remaining entitlement policy.** The owner confirmed that a failed payment removes access to paid Premium features immediately; free pages remain available. The implementation grants access only while Paddle reports `active`, so `past_due`, paused, trialing, and canceled states have no Premium entitlement. Never trust a browser redirect as proof of payment.
 6. **Protect Premium functionality and hosting.** Keep free pages on GitHub Pages. Serve the Premium app on a Cloudflare-backed subdomain, move Premium calculations/data behind authenticated Worker endpoints, and exclude those datasets from public build artifacts. This is not yet implemented; the static Finder, Prop Analyzer, and comparison assets remain accessible.
 7. **Add account and tool UX.** Connect account UI and Premium entry points to these APIs only after server configuration and protected tool endpoints are ready.
-8. **Configure and verify before release.** Add provider credentials and webhook secrets through the deployment secret store, register the webhook URL, test in provider sandbox, and only then enable production checkout. No deployment is part of this plan.
+8. **Configure and verify before release.** Add provider credentials and webhook secrets through the deployment secret store, register the webhook URL, test in provider sandbox, and only then enable production checkout. No DNS change or deployment is part of this plan.
 
 ## Decisions and business choices
 
@@ -62,7 +62,7 @@ Still confirm before launch:
 - Cancellation timing for subscriptions canceled before the next renewal. Paddle's current status determines access; the account UI should explain whether access continues through the already-paid period.
 - Paddle seller approval, final fees, and payout terms.
 - Whether purchase is web-only or app-store billing is also expected.
-- Whether the basketballstats.eu DNS zone is available in Cloudflare to host a Premium subdomain.
+- Which login and profile states the Premium subdomain should offer (existing Google/Facebook account system is available).
 
 ## Verification coverage
 
