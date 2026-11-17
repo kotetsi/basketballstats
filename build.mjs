@@ -66,6 +66,7 @@ const OFFLINE = process.argv.includes('--offline');
 const ASK_SK = r => [Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[18], r[20], r[19], r[9], r[10], r[11], r[12], r[13], r[14], r[22], r[25]];
 const OUT = path.join(ROOT, 'dist');
 const PREMIUM_OUT = path.join(ROOT, '.premium-data');
+const PROPS_UI = await fs.readFile(path.join(ROOT, 'src', 'props', 'ui.js'));
 // ελληνική γραφή ονομάτων παικτών για τις ελληνικές σελίδες (data/greek-names.json)
 const GRN = await fs.readFile(path.join(ROOT, 'data', 'greek-names.json'), 'utf8').then(JSON.parse).catch(() => ({}));
 // τηλεοπτικά κανάλια: ο βασικός σταθμός ανά χώρα/γλώσσα + ακριβές κανάλι ανά αγώνα από το kanalia.md
@@ -1051,7 +1052,8 @@ async function main() {
       cols: ['r', 'date', 'opp', 'home', 'win', 'start', 'min', 'pts', 'reb', 'ast', 'fg3', 'stl', 'blk', 'tov', 'pir', 'tsc', 'osc'], next, def: DEF, players: list };
     await fs.mkdir(path.join(PREMIUM_OUT, 'props'), { recursive: true });
     await fs.writeFile(path.join(PREMIUM_OUT, 'props', 'data.json'), JSON.stringify(PADATA));
-    for (const f of ['ui.js', 'calc.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'props', f), path.join(OUT, 'assets', 'props', f));
+    await fs.writeFile(path.join(OUT, 'assets', 'props', 'ui.js'), PROPS_UI);
+    await fs.copyFile(path.join(ROOT, 'src', 'props', 'calc.mjs'), path.join(OUT, 'assets', 'props', 'calc.mjs'));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'props.mjs'), path.join(OUT, 'assets', 'props', 'model.mjs'));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'core.mjs'), path.join(OUT, 'assets', 'props', 'core.mjs'));   // το model.mjs (= odds/props.mjs) το εισάγει
     console.log('Prop Analyzer:', list.length, 'παίκτες,', Object.keys(next).length, 'ομάδες με επόμενο αγώνα,', list.filter(p => Object.keys(p.pj).length).length, 'με πρόβλεψη');
