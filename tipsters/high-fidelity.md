@@ -303,30 +303,22 @@ Un Barça sorprendentemente bueno se mide en un partido aparentemente abierto a 
 SR:
 Iznenađujuće dobra Barselona u naizgled otvorenoj utakmici dočekuje drski Pariz. Zbog kratke rotacije Barse i borbenosti Parižana, igramo na pobedu Barselone manjom razlikom od 7,5 poena.
 
-12 | BES-MAD | over 177.5 | 1.88
-Η Ρεάλ έχει μία από τις καλύτερες επιθέσεις της λίγκας με **98.5 πόντους** ανά αγώνα, και τα ματς της περνούν το 177.5 στα **8 από τα 11**. Η Μπεσίκτας δέχεται 90.9 πόντους και τα δικά της ματς πέρασαν τη γραμμή στα 6 από τα 11.
+12 | BAS-HTA | Kurucs πόντοι over 6.5
+Ο Rodions Kurucs έχει ανεβάσει αισθητά τους μέσους όρους του στο παιχνίδι της Μπασκόνια και στα δύο τελευταία του παιχνίδια έπαιξε πάνω από 25 λεπτά. Με τόσο χρόνο στο παρκέ, και με τη Μπασκόνια να έχει πολλές απουσίες (Faried, Santos, Sedekerskis), το 7 είναι στα μέτρα του: στην επιστροφή του στην EuroLeague, στην 11η αγωνιστική, σημείωσε 10 πόντους σε 29 λεπτά.
 
-Το μοντέλο δίνει **63%** για το over, ενώ η απόδοση 1.88 αντιστοιχεί σε περίπου 51%.
-
-Το ρίσκο: η Ρεάλ είναι χωρίς Campazzo, Deck και Jantunen. Χωρίς τον βασικό της πλέι μέικερ ο ρυθμός μπορεί να πέσει.
+Το ρίσκο: φέτος έχει μείνει δύο φορές στο μηδέν, και αν η Μπασκόνια χρησιμοποιήσει τις νέες της μεταγραφές (Smits, Kamenjas), τα λεπτά του μπορεί να μειωθούν.
 
 EN:
-Real Madrid have one of the best offenses in the league with **98.5 points** per game, and their games have gone over 177.5 in **8 of 11**. Besiktas allow 90.9 points and their games went over the line in 6 of 11.
+Rodions Kurucs has clearly raised his averages in Baskonia's game and has played more than 25 minutes in each of his last two games. With that much time on court, and Baskonia missing several players (Faried, Santos, Sedekerskis), 7 points is well within reach: on his EuroLeague return in Round 11 he scored 10 points in 29 minutes.
 
-The model gives the over **63%**, while odds of 1.88 imply about 51%.
-
-The risk: Real are without Campazzo, Deck and Jantunen. Without their main playmaker the pace may drop.
+The risk: he has been held scoreless twice this season, and if Baskonia use their new signings (Smits, Kamenjas), his minutes could drop.
 
 ES:
-El Real Madrid tiene uno de los mejores ataques de la liga con **98,5 puntos** por partido, y sus partidos superan 177,5 en **8 de 11**. El Besiktas recibe 90,9 puntos y sus partidos superaron la línea en 6 de 11.
+Rodions Kurucs ha subido claramente sus promedios en el juego del Baskonia y ha jugado más de 25 minutos en cada uno de sus dos últimos partidos. Con tanto tiempo en pista, y con el Baskonia lleno de bajas (Faried, Santos, Sedekerskis), los 7 puntos están a su alcance: en su regreso a la EuroLeague, en la jornada 11, anotó 10 puntos en 29 minutos.
 
-El modelo da **63%** al over, mientras que la cuota 1,88 implica alrededor del 51%.
-
-El riesgo: el Real no tiene a Campazzo, Deck ni Jantunen. Sin su base titular el ritmo puede bajar.
+El riesgo: esta temporada se ha quedado dos veces sin anotar, y si el Baskonia usa a sus nuevos fichajes (Smits, Kamenjas), sus minutos podrían bajar.
 
 SR:
-Real Madrid ima jedan od najboljih napada lige sa **98,5 poena** po utakmici, a njegove utakmice prelaze 177,5 u **8 od 11**. Bešiktaš prima 90,9 poena i njegove utakmice su prešle liniju u 6 od 11.
+Rodions Kurucs je primetno podigao proseke u igri Baskonije i u svakoj od poslednje dve utakmice igrao je više od 25 minuta. Sa toliko vremena na terenu, i sa Baskonijom bez više igrača (Faried, Santos, Sedekerskis), 7 poena mu je na dohvat ruke: na povratku u Evroligu, u 11. kolu, postigao je 10 poena za 29 minuta.
 
-Model daje over-u **63%**, dok kvota 1,88 odgovara oko 51%.
-
-Rizik: Real je bez Kampaca, Deka i Jantunena. Bez glavnog plejmejkera ritam može da padne.
+Rizik: ove sezone je dva puta ostao bez poena, a ako Baskonija iskoristi nova pojačanja (Smits, Kamenjas), njegova minutaža može da opadne.
