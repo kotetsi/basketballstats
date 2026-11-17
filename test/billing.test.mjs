@@ -83,6 +83,8 @@ test('verified, matching subscription webhooks grant and revoke Premium idempote
   const active = event({ id: 'evt_active' });
   assert.equal((await sendWebhook(active)).status, 200);
   assert.equal((await sendWebhook(active)).status, 200);
+  // A replay with the same event ID must not apply a conflicting state change.
+  assert.equal((await sendWebhook(event({ id: 'evt_active', type: 'subscription.updated', status: 'past_due' }))).status, 200);
   assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: true, status: 'active', currentPeriodEnd: '2026-12-17T12:00:00Z' });
   assert.equal(db.raw.prepare('SELECT COUNT(*) n FROM premium_billing_events WHERE event_id = ?').get('evt_active').n, 1);
 
