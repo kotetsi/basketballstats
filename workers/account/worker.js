@@ -1,3 +1,4 @@
+import { createCheckout, createPortal, paddleWebhook, premiumStatus } from './billing.mjs';
 // Λογαριασμοί χρηστών του basketballstats.eu: σύνδεση με Google/Facebook, αποθήκευση της ομάδας Fantasy,
 // σύνδεση Telegram και ειδοποιήσεις στον browser. Οι ίδιες οι ειδοποιήσεις υπολογίζονται στο GitHub Actions
 // (scripts/account-alerts.mjs), ώστε ο worker να μένει μικρός και μέσα στα όρια του δωρεάν πλάνου.
@@ -71,7 +72,7 @@ async function auth(req, env) {
 const pub = async (env, u) => {
   const tg = await env.DB.prepare('SELECT 1 FROM telegram WHERE user_id = ?').bind(u.id).first();
   const pu = await env.DB.prepare('SELECT COUNT(*) n FROM push_subs WHERE user_id = ?').bind(u.id).first();
-  return { name: u.name, provider: u.provider, email: !!u.email, prefs: JSON.parse(u.prefs || '{}'), telegram: !!tg, push: pu?.n || 0, emailAvailable: !!env.BREVO_KEY };
+  return { name: u.name, provider: u.provider, email: !!u.email, prefs: JSON.parse(u.prefs || '{}'), telegram: !!tg, push: pu?.n || 0, emailAvailable: !!env.BREVO_KEY, premium: await premiumStatus(env.DB, u.id) };
 };
 function cleanPrefs(p, old = {}) {
   const k = p?.kinds || {};
@@ -109,6 +110,7 @@ async function tgEnsureWebhook(env, origin) {
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname, h = cors(req, env);
+    if (p === '/billing/webhook' && req.method === 'POST') return paddleWebhook(req, env);
     if (p === '/tg/hook') {                                     // από τους servers του Telegram (όχι από browser)
       if (req.method !== 'POST' || req.headers.get('x-telegram-bot-api-secret-token') !== await tgSecret(env)) return new Response('no', { status: 403 });
       const up = await req.json().catch(() => ({})), m = up.message;
@@ -151,11 +153,21 @@ export default {
       if (!u) return R({ error: 'auth' }, 401);
       ctx.waitUntil(tgEnsureWebhook(env, url.origin).catch(() => { }));
       if (p === '/me' && req.method === 'GET') return R(await pub(env, u));
+      if (p === '/billing/status' && req.method === 'GET') return R(await premiumStatus(env.DB, u.id));
+      if (p === '/billing/checkout' && req.method === 'POST') {
+        const status = await premiumStatus(env.DB, u.id);
+        if (status.premium) return R({ error: 'already_premium' }, 409);
+        return R({ url: await createCheckout(env, u, env.SITE || 'https://basketballstats.eu') });
+      }
+      if (p === '/billing/portal' && req.method === 'POST') {
+        const portal = await createPortal(env, env.DB, u.id);
+        return portal ? R({ url: portal }) : R({ error: 'subscription_not_found' }, 404);
+      }
       if (p === '/logout' && req.method === 'POST') { const m = /^Bearer (.+)$/.exec(req.headers.get('authorization')); await env.DB.prepare('DELETE FROM sessions WHERE hash = ?').bind(await sha(m[1])).run(); return R({ ok: true }); }
       if (p === '/me' && req.method === 'DELETE') {                 // διαγραφή λογαριασμού: όλα τα δεδομένα, αμέσως
         const id = u.id, s = sql => env.DB.prepare(sql).bind(id);
         const subs = (await env.DB.prepare('SELECT id FROM push_subs WHERE user_id = ?').bind(id).all()).results || [];
-        await env.DB.batch([...subs.map(x => env.DB.prepare('DELETE FROM push_queue WHERE sub_id = ?').bind(x.id)), s('DELETE FROM push_subs WHERE user_id = ?'), s('DELETE FROM telegram WHERE user_id = ?'), s('DELETE FROM tg_codes WHERE user_id = ?'), s('DELETE FROM sent WHERE user_id = ?'), s('DELETE FROM state WHERE user_id = ?'), s('DELETE FROM sessions WHERE user_id = ?'), s('DELETE FROM users WHERE id = ?')]);
+        await env.DB.batch([...subs.map(x => env.DB.prepare('DELETE FROM push_queue WHERE sub_id = ?').bind(x.id)), s('DELETE FROM push_subs WHERE user_id = ?'), s('DELETE FROM telegram WHERE user_id = ?'), s('DELETE FROM tg_codes WHERE user_id = ?'), s('DELETE FROM sent WHERE user_id = ?'), s('DELETE FROM premium_subscriptions WHERE user_id = ?'), s('DELETE FROM state WHERE user_id = ?'), s('DELETE FROM sessions WHERE user_id = ?'), s('DELETE FROM users WHERE id = ?')]);
         return R({ ok: true });
       }
       if (p === '/prefs' && req.method === 'PUT') { const np = cleanPrefs(await req.json(), JSON.parse(u.prefs || '{}')); await env.DB.prepare('UPDATE users SET prefs = ? WHERE id = ?').bind(JSON.stringify(np), u.id).run(); return R({ prefs: np }); }
