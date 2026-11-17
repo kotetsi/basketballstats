@@ -41,11 +41,11 @@ test('portal generator creates localized homepages and preserves standings pages
       const home = await fs.readFile(path.join(dist, dir, 'index.html'), 'utf8');
       for (const title of localizedTitles[dir]) assert.ok(home.includes(title), 'missing localized title: ' + title + ' in ' + dir);
       assert.match(home, /data-view="portal"/);
-      assert.match(home, /<title>[^<]*\\| BasketballStats<\\/title>/);
-      assert.doesNotMatch(home, /<title>[^<]*Basketball Stats<\\/title>/);
+      assert.match(home, /<title>[^<]*\| BasketballStats<\/title>/);
+      assert.doesNotMatch(home, /<title>[^<]*Basketball Stats<\/title>/);
       for (const marker of ['01 / 05', '02 / 05', '03 / 05', '04 / 05', '05 / 05']) assert.ok(home.includes(marker), 'missing section marker ' + marker);
       if (!dir) {
-        const cards = [...home.matchAll(/<a class="portal-card" href="([^"]+)">([\\s\\S]*?)<\\/a>/g)];
+        const cards = [...home.matchAll(/<a class="portal-card" href="([^"]+)">([\s\S]*?)<\/a>/g)];
         const card = label => cards.find(([, , html]) => html.includes('<b>' + label + '</b>'));
         const odds = card('Ανάλυση αποδόσεων');
         const clv = card('Αξία σε σχέση με την τελική απόδοση');
