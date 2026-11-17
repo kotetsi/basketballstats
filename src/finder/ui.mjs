@@ -27,6 +27,7 @@ try {
       metric,
       period: byId('period').value,
       minMinutes: Math.max(0, Number(byId('minutes').value) || 0),
+      team: byId('team').value,
       position: byId('position').value,
       venue: byId('venue').value,
     });
