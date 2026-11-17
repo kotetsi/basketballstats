@@ -36,5 +36,29 @@
 - Web Push χωρίς περιεχόμενο (VAPID): το service worker φέρνει το κείμενο από τον worker. Τα κλειδιά VAPID δημιουργούνται και μένουν στη D1.
 - «Διαγραφή λογαριασμού» σβήνει αμέσως όλα τα δεδομένα. Στο Telegram, `/stop` σταματά τα μηνύματα.
 
+## BasketballStats Premium (Paddle, sandbox-first)
+
+The Worker includes a Paddle integration in `billing.mjs`:
+
+- `POST /billing/checkout` requires an existing account session and creates a transaction for the configured fixed price.
+- `POST /billing/portal` creates a short-lived hosted customer-portal link only for the signed-in user's stored Paddle customer.
+- `GET /billing/status` and `GET /me` return the locally stored entitlement.
+- `POST /billing/webhook` verifies the raw request body using Paddle's HMAC-SHA256 signature and a timestamp tolerance, then stores subscription state idempotently.
+- Premium is granted only for a signed, matching-price subscription with status `active`. There is no trial or annual product in the first version.
+
+### Paddle configuration
+
+1. Create and verify a Paddle seller account. Create the Premium product and a single monthly €9.90 price. Confirm how Paddle presents tax and the payout/transaction fees in your account.
+2. Use Paddle **sandbox** credentials first. Create a notification destination for `https://<worker-host>/billing/webhook` and subscribe to `subscription.created` and `subscription.updated`. Keep the destination's secret private.
+3. Configure these Worker values through the approved deployment process:
+   - `PADDLE_API_KEY` — API key with transaction and customer-portal permissions.
+   - `PADDLE_WEBHOOK_SECRET` — signing secret for that notification destination.
+   - `PADDLE_PRICE_ID` — the single monthly Premium price ID.
+   - `PADDLE_ENV=sandbox` for tests. Production requires `PADDLE_ENV=production` and separate live credentials/price ID.
+4. Apply the D1 schema in `schema.sql` before deploying the updated Worker. The account deploy workflow already applies this schema when run.
+5. Run the Paddle webhook simulator and the account/billing tests. Do not enable real checkout until protected Premium data and calculations are enforced server-side and production settings have been reviewed.
+
+Never put Paddle keys or webhook secrets in `site.config.json`, source files, or browser JavaScript. Checkout remains unavailable unless the server has the API key and fixed price ID. Sandbox is the configured default. Setting production credentials or deploying the Worker is a separate release action and is not done by this change.
+
 ## Tests
-`node --test test/account.test.mjs test/account-worker.test.mjs` (D1 σε node:sqlite, ψεύτικοι Google/Telegram, χωρίς δίκτυο).
+`node --test test/account.test.mjs test/account-worker.test.mjs test/billing.test.mjs` (D1 σε node:sqlite, ψεύτικοι Google/Telegram, χωρίς δίκτυο).
