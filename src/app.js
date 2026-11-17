@@ -568,8 +568,8 @@ function renderGame(id){
   const side=c=>'<a class="gteam" href="'+tUrl(c)+'">'+crest(c,'bigcrest')+'<b>'+hx(tName(c))+'</b><span class="rk">'+(SROW[c]?ord(SROW[c][0])+' · '+recOf(c):'')+'</span></a>';
   let mid='';
   if(g[6])mid='<div class="pscore"><b>'+g[4]+' – '+g[5]+'</b><span class="rk">'+U.final+'</span></div>';
-  else if(x){const fav=x.prob>=.5?h:a,pp=Math.round(100*Math.max(x.prob,1-x.prob));
-    mid='<div class="pscore"><b>'+Math.round(x.ph)+' – '+Math.round(x.pa)+'</b><span class="rk">'+U.est+'</span></div><div class="pbar"><i style="width:'+(100*x.prob).toFixed(0)+'%;background:'+tColor(h)+'"></i><i style="width:'+(100-100*x.prob).toFixed(0)+'%;background:'+tColor(a)+'"></i></div><div class="rk pfacts">'+fm(U.fav,{t:hx(tName(fav)),p:pp})+' · '+fm(U.total,{n:Math.round(x.total)})+'</div>';}
+  else if(x){const fav=x.prob>=.5?h:a,pp=Math.round(100*Math.max(x.prob,1-x.prob)),[homePct,awayPct]=splitWinProbability(x.prob);
+    mid='<div class="pscore"><b>'+Math.round(x.ph)+' – '+Math.round(x.pa)+'</b><span class="rk">'+U.est+'</span></div><div class="pbar"><i style="width:'+homePct+'%;background:'+tColor(h)+'"></i><i style="width:'+awayPct+'%;background:'+tColor(a)+'"></i></div><div class="rk pfacts">'+fm(U.fav,{t:hx(tName(fav)),p:pp})+' · '+fm(U.total,{n:Math.round(x.total)})+'</div>';}
   const gt=document.getElementById('gTop');if(gt)gt.dataset.g=r+'|'+h+'|'+a;
   set('gTop','<div class="when">'+fm(U.rd,{n:r})+' · '+when(g[1])+'</div><div class="ggrid">'+side(h)+'<div class="gmid">'+mid+'</div>'+side(a)+'</div>');
   // form
