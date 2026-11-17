@@ -5,11 +5,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = new URL('../dist/', import.meta.url);
-const standingsPaths = { '':'vathmologia/', 'en/':'standings/', 'es/':'clasificacion/', 'sr/':'tabela/', 'tr/':'puan-durumu/' };
+const standingsPaths = { '':'vathmologia/', 'en/':'standings/', 'es/':'clasificacion/', 'sr/':'tabela/', 'tr/':'puan-durumu/' };\nconst portalTitles = { '':'Πύλη Μπασκετικής Ανάλυσης', 'en/':'Basketball Intelligence Portal', 'es/':'Portal de análisis de baloncesto', 'sr/':'Portal košarkaške analitike', 'tr/':'Basketbol Analiz Portalı' };
 for (const lang of ['', 'en/', 'es/', 'sr/', 'tr/']) {
   test(`portal homepage is published: ${lang || 'el'}`, async () => {
     const home = await fs.readFile(new URL(lang + 'index.html', root), 'utf8');
-    assert.match(home, /Basketball Intelligence Portal/);
+    assert.ok(home.includes(portalTitles[lang]), `localized portal title exists: ${lang || 'el'}`);
     assert.match(home, /data-view="portal"/);
     assert.equal((home.match(/class="portal-card"/g) || []).length, 12);
   });
