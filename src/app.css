@@ -946,9 +946,11 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
   .portal-card-body{gap:4px}
   .portal-card-body>b{font-size:15px}
   .portal-card-body small{font-size:12px;line-height:1.35}
-  .portal-match .todayhome{max-height:460px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px;scrollbar-width:thin}
-  .portal-match .todayhome .tdg{padding:8px 9px;margin:5px 0}
-  .portal-match .todayhome .tdt{font-size:15px}
-  .portal-match .todayhome .tdn{font-size:13px}
-  .portal-match .todayhome .tdan{font-size:11px;padding:2px 6px}
+  /* Keep every fixture in normal page flow; compact rows instead of clipping the list. */
+  .portal-match .todayhome{max-height:none;overflow:visible;padding-right:0}
+  .portal-match .todayhome .tdg{padding:6px 8px;margin:4px 0;gap:7px}
+  .portal-match .todayhome .tdt{font-size:14px}
+  .portal-match .todayhome .tdn{font-size:12px}
+  .portal-match .todayhome .tdan{font-size:10px;padding:2px 5px}
+  .portal-match .todayhome .tdd{margin:5px 0 6px;font-size:12px}
 }
