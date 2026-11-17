@@ -2,7 +2,7 @@ name: Portal PR checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/basketball-intelligence-homepage]
     paths:
       - "scripts/portal-home.mjs"
       - "src/app.css"
