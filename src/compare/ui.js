@@ -2,7 +2,7 @@
 import { playerMetrics, percentilesFor, radarScores, similarPlayers, splitRows, compareSentence, posGroup, R, percentileRank } from './metrics.mjs';
 import { formatMetric, bestValue, isLowerBetter, metaOf } from './catalog.mjs';
 import { pairSlug, sanitizeIds } from './pairs.mjs';
-import { requirePremium } from '../account/premium-gate.mjs';
+import { fetchPremiumData, requirePremium } from '../account/premium-gate.mjs';
 
 const root = document.getElementById('cmpApp');
 if (root) requirePremium(root).then(allowed => {
@@ -73,7 +73,7 @@ const sortable = el => el.querySelectorAll('table.sortable thead th[data-k]').fo
 async function initPlayers(root) {
   const cfg = JSON.parse(root.querySelector('.cmpj').textContent);
   let D;
-  try { const r = await fetch(cfg.api); if (!r.ok) throw new Error('HTTP ' + r.status); D = { ...(await r.json()), labels: cfg.labels, tips: cfg.tips, radarLabels: cfg.radarLabels }; }
+  try { const r = await fetchPremiumData(cfg.api); if (!r.ok) throw new Error('HTTP ' + r.status); D = { ...(await r.json()), labels: cfg.labels, tips: cfg.tips, radarLabels: cfg.radarLabels }; }
   catch { root.innerHTML = `<div class="cmperr" role="alert"><p>${esc(TX.err)}</p><button type="button" class="btnsm" onclick="location.reload()">${esc(TX.retry)}</button></div>`; return; }
   const LBL = D.labels, TIP = D.tips || {};
   for (const S of Object.values(D.seasons)) for (const p of S.players) p.tn = (cfg.teams && cfg.teams[p.t]) || p.tn;
@@ -209,7 +209,7 @@ async function initTeams(root) {
   root.querySelector('.cmpout0')?.classList.add('loading');
   let D;
   try {
-    const r = await fetch(cfg.api);
+    const r = await fetchPremiumData(cfg.api);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     D = await r.json();
   } catch (e) {
