@@ -2,9 +2,12 @@
 import { playerMetrics, percentilesFor, radarScores, similarPlayers, splitRows, compareSentence, posGroup, R, percentileRank } from './metrics.mjs';
 import { formatMetric, bestValue, isLowerBetter, metaOf } from './catalog.mjs';
 import { pairSlug, sanitizeIds } from './pairs.mjs';
+import { requirePremium } from '../account/premium-gate.mjs';
 
 const root = document.getElementById('cmpApp');
-if (root) (root.dataset.kind === 'teams' ? initTeams : initPlayers)(root).catch(e => { root.innerHTML = `<p class="sub">${String(e.message)}</p>`; });
+if (root) requirePremium(root).then(allowed => {
+  if (allowed) return (root.dataset.kind === 'teams' ? initTeams : initPlayers)(root);
+}).catch(e => { root.innerHTML = `<p class="sub">${String(e.message)}</p>`; });
 
 const lg = (document.documentElement.lang || 'el').slice(0, 2);
 const TXA = {
