@@ -38,6 +38,7 @@ test('portal generator creates localized homepages and preserves standings pages
       const descriptions = [...home.matchAll(/<small>([\s\S]*?)<\/small>/g)].map(match => match[1]);
       assert.equal(descriptions.length, 12);
       assert.equal(new Set(descriptions).size, 12, "each portal card must have a distinct description");
+      assert.ok(descriptions.every(description => description.trim().length > 20), "card descriptions must contain useful copy");
       assert.match(home, /class="todayhome"/);
 
       const oldStandings = await fs.readFile(path.join(dist, dir, standings, 'index.html'), 'utf8');
