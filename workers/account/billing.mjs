@@ -91,12 +91,12 @@ export async function paddleWebhook(req, env) {
   // A duplicate event ID has a different claim token, so its update is a no-op.
   const claim = crypto.randomUUID();
   const statements = [db.prepare('INSERT OR IGNORE INTO premium_billing_events (event_id, processed_at, claim) VALUES (?, ?, ?)').bind(event.event_id, Math.floor(Date.now() / 1000), claim)];
-  if (event.event_type === 'subscription.created' || event.event_type === 'subscription.updated') {
+  if (['subscription.created', 'subscription.updated', 'subscription.past_due'].includes(event.event_type)) {
     const userId = data.custom_data?.basketballstats_user_id;
     const priceId = env.PADDLE_PRICE_ID;
     const itemPriceIds = (Array.isArray(data.items) ? data.items : []).map(x => x.price?.id || x.price_id);
     const status = ['active', 'trialing', 'past_due', 'paused', 'canceled'].includes(data.status) ? data.status : 'inactive';
-      const owner = typeof userId === 'string' && userId ? userId : (await db.prepare('SELECT user_id FROM premium_subscriptions WHERE subscription_id = ? OR customer_id = ?').bind(data.id, data.customer_id || '').first())?.user_id;
+    const owner = typeof userId === 'string' && userId ? userId : (await db.prepare('SELECT user_id FROM premium_subscriptions WHERE subscription_id = ? OR customer_id = ?').bind(data.id, data.customer_id || '').first())?.user_id;
     if (typeof owner === 'string' && owner && priceId && itemPriceIds.includes(priceId)) {
       const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(owner).first();
       if (user) statements.push(db.prepare(`INSERT INTO premium_subscriptions (user_id, customer_id, subscription_id, price_id, status, current_period_end, last_event_at)
