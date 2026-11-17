@@ -1052,6 +1052,7 @@ async function main() {
       cols: ['r', 'date', 'opp', 'home', 'win', 'start', 'min', 'pts', 'reb', 'ast', 'fg3', 'stl', 'blk', 'tov', 'pir', 'tsc', 'osc'], next, def: DEF, players: list };
     await fs.mkdir(path.join(PREMIUM_OUT, 'props'), { recursive: true });
     await fs.writeFile(path.join(PREMIUM_OUT, 'props', 'data.json'), JSON.stringify(PADATA));
+    await fs.mkdir(path.join(OUT, 'assets', 'props'), { recursive: true });
     await fs.writeFile(path.join(OUT, 'assets', 'props', 'ui.js'), PROPS_UI);
     await fs.copyFile(path.join(ROOT, 'src', 'props', 'calc.mjs'), path.join(OUT, 'assets', 'props', 'calc.mjs'));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'props.mjs'), path.join(OUT, 'assets', 'props', 'model.mjs'));
