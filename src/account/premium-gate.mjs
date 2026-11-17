@@ -32,6 +32,20 @@ const copy = {
 };
 const esc = value => String(value || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+export async function fetchPremiumData(key) {
+  if (!/^(props\/data\.json|compare\/(?:players\/(?:metrics\.json|similar\/[A-Za-z0-9_-]+\.json)|teams\/metrics\.json))$/.test(key)) {
+    throw new Error('Invalid Premium data key');
+  }
+  const api = JSON.parse(document.getElementById('acctx')?.textContent || '{}').api;
+  const token = localStorage.getItem('bsacc');
+  if (!api || !token) throw new Error('Sign in to load Premium data.');
+  const res = await fetch(api.replace(/\/$/, '') + '/premium/data/' + key, {
+    headers: { authorization: 'Bearer ' + token },
+  });
+  if (!res.ok) throw new Error(res.status === 403 ? 'Premium access required.' : 'Premium data unavailable.');
+  return res.json();
+}
+
 export async function requirePremium(root, related = []) {
   if (!root) return true;
   const elements = [root, ...related].filter(Boolean);
