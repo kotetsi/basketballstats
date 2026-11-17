@@ -1,75 +1,46 @@
 {
-  "generatedAt": "2026-11-17T15:58:43.556Z",
+  "generatedAt": "2026-11-17T16:05:33.500Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-17T15:58:43.151Z",
+  "collectorUpdated": "2026-11-17T16:05:33.276Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-17T15:58:43.151Z",
-  "lastIngestEvents": 8,
-  "lastIngestMatched": 8,
-  "latestQuoteUpdated": "2026-11-17T15:58:00.246Z",
-  "latestQuoteAgeHours": 0.01,
-  "upcomingGames": 20,
-  "gamesWithGreekBooks": 20,
-  "greekBookGameQuotes": 30,
-  "gamesWithPlayerProps": 10,
+  "lastIngestAt": "2026-11-17T16:05:33.276Z",
+  "lastIngestEvents": 1,
+  "lastIngestMatched": 1,
+  "latestQuoteUpdated": "2026-11-17T15:43:03.369Z",
+  "latestQuoteAgeHours": 0.38,
+  "upcomingGames": 19,
+  "gamesWithGreekBooks": 19,
+  "greekBookGameQuotes": 28,
+  "gamesWithPlayerProps": 9,
   "independentGreekPropBookmakers": 2,
-  "totalDistinctPlayerProps": 2445,
-  "completeOverUnderPairs": 665,
-  "oneSidedProps": 1780,
+  "totalDistinctPlayerProps": 2246,
+  "completeOverUnderPairs": 646,
+  "oneSidedProps": 1600,
   "bookmakers": [
     {
       "feed": "bet365.gr",
       "brand": "bet365",
-      "games": 10,
-      "props": 1780,
+      "games": 9,
+      "props": 1600,
       "complete": 0,
-      "oneSided": 1780,
-      "newest": "2026-11-17T15:09:54.700Z",
-      "oldest": "2026-11-16T14:49:21.504Z",
-      "newestAgeHours": 0.81
+      "oneSided": 1600,
+      "newest": "2026-11-17T15:43:03.369Z",
+      "oldest": "2026-11-17T03:09:28.134Z",
+      "newestAgeHours": 0.38
     },
     {
       "feed": "stoiximan",
       "brand": "Stoiximan",
-      "games": 20,
-      "props": 665,
-      "complete": 665,
+      "games": 19,
+      "props": 646,
+      "complete": 646,
       "oneSided": 0,
-      "newest": "2026-11-17T15:58:00.246Z",
+      "newest": "2026-11-17T15:20:48.812Z",
       "oldest": "2026-11-13T04:44:28.653Z",
-      "newestAgeHours": 0.01
+      "newestAgeHours": 0.75
     }
   ],
   "events": [
-    {
-      "event": "E-12-DUB-IST",
-      "commence": "2026-11-17T16:00:00.000Z",
-      "greekBooks": 2,
-      "booksWithProps": 2,
-      "props": 201,
-      "books": [
-        {
-          "feed": "bet365.gr",
-          "brand": "bet365",
-          "games": 1,
-          "props": 180,
-          "complete": 0,
-          "oneSided": 180,
-          "updated": "2026-11-16T22:59:39.403Z",
-          "ageHours": 16.98
-        },
-        {
-          "feed": "stoiximan",
-          "brand": "Stoiximan",
-          "games": 1,
-          "props": 21,
-          "complete": 21,
-          "oneSided": 0,
-          "updated": "2026-11-17T15:58:00.246Z",
-          "ageHours": 0.01
-        }
-      ]
-    },
     {
       "event": "E-12-TEL-OLY",
       "commence": "2026-11-17T17:00:00.000Z",
@@ -85,7 +56,7 @@
           "complete": 0,
           "oneSided": 158,
           "updated": "2026-11-17T15:09:54.700Z",
-          "ageHours": 0.81
+          "ageHours": 0.93
         },
         {
           "feed": "stoiximan",
@@ -95,7 +66,7 @@
           "complete": 93,
           "oneSided": 0,
           "updated": "2026-11-17T15:20:48.812Z",
-          "ageHours": 0.63
+          "ageHours": 0.75
         }
       ]
     },
@@ -114,7 +85,7 @@
           "complete": 0,
           "oneSided": 168,
           "updated": "2026-11-17T10:58:39.525Z",
-          "ageHours": 5
+          "ageHours": 5.11
         },
         {
           "feed": "stoiximan",
@@ -124,7 +95,7 @@
           "complete": 73,
           "oneSided": 0,
           "updated": "2026-11-17T15:10:23.721Z",
-          "ageHours": 0.81
+          "ageHours": 0.92
         }
       ]
     },
@@ -143,7 +114,7 @@
           "complete": 0,
           "oneSided": 166,
           "updated": "2026-11-17T12:02:46.737Z",
-          "ageHours": 3.93
+          "ageHours": 4.05
         },
         {
           "feed": "stoiximan",
@@ -153,7 +124,7 @@
           "complete": 54,
           "oneSided": 0,
           "updated": "2026-11-17T14:17:27.867Z",
-          "ageHours": 1.69
+          "ageHours": 1.8
         }
       ]
     },
@@ -172,7 +143,7 @@
           "complete": 0,
           "oneSided": 187,
           "updated": "2026-11-17T13:35:07.829Z",
-          "ageHours": 2.39
+          "ageHours": 2.51
         },
         {
           "feed": "stoiximan",
@@ -182,7 +153,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-17T14:25:51.238Z",
-          "ageHours": 1.55
+          "ageHours": 1.66
         }
       ]
     },
@@ -201,7 +172,7 @@
           "complete": 0,
           "oneSided": 182,
           "updated": "2026-11-17T13:35:09.102Z",
-          "ageHours": 2.39
+          "ageHours": 2.51
         },
         {
           "feed": "stoiximan",
@@ -211,7 +182,7 @@
           "complete": 67,
           "oneSided": 0,
           "updated": "2026-11-17T14:17:28.884Z",
-          "ageHours": 1.69
+          "ageHours": 1.8
         }
       ]
     },
@@ -230,7 +201,7 @@
           "complete": 0,
           "oneSided": 184,
           "updated": "2026-11-17T12:02:49.062Z",
-          "ageHours": 3.93
+          "ageHours": 4.05
         },
         {
           "feed": "stoiximan",
@@ -240,7 +211,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-17T14:20:01.531Z",
-          "ageHours": 1.65
+          "ageHours": 1.76
         }
       ]
     },
@@ -259,7 +230,7 @@
           "complete": 0,
           "oneSided": 170,
           "updated": "2026-11-17T13:28:21.893Z",
-          "ageHours": 2.51
+          "ageHours": 2.62
         },
         {
           "feed": "stoiximan",
@@ -269,7 +240,7 @@
           "complete": 60,
           "oneSided": 0,
           "updated": "2026-11-17T14:07:23.275Z",
-          "ageHours": 1.86
+          "ageHours": 1.97
         }
       ]
     },
@@ -278,7 +249,7 @@
       "commence": "2026-11-17T20:00:00.000Z",
       "greekBooks": 2,
       "booksWithProps": 2,
-      "props": 300,
+      "props": 302,
       "books": [
         {
           "feed": "bet365.gr",
@@ -287,18 +258,18 @@
           "props": 212,
           "complete": 0,
           "oneSided": 212,
-          "updated": "2026-11-16T14:49:21.504Z",
-          "ageHours": 25.16
+          "updated": "2026-11-17T15:43:03.369Z",
+          "ageHours": 0.38
         },
         {
           "feed": "stoiximan",
           "brand": "Stoiximan",
           "games": 1,
-          "props": 88,
-          "complete": 88,
+          "props": 90,
+          "complete": 90,
           "oneSided": 0,
-          "updated": "2026-11-15T20:12:21.824Z",
-          "ageHours": 43.77
+          "updated": "2026-11-17T15:20:23.268Z",
+          "ageHours": 0.75
         }
       ]
     },
@@ -317,7 +288,7 @@
           "complete": 0,
           "oneSided": 173,
           "updated": "2026-11-17T03:09:28.134Z",
-          "ageHours": 12.82
+          "ageHours": 12.93
         },
         {
           "feed": "stoiximan",
@@ -327,7 +298,7 @@
           "complete": 66,
           "oneSided": 0,
           "updated": "2026-11-17T08:07:00.340Z",
-          "ageHours": 7.86
+          "ageHours": 7.98
         }
       ]
     },
@@ -346,7 +317,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:29.302Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -365,7 +336,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:28.653Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -384,7 +355,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T21:56:24.641Z",
-          "ageHours": 90.04
+          "ageHours": 90.15
         }
       ]
     },
@@ -403,7 +374,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:29.722Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -422,7 +393,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:31.359Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -441,7 +412,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:32.368Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -460,7 +431,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:30.024Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -479,7 +450,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:33.715Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -498,7 +469,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:31.205Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     },
@@ -517,29 +488,29 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:34.855Z",
-          "ageHours": 107.24
+          "ageHours": 107.35
         }
       ]
     }
   ],
   "history": {
     "available": true,
-    "snapshots": 7125,
-    "uniqueSnapshots": 7125,
+    "snapshots": 7517,
+    "uniqueSnapshots": 7517,
     "windows": {
       "open": 132,
       "mid": 4576,
-      "close": 2417,
+      "close": 2809,
       "unknown": 0
     },
     "eventBookPairs": 20,
     "capturesPerEventBook": {
       "min": 1,
-      "median": 2,
+      "median": 3,
       "max": 3
     },
     "firstSeen": "2026-11-16T12:16:32.881Z",
-    "lastSeen": "2026-11-17T15:58:43.151Z"
+    "lastSeen": "2026-11-17T16:05:33.276Z"
   },
   "warnings": []
 }
