@@ -52,7 +52,7 @@ for (const [lang,cfg] of Object.entries(L)) {
   let old;
   try { old=await fs.readFile(index,'utf8'); } catch { console.warn('Missing '+index); continue; }
   const c=cfg.copy, standUrl=SITE+'/'+cfg.dir+cfg.stand+'/';
-  let stand=fixStandingsAlternates(meta(old,lang==='el'?'Βαθμολογία EuroLeague | BasketballStats':'EuroLeague Standings | Basketball Stats',lang==='el'?'Βαθμολογία, αποτελέσματα, πρόγραμμα και στατιστικά EuroLeague.':'EuroLeague standings, results, schedule and team and player statistics.',standUrl));
+  let stand=fixStandingsAlternates(meta(old,lang==='el'?'Βαθμολογία EuroLeague | BasketballStats':'EuroLeague Standings | BasketballStats',lang==='el'?'Βαθμολογία, αποτελέσματα, πρόγραμμα και στατιστικά EuroLeague.':'EuroLeague standings, results, schedule and team and player statistics.',standUrl));
   stand=stand.replace(/<nav class="nav"[\s\S]*?<\/nav>/,nav(lang));
   const standFile=path.join(folder,cfg.stand,'index.html');
   await fs.mkdir(path.dirname(standFile),{recursive:true});
@@ -75,7 +75,7 @@ for (const [lang,cfg] of Object.entries(L)) {
   home=home.replace(/<nav class="nav"[\s\S]*?<\/nav>/,nav(lang));
   // The source standings header is outside <main>; hide its band on portal homepages.
   home=home.replace('</head>', '<style>body[data-view="portal"] .band:has(.shero){display:none!important}body[data-view="portal"] .shero{display:none!important}</style></head>');
-  home=meta(home,(lang==='el'?'Πύλη Στατιστικής Ανάλυσης Μπάσκετ':lang==='es'?'Portal de análisis de baloncesto':lang==='sr'?'Portal košarkaške analitike':lang==='tr'?'Basketbol Analiz Portalı':'Basketball Intelligence Portal')+' | Basketball Stats',c[0],SITE+'/'+cfg.dir);
+  home=meta(home,(lang==='el'?'Πύλη Στατιστικής Ανάλυσης Μπάσκετ':lang==='es'?'Portal de análisis de baloncesto':lang==='sr'?'Portal košarkaške analitike':lang==='tr'?'Basketbol Analiz Portalı':'Basketball Intelligence Portal')+' | BasketballStats',c[0],SITE+'/'+cfg.dir);
   await fs.writeFile(index,home);
 
   const sitemap=path.join(root,'sitemap-'+lang+'.xml');
