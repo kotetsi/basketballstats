@@ -1,0 +1,20 @@
+name: Account and Premium billing tests
+on:
+  pull_request:
+    paths:
+      - 'workers/account/**'
+      - 'test/account*.mjs'
+      - 'test/billing.test.mjs'
+      - '.github/workflows/account-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test test/account.test.mjs test/account-worker.test.mjs test/billing.test.mjs
