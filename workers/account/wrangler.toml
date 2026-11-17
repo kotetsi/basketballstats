@@ -5,6 +5,7 @@ compatibility_date = "2026-10-01"
 [vars]
 ALLOWED_ORIGINS = "https://basketballstats.eu,https://www.basketballstats.eu"
 SITE = "https://basketballstats.eu"
+PADDLE_ENV = "sandbox"                 # production remains off until explicitly configured and approved
 FB_APP_ID = "1450163443756295"
 TELEGRAM_BOT = "eubasketball_bot"
 GOOGLE_CLIENT_ID = ""                 # το συμπληρώνει το workflow από το site.config.json (account.googleClientId)
