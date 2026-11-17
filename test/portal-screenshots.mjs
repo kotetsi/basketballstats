@@ -41,6 +41,18 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+async function assertConsentDoesNotCoverContent(page, label) {
+  const consent = page.locator('#ccb');
+  if (!(await consent.count())) return;
+  const layout = await consent.evaluate(el => ({
+    position: getComputedStyle(el).position,
+    isFirstBodyChild: document.body.firstElementChild === el
+  }));
+  if (layout.position === 'fixed' || !layout.isFirstBodyChild) {
+    throw new Error('Cookie consent banner may overlap page content on ' + label);
+  }
+}
+
 await new Promise(resolve => server.listen(4173, '127.0.0.1', resolve));
 const browser = await chromium.launch({ headless: true });
 try {
@@ -56,6 +68,7 @@ try {
   for (const [locale, url] of locales) {
     const response = await desktop.goto('http://127.0.0.1:4173' + url, { waitUntil: 'networkidle' });
     if (!response?.ok()) throw new Error('Homepage failed to load for ' + locale + ': ' + response?.status());
+    await assertConsentDoesNotCoverContent(desktop, locale);
     const legacyHeader = desktop.locator('.shero');
     if (await legacyHeader.count() && await legacyHeader.first().isVisible()) {
       throw new Error('Legacy standings header is still visible on ' + locale + ' portal homepage');
@@ -71,6 +84,7 @@ try {
   });
   const response = await mobile.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
   if (!response?.ok()) throw new Error('Greek mobile homepage failed to load: ' + response?.status());
+  await assertConsentDoesNotCoverContent(mobile, 'mobile');
   await mobile.screenshot({ path: path.join(output, 'portal-el-mobile.png'), fullPage: true });
 
   console.log('Saved six portal screenshots to artifacts/portal-preview.');
