@@ -11,16 +11,20 @@ function equalHex(a, b) {
 
 export async function verifyPaddleSignature(rawBody, header, secret, nowMs = Date.now()) {
   if (!secret || !header) return false;
-  const parts = Object.fromEntries(String(header).split(';').map(x => {
-    const i = x.indexOf('=');
-    return i < 0 ? ['', ''] : [x.slice(0, i).trim(), x.slice(i + 1).trim()];
-  }).filter(([k]) => k));
-  const ts = Number(parts.ts);
-  if (!Number.isFinite(ts) || Math.abs(Math.floor(nowMs / 1000) - ts) > 300) return false;
+  let ts = NaN;
+  const signatures = [];
+  for (const part of String(header).split(';')) {
+    const i = part.indexOf('=');
+    if (i < 0) continue;
+    const key = part.slice(0, i).trim(), value = part.slice(i + 1).trim();
+    if (key === 'ts') ts = Number(value);
+    if (key === 'h1') signatures.push(value);
+  }
+  if (!Number.isFinite(ts) || !signatures.length || Math.abs(Math.floor(nowMs / 1000) - ts) > 300) return false;
   const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const digest = new Uint8Array(await crypto.subtle.sign('HMAC', key, encoder.encode(ts + ':' + rawBody)));
   const expected = [...digest].map(x => x.toString(16).padStart(2, '0')).join('');
-  return String(parts.h1 || '').split(',').some(sig => equalHex(sig, expected));
+  return signatures.some(sig => equalHex(sig, expected));
 }
 
 function apiBase(env) {
