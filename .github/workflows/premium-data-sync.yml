@@ -41,7 +41,7 @@ jobs:
           fi
           endpoint="https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
           while IFS= read -r -d '' file; do
-            key="${file#./.premium-data/}"
+            key="${file#./}"; key="${key#.premium-data/}"
             aws s3 cp "$file" "s3://$PREMIUM_R2_BUCKET/$key" \
               --endpoint-url "$endpoint" --content-type "application/json" \
               --cache-control "private, no-store" --only-show-errors
