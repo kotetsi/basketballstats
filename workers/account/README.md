@@ -75,7 +75,7 @@ Never put Paddle keys or webhook secrets in `site.config.json`, source files, or
 
 Πριν το ενεργοποιήσεις, δημιούργησε το bucket `bs-premium-data` με **Public Access απενεργοποιημένο** και ρύθμισε GitHub Actions:
 - Repository Variables: `CLOUDFLARE_ACCOUNT_ID`, `PREMIUM_R2_BUCKET=bs-premium-data`.
-- Repository Secrets: `PREMIUM_R2_ACCESS_KEY_ID`, `PREMIUM_R2_SECRET_ACCESS_KEY` από R2 token περιορισμένο στο συγκεκριμένο bucket και με Object Write μόνο. Μην χρησιμοποιήσεις Paddle secrets ή Worker deploy token.
+- Repository Secrets: `PREMIUM_R2_ACCESS_KEY_ID`, `PREMIUM_R2_SECRET_ACCESS_KEY` από R2 token scoped μόνο στο συγκεκριμένο bucket. Σημείωση: το Cloudflare permission `Object Read & Write` περιλαμβάνει read/write/list· δεν υπάρχει ξεχωριστό Object Write-only permission στα επίσημα R2 token docs. Ο κώδικας του workflow κάνει μόνο uploads με `aws s3 cp`, χωρίς read/list/delete calls ή Worker deployment. Μην χρησιμοποιήσεις Paddle secrets ή Worker deploy token. Δες [Cloudflare R2 token permissions](https://developers.cloudflare.com/r2/api/tokens/).
 
 Το workflow τρέχει μετά από επιτυχημένη ενημέρωση του site στο `main` ή χειροκίνητα. Μέχρι να προστεθούν οι μεταβλητές/secrets και να γεμίσει το bucket, το Premium data endpoint παραμένει κλειστό.
 
