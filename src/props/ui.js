@@ -1,6 +1,7 @@
 // Prop Analyzer (browser): διαλέγεις παίκτη/στατιστικό/γραμμή → hit rates, γράφημα με τη γραμμή, φίλτρα, μοντέλο, αποδόσεις,
 // ματσάρισμα. Από κάτω πίνακας όλων των props της αγωνιστικής. Δεδομένα: assets/props/data.json + γραμμές της σελίδας (#pactx).
 import { VAL, MODEL_STATS, ALL_STATS, hits, filterGames, roundsWithout, median, summary, modelLine, mainLine, evaluate, board } from './calc.mjs';
+import { requirePremium } from '../account/premium-gate.mjs';
 
 const CTX = JSON.parse(document.getElementById('pactx').textContent);
 const X = CTX.X, LG = CTX.lg;
@@ -290,6 +291,7 @@ function renderBoard() {
 
 // ---------- εκκίνηση
 (async () => {
+  if (!await requirePremium(root, [boardEl])) return;
   try { D = await fetch(CTX.data).then(r => r.json()); } catch { root.innerHTML = '<p class="sub">–</p>'; return; }
   for (const p of D.players) { BY[p.c] = p; BYS[p.s] = p; }
   ROWS = board(D, CTX.lines);
