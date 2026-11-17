@@ -32,19 +32,23 @@ Use Paddle hosted checkout and customer portal. Keep the provider behind a small
 
 ## Launch blocker
 
-There is no safe payment integration today. Do not display a working-looking checkout button, grant access from a query parameter or browser storage, or treat a client-side flag as proof of payment.
+Paddle backend routes and webhook-backed D1 entitlements are implemented in this branch, but Paddle credentials/product IDs are not configured and checkout is unavailable until server configuration is supplied. Do not grant access from a query parameter or browser storage, or treat a client-side flag as proof of payment.
 
 A static page can be inspected and its data/scripts downloaded. Therefore, Premium enforcement needs a trusted server boundary. Before charging users, move protected calculations/data behind authenticated Worker endpoints (or another server-side service) and enforce entitlements there. Client-side route guards can improve the experience, but are not authorization.
 
-## Recommended implementation sequence
+## Implementation status and remaining launch work
 
-1. **Approve and onboard the provider.** Confirm Paddle seller eligibility, terms, fee/payout details, and the digital-service product category. Use hosted checkout and a hosted customer portal; never handle card data directly.
-2. **Create provider products outside the application.** Configure the €9.90 monthly price, currency, tax treatment, cancellation behavior, and production/test environments. Store provider price identifiers as deployment secrets/configuration, not hard-coded checkout amounts.
-3. **Extend the account Worker and D1 schema.** Add provider customer ID, subscription ID, status, current-period end, cancellation state, and audit timestamps. Associate provider objects only with the authenticated internal user ID. Keep payment details in the provider.
-4. **Add trusted billing endpoints.** Require the existing authenticated session for checkout and portal creation. Accept only the configured price ID. Validate webhook signatures against the raw request body, reject invalid signatures, and process event IDs idempotently. Handle checkout completion, invoice payment success/failure, subscription updates, and deletion.
-5. **Define entitlement semantics.** Grant Premium only for provider-confirmed active or explicitly approved grace-period states. Revoke it on expiration/cancellation according to the chosen policy. Never trust a browser redirect as proof of payment.
-6. **Protect Premium functionality.** Move sensitive data/calculations behind Worker endpoints and check the current entitlement on each request. Keep public basic pages available without login.
-7. **Add account UX.** Show plan/status, checkout, and manage/cancel links only after the backend is ready. Provide clear sign-in, payment-failure, and cancellation states.
+Implemented in this branch: authenticated fixed-price hosted checkout creation, authenticated hosted customer portal links, webhook signature verification with timestamp tolerance, matching-price subscription state in D1, active-only Premium status, account deletion cleanup, setup documentation, and unit tests. Checkout/API and webhook use the Paddle sandbox by default.
+
+Still required before launch:
+
+1. **Complete provider onboarding.** Confirm Paddle seller eligibility, terms, fee/payout details, and the digital-service product category. Use hosted checkout and a hosted customer portal; never handle card data directly.
+2. **Create provider products outside the application.** Configure the €9.90 monthly price, tax presentation, cancellation behavior, and sandbox/live environments. Store the provider price identifier in server configuration, never in browser-controlled requests.
+3. **Apply the D1 schema and configure secrets.** Create Paddle sandbox credentials, fixed monthly price ID, and webhook signing secret. The deployment workflow currently does not propagate Paddle secrets; configure secret injection during a separately approved release. Keep payment details in Paddle.
+4. **Complete webhook lifecycle coverage.** Current integration handles signed subscription creation/updates; before launch, test payment-failure, renewal, scheduled cancellation, deletion, retries, and event ordering against Paddle's simulator and update behavior as needed.
+5. **Define remaining entitlement policy.** Current implementation grants only Paddle-confirmed active subscriptions and revokes when the provider reports a non-active state. Confirm scheduled cancellation and past-due behavior. Never trust a browser redirect as proof of payment.
+6. **Protect Premium functionality.** Move sensitive data/calculations behind Worker endpoints and check the current entitlement on each request. This is not yet implemented; the static Finder, Prop Analyzer, and comparison assets remain accessible. Keep public basic pages available without login.
+7. **Add account and tool UX.** Connect account UI and Premium entry points to these APIs only after server configuration and protected tool endpoints are ready.
 8. **Configure and verify before release.** Add provider credentials and webhook secrets through the deployment secret store, register the webhook URL, test in provider sandbox, and only then enable production checkout. No deployment is part of this plan.
 
 ## Decisions required before implementation
@@ -84,4 +88,4 @@ Also run the existing account-worker tests and site build. Keep provider calls m
 - Google OAuth configuration already documented in `workers/account/README.md`; reuse it.
 - Privacy/terms and support/refund information updated for paid subscriptions before launch.
 
-This document records the safe next step. It does not add checkout, charge users, or grant Premium access.
+This branch contains sandbox-first billing backend code. It does not configure Paddle credentials, charge users, enable live checkout, protect the static Premium tools, merge, or deploy.
