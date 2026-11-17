@@ -69,6 +69,14 @@ try {
       assert.equal(await page.locator('[data-stat="points"]').getAttribute('aria-sort'), 'descending');
       const points = await rows.evaluateAll(rows => rows.map(row => Number(row.cells[5].textContent.replace(',', '.'))));
       assert.ok(points.every((value, i) => i === 0 || points[i - 1] >= value));
+
+      const teamSelect = page.locator('#finder-team');
+      const team = await teamSelect.locator('option').nth(1).getAttribute('value');
+      await teamSelect.selectOption(team);
+      assert.ok(await rows.count() > 0, 'team filter should return matching players');
+      const displayedTeams = await rows.evaluateAll(rows => rows.map(row => row.cells[1].textContent.split(' / ')));
+      assert.ok(displayedTeams.every(teams => teams.includes(team)), 'team filter returned a player outside the selected team');
+      await teamSelect.selectOption('');
       const firstName = await rows.first().locator('a').textContent();
       await page.locator('#finder-search').fill(firstName);
       assert.ok(await rows.count() >= 1);
