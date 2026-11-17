@@ -352,9 +352,10 @@ function markdown(md) {
 // Επιλογές: 1, 2, 1 -5.5, 2 +7.5, over 160.5, under 160.5
 const PROP_STATS = { 'πόντοι': 'pts', 'ποντοι': 'pts', 'πόντους': 'pts', 'pts': 'pts', 'points': 'pts', 'ριμπάουντ': 'reb', 'ριμπαουντ': 'reb', 'reb': 'reb', 'rebounds': 'reb',
   'ασίστ': 'ast', 'ασιστ': 'ast', 'ast': 'ast', 'assists': 'ast', 'τρίποντα': '3pm', 'τριποντα': '3pm', '3pm': '3pm', 'pir': 'pir',
-  'πόντοι+ριμπάουντ': 'pr', 'ποντοι+ριμπαουντ': 'pr', 'pts+reb': 'pr', 'p+r': 'pr', 'pr': 'pr' };
-const PROP_LABEL = { el: { pts: 'πόντοι', reb: 'ριμπάουντ', ast: 'ασίστ', '3pm': 'τρίποντα', pir: 'PIR', pr: 'πόντοι + ριμπάουντ' }, en: { pts: 'points', reb: 'rebounds', ast: 'assists', '3pm': '3-pointers', pir: 'PIR', pr: 'points + rebounds' }, es: { pts: 'puntos', reb: 'rebotes', ast: 'asistencias', '3pm': 'triples', pir: 'PIR', pr: 'puntos + rebotes' }, sr: { pts: 'poena', reb: 'skokova', ast: 'asistencija', '3pm': 'trojki', pir: 'PIR', pr: 'poena + skokova' }, tr: { pts: 'sayı', reb: 'ribaund', ast: 'asist', '3pm': 'üçlük', pir: 'PIR', pr: 'sayı + ribaund' } };
-const propValue = (stat, r) => stat === 'pts' ? r[8] : stat === 'reb' ? r[15] + r[16] : stat === 'pr' ? r[8] + r[15] + r[16] : stat === 'ast' ? r[17] : stat === '3pm' ? r[11] : r[25];
+  'πόντοι+ριμπάουντ': 'pr', 'ποντοι+ριμπαουντ': 'pr', 'pts+reb': 'pr', 'p+r': 'pr', 'pr': 'pr',
+  'πόντοι+ασίστ': 'pa', 'ποντοι+ασιστ': 'pa', 'pts+ast': 'pa', 'p+a': 'pa', 'pa': 'pa' };
+const PROP_LABEL = { el: { pts: 'πόντοι', reb: 'ριμπάουντ', ast: 'ασίστ', '3pm': 'τρίποντα', pir: 'PIR', pr: 'πόντοι + ριμπάουντ', pa: 'πόντοι + ασίστ' }, en: { pts: 'points', reb: 'rebounds', ast: 'assists', '3pm': '3-pointers', pir: 'PIR', pr: 'points + rebounds', pa: 'points + assists' }, es: { pts: 'puntos', reb: 'rebotes', ast: 'asistencias', '3pm': 'triples', pir: 'PIR', pr: 'puntos + rebotes', pa: 'puntos + asistencias' }, sr: { pts: 'poena', reb: 'skokova', ast: 'asistencija', '3pm': 'trojki', pir: 'PIR', pr: 'poena + skokova', pa: 'poena + asistencija' }, tr: { pts: 'sayı', reb: 'ribaund', ast: 'asist', '3pm': 'üçlük', pir: 'PIR', pr: 'sayı + ribaund', pa: 'sayı + asist' } };
+const propValue = (stat, r) => stat === 'pts' ? r[8] : stat === 'reb' ? r[15] + r[16] : stat === 'pr' ? r[8] + r[15] + r[16] : stat === 'pa' ? r[8] + r[17] : stat === 'ast' ? r[17] : stat === '3pm' ? r[11] : r[25];
 function parsePick(sel) {
   const s = sel.trim().toLowerCase().replace(',', '.');
   let m;

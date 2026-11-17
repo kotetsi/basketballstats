@@ -322,3 +322,75 @@ SR:
 Rodions Kurucs je primetno podigao proseke u igri Baskonije i u svakoj od poslednje dve utakmice igrao je više od 25 minuta. Sa toliko vremena na terenu, i sa Baskonijom bez više igrača (Faried, Santos, Sedekerskis), 7 poena mu je na dohvat ruke: na povratku u Evroligu, u 11. kolu, postigao je 10 poena za 29 minuta.
 
 Rizik: ove sezone je dva puta ostao bez poena, a ako Baskonija iskoristi nova pojačanja (Smits, Kamenjas), njegova minutaža može da opadne.
+
+12 | TEL-OLY | Miller-McIntyre ασίστ under 5.5 | 2.35
+Ο Κόντι Μίλερ-ΜακΙντάιρ έχει 4,6 ασίστ στην πρόβλεψη του μοντέλου μας, και η γραμμή στο 5.5 αφήνει περιθώριο για το under, στην υψηλή απόδοση του 2.35.
+
+Το ρίσκο: χωρίς Μοντέρο, Ντόρσεϊ και Κόντσαρ ο Ολυμπιακός έχει λιγότερους χειριστές, και ο Μίλερ-ΜακΙντάιρ μπορεί να κρατήσει τη μπάλα περισσότερο από το συνηθισμένο.
+
+EN:
+Codi Miller-McIntyre is projected at 4.6 assists by our model, and the line at 5.5 leaves room for the under at a high price of 2.35.
+
+The risk: without Montero, Dorsey and Konchar, Olympiacos have fewer ball handlers, and Miller-McIntyre may have the ball more than usual.
+
+ES:
+Codi Miller-McIntyre tiene 4,6 asistencias en la proyección de nuestro modelo, y la línea en 5,5 deja margen para el under a una cuota alta de 2,35.
+
+El riesgo: sin Montero, Dorsey ni Konchar, el Olympiacos tiene menos manejadores, y Miller-McIntyre puede tener el balón más de lo habitual.
+
+SR:
+Kodi Miler-Mekintajer ima 4,6 asistencija u projekciji našeg modela, a linija na 5,5 ostavlja prostor za under po visokoj kvoti od 2,35.
+
+Rizik: bez Montera, Dorsija i Končara Olimpijakos ima manje organizatora igre, pa Miler-Mekintajer može duže da drži loptu nego obično.
+
+12 | BAR-PRS | Nkamhoua πόντοι+ριμπάουντ under 11.5 | 1.87
+Ο Ολιβιέ Νκαμούα έμεινε κάτω από τη γραμμή στα 7 από τα 10 τελευταία του ματς, και το μοντέλο τον βγάζει στους 8,3 πόντους και ριμπάουντ μαζί. Οι απουσίες της Μπαρτσελόνα αφορούν κυρίως τους γκαρντ, όχι τη δική του θέση.
+
+EN:
+Olivier Nkamhoua stayed under the line in 7 of his last 10 games, and the model projects him at 8.3 points and rebounds combined. Barcelona's absences are mainly in the backcourt, not in his position.
+
+ES:
+Olivier Nkamhoua se quedó por debajo de la línea en 7 de sus 10 últimos partidos, y el modelo le proyecta 8,3 puntos y rebotes en total. Las bajas del Barça son sobre todo de bases y escoltas, no en su posición.
+
+SR:
+Olivije Nkamua je ostao ispod linije u 7 od poslednjih 10 utakmica, a model mu daje 8,3 poena i skoka zajedno. Odsustva Barselone su uglavnom na bekovskim pozicijama, ne na njegovoj.
+
+12 | BAR-PRS | Martin ασίστ under 2.5 | 1.85
+Ο Τάιρις Μάρτιν είναι κυρίως σκόρερ: έμεινε στις 2 ασίστ ή λιγότερες στα 7 από τα 10 τελευταία του ματς, και το μοντέλο τον βγάζει στις 1,9.
+
+Το ρίσκο: χωρίς Πάντερ και Γκίμπσον θα έχει τη μπάλα περισσότερο από ό,τι συνήθως.
+
+EN:
+Tyrese Martin is mainly a scorer: he had 2 assists or fewer in 7 of his last 10 games, and the model projects him at 1.9.
+
+The risk: without Punter and Gibson he will have the ball more than usual.
+
+ES:
+Tyrese Martin es sobre todo anotador: se quedó en 2 asistencias o menos en 7 de sus 10 últimos partidos, y el modelo le proyecta 1,9.
+
+El riesgo: sin Punter ni Gibson tendrá el balón más de lo habitual.
+
+SR:
+Tajriz Martin je pre svega strelac: imao je 2 asistencije ili manje u 7 od poslednjih 10 utakmica, a model mu daje 1,9.
+
+Rizik: bez Puntera i Gibsona imaće loptu više nego obično.
+
+12 | BAR-PRS | Martin πόντοι+ασίστ under 15.5 | 1.75
+Το μοντέλο βγάζει τον Τάιρις Μάρτιν στους 12,5 πόντους και ασίστ μαζί, και στα 7 από τα 10 τελευταία του ματς έμεινε κάτω από το 15.5.
+
+Το ρίσκο: χωρίς τον Πάντερ σκοράρει 16,2 πόντους ανά 36 λεπτά, και απόψε λείπει και ο Γκίμπσον.
+
+EN:
+The model projects Tyrese Martin at 12.5 points and assists combined, and he stayed under 15.5 in 7 of his last 10 games.
+
+The risk: without Punter he scores 16.2 points per 36 minutes, and Gibson is also out tonight.
+
+ES:
+El modelo proyecta a Tyrese Martin en 12,5 puntos y asistencias en total, y se quedó por debajo de 15,5 en 7 de sus 10 últimos partidos.
+
+El riesgo: sin Punter anota 16,2 puntos por 36 minutos, y esta noche también falta Gibson.
+
+SR:
+Model daje Tajrizu Martinu 12,5 poena i asistencija zajedno, a u 7 od poslednjih 10 utakmica ostao je ispod 15,5.
+
+Rizik: bez Puntera postiže 16,2 poena na 36 minuta, a večeras nema ni Gibsona.
