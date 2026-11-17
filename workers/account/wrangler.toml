@@ -5,6 +5,7 @@ compatibility_date = "2026-10-01"
 [vars]
 ALLOWED_ORIGINS = "https://basketballstats.eu,https://www.basketballstats.eu"
 SITE = "https://basketballstats.eu"
+PADDLE_ENV = "sandbox"                 # production remains off until explicitly configured and approved
 FB_APP_ID = "1450163443756295"
 TELEGRAM_BOT = "eubasketball_bot"
 GOOGLE_CLIENT_ID = ""                 # το συμπληρώνει το workflow από το site.config.json (account.googleClientId)
@@ -13,3 +14,6 @@ GOOGLE_CLIENT_ID = ""                 # το συμπληρώνει το workflo
 binding = "DB"
 database_name = "bs-account"
 database_id = "__D1_ID__"             # το συμπληρώνει το workflow (δημιουργεί τη βάση αν δεν υπάρχει)
+
+# Το R2 bucket bs-premium-data (δεδομένα Premium) το προσθέτει το workflow account.yml μόνο αν υπάρχει ήδη στον λογαριασμό,
+# ώστε το deploy του worker να μη σπάει πριν δημιουργηθεί. Χωρίς bucket τα /premium/data/* απαντούν 503.

@@ -1,0 +1,24 @@
+name: Account and Premium billing tests
+on:
+  pull_request:
+    paths:
+      - 'workers/account/**'
+      - 'src/account/**'
+      - 'src/props/**'
+      - 'src/compare/**'
+      - 'test/account*.mjs'
+      - 'test/billing.test.mjs'
+      - 'test/premium-gate.test.mjs'
+      - '.github/workflows/account-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check src/account/account.js && node --check src/account/premium-gate.mjs && node --check src/props/ui.js && node --check src/compare/ui.js && node --check workers/account/worker.js && node --check workers/account/billing.mjs && node --test test/account.test.mjs test/account-worker.test.mjs test/billing.test.mjs test/premium-gate.test.mjs

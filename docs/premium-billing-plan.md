@@ -1,0 +1,108 @@
+# BasketballStats Premium: billing implementation plan
+
+## Architecture findings
+
+Reviewed on 17 November 2026 before this branch's changes.
+
+- The website is a static site built by `build.mjs` and hosted on GitHub Pages; it has no request-time server or route middleware.
+- User accounts already exist in `workers/account/worker.js`, backed by Cloudflare D1. Google and Facebook sign-in create user records and bearer sessions.
+- The main branch has no billing records, provider integration, billing portal, or payment webhook. This branch adds Paddle subscription/event records and backend routes.
+- Advanced Player Finder, Prop Analyzer, and comparison experiences are static-site tools. Hiding links in the browser would not secure their source or data.
+
+## Agreed product direction
+
+One initial paid tier: **BasketballStats Premium, €9.90/month**.
+
+Keep scores, schedule, standings, and basic statistics free. Premium is intended to include:
+
+- Advanced Player Finder
+- Prop Analyzer
+- Advanced player comparisons
+- Historical statistics and form analysis
+- Related advanced tools
+
+The account login already present should be reused. Do not create a second account system.
+
+## Provider recommendation
+
+Recommend **Paddle** for the first release, subject to the owner completing Paddle's seller onboarding and approving its terms and fees. Paddle acts as Merchant of Record and states it handles VAT/tax collection and remittance; its published supported-country list includes Greece, and its tax table lists Greek VAT handling. This reduces the initial tax operations burden compared with using Stripe Billing/Tax, where the business remains responsible for its own tax obligations and filings. Paddle currently publishes a fee of 5% + $0.50 per checkout transaction; confirm the applicable currency-converted fee and payout terms in the seller account before launch.
+
+Use Paddle hosted checkout and customer portal. Provider API calls are isolated in `workers/account/billing.mjs`.
+
+## Launch blocker
+
+Paddle backend routes and webhook-backed D1 entitlements are implemented in this branch. The account UI and browser gate are convenience features only; they do not authorize access to private data. Paddle credentials/product IDs are not configured and checkout is unavailable until server configuration is supplied. Do not grant access from a query parameter or browser storage, or treat a client-side flag as proof of payment.
+
+GitHub Pages cannot check a subscription before serving a static Premium page. A page-level JavaScript check is only a user-experience gate: its scripts and data remain downloadable, and GitHub Pages itself remains a bypass. Before charging users, move Premium interactions and their required datasets behind authenticated Worker endpoints and keep those datasets out of the public build artifacts.
+
+Recommended least-disruptive hosting layout: keep free pages on GitHub Pages and serve the Premium app on `premium.basketballstats.eu`. The owner confirmed the domain's DNS zone is in Cloudflare. Extend the existing account Worker to authorize Premium API requests using the Paddle-backed D1 entitlement. Adding the subdomain route and deploying it still require separate approval.
+
+## Implementation status and remaining launch work
+
+Implemented in this branch: authenticated fixed-price hosted checkout creation, authenticated hosted customer portal links, webhook signature verification with timestamp tolerance, matching-price subscription state in D1, active-only Premium status, account deletion cleanup, setup documentation, and unit tests. Checkout/API and webhook use the Paddle sandbox by default.
+
+Still required before launch:
+
+1. **Complete provider onboarding.** Confirm Paddle seller eligibility, terms, fee/payout details, and the digital-service product category. Use hosted checkout and a hosted customer portal; never handle card data directly.
+2. **Create provider products outside the application.** Configure the €9.90 monthly price, tax presentation, cancellation behavior, and sandbox/live environments. Store the provider price identifier in server configuration, never in browser-controlled requests.
+3. **Apply the D1 schema and configure secrets.** Create Paddle sandbox credentials, fixed monthly price ID, and webhook signing secret. The existing deployment workflow does not propagate Paddle secrets. The attempted workflow edit was rejected by the automatic review because it would extend a workflow that can deploy Workers and write secrets. Keep that wiring for a separately approved release; the production deployment itself still needs your approval. Keep payment details in Paddle.
+4. **Complete webhook lifecycle coverage.** Current integration handles signed subscription creation/updates; before launch, test payment-failure, renewal, scheduled cancellation, deletion, retries, and event ordering against Paddle's simulator and update behavior as needed.
+5. **Define remaining entitlement policy.** The owner confirmed that a failed payment removes access to paid Premium features immediately; free pages remain available. The implementation grants access only while Paddle reports `active`, so `past_due`, paused, trialing, and canceled states have no Premium entitlement. Never trust a browser redirect as proof of payment.
+6. **Protect Premium functionality and hosting.** The first code slice is implemented in this draft. Prop Analyzer and comparisons request their JSON through an authenticated account-Worker endpoint; the Worker checks the existing bearer session and D1 `active` entitlement before reading a private R2 binding. The build writes those datasets under ignored `.premium-data/` instead of public `dist`, and page configs use private object keys.
+   - Worker tests cover no session, inactive/past_due entitlement, active access, unknown object paths, and missing R2 binding. The build privacy test verifies protected data is absent from `dist`.
+   - The Premium build privacy check passed in GitHub Actions run [#9](https://github.com/kotetsi/basketballstats/actions/runs/44099698160); account and billing tests passed in [#52](https://github.com/kotetsi/basketballstats/actions/runs/44099698121).
+   - Added `.github/workflows/premium-data-sync.yml` after owner approval. It has only `contents: read`, rebuilds from the latest `main`, checks public-build exclusion, then uploads each JSON with `aws s3 cp`. It does not download a public artifact, delete R2 objects, publish Pages, or deploy the Worker.
+   - Cloudflare R2 does not provide a pure write-only S3 token permission. The documented bucket-scoped `Object Read & Write` permission also permits reading and listing objects. The workflow itself performs only uploads. Keep the R2 credential scoped to this bucket, separate from Paddle and Worker deployment credentials; see [Cloudflare token permissions](https://developers.cloudflare.com/r2/api/tokens/).
+   - **Not provisioned:** the private R2 bucket, credentials, and objects. Until setup is complete and the bucket contains the expected keys, the endpoint fails closed and Premium tools cannot load data. No secrets or R2 configuration have been set.
+   - Advanced Player Finder is still in draft PR #14 and has not been routed through the private-data endpoint.
+   - Release prerequisites: provision a private bucket, set the dedicated sync variables/secrets, populate the required keys, and separately approve Worker deployment. The DNS zone is confirmed in Cloudflare; no DNS change or deployment is part of this PR.
+8. **Configure and verify before release.** Add provider credentials and webhook secrets through the deployment secret store, register the webhook URL, test in provider sandbox, and only then enable production checkout. No DNS change or deployment is part of this plan.
+
+## Decisions and business choices
+
+The owner approved Paddle and agreed to one €9.90 monthly plan without a trial or annual plan.
+
+Still confirm before launch:
+
+- Whether €9.90 is the consumer-facing tax-inclusive amount or the pre-tax price.
+- Cancellation timing for subscriptions canceled before the next renewal. Paddle's current status determines access; the account UI should explain whether access continues through the already-paid period.
+- Paddle seller approval, final fees, and payout terms.
+- Whether purchase is web-only or app-store billing is also expected.
+- Which login and profile states the Premium subdomain should offer (existing Google/Facebook account system is available).
+
+## Verification coverage
+
+This branch adds tests for:
+
+- Authenticated checkout creation and rejection of unauthenticated requests.
+- Fixed price selection and rejection of caller-supplied arbitrary amounts/price IDs.
+- Webhook signature validation, malformed payloads, and duplicate-event idempotency (including a conflicting duplicate replay).
+- Subscription status transitions, cancellation, expiration, and payment failure.
+- Premium endpoint access for active, inactive, and missing subscriptions.
+- Free routes remaining available without an account.
+- Customer-portal authorization and user/customer ownership checks.
+
+The PR's account and billing test workflow passed on run 33, including immediate entitlement removal for `past_due` and a replayed event ID with a conflicting state. Keep provider calls mocked in unit tests; perform a separate sandbox checkout before production launch.
+
+## Setup requirements for a future implementation
+
+- Paddle seller account approved for the site and product.
+- Monthly €9.90 product/price IDs for sandbox and production. Confirm whether the displayed €9.90 is tax-inclusive and configure localized tax display accordingly.
+- Webhook signing secret stored as a Worker secret.
+- Public Worker/API URL and registered webhook endpoint.
+- Cloudflare D1 migration applied before Worker deployment.
+- Google OAuth configuration already documented in `workers/account/README.md`; reuse it.
+- Privacy/terms and support/refund information updated for paid subscriptions before launch.
+
+This draft PR contains sandbox-first billing backend code, Worker-enforced data endpoints, and client-side convenience gates. It does not configure Paddle credentials, charge users, enable live checkout, provision/fill R2, complete R2 sync automation, change hosting/DNS, merge, or deploy. Keep the PR in draft until the noted build failure and sync approval are resolved.
+
+## Διακόπτης ενεργοποίησης (site.config.json → premium.enabled)
+
+Ο κώδικας πληρωμών μπορεί να μπει στο main χωρίς να αλλάξει τίποτα για τους επισκέπτες:
+
+- `premium.enabled: false` (τώρα): Prop Analyzer και συγκρίσεις δουλεύουν δωρεάν όπως πριν· τα δεδομένα γράφονται και δημόσια και στο `.premium-data/`. Κανένα κουμπί πληρωμής δεν εμφανίζεται.
+- Ο worker αποκτά τα endpoints `/billing/*` και `/premium/data/*`, αλλά χωρίς τα secrets του Paddle το `/config` δηλώνει `billing: false`.
+- Το R2 bucket συνδέεται στο deploy του worker μόνο αν υπάρχει· το συγχρονισμένο ανέβασμα δεδομένων παραλείπεται (χωρίς σφάλμα) μέχρι να οριστούν τα στοιχεία του R2.
+- Διαγραφή λογαριασμού με ενεργή συνδρομή απορρίπτεται (409 `active_subscription`) μέχρι να ακυρωθεί η συνδρομή, ώστε να μη συνεχίζουν οι χρεώσεις.
+
+Σειρά για την έναρξη: R2 bucket και στοιχεία → πρώτο ανέβασμα δεδομένων → secrets Paddle (sandbox) στον worker → δοκιμαστική αγορά sandbox → `premium.enabled: true` → έλεγχος → production στο Paddle.

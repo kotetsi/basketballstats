@@ -1,0 +1,48 @@
+name: Sync Premium datasets to private R2
+on:
+  workflow_run:
+    workflows: ["Ενημέρωση site"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sync:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build private datasets from the latest committed data
+        run: node build.mjs --offline
+      - name: Verify the public build excludes Premium datasets
+        run: node --test test/premium-public-build.test.mjs
+      - name: Install AWS CLI for Cloudflare R2's S3 API
+        run: python -m pip install --user awscli
+      - name: Upload allowlisted Premium JSON objects (no deletes)
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          PREMIUM_R2_BUCKET: ${{ vars.PREMIUM_R2_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.PREMIUM_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PREMIUM_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_EC2_METADATA_DISABLED: "true"
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$CLOUDFLARE_ACCOUNT_ID" || -z "$PREMIUM_R2_BUCKET" || -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+            echo "::notice::R2 is not configured yet (bucket name/account ID variables or bucket-scoped credentials missing); skipping the Premium data upload."
+            exit 0
+          fi
+          endpoint="https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          while IFS= read -r -d '' file; do
+            key="${file#./.premium-data/}"
+            aws s3 cp "$file" "s3://$PREMIUM_R2_BUCKET/$key" \
+              --endpoint-url "$endpoint" --content-type "application/json" \
+              --cache-control "private, no-store" --only-show-errors
+          done < <(find .premium-data -type f -name '*.json' -print0)

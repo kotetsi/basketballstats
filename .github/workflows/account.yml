@@ -53,6 +53,13 @@ jobs:
           GID=$(node -e 'process.stdout.write((require("../../site.config.json").account||{}).googleClientId||"")')
           sed -i "s/__D1_ID__/$ID/; s|^GOOGLE_CLIENT_ID = \"\"|GOOGLE_CLIENT_ID = \"$GID\"|" wrangler.toml
           $W d1 execute bs-account --remote --file schema.sql --yes
+          # δεδομένα Premium: σύνδεση με το ιδιωτικό R2 bucket μόνο αν υπάρχει (αλλιώς το deploy θα αποτύγχανε)
+          if $W r2 bucket list 2>/dev/null | grep -q 'bs-premium-data'; then
+            printf '\n[[r2_buckets]]\nbinding = "PREMIUM_DATA"\nbucket_name = "bs-premium-data"\n' >> wrangler.toml
+            echo "R2: bs-premium-data συνδέθηκε"
+          else
+            echo "R2: δεν υπάρχει (ακόμα) το bs-premium-data ή δεν είναι ορατό με αυτό το κλειδί, deploy χωρίς Premium δεδομένα"
+          fi
           $W deploy | tee deploy.log
           if [ -n "$TG_TOKEN" ]; then printf '%s' "$TG_TOKEN" | tr -d '[:space:]' | $W secret put TELEGRAM_BOT_TOKEN; fi
           if [ -n "$FB_SECRET" ]; then printf '%s' "$FB_SECRET" | tr -d '[:space:]' | $W secret put FB_APP_SECRET; fi

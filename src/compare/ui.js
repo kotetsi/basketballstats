@@ -2,9 +2,12 @@
 import { playerMetrics, percentilesFor, radarScores, similarPlayers, splitRows, compareSentence, posGroup, R, percentileRank } from './metrics.mjs';
 import { formatMetric, bestValue, isLowerBetter, metaOf } from './catalog.mjs';
 import { pairSlug, sanitizeIds } from './pairs.mjs';
+import { fetchPremiumData, requirePremium } from '../account/premium-gate.mjs';
 
 const root = document.getElementById('cmpApp');
-if (root) (root.dataset.kind === 'teams' ? initTeams : initPlayers)(root).catch(e => { root.innerHTML = `<p class="sub">${String(e.message)}</p>`; });
+if (root) requirePremium(root).then(allowed => {
+  if (allowed) return (root.dataset.kind === 'teams' ? initTeams : initPlayers)(root);
+}).catch(e => { root.innerHTML = `<p class="sub">${String(e.message)}</p>`; });
 
 const lg = (document.documentElement.lang || 'el').slice(0, 2);
 const TXA = {
@@ -70,7 +73,7 @@ const sortable = el => el.querySelectorAll('table.sortable thead th[data-k]').fo
 async function initPlayers(root) {
   const cfg = JSON.parse(root.querySelector('.cmpj').textContent);
   let D;
-  try { const r = await fetch(cfg.api); if (!r.ok) throw new Error('HTTP ' + r.status); D = { ...(await r.json()), labels: cfg.labels, tips: cfg.tips, radarLabels: cfg.radarLabels }; }
+  try { const r = await fetchPremiumData(cfg.api); D = { ...r, labels: cfg.labels, tips: cfg.tips, radarLabels: cfg.radarLabels }; }
   catch { root.innerHTML = `<div class="cmperr" role="alert"><p>${esc(TX.err)}</p><button type="button" class="btnsm" onclick="location.reload()">${esc(TX.retry)}</button></div>`; return; }
   const LBL = D.labels, TIP = D.tips || {};
   for (const S of Object.values(D.seasons)) for (const p of S.players) p.tn = (cfg.teams && cfg.teams[p.t]) || p.tn;
@@ -206,9 +209,7 @@ async function initTeams(root) {
   root.querySelector('.cmpout0')?.classList.add('loading');
   let D;
   try {
-    const r = await fetch(cfg.api);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    D = await r.json();
+    D = await fetchPremiumData(cfg.api);
   } catch (e) {
     root.innerHTML = `<div class="cmperr" role="alert"><p>${esc(TX.err)}</p><button type="button" class="btnsm" onclick="location.reload()">${esc(TX.retry)}</button></div>`;
     return;

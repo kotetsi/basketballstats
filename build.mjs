@@ -65,6 +65,11 @@ const OFFLINE = process.argv.includes('--offline');
 // γραμμή αγώνα → [λεπτά, πόντοι, ριμπ., ασίστ, κλεψ., κοψ., λάθη, 2π εύστ., 2π προσπ., 3π εύστ., 3π προσπ., βολές εύστ., βολές προσπ., φάουλ, PIR] (σειρά SK στο ask.mjs)
 const ASK_SK = r => [Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[18], r[20], r[19], r[9], r[10], r[11], r[12], r[13], r[14], r[22], r[25]];
 const OUT = path.join(ROOT, 'dist');
+const PREMIUM_OUT = path.join(ROOT, '.premium-data');
+// Premium: όσο είναι κλειστό (site.config.json premium.enabled !== true) τα δεδομένα των εργαλείων μένουν και δημόσια,
+// ώστε το merge του κώδικα πληρωμών να μη σβήνει το Prop Analyzer και τις συγκρίσεις πριν στηθούν R2 και Paddle.
+const PREMIUM_ON = CONF.premium?.enabled === true;
+const PROPS_UI = await fs.readFile(path.join(ROOT, 'src', 'props', 'ui.js'));
 // ελληνική γραφή ονομάτων παικτών για τις ελληνικές σελίδες (data/greek-names.json)
 const GRN = await fs.readFile(path.join(ROOT, 'data', 'greek-names.json'), 'utf8').then(JSON.parse).catch(() => ({}));
 // τηλεοπτικά κανάλια: ο βασικός σταθμός ανά χώρα/γλώσσα + ακριβές κανάλι ανά αγώνα από το kanalia.md
@@ -951,7 +956,9 @@ async function main() {
 
   // καθαρισμός και αρχεία
   await fs.rm(OUT, { recursive: true, force: true });
+  await fs.rm(PREMIUM_OUT, { recursive: true, force: true });
   await fs.mkdir(path.join(OUT, 'assets'), { recursive: true });
+  await fs.mkdir(PREMIUM_OUT, { recursive: true });
   const articles = await loadArticles();
   const tipsters = await loadTipsters(league.games, players);
   const INJ = await loadInjuries(players, league.games);
@@ -1046,9 +1053,12 @@ async function main() {
     });
     PADATA = { gen: data.fetchedAt, season: SEASON_LABEL, round: Math.min(...Object.values(next).map(x => x.r), 99), blend: PROPM.PARAMS.blend,
       cols: ['r', 'date', 'opp', 'home', 'win', 'start', 'min', 'pts', 'reb', 'ast', 'fg3', 'stl', 'blk', 'tov', 'pir', 'tsc', 'osc'], next, def: DEF, players: list };
+    await fs.mkdir(path.join(PREMIUM_OUT, 'props'), { recursive: true });
+    await fs.writeFile(path.join(PREMIUM_OUT, 'props', 'data.json'), JSON.stringify(PADATA));
     await fs.mkdir(path.join(OUT, 'assets', 'props'), { recursive: true });
-    await fs.writeFile(path.join(OUT, 'assets', 'props', 'data.json'), JSON.stringify(PADATA));
-    for (const f of ['ui.js', 'calc.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'props', f), path.join(OUT, 'assets', 'props', f));
+    if (!PREMIUM_ON) await fs.writeFile(path.join(OUT, 'assets', 'props', 'data.json'), JSON.stringify(PADATA));
+    await fs.writeFile(path.join(OUT, 'assets', 'props', 'ui.js'), PROPS_UI);
+    await fs.copyFile(path.join(ROOT, 'src', 'props', 'calc.mjs'), path.join(OUT, 'assets', 'props', 'calc.mjs'));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'props.mjs'), path.join(OUT, 'assets', 'props', 'model.mjs'));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'core.mjs'), path.join(OUT, 'assets', 'props', 'core.mjs'));   // το model.mjs (= odds/props.mjs) το εισάγει
     console.log('Prop Analyzer:', list.length, 'παίκτες,', Object.keys(next).length, 'ομάδες με επόμενο αγώνα,', list.filter(p => Object.keys(p.pj).length).length, 'με πρόβλεψη');
@@ -1137,6 +1147,7 @@ async function main() {
   await fs.copyFile(path.join(ROOT, 'src', 'app.css'), path.join(OUT, 'assets', 'app.css'));
   await fs.mkdir(path.join(OUT, 'assets', 'account'), { recursive: true });
   await fs.copyFile(path.join(ROOT, 'src', 'account', 'account.js'), path.join(OUT, 'assets', 'account', 'account.js'));
+  await fs.copyFile(path.join(ROOT, 'src', 'account', 'premium-gate.mjs'), path.join(OUT, 'assets', 'account', 'premium-gate.mjs'));
   await fs.mkdir(path.join(OUT, 'assets', 'fantasy'), { recursive: true });
   for (const f of ['compare.mjs', 'compare.js', 'optimizer.mjs', 'render.mjs', 'fx.js', 'transfer.js', 'manager.mjs', 'manager.js', 'captain.mjs', 'whatif.mjs', 'value.mjs', 'rules.mjs', 'solver.mjs', 'turns.mjs', 'explain.mjs', 'opt.js', 'insight.mjs', 'live.mjs', 'livetracker.js', 'assistant.mjs', 'assistant.js', 'ask.mjs', 'ask.js']) await fs.copyFile(path.join(ROOT, 'src', 'fantasy', f), path.join(OUT, 'assets', 'fantasy', f));
   await fs.mkdir(path.join(OUT, 'assets', 'analytics'), { recursive: true });
@@ -1214,7 +1225,10 @@ async function main() {
     }
   }
   {
-    const api = (p, o) => fs.mkdir(path.dirname(path.join(OUT, 'api', p)), { recursive: true }).then(() => fs.writeFile(path.join(OUT, 'api', p), JSON.stringify(o)));
+    const api = async (p, o) => {
+      const outs = [path.join(PREMIUM_OUT, p), ...(PREMIUM_ON ? [] : [path.join(OUT, 'api', p)])];
+      for (const f of outs) { await fs.mkdir(path.dirname(f), { recursive: true }); await fs.writeFile(f, JSON.stringify(o)); }
+    };
     await fs.mkdir(path.join(OUT, 'assets', 'compare'), { recursive: true });
     for (const f of ['metrics.mjs', 'ui.js', 'catalog.mjs', 'pairs.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'compare', f), path.join(OUT, 'assets', 'compare', f));
     await api('compare/players/metrics.json', { current: SEASON, defaultKeys: CB.DEFAULT_KEYS, allKeys: CB.ALL_KEYS, per36: CB.PER36, per100: CB.PER100, seasons: CMP.seasons, similar: CMP.similar });
@@ -1477,7 +1491,7 @@ ${pwaStyle}`;
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
     const LNAME = { el: ['ΕΛ', 'Ελληνικά'], en: ['EN', 'English'], es: ['ES', 'Español'], sr: ['SR', 'Srpski'], tr: ['TR', 'Türkçe'] };
     // λογαριασμός χρήστη (workers/account): κουμπί «Σύνδεση» δίπλα στις γλώσσες, μόνο όταν έχει γίνει deploy (site.config.json → account.api)
-    const ACCJ = ACC_API ? `<script type="application/json" id="acctx">${JSON.stringify({ api: ACC_API, lg: LG, legal: urlFor(LG, 'legal'), manager: urlFor(LG, 'fx:manager'), assistant: urlFor(LG, 'fx:assistant') })}</script><script type="module" src="${BASE}assets/account/account.js?v=${ver}"></script>` : '';
+    const ACCJ = ACC_API ? `<script type="application/json" id="acctx">${JSON.stringify({ api: ACC_API, premium: PREMIUM_ON, base: BASE, lg: LG, legal: urlFor(LG, 'legal'), manager: urlFor(LG, 'fx:manager'), assistant: urlFor(LG, 'fx:assistant') })}</script><script type="module" src="${BASE}assets/account/account.js?v=${ver}"></script>` : '';
     const langSw = alts => `<span class="langs">${OTHERS.map(o => `<a class="langsw" href="${alts[o] || B(o)}" hreflang="${o}" lang="${o}" title="${LNAME[o][1]}">${LNAME[o][0]}</a>`).join('')}</span>${ACCJ}`;
     const script = `<script src="${BASE}assets/${LG === 'el' ? 'app.js' : 'app.' + LG + '.js'}?v=${ver}" defer></script>`;
     // εργαλεία: ποιες σελίδες υπάρχουν σε αυτό το build, οικογένειες με καρτέλες, κατάλογος (src/tools.mjs)
@@ -3917,7 +3931,7 @@ ${gl.map(([gid, g]) => `<details class="anmeth"><summary><b>${esc(tName(g.h))} �
           chart: T('Αγώνας προς αγώνα', 'Game by game', 'Partido a partido', 'Utakmica po utakmica', 'Maç maç'), share: T('Αντιγραφή συνδέσμου', 'Copy link', 'Copiar enlace', 'Kopiraj link', 'Bağlantıyı kopyala'), copied: T('Αντιγράφηκε', 'Copied', 'Copiado', 'Kopirano', 'Kopyalandı'),
           profile: T('Προφίλ παίκτη', 'Player profile', 'Perfil del jugador', 'Profil igrača', 'Oyuncu profili'), round: T('Αγων.', 'Rd', 'J', 'K', 'H'),
         };
-        const ctx = { lg: LG, data: `${BASE}assets/props/data.json?v=${ver}`, plBase: B(LG) + PATHS[LG].player + '/', locale: LOCALE, X, lines: LN, linesSb: LNSB && Object.keys(LNSB).length ? LNSB : null,
+        const ctx = { lg: LG, data: 'props/data.json', plBase: B(LG) + PATHS[LG].player + '/', locale: LOCALE, X, lines: LN, linesSb: LNSB && Object.keys(LNSB).length ? LNSB : null,
           teams: Object.fromEntries(Object.keys(TEAMS).map(c => [c, tName(c)])) };
         await simplePage('oddsanalyzer', { view: 'lead', title: T(`Prop Analyzer EuroLeague: hit rates, γραμμές και μοντέλο για player props | ${SITE_NAME}`, `EuroLeague Prop Analyzer: hit rates, lines and model for player props | ${SITE_NAME}`, `Prop Analyzer EuroLeague: acierto, líneas y modelo para player props | ${SITE_NAME}`, `Prop Analyzer Evroliga: uspešnost, linije i model za player props | ${SITE_NAME}`, `EuroLeague Prop Analyzer: oyuncu prop’ları için tutma oranı, çizgiler ve model | ${SITE_NAME}`),
           desc: T('Διάλεξε παίκτη EuroLeague, στατιστικό και γραμμή: πόσες φορές πέρασε τη γραμμή στους τελευταίους 5, 10, 20 αγώνες, έδρα/εκτός, με τον αντίπαλο, χωρίς συμπαίκτη, πρόβλεψη μοντέλου και αποδόσεις αδειοδοτημένων bookmakers.', 'Pick a EuroLeague player, stat and line: how often he cleared it in the last 5, 10 and 20 games, home/away, vs the opponent, without a teammate, the model projection and licensed bookmakers’ prices.', 'Elige jugador de EuroLeague, estadística y línea: cuántas veces la superó en los últimos 5, 10 y 20 partidos, casa/fuera, contra el rival, sin un compañero, proyección del modelo y cuotas.', 'Izaberi igrača Evrolige, statistiku i liniju: koliko puta ju je prešao u poslednjih 5, 10 i 20 utakmica, kod kuće/u gostima, protiv protivnika, bez saigrača, projekcija modela i kvote.', 'Bir EuroLeague oyuncusu, istatistik ve çizgi seç: son 5, 10 ve 20 maçta çizgiyi kaç kez geçtiği, iç saha/deplasman, rakibe karşı, bir takım arkadaşı olmadan, model tahmini ve lisanslı oranlar.'),
@@ -4351,7 +4365,7 @@ ${nx ? `<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Τα προγνω
       const ECT = Object.keys(CMPT?.U?.teams || {}).filter(c => ECSLUG[c] && CMPT.U.teams[c].splits?.all?.gp > 0);
       const ecName = c => (LG === 'el' && { ARI: 'Άρης', PAO: 'ΠΑΟΚ' }[c]) || data.ec?.teams?.[c]?.[1] || c;
       const ecPairsHtml = focus => `<h2>${T('Άλλες συγκρίσεις', 'Other comparisons', 'Otras comparaciones', 'Druga poređenja', 'Diğer karşılaştırmalar')}: ${esc(ecName(focus))}</h2><ul class="cmppairs">${ECT.filter(o => o !== focus).sort((a, b) => ecName(a).localeCompare(ecName(b), LG)).map(o => `<li><a href="${urlFor(LG, 'cmptu:' + [focus, o].sort().join('|'))}">${esc(ecName(focus))} vs ${esc(ecName(o))}</a></li>`).join('')}</ul>`;
-      const tcfg = extra => `<div id="cmpApp" data-kind="teams"><script type="application/json" class="cmpj">${JSON.stringify({ api: BASE + 'api/compare/teams/metrics.json', mcUrl: urlFor(LG, 'mc'), teams: { E: teamsJ, U: Object.fromEntries(Object.entries(data.ec?.teams || {}).map(([c, v]) => [c, (LG === 'el' && { ARI: 'Άρης', PAO: 'ΠΑΟΚ' }[c]) || v[1]])) }, labels: LBL, tips: TIPS, radarLabels: RLT, slugs: tslugs, teamUrls: Object.fromEntries(ELT.map(c => [c, urlFor(LG, 'team:' + c)])), pairBase: urlFor(LG, 'cmpt'), slugsU: Object.fromEntries(ECT.map(c => [c, ECSLUG[c]])), pairBaseU: urlFor(LG, 'cmpt') + 'eurocup/', baseUrl: urlFor(LG, 'cmpt'), ...extra }).replace(/</g, '\\u003c')}</script>${SKL}</div><script type="module" src="${BASE}assets/compare/ui.js?v=${ver}"></script>`;
+      const tcfg = extra => `<div id="cmpApp" data-kind="teams"><script type="application/json" class="cmpj">${JSON.stringify({ api: 'compare/teams/metrics.json', mcUrl: urlFor(LG, 'mc'), teams: { E: teamsJ, U: Object.fromEntries(Object.entries(data.ec?.teams || {}).map(([c, v]) => [c, (LG === 'el' && { ARI: 'Άρης', PAO: 'ΠΑΟΚ' }[c]) || v[1]])) }, labels: LBL, tips: TIPS, radarLabels: RLT, slugs: tslugs, teamUrls: Object.fromEntries(ELT.map(c => [c, urlFor(LG, 'team:' + c)])), pairBase: urlFor(LG, 'cmpt'), slugsU: Object.fromEntries(ECT.map(c => [c, ECSLUG[c]])), pairBaseU: urlFor(LG, 'cmpt') + 'eurocup/', baseUrl: urlFor(LG, 'cmpt'), ...extra }).replace(/</g, '\\u003c')}</script>${SKL}</div><script type="module" src="${BASE}assets/compare/ui.js?v=${ver}"></script>`;
       const tpairKey = (a, b) => [a, b].sort().join('|');
       // λίστα όλων των ζευγαριών ομάδων (εσωτερικοί σύνδεσμοι)· focus: μόνο τα ζευγάρια μιας ομάδας
       const teamPairsHtml = focus => {
@@ -4375,7 +4389,7 @@ ${nx ? `<p><a class="pread" href="${urlFor(LG, 'preds')}">${T('Τα προγνω
       const pairKey = ps => ps.map(p => p.id).join('|');
       const pairsList = PPAIRS.map(([a, b]) => PAIR.pairSlug([PSLUG[a.id], PSLUG[b.id]]));
       const pslugs = Object.fromEntries([...QP.keys()].map(id => [id, PSLUG[id]]));
-      const pcfg = extra => `<div id="cmpApp" data-kind="players"><script type="application/json" class="cmpj">${JSON.stringify({ api: BASE + 'api/compare/players/metrics.json', embedUrl: urlFor(LG, 'cmpe'), labels: LBL, tips: TIPS, radarLabels: RL, teams: teamsJ, pslugs, playerBase: B(LG) + PATHS[LG].player + '/', pairBase: urlFor(LG, 'cmpp'), pairs: pairsList, baseUrl: urlFor(LG, 'compare'), ...extra }).replace(/</g, '\\u003c')}</script><div class="cmpskel" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><script type="module" src="${BASE}assets/compare/ui.js?v=${ver}"></script>`;
+      const pcfg = extra => `<div id="cmpApp" data-kind="players"><script type="application/json" class="cmpj">${JSON.stringify({ api: 'compare/players/metrics.json', embedUrl: urlFor(LG, 'cmpe'), labels: LBL, tips: TIPS, radarLabels: RL, teams: teamsJ, pslugs, playerBase: B(LG) + PATHS[LG].player + '/', pairBase: urlFor(LG, 'cmpp'), pairs: pairsList, baseUrl: urlFor(LG, 'compare'), ...extra }).replace(/</g, '\\u003c')}</script><div class="cmpskel" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><script type="module" src="${BASE}assets/compare/ui.js?v=${ver}"></script>`;
       const topPairs = PPAIRS.slice(0, 6);
       const meth = `<details class="anmeth"><summary>${T('Μεθοδολογία', 'Methodology', 'Metodología', 'Metodologija', 'Metodoloji')}</summary><p>${esc(T('Όλα τα metrics υπολογίζονται από τα επίσημα game logs και τα σύνολα της ομάδας σε κάθε αγώνα. Usage, AST%, TOV% και rebound rate με τους τύπους του Basketball-Reference. ORtg/DRtg/Net = απόδοση της ομάδας με τον παίκτη στο παρκέ (play-by-play). Per 100 κατοχές = κατοχές της ομάδας όσο ο παίκτης είναι στο παρκέ. Percentiles ανάμεσα σε όσους έχουν τουλάχιστον 3 αγώνες και 10 λεπτά ανά αγώνα, μέσα στη θέση τους (ή συνολικά). Radar: κάθε κατηγορία είναι ο μέσος όρος των percentiles των metrics της. Παρόμοιοι παίκτες: cosine similarity σε usage, PIR/min, TS%, AST%, rebound rate, λεπτά, κλεψίματα/κοψίματα, τρίποντα και βολές. Στο EuroCup και στις παλαιότερες σεζόν υπάρχουν μόνο μέσοι όροι, οπότε τα προχωρημένα metrics λείπουν.', 'All metrics are computed from the official game logs and team totals for each game. Usage, AST%, TOV% and rebound rate use the Basketball-Reference formulas. ORtg/DRtg/Net = team performance with the player on court (play-by-play). Per 100 possessions = team possessions while the player is on court. Percentiles among players with at least 3 games and 10 minutes per game, within position (or overall). Radar: each category is the mean of its metrics’ percentiles. Similar players: cosine similarity on usage, PIR/min, TS%, AST%, rebound rate, minutes, steals/blocks, three-point and free-throw rates. EuroCup and older seasons only have averages, so advanced metrics are missing.', 'Todas las métricas salen de los registros oficiales de cada partido y los totales del equipo. Usage, AST%, TOV% y rebote con las fórmulas de Basketball-Reference. ORtg/DRtg/Net = rendimiento del equipo con el jugador en pista. Por 100 posesiones = posesiones del equipo con él en pista. Percentiles entre jugadores con al menos 3 partidos y 10 minutos, por posición o en total. Radar: media de los percentiles de cada categoría. Similares: similitud coseno. En la EuroCup y temporadas anteriores solo hay promedios.', 'Sve metrike se računaju iz zvaničnih zapisa utakmica i ukupnih brojki tima. Usage, AST%, TOV% i skok po formulama Basketball-Reference. ORtg/DRtg/Net = učinak tima dok je igrač na terenu. Na 100 poseda = posedi tima dok je on na terenu. Percentili među igračima sa najmanje 3 utakmice i 10 minuta, po poziciji ili ukupno. Radar: prosek percentila kategorije. Slični igrači: kosinusna sličnost. U Evrokupu i starijim sezonama postoje samo proseci.', 'Tüm metrikler resmi maç kayıtlarından ve her maçtaki takım toplamlarından hesaplanır. Usage, AST%, TOV% ve ribaund oranı Basketball-Reference formülleriyle hesaplanır. ORtg/DRtg/Net = oyuncu sahadayken takımın performansı (play-by-play). 100 hücum başına = oyuncu sahadayken takımın hücum sayısı. Yüzdelikler, en az 3 maç ve maç başına 10 dakika oynayan oyuncular arasında, pozisyona göre (veya genel) hesaplanır. Radar: her kategori, metriklerinin yüzdeliklerinin ortalamasıdır. Benzer oyuncular: usage, PIR/dk, TS%, AST%, ribaund oranı, dakika, top çalma/blok, üçlük ve serbest atış oranları üzerinden kosinüs benzerliği. EuroCup ve eski sezonlarda yalnızca ortalamalar olduğu için ileri metrikler yer almaz.'))}</p></details>`;
       await simplePage('compare', { view: 'lead', title: T(`Σύγκριση παικτών EuroLeague & EuroCup ${SEASON_LABEL}: έως 4 παίκτες, radar, percentiles | ${SITE_NAME}`, `Compare EuroLeague & EuroCup players ${SEASON_LABEL}: up to 4 players, radar, percentiles | ${SITE_NAME}`, `Comparar jugadores EuroLeague y EuroCup ${SEASON_LABEL}: hasta 4, radar, percentiles | ${SITE_NAME}`, `Poređenje igrača Evroliga i Evrokup ${SEASON_LABEL}: do 4 igrača, radar, percentili | ${SITE_NAME}`, `EuroLeague ve EuroCup oyuncu karşılaştırması ${SEASON_LABEL}: 4 oyuncuya kadar, radar, yüzdelikler | ${SITE_NAME}`),
