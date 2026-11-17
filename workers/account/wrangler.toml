@@ -14,3 +14,7 @@ GOOGLE_CLIENT_ID = ""                 # το συμπληρώνει το workflo
 binding = "DB"
 database_name = "bs-account"
 database_id = "__D1_ID__"             # το συμπληρώνει το workflow (δημιουργεί τη βάση αν δεν υπάρχει)
+ 
+[[r2_buckets]]
+binding = "PREMIUM_DATA"
+bucket_name = "bs-premium-data"
