@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main, feature/basketball-intelligence-homepage]
     paths:
+      - "build.mjs"
       - "scripts/portal-home.mjs"
       - "src/app.css"
       - "src/app.js"

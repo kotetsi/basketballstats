@@ -14,6 +14,13 @@ const locales = [
   ['sr/', 'tabela'],
   ['tr/', 'puan-durumu']
 ];
+const localizedTitles = {
+  '': ['Πύλη Μπασκετικής Ανάλυσης', 'Ανάλυση αποδόσεων', 'Ανάλυση ειδικών αγορών παικτών', 'Αξία σε σχέση με την τελική απόδοση'],
+  'en/': ['Basketball Intelligence Portal', 'Betting Analysis', 'Player Props Analyzer', 'Closing Line Value'],
+  'es/': ['Portal de análisis de baloncesto', 'Análisis de cuotas', 'Analizador de apuestas de jugadores', 'Valor frente a la cuota de cierre'],
+  'sr/': ['Portal košarkaške analitike', 'Analiza kvota', 'Analiza igračkih granica', 'Vrednost u odnosu na završnu kvotu'],
+  'tr/': ['Basketbol Analiz Portalı', 'Oran Analizi', 'Oyuncu Bahis Analizi', 'Kapanış Oranına Göre Değer']
+};
 
 test('portal generator creates localized homepages and preserves standings pages', async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'basketballstats-portal-'));
@@ -32,14 +39,24 @@ test('portal generator creates localized homepages and preserves standings pages
 
     for (const [dir, standings] of locales) {
       const home = await fs.readFile(path.join(dist, dir, 'index.html'), 'utf8');
-      assert.match(home, /Basketball Intelligence Portal/);
+      for (const title of localizedTitles[dir]) assert.ok(home.includes(title), 'missing localized title: ' + title + ' in ' + dir);
       assert.match(home, /data-view="portal"/);
+      if (dir) {
+        const navigation = home.match(/<nav class="nav">[\s\S]*?<\/nav>/)?.[0] || '';
+        assert.doesNotMatch(navigation, /Match Center|Betting Intelligence|Player Lab|Predictions|Basketball Data/);
+        assert.doesNotMatch(home, /<h2>Fantasy Zone<\/h2>/);
+        if (dir !== 'en/') assert.doesNotMatch(home, /<h1>Basketball Intelligence Portal<\/h1>/);
+      }
       assert.equal((home.match(/class="portal-card"/g) || []).length, 12);
+      const descriptions = [...home.matchAll(/<small>([\s\S]*?)<\/small>/g)].map(match => match[1]);
+      assert.equal(descriptions.length, 12);
+      assert.equal(new Set(descriptions).size, 12, "each portal card must have a distinct description");
+      assert.ok(descriptions.every(description => description.trim().length > 20), "card descriptions must contain useful copy");
       assert.match(home, /class="todayhome"/);
 
       const oldStandings = await fs.readFile(path.join(dist, dir, standings, 'index.html'), 'utf8');
       assert.match(oldStandings, /id="standTbl"/);
-      assert.match(oldStandings, /Basketball Intelligence|Match Center/);
+      assert.match(oldStandings, /data-v="today"/);
       for (const [altDir, altStandings] of locales) {
         const expected = 'https://basketballstats.eu/' + altDir + altStandings + '/';
         assert.ok(oldStandings.includes('hreflang="' + (altDir ? altDir.slice(0,-1) : 'el') + '" href="' + expected + '"'), expected);
