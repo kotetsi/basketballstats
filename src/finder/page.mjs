@@ -30,6 +30,7 @@ export function finderPage({ lang, T, esc, base, urlFor, players, niceName }) {
   const columns = Object.keys(names);
   const config = {
     base,
+    teams: [...new Set(players.flatMap(p => String(p.t || '').split(';').filter(Boolean)))].sort((a, b) => a.localeCompare(b)),
     profiles: Object.fromEntries(players.map(p => [p.c, [niceName(p.n), urlFor(lang, 'player:' + p.s)]])),
     count: T('Παίκτες: {n}', 'Players: {n}', 'Jugadores: {n}', 'Igrači: {n}', 'Oyuncular: {n}'),
     empty: T('Δεν βρέθηκαν παίκτες.', 'No players found.', 'No se encontraron jugadores.', 'Nema pronađenih igrača.', 'Oyuncu bulunamadı.'),
@@ -49,6 +50,10 @@ ${select('period', T('Περίοδος', 'Period', 'Periodo', 'Period', 'Dönem'
 ${select('metric', T('Ταξινόμηση κατά', 'Sort by', 'Ordenar por', 'Sortiraj po', 'Sırala'), columns.slice(4).map(k => [k, names[k]]))}
 <label>${T('Ελάχιστα λεπτά (μ.ό.)', 'Minimum average minutes', 'Media mínima de minutos', 'Minimalni prosek minuta', 'En az ortalama dakika')}
 <input id="finder-minutes" type="number" min="0" step="1" value="15" inputmode="numeric"></label>
+${select('team', T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım'), [
+  ['', T('Όλες οι ομάδες', 'All teams', 'Todos los equipos', 'Svi timovi', 'Tüm takımlar')],
+  ...config.teams.map(team => [team, team]),
+])}
 ${select('position', T('Θέση', 'Position', 'Posición', 'Pozicija', 'Pozisyon'), [
   ['', T('Όλες', 'All', 'Todas', 'Sve', 'Tümü')],
   ['Guard', T('Γκαρντ', 'Guard', 'Base / escolta', 'Bek', 'Guard')],
