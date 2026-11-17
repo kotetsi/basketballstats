@@ -5,9 +5,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = new URL('../dist/', import.meta.url);
+const standingsPaths = { '':'vathmologia/', 'en/':'standings/', 'es/':'clasificacion/', 'sr/':'tabela/', 'tr/':'puan-durumu/' };
+const portalTitles = { '':'Πύλη Μπασκετικής Ανάλυσης', 'en/':'Basketball Intelligence Portal', 'es/':'Portal de análisis de baloncesto', 'sr/':'Portal košarkaške analitike', 'tr/':'Basketbol Analiz Portalı' };
 for (const lang of ['', 'en/', 'es/', 'sr/', 'tr/']) {
+  test(`portal homepage is published: ${lang || 'el'}`, async () => {
+    const home = await fs.readFile(new URL(lang + 'index.html', root), 'utf8');
+    assert.ok(home.includes(portalTitles[lang]), `localized portal title exists: ${lang || 'el'}`);
+    assert.match(home, /data-view="portal"/);
+    assert.equal((home.match(/class="portal-card"/g) || []).length, 12);
+  });
   test(`standings are present before JavaScript: ${lang || 'el'}`, async () => {
-    const html = await fs.readFile(new URL(lang + 'index.html', root), 'utf8');
+    const html = await fs.readFile(new URL(lang + standingsPaths[lang] + 'index.html', root), 'utf8');
     const table = html.match(/<table id="standTbl"[^>]*>([\s\S]*?)<\/table>/)?.[1];
     assert.ok(table, 'static standings table exists');
     const rows = table.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1];
