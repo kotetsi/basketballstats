@@ -24,5 +24,6 @@ CREATE TABLE IF NOT EXISTS premium_subscriptions (
 );
 CREATE TABLE IF NOT EXISTS premium_billing_events (
   event_id TEXT PRIMARY KEY,
-  processed_at INTEGER NOT NULL
+  processed_at INTEGER NOT NULL,
+  claim TEXT NOT NULL
 );
