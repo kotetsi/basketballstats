@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 206,
+  "calls": 214,
   "fixtures": [
    {
     "id": "id1100013873263158",
@@ -129,42 +129,50 @@
    "id1100013873263158": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263164": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263160": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263162": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263166": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263168": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263170": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263172": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263174": [
     "open",
@@ -214,14 +222,14 @@
    ]
   },
   "props": {
-   "id1100013873263158": 6638,
-   "id1100013873263164": 7713,
-   "id1100013873263160": 3829,
-   "id1100013873263162": 4407,
-   "id1100013873263166": 3900,
-   "id1100013873263168": 3548,
-   "id1100013873263170": 4552,
-   "id1100013873263172": 2806,
+   "id1100013873263158": 7979,
+   "id1100013873263164": 9604,
+   "id1100013873263160": 7633,
+   "id1100013873263162": 7988,
+   "id1100013873263166": 7982,
+   "id1100013873263168": 7815,
+   "id1100013873263170": 7965,
+   "id1100013873263172": 7319,
    "id1100013873263174": 7540,
    "id1100013873263176": 4557,
    "id1100013873263180": 0,
@@ -237,28 +245,36 @@
   },
   "propDone": {
    "id1100013873263158": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263164": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263160": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263162": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263166": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263168": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263170": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263172": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263174": [
     "mid"
@@ -283,48 +299,80 @@
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263164": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263160": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263162": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263166": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263168": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263170": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263172": {
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-16T15:06:49.272Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-17T15:58:29.796Z"
     }
    },
    "id1100013873263174": {
@@ -408,18 +456,18 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-17T11:58:11.577Z",
- "lastSuccess": "2026-11-17T11:58:11.577Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-17T15:58:43.151Z",
+ "lastSuccess": "2026-11-17T15:58:43.151Z",
+ "events": 8,
+ "matched": 8,
+ "added": 15228,
  "quota": {
-  "used": 206,
+  "used": 214,
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-17T11:22:26.924Z",
- "propAdded": 0,
+ "lastChange": "2026-11-17T15:58:43.151Z",
+ "propAdded": 14078,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -456,6 +504,7 @@
   "996303": "Baldwin, Wade",
   "996313": "Jones, Damian",
   "1124125": "Bacon, Dwayne",
+  "1126373": "Dozier, PJ",
   "1142572": "Kurucs, Rodions",
   "1142576": "Peters, Alec",
   "1142578": "Simmons, Kobi",
@@ -485,13 +534,16 @@
   "1166522": "LeDay, Zach",
   "1166670": "Jessup, Justinian",
   "1167536": "Colson, Bonzie",
+  "1168504": "Sestina, Nate",
   "1169046": "Edwards, Carsen",
   "1171538": "Carter, Tyson",
+  "1171656": "Stevens, Lamar",
   "1171706": "Wainright, Ishmail",
   "1172228": "Forrest, Trent",
   "1178132": "Omoruyi, Eugene",
   "1296154": "Frazier, Trent",
   "1296162": "Okeke, Chuma",
+  "1296668": "Minaya, Justin",
   "1296698": "Lee, Saben",
   "1296716": "Pons, Yves",
   "1304640": "Nwora, Jordan",
@@ -503,11 +555,14 @@
   "1318564": "McKinley Wright",
   "1320588": "Da Silva, Oscar",
   "1321402": "Umude, Stanley",
+  "1324396": "Burnell, Jason",
   "1325720": "Wallace, Keaton",
   "1327784": "Shorts, TJ",
+  "1327816": "Gibson, Umoja",
   "1329426": "Cole, RJ",
   "1427257": "DiBartolomeo, John",
   "1429697": "Franks, Robert",
+  "1491418": "Norris, Miles",
   "1491430": "Dotson, Devon",
   "1491936": "Feliz, Andres",
   "1491954": "Washington, Duane",
@@ -524,12 +579,16 @@
   "1585682": "Butler, Jared",
   "1586630": "Petrusev, Filip",
   "1586640": "Edwards, Kessler",
+  "1586664": "Thompson, Ethan",
   "1588382": "Gach, Both",
   "1591442": "Martin, Tyrese",
   "1592622": "Stewart, D.J.",
   "1593864": "Lawson, A.J.",
   "1593938": "Rhoden, Jared",
+  "1600502": "Diop, Ousmane",
   "1605258": "Herrera, Sebastian",
+  "1607392": "Dobric, Ognjen",
+  "1607480": "Tarpey, Terry",
   "1607956": "Besson, Hugo",
   "1608026": "Vildoza, Luca",
   "1608032": "Shields, Shavon",
@@ -538,12 +597,14 @@
   "1608324": "Ndiaye, Mbaye",
   "1608798": "Morgan, Conor",
   "1608810": "Parra, Joel",
+  "1609338": "Davidovac, Dejan",
   "1609360": "Tanaskovic, Nikola",
   "1611210": "Clyburn, William",
   "1612058": "Guduric, Marko",
   "1613294": "Madar, Yam",
   "1613550": "Jekiri, Tonye",
   "1613958": "Pajola, Alessandro",
+  "1614048": "Ricci, Giampaolo",
   "1615302": "Osmani, Ercan",
   "1615736": "Sako, Neal",
   "1615774": "Sorkin, Roman",
@@ -557,7 +618,9 @@
   "1795054": "Nkamhoua, Olivier",
   "1797258": "Robinson, Justin",
   "1829226": "Coffey, Amir",
+  "1829892": "Mathews, Garrison",
   "1830346": "Baugh, Damion",
+  "1831774": "Moore, Omari",
   "1854242": "Hoard, Jaylen",
   "1871510": "Clark, Tre",
   "1874848": "Bacot, Armando",
@@ -569,6 +632,7 @@
   "1930150": "Strazel, Matthew",
   "1937400": "Procida, Gabriele",
   "1939056": "Jones, Chris",
+  "1943552": "Koloko, Christian",
   "1943784": "Hall, Donta",
   "1952624": "Rivero, Jasiel",
   "2028905": "Spagnolo, Matteo",
@@ -579,7 +643,10 @@
   "2218434": "Washington Jr., Tyty",
   "2221846": "Alston Jr, Derrick Samuel",
   "2223564": "Pradilla, Jaime",
+  "2225772": "Baldwin Jr., Patrick",
+  "2227192": "Massa, Bodian",
   "2227308": "Sleva, Dustin",
+  "2284643": "Saint-Supery Fernandez, Mario",
   "2299173": "Beauchamp, MarJon",
   "2445135": "Klintman, Bobi",
   "2446047": "Kokila, Kevin",
