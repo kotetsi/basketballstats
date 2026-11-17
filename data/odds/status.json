@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 193,
+  "calls": 205,
   "fixtures": [
    {
     "id": "id1100013873263158",
@@ -124,7 +124,7 @@
     "start": "2026-11-20T19:45:00.000Z"
    }
   ],
-  "fixturesDay": "2026-11-16",
+  "fixturesDay": "2026-11-17",
   "done": {
    "id1100013873263158": [
     "open",
@@ -222,7 +222,7 @@
    "id1100013873263170": 4552,
    "id1100013873263172": 2806,
    "id1100013873263174": 7540,
-   "id1100013873263176": 0,
+   "id1100013873263176": 2274,
    "id1100013873263180": 0,
    "id1100013873263178": 0,
    "id1100013873263184": 0,
@@ -262,7 +262,9 @@
    "id1100013873263174": [
     "mid"
    ],
-   "id1100013873263176": [],
+   "id1100013873263176": [
+    "open"
+   ],
    "id1100013873263180": [],
    "id1100013873263178": [],
    "id1100013873263184": [],
@@ -331,68 +333,68 @@
    },
    "id1100013873263176": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263180": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263178": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263184": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263182": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263186": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263188": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T15:06:49.272Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263190": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T18:02:49.664Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263192": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T20:06:06.633Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263194": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T20:06:06.633Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    },
    "id1100013873263196": {
     "open": {
-     "count": 1,
-     "lastAttempt": "2026-11-16T20:06:06.633Z"
+     "count": 2,
+     "lastAttempt": "2026-11-17T07:53:23.565Z"
     }
    }
   }
@@ -400,18 +402,18 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-16T20:06:09.047Z",
- "lastSuccess": "2026-11-16T20:06:09.047Z",
- "events": 3,
- "matched": 3,
- "added": 102,
+ "lastCall": "2026-11-17T07:53:34.948Z",
+ "lastSuccess": "2026-11-17T07:53:34.948Z",
+ "events": 11,
+ "matched": 11,
+ "added": 574,
  "quota": {
-  "used": 193,
+  "used": 205,
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-16T20:06:09.047Z",
- "propAdded": 0,
+ "lastChange": "2026-11-17T07:53:34.948Z",
+ "propAdded": 452,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -422,8 +424,11 @@
   "607942": "Crowder, Jae",
   "607970": "Valanciunas, Jonas",
   "608010": "Joseph, Cory",
+  "608026": "Tavares, Edy",
   "608288": "Fournier, Evan",
+  "852058": "Luwawu-Cabarrot, Timothe",
   "852062": "Grant, Jerian",
+  "852172": "Brown, Anthony",
   "852220": "Payne, Cameron",
   "861604": "Satoransky, Tomas",
   "861676": "Lucic, Vladimir",
@@ -437,11 +442,13 @@
   "924344": "Hernangomez, Juancho",
   "924394": "Vezenkov, Sasha",
   "924494": "Okobo, Elie",
+  "924754": "Abalde, Alberto",
   "925894": "Grigonis, Marius",
   "925918": "Shengelia, Tornike",
   "928648": "Butkevicius, Arnas",
   "928894": "Ulanovas, Edgaras",
   "996303": "Baldwin, Wade",
+  "996313": "Jones, Damian",
   "1124125": "Bacon, Dwayne",
   "1142572": "Kurucs, Rodions",
   "1142576": "Peters, Alec",
@@ -453,6 +460,7 @@
   "1142664": "Blakeney, Antonio",
   "1142682": "Brown, Sterling",
   "1157544": "Brooks, Armoni",
+  "1159096": "Gabriel, Wenyen",
   "1159354": "Hall, Devon",
   "1159704": "Ward, Tyson",
   "1160384": "Kabengele, Mfiondu",
@@ -475,11 +483,14 @@
   "1171538": "Carter, Tyson",
   "1171706": "Wainright, Ishmail",
   "1172228": "Forrest, Trent",
+  "1178132": "Omoruyi, Eugene",
   "1296154": "Frazier, Trent",
+  "1296162": "Okeke, Chuma",
   "1296698": "Lee, Saben",
   "1296716": "Pons, Yves",
   "1304640": "Nwora, Jordan",
   "1304652": "Wright, Moses",
+  "1304676": "Walker IV, Lonnie",
   "1307672": "Waters, Tremont",
   "1307712": "Brissett, Oshea",
   "1307752": "Carr, Marcus",
@@ -491,6 +502,8 @@
   "1329426": "Cole, RJ",
   "1427257": "DiBartolomeo, John",
   "1429697": "Franks, Robert",
+  "1491430": "Dotson, Devon",
+  "1491936": "Feliz, Andres",
   "1491954": "Washington, Duane",
   "1491966": "Bingham, Marcus",
   "1492012": "Oturu, Daniel",
@@ -499,6 +512,7 @@
   "1499295": "Musa, Dzanan",
   "1499765": "Nunn, Kendrick",
   "1512657": "Evans, Keenan",
+  "1553197": "Wilbekin, Scott",
   "1554807": "Miller-McIntyre, Codi",
   "1559012": "Loyd, Jordan",
   "1585682": "Butler, Jared",
@@ -513,8 +527,10 @@
   "1607956": "Besson, Hugo",
   "1608026": "Vildoza, Luca",
   "1608032": "Shields, Shavon",
+  "1608076": "Maledon, Theo",
   "1608256": "Marinkovic, Vanja",
   "1608324": "Ndiaye, Mbaye",
+  "1608798": "Morgan, Conor",
   "1608810": "Parra, Joel",
   "1609360": "Tanaskovic, Nikola",
   "1611210": "Clyburn, William",
@@ -545,6 +561,7 @@
   "1886952": "Taylor, Kameron",
   "1889914": "Tubelis, Azuolas",
   "1930150": "Strazel, Matthew",
+  "1937400": "Procida, Gabriele",
   "1939056": "Jones, Chris",
   "1943784": "Hall, Donta",
   "1952624": "Rivero, Jasiel",
@@ -555,6 +572,7 @@
   "2152758": "Hifi, Nadir",
   "2218434": "Washington Jr., Tyty",
   "2221846": "Alston Jr, Derrick Samuel",
+  "2223564": "Pradilla, Jaime",
   "2227308": "Sleva, Dustin",
   "2299173": "Beauchamp, MarJon",
   "2445135": "Klintman, Bobi",
