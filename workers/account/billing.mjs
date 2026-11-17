@@ -87,7 +87,10 @@ export async function paddleWebhook(req, env) {
   if (!event?.event_id || !event?.event_type || !event?.occurred_at || !event?.data?.id) return new Response('invalid event', { status: 400 });
 
   const db = env.DB, data = event.data;
-  const statements = [db.prepare('INSERT OR IGNORE INTO premium_billing_events (event_id, processed_at) VALUES (?, ?)').bind(event.event_id, Math.floor(Date.now() / 1000))];
+  // Claim each provider event and apply its entitlement update in one D1 batch.
+  // A duplicate event ID has a different claim token, so its update is a no-op.
+  const claim = crypto.randomUUID();
+  const statements = [db.prepare('INSERT OR IGNORE INTO premium_billing_events (event_id, processed_at, claim) VALUES (?, ?, ?)').bind(event.event_id, Math.floor(Date.now() / 1000), claim)];
   if (event.event_type === 'subscription.created' || event.event_type === 'subscription.updated') {
     const userId = data.custom_data?.basketballstats_user_id;
     const priceId = env.PADDLE_PRICE_ID;
@@ -99,9 +102,10 @@ export async function paddleWebhook(req, env) {
       if (user) statements.push(db.prepare(`INSERT INTO premium_subscriptions (user_id, customer_id, subscription_id, price_id, status, current_period_end, last_event_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id, subscription_id = excluded.subscription_id, price_id = excluded.price_id, status = excluded.status, current_period_end = excluded.current_period_end, last_event_at = excluded.last_event_at
-        WHERE excluded.last_event_at >= premium_subscriptions.last_event_at`).bind(
+        WHERE excluded.last_event_at >= premium_subscriptions.last_event_at
+          AND EXISTS (SELECT 1 FROM premium_billing_events WHERE event_id = ? AND claim = ?)`).bind(
           owner, data.customer_id || null, data.id, priceId, status,
-          data.current_billing_period?.ends_at || null, event.occurred_at,
+          data.current_billing_period?.ends_at || null, event.occurred_at, event.event_id, claim,
         ));
     }
   }
