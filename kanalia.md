@@ -32,3 +32,23 @@ Novasports (Ελλάδα), Movistar Plus+ (Ισπανία), Arena Sport (Σερ�
 10 | PAR | TEL | Novasports 4 | - | Arena Sport Premium 2 | S Sport Plus
 11 | PAR | BAS | Novasports Start | Baloncesto por M+ | - | -
 11 | PRS | ULK | Novasports 4 | Baloncesto por M+ 2 | - | S Sport
+12 | DUB | IST | Novasports 4 | Baloncesto por M+ 2 | Arena Sport Premium 1 | S Sport 2
+12 | TEL | OLY | Novasports Prime | Baloncesto por M+ 3 | Arena Sport Premium 2 | S Sport Plus
+12 | ZAL | MUN | Novasports 3 | Baloncesto por M+ 5 | Arena Sport Premium 3 | S Sport Plus
+12 | ULK | ASV | Novasports 5 | Baloncesto por M+ 4 | Arena Sport 2 | S Sport
+12 | BAR | PRS | Novasports 4 | M+ Vamos | Arena Sport Premium 4 | S Sport 2
+12 | MIL | RED | Novasports Start | M+ Vamos 2 | Arena Sport Premium 1 | S Sport Plus
+12 | BAS | HTA | Novasports 2 | Baloncesto por M+ 2 | Arena Sport Premium 5 | -
+12 | PAR | PAM | Novasports 3 | Baloncesto por M+ | Arena Sport Premium 2 | S Sport Plus
+12 | VIR | PAN | Novasports Prime | Baloncesto por M+ 3 | Arena Sport Premium 3 | S Sport
+12 | BES | MAD | Novasports 5 | - | - | S Sport
+13 | TEL | DUB | Novasports Start | Baloncesto por M+ 4 | - | S Sport Plus
+13 | ZAL | PAN | Novasports Prime | Baloncesto por M+ 2 | - | S Sport 2
+13 | MUN | BAS | Novasports 3 | Baloncesto por M+ | - | S Sport Plus
+13 | MIL | ULK | Novasports 4 | Baloncesto por M+ 3 | - | S Sport
+13 | PRS | HTA | Novasports 5 | Baloncesto por M+ 5 | - | S Sport Plus
+13 | PAM | VIR | - | M+ Vamos | - | S Sport 2
+13 | IST | ASV | Novasports 5 | Baloncesto por M+ 4 | - | S Sport
+13 | OLY | MAD | Novasports Prime | - | - | S Sport Plus
+13 | BAR | RED | Novasports 4 | - | - | S Sport
+13 | PAR | BES | Novasports Start | Baloncesto por M+ 3 | - | S Sport 2
