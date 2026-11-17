@@ -44,7 +44,6 @@ export async function createCheckout(env, user, site) {
   const data = await paddleFetch(env, '/transactions', {
     items: [{ price_id: env.PADDLE_PRICE_ID, quantity: 1 }],
     custom_data: { basketballstats_user_id: user.id },
-    checkout: { url: site + '/premium/' },
   });
   if (!data?.checkout?.url || !data.checkout.url.startsWith('https://')) throw new Error('checkout_unavailable');
   return data.checkout.url;
@@ -73,13 +72,14 @@ export async function paddleWebhook(req, env) {
     const priceId = env.PADDLE_PRICE_ID;
     const itemPriceIds = (Array.isArray(data.items) ? data.items : []).map(x => x.price?.id || x.price_id);
     const status = ['active', 'trialing', 'past_due', 'paused', 'canceled'].includes(data.status) ? data.status : 'inactive';
-    if (typeof userId === 'string' && userId && priceId && itemPriceIds.includes(priceId)) {
+      const owner = typeof userId === 'string' && userId ? userId : (await db.prepare('SELECT user_id FROM premium_subscriptions WHERE subscription_id = ? OR customer_id = ?').bind(data.id, data.customer_id || '').first())?.user_id;
+    if (typeof owner === 'string' && owner && priceId && itemPriceIds.includes(priceId)) {
       const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
       if (user) statements.push(db.prepare(`INSERT INTO premium_subscriptions (user_id, customer_id, subscription_id, price_id, status, current_period_end, last_event_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id, subscription_id = excluded.subscription_id, price_id = excluded.price_id, status = excluded.status, current_period_end = excluded.current_period_end, last_event_at = excluded.last_event_at
         WHERE excluded.last_event_at >= premium_subscriptions.last_event_at`).bind(
-          userId, data.customer_id || null, data.id, priceId, status,
+          owner, data.customer_id || null, data.id, priceId, status,
           data.current_billing_period?.ends_at || null, event.occurred_at,
         ));
     }
