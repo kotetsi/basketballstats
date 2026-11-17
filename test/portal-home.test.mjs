@@ -41,6 +41,23 @@ test('portal generator creates localized homepages and preserves standings pages
       const home = await fs.readFile(path.join(dist, dir, 'index.html'), 'utf8');
       for (const title of localizedTitles[dir]) assert.ok(home.includes(title), 'missing localized title: ' + title + ' in ' + dir);
       assert.match(home, /data-view="portal"/);
+      assert.match(home, /<title>[^<]*\| BasketballStats<\/title>/);
+      assert.doesNotMatch(home, /<title>[^<]*Basketball Stats<\/title>/);
+      for (const marker of ['01 / 05', '02 / 05', '03 / 05', '04 / 05', '05 / 05']) assert.ok(home.includes(marker), 'missing section marker ' + marker);
+      if (!dir) {
+        const cards = [...home.matchAll(/<a class="portal-card" href="([^"]+)">([\s\S]*?)<\/a>/g)];
+        const card = label => cards.find(([, , html]) => html.includes('<b>' + label + '</b>'));
+        const odds = card('Ανάλυση αποδόσεων');
+        const clv = card('Αξία σε σχέση με την τελική απόδοση');
+        const players = card('Ανάλυση παικτών');
+        const teams = card('Στατιστικά ομάδων');
+        assert.ok(odds && odds[1] === '/apodoseis/', 'odds card must link to odds analysis');
+        assert.ok(!odds[2].includes('τελική τιμή'), 'odds card description must not describe CLV');
+        assert.ok(clv && clv[1] === '/apodoseis/clv/' && clv[2].includes('τελική τιμή'), 'CLV card must retain the closing-price description and route');
+        assert.ok(players && players[1] === '/koryfaioi/', 'player analysis card must link to player statistics');
+        assert.ok(!players[2].includes('ομαδικούς δείκτες'), 'player analysis card must not describe team metrics');
+        assert.ok(teams && teams[1] === '/analytika/', 'team statistics card must remain on team analytics');
+      }
       if (dir) {
         const navigation = home.match(/<nav class="nav">[\s\S]*?<\/nav>/)?.[0] || '';
         assert.doesNotMatch(navigation, /Match Center|Betting Intelligence|Player Lab|Predictions|Basketball Data/);
@@ -57,6 +74,7 @@ test('portal generator creates localized homepages and preserves standings pages
       const oldStandings = await fs.readFile(path.join(dist, dir, standings, 'index.html'), 'utf8');
       assert.match(oldStandings, /id="standTbl"/);
       assert.match(oldStandings, /data-v="today"/);
+      assert.match(oldStandings, /<title>[^<]*BasketballStats<\/title>/);
       for (const [altDir, altStandings] of locales) {
         const expected = 'https://basketballstats.eu/' + altDir + altStandings + '/';
         assert.ok(oldStandings.includes('hreflang="' + (altDir ? altDir.slice(0,-1) : 'el') + '" href="' + expected + '"'), expected);
