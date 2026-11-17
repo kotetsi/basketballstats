@@ -66,6 +66,9 @@ const OFFLINE = process.argv.includes('--offline');
 const ASK_SK = r => [Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[18], r[20], r[19], r[9], r[10], r[11], r[12], r[13], r[14], r[22], r[25]];
 const OUT = path.join(ROOT, 'dist');
 const PREMIUM_OUT = path.join(ROOT, '.premium-data');
+// Premium: όσο είναι κλειστό (site.config.json premium.enabled !== true) τα δεδομένα των εργαλείων μένουν και δημόσια,
+// ώστε το merge του κώδικα πληρωμών να μη σβήνει το Prop Analyzer και τις συγκρίσεις πριν στηθούν R2 και Paddle.
+const PREMIUM_ON = CONF.premium?.enabled === true;
 const PROPS_UI = await fs.readFile(path.join(ROOT, 'src', 'props', 'ui.js'));
 // ελληνική γραφή ονομάτων παικτών για τις ελληνικές σελίδες (data/greek-names.json)
 const GRN = await fs.readFile(path.join(ROOT, 'data', 'greek-names.json'), 'utf8').then(JSON.parse).catch(() => ({}));
@@ -1053,6 +1056,7 @@ async function main() {
     await fs.mkdir(path.join(PREMIUM_OUT, 'props'), { recursive: true });
     await fs.writeFile(path.join(PREMIUM_OUT, 'props', 'data.json'), JSON.stringify(PADATA));
     await fs.mkdir(path.join(OUT, 'assets', 'props'), { recursive: true });
+    if (!PREMIUM_ON) await fs.writeFile(path.join(OUT, 'assets', 'props', 'data.json'), JSON.stringify(PADATA));
     await fs.writeFile(path.join(OUT, 'assets', 'props', 'ui.js'), PROPS_UI);
     await fs.copyFile(path.join(ROOT, 'src', 'props', 'calc.mjs'), path.join(OUT, 'assets', 'props', 'calc.mjs'));
     await fs.copyFile(path.join(ROOT, 'src', 'odds', 'props.mjs'), path.join(OUT, 'assets', 'props', 'model.mjs'));
@@ -1221,7 +1225,10 @@ async function main() {
     }
   }
   {
-    const api = (p, o) => fs.mkdir(path.dirname(path.join(PREMIUM_OUT, p)), { recursive: true }).then(() => fs.writeFile(path.join(PREMIUM_OUT, p), JSON.stringify(o)));
+    const api = async (p, o) => {
+      const outs = [path.join(PREMIUM_OUT, p), ...(PREMIUM_ON ? [] : [path.join(OUT, 'api', p)])];
+      for (const f of outs) { await fs.mkdir(path.dirname(f), { recursive: true }); await fs.writeFile(f, JSON.stringify(o)); }
+    };
     await fs.mkdir(path.join(OUT, 'assets', 'compare'), { recursive: true });
     for (const f of ['metrics.mjs', 'ui.js', 'catalog.mjs', 'pairs.mjs']) await fs.copyFile(path.join(ROOT, 'src', 'compare', f), path.join(OUT, 'assets', 'compare', f));
     await api('compare/players/metrics.json', { current: SEASON, defaultKeys: CB.DEFAULT_KEYS, allKeys: CB.ALL_KEYS, per36: CB.PER36, per100: CB.PER100, seasons: CMP.seasons, similar: CMP.similar });
@@ -1484,7 +1491,7 @@ ${pwaStyle}`;
     const footer = shellB.slice(shellB.lastIndexOf('{{AD}}<footer')).replace('{{AD}}', adUnit(LG));
     const LNAME = { el: ['ΕΛ', 'Ελληνικά'], en: ['EN', 'English'], es: ['ES', 'Español'], sr: ['SR', 'Srpski'], tr: ['TR', 'Türkçe'] };
     // λογαριασμός χρήστη (workers/account): κουμπί «Σύνδεση» δίπλα στις γλώσσες, μόνο όταν έχει γίνει deploy (site.config.json → account.api)
-    const ACCJ = ACC_API ? `<script type="application/json" id="acctx">${JSON.stringify({ api: ACC_API, lg: LG, legal: urlFor(LG, 'legal'), manager: urlFor(LG, 'fx:manager'), assistant: urlFor(LG, 'fx:assistant') })}</script><script type="module" src="${BASE}assets/account/account.js?v=${ver}"></script>` : '';
+    const ACCJ = ACC_API ? `<script type="application/json" id="acctx">${JSON.stringify({ api: ACC_API, premium: PREMIUM_ON, base: BASE, lg: LG, legal: urlFor(LG, 'legal'), manager: urlFor(LG, 'fx:manager'), assistant: urlFor(LG, 'fx:assistant') })}</script><script type="module" src="${BASE}assets/account/account.js?v=${ver}"></script>` : '';
     const langSw = alts => `<span class="langs">${OTHERS.map(o => `<a class="langsw" href="${alts[o] || B(o)}" hreflang="${o}" lang="${o}" title="${LNAME[o][1]}">${LNAME[o][0]}</a>`).join('')}</span>${ACCJ}`;
     const script = `<script src="${BASE}assets/${LG === 'el' ? 'app.js' : 'app.' + LG + '.js'}?v=${ver}" defer></script>`;
     // εργαλεία: ποιες σελίδες υπάρχουν σε αυτό το build, οικογένειες με καρτέλες, κατάλογος (src/tools.mjs)

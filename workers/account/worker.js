@@ -185,6 +185,9 @@ export default {
       }
       if (p === '/logout' && req.method === 'POST') { const m = /^Bearer (.+)$/.exec(req.headers.get('authorization')); await env.DB.prepare('DELETE FROM sessions WHERE hash = ?').bind(await sha(m[1])).run(); return R({ ok: true }); }
       if (p === '/me' && req.method === 'DELETE') {                 // διαγραφή λογαριασμού: όλα τα δεδομένα, αμέσως
+        // ενεργή συνδρομή: πρώτα ακύρωση από τη διαχείριση συνδρομής, αλλιώς το Paddle θα συνέχιζε να χρεώνει έναν λογαριασμό που δεν υπάρχει
+        const sub = await premiumStatus(env.DB, u.id);
+        if (['active', 'trialing', 'past_due', 'paused'].includes(sub.status)) return R({ error: 'active_subscription', status: sub.status }, 409);
         const id = u.id, s = sql => env.DB.prepare(sql).bind(id);
         const subs = (await env.DB.prepare('SELECT id FROM push_subs WHERE user_id = ?').bind(id).all()).results || [];
         await env.DB.batch([...subs.map(x => env.DB.prepare('DELETE FROM push_queue WHERE sub_id = ?').bind(x.id)), s('DELETE FROM push_subs WHERE user_id = ?'), s('DELETE FROM telegram WHERE user_id = ?'), s('DELETE FROM tg_codes WHERE user_id = ?'), s('DELETE FROM sent WHERE user_id = ?'), s('DELETE FROM premium_subscriptions WHERE user_id = ?'), s('DELETE FROM state WHERE user_id = ?'), s('DELETE FROM sessions WHERE user_id = ?'), s('DELETE FROM users WHERE id = ?')]);

@@ -154,3 +154,18 @@ test('unknown account and non-matching product cannot create an entitlement', as
   assert.deepEqual(await premiumStatus(db, 'missing-user'), { premium: false, status: 'free', currentPeriodEnd: null });
   assert.deepEqual(await premiumStatus(db, 'user-2'), { premium: false, status: 'free', currentPeriodEnd: null });
 });
+
+test('cancellation events end access, and an active subscriber cannot delete the account while still billed', async () => {
+  addUser('user-del');
+  assert.equal((await sendWebhook(event({ id: 'evt_del_1', user: 'user-del', subscription: 'sub_del', customer: 'ctm_del', at: '2026-11-17T13:00:00Z' }))).status, 200);
+  assert.equal((await premiumStatus(db, 'user-del')).premium, true);
+  const token = 'tok-del', hash = Buffer.from(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token))).toString('base64url');
+  db.raw.prepare('INSERT INTO sessions (hash, user_id, exp) VALUES (?, ?, ?)').run(hash, 'user-del', Math.floor(Date.now() / 1000) + 3600);
+  const del = () => Worker.fetch(new Request('https://worker.example/me', { method: 'DELETE', headers: { authorization: 'Bearer ' + token, origin: 'https://basketballstats.eu' } }), { ...env, ALLOWED_ORIGINS: 'https://basketballstats.eu' }, { waitUntil() {} });
+  const blocked = await del();
+  assert.equal(blocked.status, 409);
+  assert.equal((await blocked.json()).error, 'active_subscription');
+  assert.equal((await sendWebhook(event({ id: 'evt_del_2', type: 'subscription.canceled', status: 'canceled', user: 'user-del', subscription: 'sub_del', customer: 'ctm_del', at: '2026-11-17T14:00:00Z' }))).status, 200);
+  assert.equal((await premiumStatus(db, 'user-del')).premium, false);
+  assert.equal((await del()).status, 200);
+});

@@ -14,7 +14,7 @@ function globals({ token = 'session-token', status = { premium: false, status: '
   };
   globalThis.document = {
     documentElement: { lang: 'el' },
-    getElementById: id => id === 'acctx' ? { textContent: JSON.stringify({ api: 'https://account.example' }) } : null,
+    getElementById: id => id === 'acctx' ? { textContent: JSON.stringify({ api: 'https://account.example', premium: true }) } : null,
     querySelector: () => null,
     createElement: () => ({ setAttribute() {}, textContent: '' }),
   };
@@ -74,4 +74,23 @@ test('free account can start only the server-configured checkout', async () => {
     assert.equal(request.init.method, 'POST');
     assert.equal(request.init.headers.authorization, 'Bearer session-token');
   } finally { g.restore(); }
+});
+
+test('Premium off (site built without premium.enabled): nothing locks and data comes from the public site', async () => {
+  const old = Object.fromEntries(['document', 'localStorage', 'fetch'].map(k => [k, Object.getOwnPropertyDescriptor(globalThis, k)]));
+  const urls = [];
+  globalThis.document = { documentElement: { lang: 'el' }, getElementById: id => id === 'acctx' ? { textContent: JSON.stringify({ api: 'https://account.example', premium: false, base: '/' }) } : null };
+  globalThis.localStorage = { getItem: () => null };
+  globalThis.fetch = async url => { urls.push(String(url)); return Response.json({ players: [] }); };
+  try {
+    const { requirePremium, fetchPremiumData } = await import('../src/account/premium-gate.mjs');
+    const root = { hidden: false, innerHTML: 'tool' };
+    assert.equal(await requirePremium(root), true);
+    assert.equal(root.innerHTML, 'tool');
+    assert.deepEqual(await fetchPremiumData('props/data.json'), { players: [] });
+    await fetchPremiumData('compare/teams/metrics.json');
+    assert.deepEqual(urls, ['/assets/props/data.json', '/api/compare/teams/metrics.json']);
+  } finally {
+    for (const [k, d] of Object.entries(old)) d ? Object.defineProperty(globalThis, k, d) : delete globalThis[k];
+  }
 });

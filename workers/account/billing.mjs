@@ -91,7 +91,8 @@ export async function paddleWebhook(req, env) {
   // A duplicate event ID has a different claim token, so its update is a no-op.
   const claim = crypto.randomUUID();
   const statements = [db.prepare('INSERT OR IGNORE INTO premium_billing_events (event_id, processed_at, claim) VALUES (?, ?, ?)').bind(event.event_id, Math.floor(Date.now() / 1000), claim)];
-  if (['subscription.created', 'subscription.updated', 'subscription.past_due'].includes(event.event_type)) {
+  // όλα τα γεγονότα συνδρομής φέρουν την πλήρη κατάσταση· η σειρά εξασφαλίζεται με το occurred_at (last_event_at)
+  if (['subscription.created', 'subscription.updated', 'subscription.past_due', 'subscription.activated', 'subscription.canceled', 'subscription.paused', 'subscription.resumed'].includes(event.event_type)) {
     const userId = data.custom_data?.basketballstats_user_id;
     const priceId = env.PADDLE_PRICE_ID;
     const itemPriceIds = (Array.isArray(data.items) ? data.items : []).map(x => x.price?.id || x.price_id);

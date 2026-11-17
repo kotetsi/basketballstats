@@ -36,8 +36,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "$CLOUDFLARE_ACCOUNT_ID" || -z "$PREMIUM_R2_BUCKET" || -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
-            echo "::error::Configure the R2 bucket name/account ID and bucket-scoped R2 object-write credentials before enabling Premium data."
-            exit 1
+            echo "::notice::R2 is not configured yet (bucket name/account ID variables or bucket-scoped credentials missing); skipping the Premium data upload."
+            exit 0
           fi
           endpoint="https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
           while IFS= read -r -d '' file; do

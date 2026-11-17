@@ -32,11 +32,22 @@ const copy = {
 };
 const esc = value => String(value || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const accCtx = () => { try { return JSON.parse(document.getElementById('acctx')?.textContent || '{}'); } catch { return {}; } };
+// Premium ανοιχτό μόνο όταν το site χτίστηκε με premium.enabled: αλλιώς τα δεδομένα είναι δημόσια και κανένα εργαλείο δεν κλειδώνει
+export const premiumEnabled = () => accCtx().premium === true;
+const publicUrl = (key, base = '/') => base + (key === 'props/data.json' ? 'assets/' : 'api/') + key;
+
 export async function fetchPremiumData(key) {
   if (!/^(props\/data\.json|compare\/(?:players\/(?:metrics\.json|similar\/[A-Za-z0-9_-]+\.json)|teams\/metrics\.json))$/.test(key)) {
     throw new Error('Invalid Premium data key');
   }
-  const api = JSON.parse(document.getElementById('acctx')?.textContent || '{}').api;
+  const ctx = accCtx();
+  if (ctx.premium !== true) {
+    const res = await fetch(publicUrl(key, ctx.base || '/'));
+    if (!res.ok) throw new Error('Data unavailable.');
+    return res.json();
+  }
+  const api = ctx.api;
   const token = localStorage.getItem('bsacc');
   if (!api || !token) throw new Error('Sign in to load Premium data.');
   const res = await fetch(api.replace(/\/$/, '') + '/premium/data/' + key, {
@@ -47,7 +58,7 @@ export async function fetchPremiumData(key) {
 }
 
 export async function requirePremium(root, related = []) {
-  if (!root) return true;
+  if (!root || !premiumEnabled()) return true;
   const elements = [root, ...related].filter(Boolean);
   elements.forEach(el => { el.hidden = true; });
   const lang = (document.documentElement.lang || 'en').slice(0, 2);

@@ -95,3 +95,14 @@ The PR's account and billing test workflow passed on run 33, including immediate
 - Privacy/terms and support/refund information updated for paid subscriptions before launch.
 
 This draft PR contains sandbox-first billing backend code, Worker-enforced data endpoints, and client-side convenience gates. It does not configure Paddle credentials, charge users, enable live checkout, provision/fill R2, complete R2 sync automation, change hosting/DNS, merge, or deploy. Keep the PR in draft until the noted build failure and sync approval are resolved.
+
+## Διακόπτης ενεργοποίησης (site.config.json → premium.enabled)
+
+Ο κώδικας πληρωμών μπορεί να μπει στο main χωρίς να αλλάξει τίποτα για τους επισκέπτες:
+
+- `premium.enabled: false` (τώρα): Prop Analyzer και συγκρίσεις δουλεύουν δωρεάν όπως πριν· τα δεδομένα γράφονται και δημόσια και στο `.premium-data/`. Κανένα κουμπί πληρωμής δεν εμφανίζεται.
+- Ο worker αποκτά τα endpoints `/billing/*` και `/premium/data/*`, αλλά χωρίς τα secrets του Paddle το `/config` δηλώνει `billing: false`.
+- Το R2 bucket συνδέεται στο deploy του worker μόνο αν υπάρχει· το συγχρονισμένο ανέβασμα δεδομένων παραλείπεται (χωρίς σφάλμα) μέχρι να οριστούν τα στοιχεία του R2.
+- Διαγραφή λογαριασμού με ενεργή συνδρομή απορρίπτεται (409 `active_subscription`) μέχρι να ακυρωθεί η συνδρομή, ώστε να μη συνεχίζουν οι χρεώσεις.
+
+Σειρά για την έναρξη: R2 bucket και στοιχεία → πρώτο ανέβασμα δεδομένων → secrets Paddle (sandbox) στον worker → δοκιμαστική αγορά sandbox → `premium.enabled: true` → έλεγχος → production στο Paddle.
