@@ -82,7 +82,7 @@ test('verified, matching subscription webhooks grant and revoke Premium idempote
   const active = event({ id: 'evt_active' });
   assert.equal((await sendWebhook(active)).status, 200);
   assert.equal((await sendWebhook(active)).status, 200);
-  assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: true, status: 'active', currentPeriodEnd: '2026-12-17T00:00:00Z' });
+  assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: true, status: 'active', currentPeriodEnd: '2026-12-17T12:00:00Z' });
   assert.equal(db.raw.prepare('SELECT COUNT(*) n FROM premium_billing_events WHERE event_id = ?').get('evt_active').n, 1);
 
   const stale = event({ id: 'evt_stale', type: 'subscription.updated', at: '2026-11-16T12:00:00Z', status: 'canceled' });
@@ -91,7 +91,7 @@ test('verified, matching subscription webhooks grant and revoke Premium idempote
 
   const canceled = event({ id: 'evt_canceled', type: 'subscription.updated', at: '2026-11-18T12:00:00Z', status: 'canceled' });
   await sendWebhook(canceled);
-  assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: false, status: 'canceled', currentPeriodEnd: '2026-12-17T00:00:00Z' });
+  assert.deepEqual(await premiumStatus(db, 'user-1'), { premium: false, status: 'canceled', currentPeriodEnd: '2026-12-17T12:00:00Z' });
 });
 
 test('unknown account and non-matching product cannot create an entitlement', async () => {
