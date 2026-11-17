@@ -28,7 +28,9 @@ export async function verifyPaddleSignature(rawBody, header, secret, nowMs = Dat
 }
 
 function apiBase(env) {
-  return env.PADDLE_ENV === 'sandbox' ? PADDLE_SANDBOX_API : PADDLE_API;
+  if (env.PADDLE_ENV === 'sandbox') return PADDLE_SANDBOX_API;
+  if (env.PADDLE_ENV === 'production') return PADDLE_API;
+  throw new Error('billing_unavailable');
 }
 
 async function paddleFetch(env, path, body) {
