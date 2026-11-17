@@ -50,13 +50,13 @@ The Worker includes a Paddle integration in `billing.mjs`:
 
 1. Create and verify a Paddle seller account. Create the Premium product and a single monthly €9.90 price. Confirm how Paddle presents tax and the payout/transaction fees in your account.
 2. Use Paddle **sandbox** credentials first. Create a notification destination for `https://<worker-host>/billing/webhook` and subscribe to `subscription.created` and `subscription.updated`. Keep the destination's secret private.
-3. Configure these Worker values through the approved deployment process:
-   - `PADDLE_API_KEY` — API key with transaction and customer-portal permissions.
-   - `PADDLE_WEBHOOK_SECRET` — signing secret for that notification destination.
-   - `PADDLE_PRICE_ID` — the single monthly Premium price ID.
-   - `PADDLE_ENV=sandbox` for tests. Production requires `PADDLE_ENV=production` and separate live credentials/price ID.
-4. Apply the D1 schema in `schema.sql` before deploying the updated Worker. The account deploy workflow already applies this schema when run.
-5. Run the Paddle webhook simulator and the account/billing tests. Do not enable real checkout until protected Premium data and calculations are enforced server-side and production settings have been reviewed.
+3. After the Worker code and D1 schema are deployed under a separately approved release, add these values as **Worker secrets directly in the Cloudflare dashboard** for `bs-account` (Settings → Variables and Secrets):
+   - `PADDLE_API_KEY` — sandbox API key with transaction and customer-portal permissions.
+   - `PADDLE_WEBHOOK_SECRET` — signing secret for that sandbox notification destination.
+   - `PADDLE_PRICE_ID` — sandbox monthly Premium price ID.
+   - Keep `PADDLE_ENV=sandbox`, which is the checked-in default. Do not add live credentials until a separate production release is approved.
+4. The existing account deploy workflow applies the D1 schema. Adding or changing Worker secrets affects the deployed Worker, so do this only as part of an approved release.
+5. Run the Paddle webhook simulator and account/billing tests. Do not enable real checkout until protected Premium data and calculations are enforced server-side and production settings have been reviewed.
 
 Never put Paddle keys or webhook secrets in `site.config.json`, source files, or browser JavaScript. Checkout remains unavailable unless the server has the API key and fixed price ID. Sandbox is the configured default. Setting production credentials or deploying the Worker is a separate release action and is not done by this change.
 
