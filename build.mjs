@@ -11,6 +11,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { translate, APP_CODE, SHELL_CODE } from './src/en.mjs';
+import { finderPage, finderTitle } from './src/finder/page.mjs';
 import * as ES from './src/es.mjs';
 import * as SR from './src/sr.mjs';
 import * as TRL from './src/tr.mjs';
@@ -1320,6 +1321,7 @@ async function main() {
     if (k === 'five') return B(lg) + 'quiz/starting-five/';
     if (k === 'quiz') return B(lg) + 'quiz/';
     if (k === 'home') return B(lg);
+    if (k === 'finder') return B(lg) + 'player-finder/';
     if (k === 'team') return B(lg) + P.team + '/' + TEAMS[v][TEAM_IDX[lg][1]] + '/';
     if (k === 'player') return B(lg) + P.player + '/' + v + '/';
     if (k === 'article') { const a = artBySlug[v]; return a && a[lg] ? a[lg].url : null; }
@@ -1371,6 +1373,10 @@ async function main() {
     if (k === 'lu') { const [cp, c] = v.split('-'); return B(lg) + P.lu + '/' + (cp === 'U' ? 'eurocup-' + c.toLowerCase() : TEAMS[c][TEAM_IDX[lg][1]]) + '/'; }
     return B(lg) + P[k] + '/';
   }
+
+  const finderAssets = path.join(OUT, 'assets', 'finder');
+  await fs.mkdir(finderAssets, { recursive: true });
+  for (const file of ['metrics.mjs', 'ui.mjs', 'finder.css']) await fs.copyFile(path.join(ROOT, 'src', 'finder', file), path.join(finderAssets, file));
 
   const urls = [], PAGE_HASH = new Map();
   const adUnit = lg => (AD_CLIENT && AD_SLOT)
@@ -1481,7 +1487,7 @@ ${pwaStyle}`;
       if (!tx) return '';
       return `<div class="annbar" id="ann-${id}" role="region" aria-label="${esc(T('Ανακοίνωση', 'Announcement', 'Aviso', 'Obaveštenje', 'Duyuru'))}"><a href="${esc(ANN.url)}" target="_blank" rel="noopener"><span>${esc(tx)}</span> <b>${esc(cta)}</b></a><button type="button" aria-label="${esc(T('Κλείσιμο', 'Close', 'Cerrar', 'Zatvori', 'Kapat'))}" onclick="this.parentNode.remove();try{localStorage.setItem('ann','${id}')}catch(e){}">×</button></div><script>try{if(localStorage.getItem('ann')==='${id}')document.getElementById('ann-${id}').remove()}catch(e){}</script>`;
     };
-    const shellB0 = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'sched')}">${T('Πρόγραμμα & αποτελέσματα', 'Schedule & results', 'Calendario y resultados', 'Raspored i rezultati', 'Fikstür ve sonuçlar')}</a><a href="${urlFor(LG, 'inj')}">🩹 Injury Report</a>${TRF.length ? `<a href="${urlFor(LG, 'transfers')}">🔄 ${T('Μεταγραφές', 'Transfers', 'Fichajes', 'Transferi', 'Transferler')}</a>` : ''}${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija', 'Tarihçe')}</a>` : ''}<a href="${urlFor(LG, 'guess')}">🎯 ${T('Μάντεψε τον παίκτη', 'Guess the player', 'Adivina el jugador', 'Pogodi igrača', 'Oyuncuyu tahmin et')}</a><a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi', 'Liderler ve rekorlar')}</a>${MPRED?.games?.length ? `<a href="${urlFor(LG, 'mc')}">Matchup Center</a>` : ''}<a href="${urlFor(LG, 'odds')}">Betting Insights (${LG === 'el' ? 21 : 18}+)</a>${DAYT.day || Object.keys(DAYT.hist).length ? `<a href="${urlFor(LG, 'daytip')}">🎯 ${T('Στοίχημα της ημέρας', 'Bet of the day', 'Apuesta del día', 'Tip dana', 'Günün bahsi')}</a>` : ''}${AN.E ? `<a href="${urlFor(LG, 'ana')}">Team Analytics</a><a href="${urlFor(LG, 'onoff')}">On/Off</a>` : ''}${REFROWS.length ? `<a href="${urlFor(LG, 'ref')}">${T('Διαιτητές', 'Referees', 'Árbitros', 'Sudije', 'Hakemler')}</a>` : ''}<a href="${urlFor(LG, 'awards')}">${T('Βραβεία', 'Awards', 'Premios', 'Nagrade', 'Ödüller')}</a><a href="${urlFor(LG, 'mvp')}">${T('MVP ανά χρονιά', 'MVP by year', 'MVP por año', 'MVP po godinama', 'Yıllara göre MVP')}</a><a href="${urlFor(LG, 'nat')}">${T('Εθνικότητες', 'Nationalities', 'Nacionalidades', 'Nacionalnosti', 'Uyruklar')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija', 'Uygulama')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača', 'Oyuncu karşılaştır')}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela', 'Model isabeti')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt', 'Siten için widget’lar')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića', 'Çerez ayarları')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL).replace(/(<nav class="foot">[\s\S]*?<\/nav>)/, m => m + (SOCIAL.length ? `<p class="social">${T('Ακολούθησέ μας', 'Follow us', 'Síguenos', 'Prati nas', 'Bizi takip edin')}: ${SOCIAL.map(x => `<a href="${esc(x.u)}" rel="me noopener" target="_blank">${esc(x.n)}</a>`).join('')}</p>` : ''))
+    const shellB0 = SHELL[LG].replace(PRIV, `${PRIV}<a href="${urlFor(LG, 'sched')}">${T('Πρόγραμμα & αποτελέσματα', 'Schedule & results', 'Calendario y resultados', 'Raspored i rezultati', 'Fikstür ve sonuçlar')}</a><a href="${urlFor(LG, 'inj')}">🩹 Injury Report</a>${TRF.length ? `<a href="${urlFor(LG, 'transfers')}">🔄 ${T('Μεταγραφές', 'Transfers', 'Fichajes', 'Transferi', 'Transferler')}</a>` : ''}${Object.values(data.hist || {}).some(h => h.rows?.length) ? `<a href="${urlFor(LG, 'hist')}">${T('Ιστορικό', 'History', 'Historia', 'Istorija', 'Tarihçe')}</a>` : ''}<a href="${urlFor(LG, 'guess')}">🎯 ${T('Μάντεψε τον παίκτη', 'Guess the player', 'Adivina el jugador', 'Pogodi igrača', 'Oyuncuyu tahmin et')}</a><a href="${urlFor(LG, 'lead')}">${T('Κορυφαίοι και ρεκόρ', 'Leaders and records', 'Líderes y récords', 'Lideri i rekordi', 'Liderler ve rekorlar')}</a>${MPRED?.games?.length ? `<a href="${urlFor(LG, 'mc')}">Matchup Center</a>` : ''}<a href="${urlFor(LG, 'odds')}">Betting Insights (${LG === 'el' ? 21 : 18}+)</a>${DAYT.day || Object.keys(DAYT.hist).length ? `<a href="${urlFor(LG, 'daytip')}">🎯 ${T('Στοίχημα της ημέρας', 'Bet of the day', 'Apuesta del día', 'Tip dana', 'Günün bahsi')}</a>` : ''}${AN.E ? `<a href="${urlFor(LG, 'ana')}">Team Analytics</a><a href="${urlFor(LG, 'onoff')}">On/Off</a>` : ''}${REFROWS.length ? `<a href="${urlFor(LG, 'ref')}">${T('Διαιτητές', 'Referees', 'Árbitros', 'Sudije', 'Hakemler')}</a>` : ''}<a href="${urlFor(LG, 'awards')}">${T('Βραβεία', 'Awards', 'Premios', 'Nagrade', 'Ödüller')}</a><a href="${urlFor(LG, 'mvp')}">${T('MVP ανά χρονιά', 'MVP by year', 'MVP por año', 'MVP po godinama', 'Yıllara göre MVP')}</a><a href="${urlFor(LG, 'nat')}">${T('Εθνικότητες', 'Nationalities', 'Nacionalidades', 'Nacionalnosti', 'Uyruklar')}</a><a href="${urlFor(LG, 'app')}">${T('Εφαρμογή', 'App', 'App', 'Aplikacija', 'Uygulama')}</a><a href="${urlFor(LG, 'compare')}">${T('Σύγκριση παικτών', 'Compare players', 'Comparar jugadores', 'Poređenje igrača', 'Oyuncu karşılaştır')}</a><a href="${urlFor(LG, 'finder')}">${esc(finderTitle[LG])}</a><a href="${urlFor(LG, 'model')}">${T('Πόσο πέφτει μέσα το μοντέλο', 'Model accuracy', 'Acierto del modelo', 'Tačnost modela', 'Model isabeti')}</a><a href="${urlFor(LG, 'widgets')}">${T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt', 'Siten için widget’lar')}</a>${GA_ID ? `<a href="#" data-cc>${T('Ρυθμίσεις cookies', 'Cookie settings', 'Configurar cookies', 'Podešavanja kolačića', 'Çerez ayarları')}</a>` : ''}`).replaceAll('{{BASE}}', BL).replaceAll('{{UPDATED}}', esc(updated)).replaceAll('{{SEASON}}', SEASON_LABEL).replace(/(<nav class="foot">[\s\S]*?<\/nav>)/, m => m + (SOCIAL.length ? `<p class="social">${T('Ακολούθησέ μας', 'Follow us', 'Síguenos', 'Prati nas', 'Bizi takip edin')}: ${SOCIAL.map(x => `<a href="${esc(x.u)}" rel="me noopener" target="_blank">${esc(x.n)}</a>`).join('')}</p>` : ''))
       .replace('<div class="search">', '{{LANGSW}}<div class="search">');
     const shellB = shellB0.replace(/(<a href="[^"]*" data-v="fantasy"[^>]*>[^<]*<\/a>)/, `$1<a href="${urlFor(LG, 'today')}" data-v="today" class="navtoday">📅 ${T('Οι αγώνες σήμερα', 'Today', 'Hoy', 'Danas', 'Bugün')}</a>`)
       // το κεντρικό μενού κρατά 6 ενότητες· Σύγκριση, Κουίζ, Shot Charts κ.λπ. είναι στο «Όλα τα εργαλεία»
@@ -1654,6 +1660,9 @@ ${ldTag(ld)}${script}
 </html>
 `);
     }
+    const finder = finderPage({ lang: LG, T, esc, base: BASE, urlFor, players, niceName });
+    await simplePage('finder', { ...finder, title: `${finder.title} | ${SITE_NAME}` });
+
     async function page(key, { title, desc, view, id = '', h1p = '', ledep = '', h1t = '', ledet = '', ld = null, extra = '', top = '' }) {
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); urls.push(SITE_URL + url);
       let body = shellB.replace('{{LANGSW}}', langSw(alt))
