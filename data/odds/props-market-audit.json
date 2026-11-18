@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T14:40:20.998Z",
+  "generatedAt": "2026-11-18T14:45:41.039Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-18T14:40:20.558Z",
+  "collectorUpdated": "2026-11-18T14:45:40.763Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-18T14:40:20.558Z",
+  "lastIngestAt": "2026-11-18T14:45:40.763Z",
   "lastIngestEvents": 7,
   "lastIngestMatched": 7,
   "latestQuoteUpdated": "2026-11-18T14:39:31.979Z",
-  "latestQuoteAgeHours": 0.01,
+  "latestQuoteAgeHours": 0.1,
   "upcomingGames": 11,
   "gamesWithGreekBooks": 10,
   "greekBookGameQuotes": 11,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-18T14:39:31.979Z",
       "oldest": "2026-11-13T04:44:30.024Z",
-      "newestAgeHours": 0.01
+      "newestAgeHours": 0.1
     },
     {
       "feed": "bet365.gr",
@@ -37,7 +37,7 @@
       "oneSided": 173,
       "newest": "2026-11-18T14:18:39.292Z",
       "oldest": "2026-11-18T14:18:39.292Z",
-      "newestAgeHours": 0.36
+      "newestAgeHours": 0.45
     }
   ],
   "events": [
@@ -56,7 +56,7 @@
           "complete": 0,
           "oneSided": 173,
           "updated": "2026-11-18T14:18:39.292Z",
-          "ageHours": 0.36
+          "ageHours": 0.45
         },
         {
           "feed": "stoiximan",
@@ -66,7 +66,7 @@
           "complete": 67,
           "oneSided": 0,
           "updated": "2026-11-18T14:22:12.939Z",
-          "ageHours": 0.3
+          "ageHours": 0.39
         }
       ]
     },
@@ -93,7 +93,7 @@
           "complete": 82,
           "oneSided": 0,
           "updated": "2026-11-18T13:49:38.194Z",
-          "ageHours": 0.85
+          "ageHours": 0.93
         }
       ]
     },
@@ -112,7 +112,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-18T10:37:55.349Z",
-          "ageHours": 4.04
+          "ageHours": 4.13
         }
       ]
     },
@@ -131,7 +131,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T09:12:39.435Z",
-          "ageHours": 5.46
+          "ageHours": 5.55
         }
       ]
     },
@@ -150,7 +150,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-18T14:39:31.979Z",
-          "ageHours": 0.01
+          "ageHours": 0.1
         }
       ]
     },
@@ -169,7 +169,7 @@
           "complete": 61,
           "oneSided": 0,
           "updated": "2026-11-18T14:13:17.631Z",
-          "ageHours": 0.45
+          "ageHours": 0.54
         }
       ]
     },
@@ -188,7 +188,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:30.024Z",
-          "ageHours": 129.93
+          "ageHours": 130.02
         }
       ]
     },
@@ -207,7 +207,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:33.715Z",
-          "ageHours": 129.93
+          "ageHours": 130.02
         }
       ]
     },
@@ -226,7 +226,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:31.205Z",
-          "ageHours": 129.93
+          "ageHours": 130.02
         }
       ]
     },
@@ -245,7 +245,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:34.855Z",
-          "ageHours": 129.93
+          "ageHours": 130.02
         }
       ]
     }
@@ -267,7 +267,7 @@
       "max": 3
     },
     "firstSeen": "2026-11-16T12:16:32.881Z",
-    "lastSeen": "2026-11-18T14:40:20.558Z"
+    "lastSeen": "2026-11-18T14:45:40.763Z"
   },
   "warnings": [
     "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus."
