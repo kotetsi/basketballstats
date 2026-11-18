@@ -78,6 +78,28 @@ def coach_dist(mu: float) -> dict:
     return {"exp": round(float((w * pts).sum()), 2), "p10": q(0.1), "p50": q(0.5), "p90": q(0.9)}
 
 
+def round_start(games, rnd):
+    """Πρώτο τζάμπολ μιας αγωνιστικής (UTC), από την κωδικοποίηση MMDDHHmmY των games."""
+    ts = []
+    for g in games:
+        e = str(g[1] or "")
+        if g[0] == rnd and len(e) >= 9:
+            ts.append(datetime(2020 + int(e[8]), int(e[0:2]), int(e[2:4]), int(e[4:6]), int(e[6:8]), tzinfo=timezone.utc))
+    return min(ts) if ts else None
+
+
+def fantasy_target(games, now):
+    """Η αγωνιστική του Fantasy που μπορεί ακόμα να αλλάξει: η πρώτη με αγώνα που δεν έχει παιχτεί ΚΑΙ με πρώτο τζάμπολ
+    στο μέλλον. Μόλις ξεκινήσει μια αγωνιστική (κλείνει η προθεσμία), οι προτάσεις περνούν στην επόμενη, ακόμα κι αν
+    μένουν αγώνες της (π.χ. διπλή εβδομάδα Τρίτη-Τετάρτη). Αν δεν υπάρχει τέτοια, η πρώτη με αγώνα που δεν έχει παιχτεί."""
+    open_rounds = sorted({g[0] for g in games if not g[6]})
+    for r in open_rounds:
+        st = round_start(games, r)
+        if st is None or st > now:
+            return r
+    return open_rounds[0] if open_rounds else None
+
+
 def main():
     t0 = time.time()
     cache = json.loads((ROOT / "data" / "cache.json").read_text(encoding="utf-8"))
@@ -87,7 +109,7 @@ def main():
     except FileNotFoundError:
         inj = {}
     games = cache["league"]["games"]
-    target = next((g[0] for g in games if not g[6]), None)
+    target = fantasy_target(games, datetime.now(timezone.utc))
     if target is None:
         log("no upcoming round, nothing to project")
         return
