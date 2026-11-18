@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 216,
+  "calls": 223,
   "fixtures": [
    {
     "id": "id1100013873263176",
@@ -75,31 +75,38 @@
    "id1100013873263176": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263180": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263178": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263184": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263182": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263186": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263188": [
     "open",
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263190": [
     "open"
@@ -115,13 +122,13 @@
    ]
   },
   "props": {
-   "id1100013873263176": 4557,
-   "id1100013873263180": 0,
-   "id1100013873263178": 0,
-   "id1100013873263184": 0,
-   "id1100013873263182": 0,
+   "id1100013873263176": 7378,
+   "id1100013873263180": 2248,
+   "id1100013873263178": 5386,
+   "id1100013873263184": 2776,
+   "id1100013873263182": 3175,
    "id1100013873263186": 0,
-   "id1100013873263188": 0,
+   "id1100013873263188": 1397,
    "id1100013873263190": 0,
    "id1100013873263192": 0,
    "id1100013873263194": 0,
@@ -130,14 +137,25 @@
   "propDone": {
    "id1100013873263176": [
     "open",
+    "mid",
+    "close"
+   ],
+   "id1100013873263180": [
     "mid"
    ],
-   "id1100013873263180": [],
-   "id1100013873263178": [],
-   "id1100013873263184": [],
-   "id1100013873263182": [],
+   "id1100013873263178": [
+    "mid"
+   ],
+   "id1100013873263184": [
+    "mid"
+   ],
+   "id1100013873263182": [
+    "mid"
+   ],
    "id1100013873263186": [],
-   "id1100013873263188": [],
+   "id1100013873263188": [
+    "mid"
+   ],
    "id1100013873263190": [],
    "id1100013873263192": [],
    "id1100013873263194": [],
@@ -152,42 +170,70 @@
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-17T11:22:25.546Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263180": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263178": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263184": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263182": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263186": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263188": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-18T14:40:06.137Z"
     }
    },
    "id1100013873263190": {
@@ -219,18 +265,18 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-18T10:16:26.786Z",
- "lastSuccess": "2026-11-18T10:16:26.786Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-18T14:40:20.558Z",
+ "lastSuccess": "2026-11-18T14:40:20.558Z",
+ "events": 7,
+ "matched": 7,
+ "added": 5765,
  "quota": {
-  "used": 216,
+  "used": 223,
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-17T16:05:33.276Z",
- "propAdded": 0,
+ "lastChange": "2026-11-18T14:40:20.558Z",
+ "propAdded": 4891,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -242,6 +288,7 @@
   "607970": "Valanciunas, Jonas",
   "608010": "Joseph, Cory",
   "608026": "Tavares, Edy",
+  "608166": "Powell, Dwight",
   "608288": "Fournier, Evan",
   "852058": "Luwawu-Cabarrot, Timothe",
   "852062": "Grant, Jerian",
@@ -278,6 +325,7 @@
   "1142664": "Blakeney, Antonio",
   "1142682": "Brown, Sterling",
   "1157544": "Brooks, Armoni",
+  "1158502": "Mitoglou, Dinos",
   "1159096": "Gabriel, Wenyen",
   "1159354": "Hall, Devon",
   "1159704": "Ward, Tyson",
@@ -330,6 +378,7 @@
   "1491936": "Feliz, Andres",
   "1491954": "Washington, Duane",
   "1491966": "Bingham, Marcus",
+  "1492010": "DeJulius, David",
   "1492012": "Oturu, Daniel",
   "1493507": "Horton-Tucker, Talen",
   "1497643": "Bonga, Isaac",
@@ -405,6 +454,7 @@
   "2152758": "Hifi, Nadir",
   "2218434": "Washington Jr., Tyty",
   "2221846": "Alston Jr, Derrick Samuel",
+  "2223404": "Kamenjas, Kenan",
   "2223564": "Pradilla, Jaime",
   "2225772": "Baldwin Jr., Patrick",
   "2227192": "Massa, Bodian",
