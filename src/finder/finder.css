@@ -1,0 +1,58 @@
+#finder .finder-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+@media (max-width: 760px) {
+  #finder .finder-filters {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+}
+
+#finder .finder-filters label {
+  display: grid;
+  align-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+#finder .finder-filters :is(input, select) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+#finder .finder-results {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+#finder table {
+  width: 100%;
+  min-width: 40rem;
+}
+
+#finder :is(th, td):first-child {
+  text-align: start;
+  min-width: 9rem;
+}
+
+#finder :is(th, td):not(:first-child) {
+  text-align: end;
+}
+
+#finder [aria-sort="descending"]::after {
+  content: " ↓";
+}
