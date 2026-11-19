@@ -1,9 +1,9 @@
 {
   "name": "Sportarena.gr",
   "public": true,
-  "teams": 163,
+  "teams": 164,
   "game": "https://euroleaguefantasy.euroleaguebasketball.net/",
-  "updated": "2026-11-16",
+  "updated": "2026-11-19",
   "note": "Μόνο ονόματα ομάδων, όχι ονόματα μάνατζερ. Round = πόντοι της αγωνιστικής, total = σύνολο μετά από αυτή.",
   "rounds": {
     "10": {
@@ -95,6 +95,52 @@
         [
           "reds and whites",
           1814.3
+        ]
+      ]
+    },
+    "12": {
+      "round": [
+        [
+          "SuperDzaros",
+          248.2
+        ],
+        [
+          "The Dark Pointsenger",
+          240.45
+        ],
+        [
+          "Nonh-miller",
+          229.5
+        ],
+        [
+          "Red Drops!",
+          226.5
+        ],
+        [
+          "Gios tou tempou",
+          226.25
+        ]
+      ],
+      "total": [
+        [
+          "χασιωω",
+          2091.05
+        ],
+        [
+          "Red Drops",
+          2071.75
+        ],
+        [
+          "ΑΝΤΙΓΟΝΟΥΛΑ",
+          2064.05
+        ],
+        [
+          "Red Drops!",
+          1999.75
+        ],
+        [
+          "rounti4",
+          1998.75
         ]
       ]
     }
