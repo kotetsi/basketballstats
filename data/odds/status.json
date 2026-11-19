@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 225,
+  "calls": 229,
   "fixtures": [
    {
     "id": "id1100013873263180",
@@ -69,7 +69,8 @@
    "id1100013873263180": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263178": [
     "open",
@@ -97,33 +98,37 @@
     "mid"
    ],
    "id1100013873263190": [
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263192": [
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263194": [
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263196": [
     "open"
    ]
   },
   "props": {
-   "id1100013873263180": 2290,
+   "id1100013873263180": 4942,
    "id1100013873263178": 5405,
    "id1100013873263184": 2776,
    "id1100013873263182": 3605,
    "id1100013873263186": 6300,
    "id1100013873263188": 1397,
-   "id1100013873263190": 0,
-   "id1100013873263192": 0,
-   "id1100013873263194": 0,
+   "id1100013873263190": 3712,
+   "id1100013873263192": 5015,
+   "id1100013873263194": 4159,
    "id1100013873263196": 0
   },
   "propDone": {
    "id1100013873263180": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263178": [
     "mid"
@@ -140,9 +145,15 @@
    "id1100013873263188": [
     "mid"
    ],
-   "id1100013873263190": [],
-   "id1100013873263192": [],
-   "id1100013873263194": [],
+   "id1100013873263190": [
+    "mid"
+   ],
+   "id1100013873263192": [
+    "mid"
+   ],
+   "id1100013873263194": [
+    "mid"
+   ],
    "id1100013873263196": []
   },
   "propAttempts": {
@@ -154,6 +165,10 @@
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-18T14:45:33.110Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T13:34:46.826Z"
     }
    },
    "id1100013873263178": {
@@ -210,18 +225,30 @@
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T13:34:46.826Z"
     }
    },
    "id1100013873263192": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T13:34:46.826Z"
     }
    },
    "id1100013873263194": {
     "open": {
      "count": 2,
      "lastAttempt": "2026-11-17T07:53:23.565Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T13:34:46.826Z"
     }
    },
    "id1100013873263196": {
@@ -235,18 +262,18 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-19T07:23:18.428Z",
- "lastSuccess": "2026-11-19T07:23:18.428Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-19T13:34:51.266Z",
+ "lastSuccess": "2026-11-19T13:34:51.266Z",
+ "events": 4,
+ "matched": 4,
+ "added": 4199,
  "quota": {
-  "used": 225,
+  "used": 229,
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-18T22:29:42.790Z",
- "propAdded": 0,
+ "lastChange": "2026-11-19T13:34:51.266Z",
+ "propAdded": 3616,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -279,6 +306,7 @@
   "924754": "Abalde, Alberto",
   "925894": "Grigonis, Marius",
   "925918": "Shengelia, Tornike",
+  "926072": "Yusta, Santiago",
   "928648": "Butkevicius, Arnas",
   "928894": "Ulanovas, Edgaras",
   "996303": "Baldwin, Wade",
@@ -371,6 +399,7 @@
   "1605258": "Herrera, Sebastian",
   "1607392": "Dobric, Ognjen",
   "1607480": "Tarpey, Terry",
+  "1607924": "Dossou-Yovo, Mathis",
   "1607956": "Besson, Hugo",
   "1608026": "Vildoza, Luca",
   "1608032": "Shields, Shavon",
@@ -431,6 +460,7 @@
   "2227308": "Sleva, Dustin",
   "2284643": "Saint-Supery Fernandez, Mario",
   "2299173": "Beauchamp, MarJon",
+  "2439289": "Smith Jr., Nick",
   "2445135": "Klintman, Bobi",
   "2446047": "Kokila, Kevin",
   "2447203": "Malcolm, Collin",

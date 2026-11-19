@@ -1,43 +1,43 @@
 {
-  "generatedAt": "2026-11-19T07:23:18.850Z",
+  "generatedAt": "2026-11-19T13:34:51.577Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-19T07:23:18.428Z",
+  "collectorUpdated": "2026-11-19T13:34:51.266Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-19T07:23:18.428Z",
-  "lastIngestEvents": 0,
-  "lastIngestMatched": 0,
-  "latestQuoteUpdated": "2026-11-18T21:41:30.755Z",
-  "latestQuoteAgeHours": 9.7,
+  "lastIngestAt": "2026-11-19T13:34:51.266Z",
+  "lastIngestEvents": 4,
+  "lastIngestMatched": 4,
+  "latestQuoteUpdated": "2026-11-19T13:32:22.845Z",
+  "latestQuoteAgeHours": 0.04,
   "upcomingGames": 10,
   "gamesWithGreekBooks": 9,
-  "greekBookGameQuotes": 10,
-  "gamesWithPlayerProps": 5,
+  "greekBookGameQuotes": 11,
+  "gamesWithPlayerProps": 8,
   "independentGreekPropBookmakers": 2,
-  "totalDistinctPlayerProps": 554,
-  "completeOverUnderPairs": 357,
-  "oneSidedProps": 197,
+  "totalDistinctPlayerProps": 923,
+  "completeOverUnderPairs": 597,
+  "oneSidedProps": 326,
   "bookmakers": [
     {
       "feed": "stoiximan",
       "brand": "Stoiximan",
       "games": 9,
-      "props": 357,
-      "complete": 357,
+      "props": 597,
+      "complete": 597,
       "oneSided": 0,
-      "newest": "2026-11-18T21:41:30.755Z",
-      "oldest": "2026-11-13T04:44:30.024Z",
-      "newestAgeHours": 9.7
+      "newest": "2026-11-19T11:44:19.500Z",
+      "oldest": "2026-11-13T04:44:34.855Z",
+      "newestAgeHours": 1.84
     },
     {
       "feed": "bet365.gr",
       "brand": "bet365",
-      "games": 1,
-      "props": 197,
+      "games": 2,
+      "props": 326,
       "complete": 0,
-      "oneSided": 197,
-      "newest": "2026-11-18T21:13:30.065Z",
+      "oneSided": 326,
+      "newest": "2026-11-19T13:32:22.845Z",
       "oldest": "2026-11-18T21:13:30.065Z",
-      "newestAgeHours": 10.16
+      "newestAgeHours": 0.04
     }
   ],
   "events": [
@@ -64,7 +64,7 @@
           "complete": 82,
           "oneSided": 0,
           "updated": "2026-11-18T13:49:38.194Z",
-          "ageHours": 17.56
+          "ageHours": 23.75
         }
       ]
     },
@@ -83,7 +83,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-18T10:37:55.349Z",
-          "ageHours": 20.76
+          "ageHours": 26.95
         }
       ]
     },
@@ -102,7 +102,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T09:12:39.435Z",
-          "ageHours": 22.18
+          "ageHours": 28.37
         }
       ]
     },
@@ -121,7 +121,7 @@
           "complete": 0,
           "oneSided": 197,
           "updated": "2026-11-18T21:13:30.065Z",
-          "ageHours": 10.16
+          "ageHours": 16.36
         },
         {
           "feed": "stoiximan",
@@ -131,7 +131,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-18T21:41:30.755Z",
-          "ageHours": 9.7
+          "ageHours": 15.89
         }
       ]
     },
@@ -150,7 +150,7 @@
           "complete": 61,
           "oneSided": 0,
           "updated": "2026-11-18T14:13:17.631Z",
-          "ageHours": 17.17
+          "ageHours": 23.36
         }
       ]
     },
@@ -158,18 +158,18 @@
       "event": "E-13-IST-ASV",
       "commence": "2026-11-20T17:30:00.000Z",
       "greekBooks": 1,
-      "booksWithProps": 0,
-      "props": 0,
+      "booksWithProps": 1,
+      "props": 74,
       "books": [
         {
           "feed": "stoiximan",
           "brand": "Stoiximan",
           "games": 1,
-          "props": 0,
-          "complete": 0,
+          "props": 74,
+          "complete": 74,
           "oneSided": 0,
-          "updated": "2026-11-13T04:44:30.024Z",
-          "ageHours": 146.65
+          "updated": "2026-11-18T21:03:22.103Z",
+          "ageHours": 16.52
         }
       ]
     },
@@ -177,37 +177,47 @@
       "event": "E-13-OLY-MAD",
       "commence": "2026-11-20T19:15:00.000Z",
       "greekBooks": 1,
-      "booksWithProps": 0,
-      "props": 0,
+      "booksWithProps": 1,
+      "props": 94,
       "books": [
         {
           "feed": "stoiximan",
           "brand": "Stoiximan",
           "games": 1,
-          "props": 0,
-          "complete": 0,
+          "props": 94,
+          "complete": 94,
           "oneSided": 0,
-          "updated": "2026-11-13T04:44:33.715Z",
-          "ageHours": 146.65
+          "updated": "2026-11-19T11:44:19.500Z",
+          "ageHours": 1.84
         }
       ]
     },
     {
       "event": "E-13-BAR-RED",
       "commence": "2026-11-20T19:30:00.000Z",
-      "greekBooks": 1,
-      "booksWithProps": 0,
-      "props": 0,
+      "greekBooks": 2,
+      "booksWithProps": 2,
+      "props": 201,
       "books": [
+        {
+          "feed": "bet365.gr",
+          "brand": "bet365",
+          "games": 1,
+          "props": 129,
+          "complete": 0,
+          "oneSided": 129,
+          "updated": "2026-11-19T13:32:22.845Z",
+          "ageHours": 0.04
+        },
         {
           "feed": "stoiximan",
           "brand": "Stoiximan",
           "games": 1,
-          "props": 0,
-          "complete": 0,
+          "props": 72,
+          "complete": 72,
           "oneSided": 0,
-          "updated": "2026-11-13T04:44:31.205Z",
-          "ageHours": 146.65
+          "updated": "2026-11-18T22:27:54.232Z",
+          "ageHours": 15.12
         }
       ]
     },
@@ -226,32 +236,31 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-13T04:44:34.855Z",
-          "ageHours": 146.65
+          "ageHours": 152.84
         }
       ]
     }
   ],
   "history": {
     "available": true,
-    "snapshots": 8735,
-    "uniqueSnapshots": 8735,
+    "snapshots": 9344,
+    "uniqueSnapshots": 9344,
     "windows": {
       "open": 132,
-      "mid": 5487,
+      "mid": 6096,
       "close": 3116,
       "unknown": 0
     },
-    "eventBookPairs": 26,
+    "eventBookPairs": 30,
     "capturesPerEventBook": {
       "min": 1,
       "median": 2,
       "max": 3
     },
     "firstSeen": "2026-11-16T12:16:32.881Z",
-    "lastSeen": "2026-11-18T22:29:42.790Z"
+    "lastSeen": "2026-11-19T13:34:51.266Z"
   },
   "warnings": [
-    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.",
-    "Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς."
+    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus."
   ]
 }
