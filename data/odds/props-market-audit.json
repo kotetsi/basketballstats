@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T14:37:22.555Z",
+  "generatedAt": "2026-11-19T14:46:10.071Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-19T14:37:22.083Z",
+  "collectorUpdated": "2026-11-19T14:46:09.774Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-19T14:37:22.083Z",
-  "lastIngestEvents": 2,
-  "lastIngestMatched": 2,
+  "lastIngestAt": "2026-11-19T14:46:09.774Z",
+  "lastIngestEvents": 0,
+  "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-19T14:13:27.156Z",
-  "latestQuoteAgeHours": 0.4,
+  "latestQuoteAgeHours": 0.55,
   "upcomingGames": 10,
   "gamesWithGreekBooks": 10,
   "greekBookGameQuotes": 13,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-19T13:14:39.434Z",
       "oldest": "2026-11-18T09:12:39.435Z",
-      "newestAgeHours": 1.38
+      "newestAgeHours": 1.53
     },
     {
       "feed": "bet365.gr",
@@ -37,7 +37,7 @@
       "oneSided": 654,
       "newest": "2026-11-19T14:13:27.156Z",
       "oldest": "2026-11-18T21:13:30.065Z",
-      "newestAgeHours": 0.4
+      "newestAgeHours": 0.55
     }
   ],
   "events": [
@@ -56,7 +56,7 @@
           "complete": 0,
           "oneSided": 120,
           "updated": "2026-11-19T13:40:59.108Z",
-          "ageHours": 0.94
+          "ageHours": 1.09
         }
       ]
     },
@@ -75,7 +75,7 @@
           "complete": 0,
           "oneSided": 183,
           "updated": "2026-11-19T14:12:55.048Z",
-          "ageHours": 0.41
+          "ageHours": 0.55
         },
         {
           "feed": "stoiximan",
@@ -85,7 +85,7 @@
           "complete": 87,
           "oneSided": 0,
           "updated": "2026-11-19T13:14:39.434Z",
-          "ageHours": 1.38
+          "ageHours": 1.53
         }
       ]
     },
@@ -104,7 +104,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-18T10:37:55.349Z",
-          "ageHours": 27.99
+          "ageHours": 28.14
         }
       ]
     },
@@ -123,7 +123,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T09:12:39.435Z",
-          "ageHours": 29.41
+          "ageHours": 29.56
         }
       ]
     },
@@ -142,7 +142,7 @@
           "complete": 0,
           "oneSided": 197,
           "updated": "2026-11-18T21:13:30.065Z",
-          "ageHours": 17.4
+          "ageHours": 17.54
         },
         {
           "feed": "stoiximan",
@@ -152,7 +152,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-18T21:41:30.755Z",
-          "ageHours": 16.93
+          "ageHours": 17.08
         }
       ]
     },
@@ -171,7 +171,7 @@
           "complete": 61,
           "oneSided": 0,
           "updated": "2026-11-18T14:13:17.631Z",
-          "ageHours": 24.4
+          "ageHours": 24.55
         }
       ]
     },
@@ -190,7 +190,7 @@
           "complete": 74,
           "oneSided": 0,
           "updated": "2026-11-18T21:03:22.103Z",
-          "ageHours": 17.57
+          "ageHours": 17.71
         }
       ]
     },
@@ -209,7 +209,7 @@
           "complete": 94,
           "oneSided": 0,
           "updated": "2026-11-19T11:44:19.500Z",
-          "ageHours": 2.88
+          "ageHours": 3.03
         }
       ]
     },
@@ -228,7 +228,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T22:27:54.232Z",
-          "ageHours": 16.16
+          "ageHours": 16.3
         }
       ]
     },
@@ -247,7 +247,7 @@
           "complete": 0,
           "oneSided": 154,
           "updated": "2026-11-19T14:13:27.156Z",
-          "ageHours": 0.4
+          "ageHours": 0.55
         },
         {
           "feed": "stoiximan",
@@ -257,7 +257,7 @@
           "complete": 69,
           "oneSided": 0,
           "updated": "2026-11-19T10:46:58.124Z",
-          "ageHours": 3.84
+          "ageHours": 3.99
         }
       ]
     }
@@ -282,6 +282,7 @@
     "lastSeen": "2026-11-19T14:37:22.083Z"
   },
   "warnings": [
-    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus."
+    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.",
+    "Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς."
   ]
 }
