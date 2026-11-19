@@ -538,3 +538,39 @@ Milano je u utorak prekinuo niz od **9 poraza** pobedom 91-77 nad Crvenom zvezdo
 Naš model vidi mnogo neizvesniju utakmicu nego što pokazuje tabela: predviđa **83-84** i daje Milanu oko **63%** da pokrije čak i +5,5. Sa +6,5 Italijani ne moraju da pobede, dovoljno je da izgube sa manje od 7.
 
 Rizik: Milano je 2-10, i 0-5 u gostima, s razlogom, a jedna pobeda ne čini sezonu. Tiket uključuje produžetak.
+
+13 | IST-ASV | over 171.5 | 1.73
+Η Εφές του Λάσο έχει δύο πρόσωπα: στην έδρα της παίζει γρήγορα και βάζει **92 πόντους** κατά μέσο όρο, ενώ εκτός πέφτει στους 78. Τα 6 ματς της στην Κωνσταντινούπολη έχουν μέσο όρο **178,5** πόντους σύνολο, και τα **4 από τα 6** πέρασαν τους 171,5 (103 με τη Βίρτους, 94 με τη Ρεάλ, 93 με τη Μπάγερν).
+
+Η Βιλερμπάν ταιριάζει σε αυτό το σενάριο: βάζει 87,9 πόντους, αλλά δέχεται **95,0**, δεύτερη χειρότερη άμυνα της λίγκας. Την Τρίτη, στην ίδια πόλη, δέχτηκε 115 από τη Φενέρμπαχτσε με 22/36 τρίποντα. Και οι δύο αναμετρήσεις της περασμένης σεζόν ξεπέρασαν τους 179 πόντους (88-91 και 103-99 στη δεύτερη παράταση).
+
+Το μοντέλο μας βγάζει **174,5 πόντους** σύνολο (91-84), πάνω από το 171,5.
+
+Το ρίσκο: η Εφές είναι χωρίς **Μάικ Τζέιμς** και **Μπρούνο Φερνάντο**, δηλαδή χωρίς τον πρώτο της σκόρερ, και η Βιλερμπάν χωρίς Κέιλ, Πονς και Μπολόμποϊ. Στο 1,73 η απόδοση είναι κοντά στη δίκαιη. Η επιλογή μετράει με την παράταση.
+
+EN:
+Lasso's Efes have two faces: at home they play fast and score **92 points** on average, while on the road they drop to 78. Their 6 games in Istanbul average **178.5** total points, and **4 of 6** went past 171.5 (103 against Virtus, 94 against Real, 93 against Bayern).
+
+ASVEL fit that script: they score 87.9 but allow **95.0**, the second-worst defence in the league. On Tuesday, in the same city, they conceded 115 to Fenerbahce, who shot 22/36 from three. Both meetings last season went past 179 points (88-91 and 103-99 in double overtime).
+
+Our model projects **174.5 points** in total (91-84), above 171.5.
+
+The risk: Efes are without **Mike James** and **Bruno Fernando**, so without their top scorer, and ASVEL are without Cale, Pons and Bolomboy. At 1.73 the price is close to fair. The pick includes overtime.
+
+ES:
+El Efes de Laso tiene dos caras: en casa juega rápido y anota **92 puntos** de media, mientras que fuera baja a 78. Sus 6 partidos en Estambul promedian **178,5** puntos en total, y **4 de 6** superaron los 171,5 (103 ante la Virtus, 94 ante el Real, 93 ante el Bayern).
+
+El ASVEL encaja en ese guion: anota 87,9 pero encaja **95,0**, la segunda peor defensa de la liga. El martes, en la misma ciudad, recibió 115 del Fenerbahçe, que tiró 22/36 en triples. Los dos duelos de la temporada pasada superaron los 179 puntos (88-91 y 103-99 tras dos prórrogas).
+
+Nuestro modelo proyecta **174,5 puntos** en total (91-84), por encima de 171,5.
+
+El riesgo: el Efes no tiene a **Mike James** ni a **Bruno Fernando**, es decir, a su máximo anotador, y al ASVEL le faltan Cale, Pons y Bolomboy. A 1,73 la cuota está cerca de la justa. La apuesta incluye la prórroga.
+
+SR:
+Lasova Efes ima dva lica: kod kuće igra brzo i postiže **92 poena** u proseku, dok u gostima pada na 78. Njenih 6 utakmica u Istanbulu ima prosek od **178,5** poena ukupno, a **4 od 6** prešle su 171,5 (103 protiv Virtusa, 94 protiv Reala, 93 protiv Bajerna).
+
+Asvel se uklapa u taj scenario: postiže 87,9, ali prima **95,0**, druga najgora odbrana lige. U utorak je u istom gradu primio 115 od Fenerbahčea, koji je šutirao 22/36 za tri. Oba meča prošle sezone prešla su 179 poena (88-91 i 103-99 posle dva produžetka).
+
+Naš model predviđa **174,5 poena** ukupno (91-84), iznad 171,5.
+
+Rizik: Efes je bez **Majka Džejmsa** i **Bruna Fernanda**, dakle bez svog najboljeg strelca, a Asvel bez Kejla, Ponsa i Bolomboja. Na 1,73 kvota je blizu fer. Tiket uključuje produžetak.
