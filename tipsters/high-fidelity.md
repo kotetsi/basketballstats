@@ -466,3 +466,39 @@ Barselona je **8-4**, imala je **5 vezanih pobeda** pre poraza 86-89 od Pariza i
 Istorija je na njenoj strani: prošle sezone dobila je sva **3** meča (89-79 u Beogradu, 92-88 posle produžetka i 80-72 u plej-inu). Naš model daje Barseloni **65%**, fer kvota 1,53, ispod ponuđenih 1,70.
 
 Rizik: Zvezda je ove sezone dobijala velike utakmice u gostima (62-57 u SEF-u), a ako se neizvesni vrate, utakmica se otvara. Tiket uključuje produžetak.
+
+13 | PAM-VIR | under 183.5 | 2.10
+Η Βαλένθια (9-3) έχει από τις καλύτερες επιθέσεις της λίγκας, με **96,2 πόντους** στην έδρα της, αλλά στο τελευταίο ματς στο Βελιγράδι έμεινε στους 76 (76-64 με την Παρτιζάν). Στη Ρόιγκ Αρίνα, **3 από τα 6** ματς της έμειναν κάτω από τους 183,5.
+
+Η Βίρτους (5-7) σκοράρει **85,9** κατά μέσο όρο και έσπασε την Τρίτη ένα σερί 5 ηττών με το 84-79 επί του Παναθηναϊκού, ματς με μόλις 163 πόντους. Τώρα παίζει δεύτερο ματς μέσα στην εβδομάδα και εκτός έδρας, χωρίς τον Καζαρίν, με στόχο να κόψει τον ρυθμό της Βαλένθια. Και στη Βαλένθια ο Μίροτιτς είναι αμφίβολος και ο Ρόιβερς εκτός.
+
+Το μοντέλο μας βγάζει **183 πόντους** σύνολο (97-86), πρακτικά πάνω στη γραμμή, ενώ η κύρια γραμμή της αγοράς είναι στο 186,5. Στο 183,5 με απόδοση 2,10 η τιμή είναι καλή.
+
+Το ρίσκο: αν η Βαλένθια ξεφύγει νωρίς, το ματς ανοίγει και τα 97-86 του μοντέλου είναι ήδη 183. Οι δύο αναμετρήσεις της περασμένης σεζόν έβγαλαν 197 και 175 πόντους. Η επιλογή μετράει με την παράταση.
+
+EN:
+Valencia (9-3) have one of the best offences in the league, with **96.2 points** at home, but in their last game in Belgrade they were held to 76 (76-64 against Partizan). At the Roig Arena, **3 of their 6** games stayed under 183.5.
+
+Virtus (5-7) average **85.9** points and ended a five-game losing run on Tuesday with an 84-79 win over Panathinaikos, a game with only 163 points. Now they play their second game of the week, on the road and without Casarin, aiming to slow Valencia's pace. Valencia also have Mirotic doubtful and Reuvers out.
+
+Our model projects **183 points** in total (97-86), practically on the line, while the market's main line is 186.5. At 183.5 with odds of 2.10, the price is good.
+
+The risk: if Valencia pull away early the game opens up, and the model's 97-86 already makes 183. Last season's two meetings produced 197 and 175 points. The pick includes overtime.
+
+ES:
+El Valencia (9-3) tiene uno de los mejores ataques de la liga, con **96,2 puntos** en casa, pero en su último partido en Belgrado se quedó en 76 (76-64 ante el Partizan). En el Roig Arena, **3 de sus 6** partidos se quedaron por debajo de 183,5.
+
+La Virtus (5-7) anota **85,9** de media y el martes cortó una racha de cinco derrotas con el 84-79 al Panathinaikos, un partido de solo 163 puntos. Ahora juega su segundo partido de la semana, a domicilio y sin Casarin, con la idea de frenar el ritmo del Valencia. En el Valencia, Mirotic es duda y Reuvers está de baja.
+
+Nuestro modelo proyecta **183 puntos** en total (97-86), prácticamente en la línea, mientras la línea principal del mercado está en 186,5. En 183,5 con cuota 2,10, el precio es bueno.
+
+El riesgo: si el Valencia se escapa pronto, el partido se abre, y el 97-86 del modelo ya suma 183. Los dos duelos de la temporada pasada dejaron 197 y 175 puntos. La apuesta incluye la prórroga.
+
+SR:
+Valensija (9-3) ima jedan od najboljih napada u ligi, sa **96,2 poena** kod kuće, ali je u poslednjoj utakmici u Beogradu stala na 76 (76-64 protiv Partizana). U Roig Areni, **3 od 6** njenih utakmica ostale su ispod 183,5.
+
+Virtus (5-7) postiže **85,9** poena u proseku i u utorak je prekinuo niz od pet poraza pobedom 84-79 nad Panatinaikosom, u utakmici sa samo 163 poena. Sada igra drugu utakmicu u nedelji, u gostima i bez Kazarina, sa ciljem da uspori ritam Valensije. Kod Valensije je Mirotić neizvestan, a Rojvers van tima.
+
+Naš model predviđa **183 poena** ukupno (97-86), praktično na liniji, dok je glavna linija tržišta 186,5. Na 183,5 sa kvotom 2,10 cena je dobra.
+
+Rizik: ako Valensija rano pobegne, utakmica se otvara, a modelovih 97-86 već je 183. Dva meča prošle sezone donela su 197 i 175 poena. Tiket uključuje produžetak.
