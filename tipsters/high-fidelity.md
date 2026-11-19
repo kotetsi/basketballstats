@@ -502,3 +502,39 @@ Virtus (5-7) postiže **85,9** poena u proseku i u utorak je prekinuo niz od pet
 Naš model predviđa **183 poena** ukupno (97-86), praktično na liniji, dok je glavna linija tržišta 186,5. Na 183,5 sa kvotom 2,10 cena je dobra.
 
 Rizik: ako Valensija rano pobegne, utakmica se otvara, a modelovih 97-86 već je 183. Dva meča prošle sezone donela su 197 i 175 poena. Tiket uključuje produžetak.
+
+13 | MIL-ULK | 1 +6.5 | 1.78
+Η Φενέρμπαχτσε είναι δύο διαφορετικές ομάδες: **7-0** στην έδρα της, αλλά **1-4** εκτός. Πριν το εύκολο 115-81 επί της Βιλερμπάν, είχε τρεις ήττες στα τέσσερα ματς. Και στο Μιλάνο έρχεται χωρίς **Μέλι** και **Κι**, που χειρουργήθηκαν, δηλαδή χωρίς τους δύο καλύτερους αμυντικούς φόργουορντ της.
+
+Η Αρμάνι έσπασε την Τρίτη ένα σερί **9 ηττών** με το 91-77 επί του Ερυθρού Αστέρα, και κυρίως έπαιξε άμυνα: οι Σέρβοι έμειναν στους **33 πόντους** στο δεύτερο ημίχρονο. Από την Αρμάνι λείπει ο Ντέβιν Μπούκερ.
+
+Το μοντέλο μας βλέπει πολύ πιο κλειστό ματς από όσο δείχνει η βαθμολογία: εκτιμά **83-84**, και δίνει στην Αρμάνι περίπου **63%** να καλύψει ακόμα και το +5,5. Με +6,5 δεν χρειάζεται να κερδίσουν οι Ιταλοί, αρκεί να χάσουν με λιγότερους από 7.
+
+Το ρίσκο: η Αρμάνι είναι 2-10 και 0-5 εκτός έδρας για λόγο, και μια νίκη δεν κάνει σεζόν. Η επιλογή μετράει με την παράταση.
+
+EN:
+Fenerbahce are two different teams: **7-0** at home but **1-4** away. Before the easy 115-81 win over ASVEL they had lost three of four. And they come to Milan without **Melli** and **Key**, who both had surgery, which means without their two best defensive forwards.
+
+Milan ended a **9-game** losing run on Tuesday with a 91-77 win over Crvena Zvezda, and above all they defended: the Serbs scored only **33 points** in the second half. Milan are missing Devin Booker.
+
+Our model sees a much closer game than the standings suggest: it projects **83-84** and gives Milan about **63%** to cover even +5.5. At +6.5 the Italians do not need to win, they just need to lose by fewer than 7.
+
+The risk: Milan are 2-10, and 0-5 on the road, for a reason, and one win does not make a season. The pick includes overtime.
+
+ES:
+El Fenerbahçe son dos equipos distintos: **7-0** en casa pero **1-4** fuera. Antes del cómodo 115-81 al ASVEL, había perdido tres de cuatro. Y llega a Milán sin **Melli** ni **Key**, ambos operados, es decir, sin sus dos mejores aleros defensivos.
+
+El Milán cortó el martes una racha de **9 derrotas** con el 91-77 al Estrella Roja, y sobre todo defendió: los serbios se quedaron en **33 puntos** en la segunda parte. Al Milán le falta Devin Booker.
+
+Nuestro modelo ve un partido mucho más igualado de lo que dice la clasificación: proyecta **83-84** y da al Milán un **63%** de cubrir incluso el +5,5. Con +6,5 no hace falta que ganen los italianos, basta con que pierdan por menos de 7.
+
+El riesgo: el Milán va 2-10, y 0-5 fuera, por algo, y una victoria no hace una temporada. La apuesta incluye la prórroga.
+
+SR:
+Fenerbahče su dva različita tima: **7-0** kod kuće, ali **1-4** u gostima. Pre lake pobede 115-81 nad Asvelom, izgubili su tri od četiri utakmice. A u Milano dolaze bez **Melija** i **Kija**, koji su operisani, dakle bez svoja dva najbolja odbrambena krila.
+
+Milano je u utorak prekinuo niz od **9 poraza** pobedom 91-77 nad Crvenom zvezdom, i pre svega igrao odbranu: Srbi su u drugom poluvremenu postigli samo **33 poena**. Milanu nedostaje Devin Buker.
+
+Naš model vidi mnogo neizvesniju utakmicu nego što pokazuje tabela: predviđa **83-84** i daje Milanu oko **63%** da pokrije čak i +5,5. Sa +6,5 Italijani ne moraju da pobede, dovoljno je da izgube sa manje od 7.
+
+Rizik: Milano je 2-10, i 0-5 u gostima, s razlogom, a jedna pobeda ne čini sezonu. Tiket uključuje produžetak.
