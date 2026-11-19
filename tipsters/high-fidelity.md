@@ -394,3 +394,39 @@ SR:
 Model daje Tajrizu Martinu 12,5 poena i asistencija zajedno, a u 7 od poslednjih 10 utakmica ostao je ispod 15,5.
 
 Rizik: bez Puntera postiže 16,2 poena na 36 minuta, a večeras nema ni Gibsona.
+
+13 | OLY-MAD | 2ο ημίχρονο 2 | 1.97
+Η Ρεάλ είναι η ομάδα του δεύτερου μέρους: από την 6η αγωνιστική κέρδισε το 2ο ημίχρονο και στα **7** ματς της, με **50,3 πόντους** κατά μέσο όρο και 42,3 παθητικό. Ακόμα και στην ήττα στην παράταση από τον Παναθηναϊκό, το 2ο ημίχρονο ήταν 53-50 υπέρ της.
+
+Ο Ολυμπιακός στο ίδιο διάστημα έχει **253-253** στα δεύτερα ημίχρονα, και όταν πάει στα αποδυτήρια με +10 ή περισσότερο, έχασε το 2ο μέρος στα **3 από τα 4** ματς. Στη Λεμεσό ήταν +13 στο ημίχρονο και έχασε το δεύτερο μέρος 46-33.
+
+Απουσίες: ο Ντόρσεϊ είναι εκτός (τιμωρία), ο Κόντσαρ έφυγε, και Μιλουτίνοφ και Τάιρικ Τζόουνς είναι αμφίβολοι. Λιγότερα σώματα για τον Ολυμπιακό στα τελευταία λεπτά, εκεί που μετράει το βάθος της Ρεάλ.
+
+Το ρίσκο: η Ρεάλ έχει κι αυτή απουσίες (Ντεκ, Γιαντούνεν, Καμπάτσο), και το μοντέλο μας βλέπει τον Ολυμπιακό φαβορί για τη νίκη (70%). Το 2ο ημίχρονο μετράει χωρίς την παράταση.
+
+EN:
+Real Madrid are a second-half team: since round 6 they have won the 2nd half in all **7** of their games, averaging **50.3 points** and allowing 42.3. Even in the overtime loss to Panathinaikos, the 2nd half went 53-50 their way.
+
+Olympiacos over the same stretch are **253-253** in second halves, and when they lead by 10 or more at the break they have lost the second half in **3 of 4** games. In Limassol they were +13 at halftime and lost the second half 46-33.
+
+Absences: Dorsey is out (club suspension), Konchar has left, and Milutinov and Tyrique Jones are doubtful. Fewer bodies for Olympiacos late in the game, where Real's depth matters.
+
+The risk: Real also have absences (Deck, Jantunen, Campazzo), and our model sees Olympiacos as favourites to win the game (70%). The 2nd half is settled without overtime.
+
+ES:
+El Real Madrid es un equipo de segunda parte: desde la jornada 6 ha ganado la 2ª parte en sus **7** partidos, con **50,3 puntos** de media y 42,3 encajados. Incluso en la derrota en la prórroga ante el Panathinaikos, la 2ª parte fue 53-50 a su favor.
+
+El Olympiacos en ese tramo va **253-253** en segundas partes, y cuando llega al descanso con +10 o más, ha perdido la segunda parte en **3 de 4** partidos. En Limassol iba +13 al descanso y perdió la segunda parte 46-33.
+
+Bajas: Dorsey está fuera (sanción del club), Konchar se ha ido, y Milutinov y Tyrique Jones son duda. Menos piezas para el Olympiacos en el final, donde pesa la profundidad del Real.
+
+El riesgo: el Real también tiene bajas (Deck, Jantunen, Campazzo), y nuestro modelo ve favorito al Olympiacos para ganar el partido (70%). La 2ª parte se decide sin la prórroga.
+
+SR:
+Real Madrid je tim drugog poluvremena: od 6. kola dobio je drugo poluvreme na svih **7** utakmica, sa prosekom od **50,3 poena** i 42,3 primljena. Čak i u porazu posle produžetka od Panatinaikosa, drugo poluvreme je bilo 53-50 za njih.
+
+Olimpijakos u istom periodu ima **253-253** u drugim poluvremenima, a kada na poluvreme ode sa +10 ili više, izgubio je drugo poluvreme na **3 od 4** utakmice. U Limasolu je na poluvremenu bio +13 i izgubio drugo poluvreme 46-33.
+
+Izostanci: Dorsi je van tima (kazna kluba), Končar je otišao, a Milutinov i Tajrik Džons su neizvesni. Manje igrača za Olimpijakos u završnici, gde se vidi dubina Reala.
+
+Rizik: i Real ima izostanke (Dek, Jantunen, Kampaco), a naš model vidi Olimpijakos kao favorita za pobedu (70%). Drugo poluvreme se računa bez produžetka.

@@ -368,6 +368,8 @@ function parsePick(sel) {
   if ((m = s.match(/^(.+?)\s+(\S+)\s+(\d+)\s*\+$/)) && PROP_STATS[m[2]]) return { kind: 'prop', who: m[1], stat: PROP_STATS[m[2]], min: +m[3] };
   if ((m = s.match(/^(.+?)\s+(\S+)\s+(over|under|o|u|πάνω|πανω|κάτω|κατω)\s*(\d+(?:\.\d+)?)$/)) && PROP_STATS[m[2]])
     return { kind: 'prop', who: m[1], stat: PROP_STATS[m[2]], over: /^(over|o|πάνω|πανω)$/.test(m[3]), line: parseFloat(m[4]) };
+  // 2ο ημίχρονο (χωρίς παράταση): "2ο ημίχρονο 2", "2 2ο ημίχρονο"
+  if ((m = s.match(/^(?:2ο|2η|2)\s*ημίχρονο\s*([12])$/) || s.match(/^([12])\s+(?:2ο|2η)\s*ημίχρονο$/))) return { kind: 'h2', side: +m[1] };
   if (/^[12]$/.test(s)) return { kind: 'ml', side: +s };
   if ((m = s.match(/^([12])\s*([+-]\s*\d+(?:\.\d+)?)$/))) return { kind: 'hc', side: +m[1], line: parseFloat(m[2].replace(/\s/g, '')) };
   if ((m = s.match(/^(over|under|o|u|πάνω|πανω|κάτω|κατω)\s*(\d+(?:\.\d+)?)$/))) return { kind: 'tot', over: /^(over|o|πάνω|πανω)$/.test(m[1]), line: parseFloat(m[2]) };
@@ -378,6 +380,7 @@ function pickLabel(p, h, a, lg) {
   if (p.kind === 'prop') return p.min != null ? `${p.name} ${p.min}+ ${L[p.stat]}` : `${p.name} ${p.over ? 'over' : 'under'} ${p.line} ${L[p.stat]}`;
   if (p.kind === 'ml') return { el: `Νίκη ${tn(p.side === 1 ? h : a)}`, en: `${tn(p.side === 1 ? h : a)} to win`, es: `Gana ${tn(p.side === 1 ? h : a)}`, sr: `Pobeda: ${tn(p.side === 1 ? h : a)}`, tr: `Kazanır: ${tn(p.side === 1 ? h : a)}` }[lg];
   if (p.kind === 'hc') return `${tn(p.side === 1 ? h : a)} ${p.line > 0 ? '+' : ''}${p.line}`;
+  if (p.kind === 'h2') { const t = tn(p.side === 1 ? h : a); return { el: `Νίκη ${t} στο 2ο ημίχρονο`, en: `${t} to win the 2nd half`, es: `Gana ${t} la 2ª parte`, sr: `${t} dobija 2. poluvreme`, tr: `${t} ikinci yarıyı kazanır` }[lg]; }
   return `${p.over ? 'Over' : 'Under'} ${p.line} ${{ el: 'πόντοι', en: 'points', es: 'puntos', sr: 'poena', tr: 'sayı' }[lg]}`;
 }
 function gradePick(p, hs, as) {
@@ -470,6 +473,25 @@ async function loadTransfers(players) {
   return out;
 }
 
+// Σκορ 2ου ημιχρόνου (χωρίς παράταση) από τη ροή καλαθιών των αρχείων shots: sc = [χρόνος, πλευρά, πόντοι, παίκτης, γηπεδούχος, φιλοξενούμενος]
+let H2CACHE = null;
+async function secondHalf(h, a) {
+  if (!H2CACHE) {
+    H2CACHE = {};
+    const dir = path.join(ROOT, 'data', 'shots', SEASON);
+    let fl = []; try { fl = await fs.readdir(dir); } catch { }
+    for (const f of fl) {
+      try {
+        const j = JSON.parse(await fs.readFile(path.join(dir, f), 'utf8'));
+        if (!Array.isArray(j.sc) || !j.sc.length) continue;
+        const at = t => j.sc.filter(x => x[0] <= t).pop() || [0, 0, 0, 0, 0, 0];
+        const ht = at(1200), rg = at(2400);
+        H2CACHE[`${j.h}-${j.a}`] = [rg[4] - ht[4], rg[5] - ht[5]];
+      } catch { }
+    }
+  }
+  return H2CACHE[`${h}-${a}`] || null;
+}
 async function loadTipsters(games, players) {
   const dir = path.join(ROOT, 'tipsters');
   let files = [];
@@ -514,6 +536,7 @@ async function loadTipsters(games, players) {
         if (!row) res = 'P'; // δεν αγωνίστηκε: η επιλογή ακυρώνεται
         else { const v = propValue(p.stat, row); const d = p.min != null ? v - p.min + 0.5 : (p.over ? v - p.line : p.line - v); res = d > 0 ? 'W' : d < 0 ? 'L' : 'P'; p.val = v; }
       }
+      else if (g[6] && p.kind === 'h2') { const sh = await secondHalf(h, a); if (sh) { res = gradePick({ kind: 'ml', side: p.side }, sh[0], sh[1]); p.h2 = sh; } }
       else if (g[6]) res = gradePick(p, g[4], g[5]);
       cur = { round, h, a, text: { el: [], en: [], es: [], sr: [], tr: [] }, lang: 'el', label: Object.fromEntries(LANGS.map(lg => [lg, pickLabel(p, h, a, lg)])), odds: odds && odds > 1 ? odds : null, res,
         score: g && g[6] ? `${g[4]}-${g[5]}` : '', val: p.kind === 'prop' && p.val != null ? p.val : null, stat: p.stat, date: g ? g[1] : '' };
