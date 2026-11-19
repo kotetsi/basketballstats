@@ -430,3 +430,39 @@ Olimpijakos u istom periodu ima **253-253** u drugim poluvremenima, a kada na po
 Izostanci: Dorsi je van tima (kazna kluba), Končar je otišao, a Milutinov i Tajrik Džons su neizvesni. Manje igrača za Olimpijakos u završnici, gde se vidi dubina Reala.
 
 Rizik: i Real ima izostanke (Dek, Jantunen, Kampaco), a naš model vidi Olimpijakos kao favorita za pobedu (70%). Drugo poluvreme se računa bez produžetka.
+
+13 | BAR-RED | 1 | 1.70
+Ο Ερυθρός Αστέρας έρχεται με **δύο σερί ήττες** (84-105 στη Μαδρίτη, 77-91 στο Μιλάνο) και με ρόστερ που μικραίνει: ο **Μονέκε δεν ταξίδεψε** στη Βαρκελώνη, ο **Μίλιενοβιτς** είναι εκτός μετά από χειρουργείο, ενώ **Μπάτλερ, Κρις Τζόουνς και Κράμερ** είναι αμφίβολοι. Στο Μιλάνο έπαιξε χωρίς Μπάτλερ και Μονέκε και του έλειψαν ενέργεια, σκορ και δημιουργία.
+
+Η Μπαρτσελόνα είναι **8-4**, είχε σερί **5 νικών** πριν την ήττα 86-89 από την Παρί και θέλει αντίδραση στο Παλάου. Λείπουν Πάντερ, Γκίμπσον και Εβμπουόμγουαν, αμφίβολος ο Νούνιες, αλλά Ρόμπινσον και Μάρτιν σηκώνουν το σκοράρισμα στην περιφέρεια.
+
+Η ιστορία είναι με το μέρος της: την περασμένη σεζόν κέρδισε και τις **3** αναμετρήσεις (89-79 στο Βελιγράδι, 92-88 στην παράταση και 80-72 στο Play-In). Το μοντέλο μας δίνει **65%** στη Μπαρτσελόνα, δηλαδή δίκαιη απόδοση 1,53, κάτω από το 1,70.
+
+Το ρίσκο: ο Αστέρας έχει πάρει μεγάλες νίκες εκτός έδρας φέτος (62-57 στο ΣΕΦ) και αν επιστρέψουν οι αμφίβολοι, το ματς ανοίγει. Η επιλογή μετράει με την παράταση.
+
+EN:
+Crvena Zvezda arrive on **two straight losses** (84-105 in Madrid, 77-91 in Milan) and with a shrinking roster: **Moneke did not travel** to Barcelona, **Miljenovic** is out after surgery, and **Butler, Chris Jones and Kramer** are doubtful. In Milan they played without Butler and Moneke and lacked energy, scoring and playmaking.
+
+Barcelona are **8-4**, had won **5 in a row** before the 86-89 loss to Paris and want a reaction at the Palau. Punter, Gibson and Evbuomwan are out and Nunez is doubtful, but Robinson and Martin are carrying the perimeter scoring.
+
+History is on their side: last season they won all **3** meetings (89-79 in Belgrade, 92-88 in overtime and 80-72 in the Play-In). Our model gives Barcelona **65%**, a fair price of 1.53, below the 1.70 on offer.
+
+The risk: Zvezda have won big away games this season (62-57 at SEF), and if the doubtful players return the game opens up. The pick includes overtime.
+
+ES:
+El Estrella Roja llega con **dos derrotas seguidas** (84-105 en Madrid, 77-91 en Milán) y con una plantilla cada vez más corta: **Moneke no viajó** a Barcelona, **Miljenovic** está de baja tras una operación, y **Butler, Chris Jones y Kramer** son duda. En Milán jugó sin Butler ni Moneke y le faltaron energía, puntos y creación.
+
+El Barça va **8-4**, encadenaba **5 victorias** antes de perder 86-89 con el Paris y quiere reaccionar en el Palau. Faltan Punter, Gibson y Evbuomwan, Núñez es duda, pero Robinson y Martin sostienen la anotación exterior.
+
+La historia está de su lado: la temporada pasada ganó los **3** duelos (89-79 en Belgrado, 92-88 en la prórroga y 80-72 en el Play-In). Nuestro modelo le da un **65%**, cuota justa 1,53, por debajo del 1,70.
+
+El riesgo: el Estrella Roja ha ganado partidos grandes fuera esta temporada (62-57 en el SEF) y si vuelven los dudosos el partido se abre. La apuesta incluye la prórroga.
+
+SR:
+Crvena zvezda dolazi posle **dva uzastopna poraza** (84-105 u Madridu, 77-91 u Milanu) i sa sve kraćom rotacijom: **Moneke nije otputovao** u Barselonu, **Miljenović** je van tima posle operacije, a **Batler, Kris Džons i Kramer** su neizvesni. U Milanu je igrala bez Batlera i Monekea i nedostajali su energija, poeni i kreacija.
+
+Barselona je **8-4**, imala je **5 vezanih pobeda** pre poraza 86-89 od Pariza i želi reakciju u Palau. Nema Pantera, Gibsona i Evbuomvana, Nunjes je neizvestan, ali Robinson i Martin nose šut sa perimetra.
+
+Istorija je na njenoj strani: prošle sezone dobila je sva **3** meča (89-79 u Beogradu, 92-88 posle produžetka i 80-72 u plej-inu). Naš model daje Barseloni **65%**, fer kvota 1,53, ispod ponuđenih 1,70.
+
+Rizik: Zvezda je ove sezone dobijala velike utakmice u gostima (62-57 u SEF-u), a ako se neizvesni vrate, utakmica se otvara. Tiket uključuje produžetak.
