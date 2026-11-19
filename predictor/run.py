@@ -40,6 +40,12 @@ def unavailable_set():
                 s.add(row[0].strip())
     except Exception:
         pass
+    # αυτόματες πηγές του Fantasy (λίστα τραυματιών, ειδήσεις, πρωτάθλημα): όποιος είναι injured/out για την επόμενη αγωνιστική
+    try:
+        fl = json.loads((ROOT / 'data' / 'fantasy' / 'latest.json').read_text())
+        s |= {str(p['c']) for p in fl.get('players', []) if p.get('status') in ('injured', 'out', 'rest')}
+    except Exception:
+        pass
     # λίστα τραυματιών του site (traumaties.md): σίγουρες απουσίες (όχι οι αμφίβολοι με «?»), μέχρι την ημερομηνία επιστροφής
     try:
         import unicodedata
