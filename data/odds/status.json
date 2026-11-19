@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 232,
+  "calls": 235,
   "fixtures": [
    {
     "id": "id1100013873263180",
@@ -87,17 +87,20 @@
    "id1100013873263182": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263186": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263188": [
     "open",
     "open",
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263190": [
     "open",
@@ -120,9 +123,9 @@
    "id1100013873263180": 6068,
    "id1100013873263178": 9370,
    "id1100013873263184": 6429,
-   "id1100013873263182": 3605,
-   "id1100013873263186": 6300,
-   "id1100013873263188": 1397,
+   "id1100013873263182": 7450,
+   "id1100013873263186": 7295,
+   "id1100013873263188": 6520,
    "id1100013873263190": 3751,
    "id1100013873263192": 5524,
    "id1100013873263194": 3002,
@@ -142,13 +145,16 @@
     "close"
    ],
    "id1100013873263182": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263186": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263188": [
-    "mid"
+    "mid",
+    "close"
    ],
    "id1100013873263190": [
     "mid"
@@ -214,6 +220,10 @@
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-18T14:45:33.110Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T16:24:21.238Z"
     }
    },
    "id1100013873263186": {
@@ -224,6 +234,10 @@
     "mid": {
      "count": 2,
      "lastAttempt": "2026-11-18T22:29:40.922Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T16:24:21.238Z"
     }
    },
    "id1100013873263188": {
@@ -234,6 +248,10 @@
     "mid": {
      "count": 1,
      "lastAttempt": "2026-11-18T14:45:33.110Z"
+    },
+    "close": {
+     "count": 1,
+     "lastAttempt": "2026-11-19T16:24:21.238Z"
     }
    },
    "id1100013873263190": {
@@ -281,18 +299,18 @@
  "lastError": "2026-11-09T16:42:51.532Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-19T15:18:06.229Z",
- "lastSuccess": "2026-11-19T15:18:06.229Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-19T16:24:26.703Z",
+ "lastSuccess": "2026-11-19T16:24:26.703Z",
+ "events": 3,
+ "matched": 3,
+ "added": 5015,
  "quota": {
-  "used": 232,
+  "used": 235,
   "cap": 240,
   "month": "2026-11"
  },
- "lastChange": "2026-11-19T15:05:55.185Z",
- "propAdded": 0,
+ "lastChange": "2026-11-19T16:24:26.703Z",
+ "propAdded": 4574,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -329,6 +347,7 @@
   "926432": "Sloukas, Kostas",
   "928648": "Butkevicius, Arnas",
   "928894": "Ulanovas, Edgaras",
+  "930940": "Hackett, Daniel",
   "996303": "Baldwin, Wade",
   "996313": "Jones, Damian",
   "1124125": "Bacon, Dwayne",
@@ -473,11 +492,13 @@
   "2152758": "Hifi, Nadir",
   "2218434": "Washington Jr., Tyty",
   "2221846": "Alston Jr, Derrick Samuel",
+  "2222226": "Cardenas Torre, Alvaro",
   "2223404": "Kamenjas, Kenan",
   "2223564": "Pradilla, Jaime",
   "2225772": "Baldwin Jr., Patrick",
   "2227192": "Massa, Bodian",
   "2227308": "Sleva, Dustin",
+  "2257329": "Corbolan, Gonzalo",
   "2284643": "Saint-Supery Fernandez, Mario",
   "2299173": "Beauchamp, MarJon",
   "2439289": "Smith Jr., Nick",
