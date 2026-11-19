@@ -574,3 +574,39 @@ Asvel se uklapa u taj scenario: postiže 87,9, ali prima **95,0**, druga najgora
 Naš model predviđa **174,5 poena** ukupno (91-84), iznad 171,5.
 
 Rizik: Efes je bez **Majka Džejmsa** i **Bruna Fernanda**, dakle bez svog najboljeg strelca, a Asvel bez Kejla, Ponsa i Bolomboja. Na 1,73 kvota je blizu fer. Tiket uključuje produžetak.
+
+13 | ZAL-PAN | 1 | 1.95
+Οι δύο ομάδες έχουν το ίδιο ρεκόρ (8-4), αλλά έρχονται με εντελώς διαφορετική ψυχολογία. Η Ζάλγκιρις μετράει **6 σερί νίκες** και την Τρίτη λύγισε τη Μπάγερν 117-114 στην παράταση, με **32 πόντους** του Κάρσεν Έντουαρντς. Ο Βαλαντσιούνας έπαιξε μόλις **14 λεπτά**, οπότε έρχεται ξεκούραστος, και οι Λιθουανοί παίζουν δεύτερο σερί ματς στην έδρα τους, με την αρένα sold out.
+
+Ο Παναθηναϊκός έχει **δύο σερί ήττες** (74-76 από τη Μπαρτσελόνα στο ΟΑΚΑ, 79-84 στη Μπολόνια) και **3 ήττες στα 4** τελευταία του ματς, και πάει στο Κάουνας κατευθείαν από την Ιταλία. Λείπει ο Μαντζούκας.
+
+Το μοντέλο μας συμφωνεί: δίνει **59%** στη Ζάλγκιρις, δηλαδή δίκαιη απόδοση 1,70, ενώ η αγορά τη θέλει ελαφρύ αουτσάιντερ. Στο 1,95 υπάρχει αξία.
+
+Το ρίσκο: η Ζάλγκιρις είναι χωρίς **Γουίλιαμς-Γκος** και **Λο**, και ο Παναθηναϊκός κέρδισε τις δύο αναμετρήσεις της περασμένης σεζόν (92-85 στο Κάουνας, 92-88 στην Αθήνα). Η επιλογή μετράει με την παράταση.
+
+EN:
+Both teams are 8-4, but they arrive in very different moods. Zalgiris have won **6 in a row** and on Tuesday edged Bayern 117-114 in overtime, with **32 points** from Carsen Edwards. Valanciunas played only **14 minutes**, so he comes in fresh, and the Lithuanians play a second straight home game in a sold-out arena.
+
+Panathinaikos have lost **two in a row** (74-76 to Barcelona at OAKA, 79-84 in Bologna) and **3 of their last 4**, and travel to Kaunas straight from Italy. Mantzoukas is out.
+
+Our model agrees: it gives Zalgiris **59%**, a fair price of 1.70, while the market has them as slight underdogs. At 1.95 there is value.
+
+The risk: Zalgiris are without **Williams-Goss** and **Lo**, and Panathinaikos won both meetings last season (92-85 in Kaunas, 92-88 in Athens). The pick includes overtime.
+
+ES:
+Los dos equipos van 8-4, pero llegan con ánimos muy distintos. El Zalgiris suma **6 victorias seguidas** y el martes doblegó al Bayern 117-114 en la prórroga, con **32 puntos** de Carsen Edwards. Valanciunas jugó solo **14 minutos**, así que llega descansado, y los lituanos juegan su segundo partido seguido en casa, con el pabellón lleno.
+
+El Panathinaikos encadena **dos derrotas** (74-76 ante el Barça en el OAKA, 79-84 en Bolonia) y **3 en sus 4** últimos partidos, y viaja a Kaunas directamente desde Italia. Falta Mantzoukas.
+
+Nuestro modelo coincide: da al Zalgiris un **59%**, cuota justa 1,70, mientras el mercado lo ve ligeramente por detrás. A 1,95 hay valor.
+
+El riesgo: el Zalgiris no tiene a **Williams-Goss** ni a **Lo**, y el Panathinaikos ganó los dos duelos de la temporada pasada (92-85 en Kaunas, 92-88 en Atenas). La apuesta incluye la prórroga.
+
+SR:
+Oba tima imaju 8-4, ali dolaze u potpuno različitom raspoloženju. Žalgiris ima **6 vezanih pobeda** i u utorak je savladao Bajern 117-114 posle produžetka, uz **32 poena** Karsena Edvardsa. Valančijunas je igrao samo **14 minuta**, pa dolazi odmoran, a Litvanci igraju drugu uzastopnu utakmicu kod kuće, u rasprodatoj areni.
+
+Panatinaikos ima **dva vezana poraza** (74-76 od Barselone u OAKA, 79-84 u Bolonji) i **3 poraza u poslednje 4** utakmice, a u Kaunas putuje direktno iz Italije. Nema Mancukasa.
+
+Naš model se slaže: daje Žalgirisu **59%**, fer kvota 1,70, dok ga tržište vidi kao blagog autsajdera. Na 1,95 postoji vrednost.
+
+Rizik: Žalgiris je bez **Vilijamsa-Gosa** i **Loa**, a Panatinaikos je dobio oba meča prošle sezone (92-85 u Kaunasu, 92-88 u Atini). Tiket uključuje produžetak.
