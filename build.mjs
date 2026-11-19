@@ -20,6 +20,7 @@ import * as AB from './src/analytics/build-analytics.mjs';
 import { impliedProbs } from './src/matchup/sim.mjs';
 import * as OBM from './src/odds/build-odds.mjs';
 import * as OVAL from './src/odds/value.mjs';
+import * as ORED from './src/odds/redflags.mjs';
 import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from './src/odds/core.mjs';
 import * as PROPM from './src/odds/props.mjs';
 import * as SB from './src/shots/build-shots.mjs';
@@ -931,6 +932,9 @@ async function main() {
   // EuroLeague Odds & Value Bets (Ελλάδα)
   const VBOARD = GRREG ? OVAL.valueBoard({ games: (MPRED?.games || []).filter(g => g.comp === 'E'), latest: OB.latest, reg: GRREG, sig: SIG }) : [];
   const VREL = OVAL.reliability(MBT, OCLVJ.gr?.total);
+  // «κόκκινοι» αγώνες (μεγάλη διαφωνία μοντέλου–αγοράς) για τη σελίδα Προγνωστικά (μόνο ελληνικά feeds)
+  const REDF = GRREG ? { now: ORED.currentFlags(VBOARD), track: ORED.trackRecord(OB, GRREG, league.games) } : null;
+  if (REDF) console.log(`Κόκκινοι αγώνες: ${REDF.now.length} τώρα · απολογισμός ${REDF.track.n} (${REDF.track.won} σωστά, ${REDF.track.profit >= 0 ? '+' : ''}${REDF.track.profit} μον.)`);
   const VREG = GRREG ? OVAL.registryStatus(GRREG, OB.latest) : [];
   let FXD = null;
   try { FXD = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'fantasy', 'latest.json'), 'utf8')); if (FXD.round < lastRound) FXD = null; } catch { FXD = null; }   // κρατάμε τις εκτιμήσεις και όσο παίζεται η αγωνιστική (live tracker)
@@ -1697,6 +1701,7 @@ ${ldTag(ld)}${script}
         body = body.replace('<table id="standTbl" class="stand"></table>', `<table id="standTbl" class="stand"><thead><tr>${labels.map(label => `<th scope="col">${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`);
       }
       if (top) { const vid = { stand: 'vStand', team: 'vTeam', player: 'vPlayer' }[view]; const vp = vid ? body.indexOf(`<div id="${vid}"`) : -1, ms = vp > -1 ? body.indexOf('<main class="wrap', vp) : -1; if (ms > -1) { let k = body.indexOf('>', ms) + 1; if (view === 'stand') { const st = body.indexOf('id="standTbl"', ms), se = st > -1 ? body.indexOf('</section>', st) : -1; if (se > -1) k = se + '</section>'.length; } body = body.slice(0, k) + (view === 'stand' ? top : `<div class="shtopw">${top}</div>`) + body.slice(k); } }
+      if (extra && view === 'preds') { const k = body.indexOf('<section id="predArtSec">'); if (k > -1) body = body.slice(0, k) + extra + body.slice(k); }
       if (extra && view === 'team') { const vp = body.indexOf('<div id="vTeam"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
       if (extra && view === 'player') { const vp = body.indexOf('<div id="vPlayer"'), me = body.indexOf('</main>', vp); if (vp > -1 && me > -1) body = body.slice(0, me) + extra + body.slice(me); }
       if (extra && view === 'fantasy') { const vp = body.indexOf('<div id="vFantasy"'), ms = body.indexOf('<main class="wrap one">', vp); if (vp > -1 && ms > -1) { const k = ms + '<main class="wrap one">'.length; body = body.slice(0, k) + extra + body.slice(k); } }
@@ -2772,7 +2777,18 @@ ${notes}</article>`;
       title: T(`EuroLeague Fantasy προτάσεις ${lastRound + 1}ης αγωνιστικής (tips): ποιους να βάλεις | ${SITE_NAME}`, `EuroLeague Fantasy tips & picks for Round ${lastRound + 1} | ${SITE_NAME}`, `EuroLeague Fantasy consejos jornada ${lastRound + 1}: a quién fichar | ${SITE_NAME}`, `Evroliga Fantazi (Fantasy) saveti za ${lastRound + 1}. kolo: koga izabrati | ${SITE_NAME}`, `${lastRound + 1}. hafta EuroLeague Fantasy tavsiyeleri ve seçimler | ${SITE_NAME}`),
       desc: T(`Εκτιμήσεις PIR ανά θέση, δυσκολία προγράμματος, διπλές εβδομάδες και η πεντάδα της αγωνιστικής για το EuroLeague Fantasy.`,
         `Projected PIR by position, schedule difficulty, double weeks and the team of the round for EuroLeague Fantasy.`, `PIR estimado por posición, dificultad del calendario, semanas dobles y el quinteto de la jornada para el EuroLeague Fantasy.`, `Procena PIR-a po poziciji, težina rasporeda, duple nedelje i idealna petorka kola za EuroLeague Fantasy.`, `EuroLeague Fantasy için pozisyona göre tahmini PIR, fikstür zorluğu, çift maç haftaları ve haftanın kadrosu.`) });
-    await page('preds', { view: 'preds',
+    const redSec = (() => {
+      if (LG !== 'el' || !REDF) return '';
+      const pc = x => Math.round(100 * x) + '%';
+      const tm = t => { const d = new Date(t); return d.toLocaleDateString('el-GR', { weekday: 'short', day: 'numeric', month: 'numeric', timeZone: 'Europe/Athens' }) + ' ' + d.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' }); };
+      const gL = x => `<a href="${urlFor(LG, `game:${x.r}|${x.h}|${x.a}`)}">${esc(tName(x.h))} – ${esc(tName(x.a))}</a>`;
+      const now = REDF.now.length ? `<div class="tbl"><table class="redt"><thead><tr><th class="l">Αγώνας</th><th class="l">Επιλογή</th><th>Μοντέλο</th><th>Αγορά</th><th>Διαφορά</th><th>Καλύτερη απόδοση</th><th>Αξία</th></tr></thead><tbody>${REDF.now.map(x => `<tr><td class="l">${gL(x)}<small class="rk">${esc(tm(x.t))}</small></td><td class="l"><b>${esc(tName(x.team))}</b> (${x.side ? '2' : '1'})</td><td>${pc(x.model)}</td><td>${pc(x.market)}</td><td><b class="redgap">${Math.round(x.gap)}</b></td><td>${x.price.toFixed(2)} <small class="rk">${esc(x.book)}</small></td><td class="pos">+${Math.round(x.ev)}%</td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="sub">Αυτή τη στιγμή δεν υπάρχει αγώνας με διαφωνία πάνω από 8 μονάδες και θετική αξία.</p>';
+      const T0 = REDF.track;
+      const hist = T0.n ? `<h3>Πώς πήγαν μέχρι τώρα</h3><p class="sub">${T0.n} κόκκινοι αγώνες · ${T0.won} σωστά · <b class="${T0.profit >= 0 ? 'pos' : 'neg'}">${T0.profit >= 0 ? '+' : ''}${T0.profit.toFixed(2)} μονάδες</b> με 1 μονάδα στην καλύτερη ελληνική απόδοση κλεισίματος. Το δείγμα είναι ακόμα μικρό.</p><div class="tbl"><table class="redt"><thead><tr><th>Αγ.</th><th class="l">Αγώνας</th><th class="l">Επιλογή</th><th>Απόδοση</th><th>Διαφορά</th><th>Σκορ</th><th>Κέρδος</th></tr></thead><tbody>${T0.rows.map(x => `<tr><td>${x.r}</td><td class="l">${gL(x)}</td><td class="l">${esc(tName(x.team))}</td><td>${x.price.toFixed(2)}</td><td>${Math.round(x.gap)}</td><td>${x.hs}-${x.as} ${x.won ? '✓' : '✗'}</td><td class="${x.won ? 'pos' : 'neg'}">${x.profit >= 0 ? '+' : ''}${x.profit.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>` : '';
+      return `<section id="redFlags" class="redflags"><h2>🔴 Μεγάλες διαφωνίες με την αγορά</h2><p class="sub">Αγώνες όπου η πιθανότητα νίκης του μοντέλου μας απέχει πάνω από 8 μονάδες από την πιθανότητα των αδειοδοτημένων ελληνικών εταιρειών (χωρίς γκανιότα) και η πλευρά του μοντέλου έχει θετική αξία. Παράδειγμα: μοντέλο 43%, αγορά 28% → διαφορά 15. Πριν από κάθε τέτοιο αγώνα έλεγξε τις <a href="${urlFor(LG, 'inj')}">απουσίες</a>: μια μεγάλη διαφορά μπορεί να σημαίνει ότι η αγορά ξέρει κάτι που το μοντέλο δεν ξέρει.</p>${now}${hist}<p class="note">Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Αποδόσεις: Stoiximan, bet365, Pamestoixima (μέσω OddsPapi), ενημέρωση ${ODDS?.updated ? esc(tm(ODDS.updated)) : '–'} · 21+ · Παίξτε υπεύθυνα.</p></section>`;
+    })();
+    await page('preds', { view: 'preds', extra: redSec,
       title: T(`EuroLeague προγνωστικά ${lastRound + 1}ης αγωνιστικής: εκτιμήσεις και ανάλυση | ${SITE_NAME}`, `EuroLeague predictions Round ${lastRound + 1}: projected scores and analysis | ${SITE_NAME}`, `Pronósticos EuroLeague jornada ${lastRound + 1}: marcadores estimados y análisis | ${SITE_NAME}`, `Prognoze Evrolige za ${lastRound + 1}. kolo: procenjeni rezultati i analiza | ${SITE_NAME}`, `EuroLeague tahminleri ${lastRound + 1}. hafta: tahmini skorlar ve analiz | ${SITE_NAME}`),
       desc: T(`Προγνωστικά για την ${lastRound + 1}η αγωνιστική της ${S}: εκτίμηση σκορ, πιθανότητα νίκης, σύνολο πόντων, φόρμα και η ανάλυσή μας.`,
         `Predictions for Round ${lastRound + 1} of the ${S}: projected score, win probability, total points, form and our analysis.`, `Pronósticos para la jornada ${lastRound + 1} de la ${S}: marcador estimado, probabilidad de victoria, puntos totales, forma y nuestro análisis.`, `Prognoze za ${lastRound + 1}. kolo ${S}: procenjeni rezultat, verovatnoća pobede, ukupno poena, forma i naša analiza.`, `${S} ${lastRound + 1}. hafta tahminleri: tahmini skor, kazanma ihtimali, toplam sayı, form ve analizimiz.`) });
