@@ -1,33 +1,4 @@
 {
  "date": "2026-11-20",
- "items": [
-  {
-   "key": "stat:2026-11-19",
-   "image": "social/daily/2026-11-20/stat.png",
-   "video": "social/daily/2026-11-20/stat.mp4",
-   "text": "📊 Στατιστικό της ημέρας\n\n6 σερί νίκες για την Παρί στην EuroLeague.\n\nΌλα τα στατιστικά: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball",
-   "short": "📊 6 σερί νίκες για την Παρί στην EuroLeague. basketballstats.eu",
-   "kinds": [
-    "post",
-    "reel",
-    "story"
-   ],
-   "alt": "6 σερί νίκες για την Παρί στην EuroLeague."
-  },
-  {
-   "key": "pick:2026-11-20",
-   "image": "social/daily/2026-11-20/pick.png",
-   "video": "social/daily/2026-11-20/pick.mp4",
-   "text": "🎯 Το pick της ημέρας · High Fidelity\n\n🏀 Ολυμπιακός – Ρεάλ Μαδρίτης\n🕗 Παρασκευή 20 Νοεμβρίου στις 21:15\n\n👉 Νίκη Ρεάλ Μαδρίτης στο 2ο ημίχρονο @1.97\n\n📝 Η ανάλυση: https://basketballstats.eu/tipsters/high-fidelity/13-oly-mad-17/\n\n21+ | Παίζουμε υπεύθυνα. Στατιστική ανάλυση, όχι συμβουλή στοιχήματος. Κανένα σημείο δεν είναι σίγουρο.\n\n#EuroLeague #μπάσκετ",
-   "textIg": "🎯 Το pick της ημέρας · High Fidelity\n\n🏀 Ολυμπιακός – Ρεάλ Μαδρίτης\n🕗 Παρασκευή 20 Νοεμβρίου στις 21:15\n\n👉 Νίκη Ρεάλ Μαδρίτης στο 2ο ημίχρονο @1.97\n\n📝 Η ανάλυση στο basketballstats.eu (link στο προφίλ)\n\n21+ | Παίζουμε υπεύθυνα. Στατιστική ανάλυση, όχι συμβουλή στοιχήματος. Κανένα σημείο δεν είναι σίγουρο.\n\n#EuroLeague #μπάσκετ",
-   "short": "🎯 Pick της ημέρας: Ολυμπιακός – Ρεάλ Μαδρίτης · Νίκη Ρεάλ Μαδρίτης στο 2ο ημίχρονο @1.97 · ανάλυση στο basketballstats.eu · 21+ Παίζουμε υπεύθυνα",
-   "link": "https://basketballstats.eu/tipsters/high-fidelity/13-oly-mad-17/",
-   "kinds": [
-    "post",
-    "story"
-   ],
-   "gameStart": "2026-11-20T19:15:00.000Z",
-   "pick": true
-  }
- ]
+ "items": []
 }
