@@ -24,6 +24,9 @@ export const PARAMS = {
   rateHalf: 8,     // ρυθμός ανά λεπτό: μισή ζωή 8 αγώνες
   prior: 40,       // shrinkage του ρυθμού προς τον μέσο όρο της λίγκας: «ψεύτικα» λεπτά
   minSd: 8,        // αβεβαιότητα λεπτών (λεπτά)
+  // διόρθωση βαθμονόμησης (logit): στις αγωνιστικές 11–12 (1.383 γραμμές) το μοντέλο έδινε over 44,4% ενώ βγήκε 48,7% ⇒ σχεδόν μόνο under.
+  // Μετατόπιση εκτιμημένη χωριστά σε κάθε αγωνιστική (0,12 και 0,22) και ελέγχθηκε στην άλλη.
+  calShift: 0.15,
   blend: 0.5,      // τελική πιθανότητα = blend·μοντέλο + (1−blend)·αγορά χωρίς vig (η αγορά ξέρει πράγματα που δεν ξέρουμε)
   share: 0.45,     // ποσοστό των λεπτών μιας νέας απουσίας που πάει στους συμπαίκτες (backtest)
   disp: { pts: 3, reb: 1, ast: 1, fg3: 1.15, pr: 2, pa: 2, pra: 2, ar: 1 },  // υπερδιασπορά (var/mean) για δεδομένα λεπτά
@@ -255,7 +258,7 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
       if (!p || p.isOut || p.pl.length < 3) continue;
       const min = teams[t].M[p.c]; if (!(min > 0)) continue;
       const pr = project(p.pl, x.stat, { prior: priors[x.stat], minutes: min, teamPts: ctx[t] }); if (!pr) continue;
-      const po = pOver(pr.mu, pr.var, x.line), nv = noVig(x.over, x.under);
+      const po0 = Math.min(Math.max(pOver(pr.mu, pr.var, x.line), 1e-4), 1 - 1e-4), po = 1 / (1 + Math.exp(-(Math.log(po0 / (1 - po0)) + PARAMS.calShift))), nv = noVig(x.over, x.under);
       const row = { c: p.c, n: p.n, t, stat: x.stat, line: x.line, book: bk, title: B.title, over: x.over || null, under: x.under || null,
         p: +po.toFixed(4), mkt: nv ? +nv.over.toFixed(4) : null, mu: +pr.mu.toFixed(2), sd: +Math.sqrt(pr.var).toFixed(2), min: +min.toFixed(1), base: +p.min.toFixed(1),
         avg: +(p.pl.reduce((s, r) => s + STATS[x.stat](r), 0) / p.pl.length).toFixed(1), last: pr.last, gp: pr.n, st: p.st, upd: x.upd || B.upd || null };
