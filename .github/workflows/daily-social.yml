@@ -30,10 +30,13 @@ jobs:
         with:
           node-version: 20
       - name: Εργαλεία (Chromium, ffmpeg)
+        timeout-minutes: 12
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
-          npm i --no-save playwright@1.48.2 >/dev/null
-          npx playwright install --with-deps chromium >/dev/null
-          which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null)
+          which ffmpeg || (sudo -E apt-get update -qq && sudo -E apt-get install -y -qq --no-install-recommends ffmpeg)
+          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
       - name: Στατιστικό και pick της ημέρας (κάρτες + βίντεο)
         env:
           DAILY_ONLY: ${{ inputs.only }}
