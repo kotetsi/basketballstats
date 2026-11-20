@@ -118,3 +118,18 @@ export async function postTo(net, p) {
   }
   throw new Error('άγνωστο δίκτυο ' + net);
 }
+
+/** Έλεγχος σύνδεσης χωρίς ανάρτηση: επιστρέφει το όνομα του λογαριασμού/καναλιού ή πετάει σφάλμα. */
+export async function checkNet(net) {
+  if (net === 'viber') {
+    const info = await jfetch('https://chatapi.viber.com/pa/get_account_info', { method: 'POST', headers: { 'X-Viber-Auth-Token': clean(E.VIBER_CHANNEL_TOKEN), 'content-type': 'application/json' }, body: '{}' }, 'viber info');
+    if (info.status && info.status !== 0) throw new Error(`viber: ${info.status_message}`);
+    return `${info.name} (${info.subscribers_count ?? 0} συνδρομητές)`;
+  }
+  if (net === 'threads') { const j = await jfetch(`https://graph.threads.net/v1.0/me?fields=username&access_token=${clean(E.THREADS_TOKEN)}`, {}, 'threads'); return '@' + j.username; }
+  if (net === 'bluesky') { const s = await jfetch('https://bsky.social/xrpc/com.atproto.server.createSession', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ identifier: clean(E.BSKY_HANDLE), password: clean(E.BSKY_APP_PASSWORD) }) }, 'bluesky'); return '@' + s.handle; }
+  if (net === 'fb' || net === 'ig') { const j = await mget(net === 'fb' ? PAGE : IG, { fields: net === 'fb' ? 'name' : 'username' }); return j.name || '@' + j.username; }
+  if (net === 'telegram') { const j = await jfetch(`https://api.telegram.org/bot${clean(E.TELEGRAM_TOKEN)}/getChat?chat_id=${encodeURIComponent(clean(E.TELEGRAM_CHAT))}`, {}, 'telegram'); return j.result?.title; }
+  if (net === 'x') { const u = 'https://api.x.com/2/users/me'; const j = await jfetch(u, { headers: { Authorization: xAuth('GET', u) } }, 'x'); return '@' + j.data?.username; }
+  return 'ok';
+}
