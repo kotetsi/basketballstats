@@ -11,10 +11,9 @@
   "fantasyVisionEndpoint": "",
   "social": {
     "facebook": "https://www.facebook.com/profile.php?id=61596308549910",
-    "instagram": {
-      "url": "https://www.instagram.com/sportarena/",
-      "sameAs": false
-    },
+    "instagram": "https://www.instagram.com/basketballstats.eu/",
+    "tiktok": "https://www.tiktok.com/@basketballstats.eu",
+    "youtube": "https://www.youtube.com/@basketballstatseu",
     "telegram": "https://t.me/eubasketballstats_eu"
   },
   "announce": {
