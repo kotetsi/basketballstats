@@ -173,7 +173,7 @@ jobs:
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
           FB_PAGE_ID: "1372786612592081"      # Σελίδα BasketballStats.eu (δημόσιο id)
           IG_USER_ID: "17841438627851733"     # Instagram @basketballstats.eu (δημόσιο id)
-          SOCIAL_TIPSTERS: "high-fidelity"
+          SOCIAL_TIPSTERS: "none"             # από 20/11: σε FB/IG ανεβαίνει ΜΟΝΟ το pick της ημέρας (workflow «Social καθημερινά»)
         run: node scripts/social.mjs
       - name: Αποθήκευση (τι αναρτήθηκε)
         if: always()
