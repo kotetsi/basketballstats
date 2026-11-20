@@ -25,6 +25,7 @@ import * as OLED from './src/odds/ledger.mjs';
 import { blendPreds } from './src/odds/blend.mjs';
 import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from './src/odds/core.mjs';
 import * as PROPM from './src/odds/props.mjs';
+import { indexHistory, closingMove } from './src/odds/closing.mjs';
 import * as SB from './src/shots/build-shots.mjs';
 import { wpSeries, wpSVG, clockOf } from './src/game/wp.mjs';
 import * as RB from './src/refs/build-refs.mjs';
@@ -476,6 +477,16 @@ async function loadTransfers(players) {
   return out;
 }
 
+// «Η αγορά μάς έδωσε δίκιο;»: τελική τιμή της Stoiximan για κάθε tip (από το ιστορικό αποδόσεων)
+let CLOSEIX = null;
+async function closingFor(round, h, a, p, odds, enc) {
+  if (!['ml', 'hc', 'tot'].includes(p.kind) || !odds || !enc || enc.length < 9) return null;
+  const tip = Date.UTC(2020 + +enc[8], +enc.slice(0, 2) - 1, +enc.slice(2, 4), +enc.slice(4, 6), +enc.slice(6, 8));
+  if (tip > Date.now()) return null; // δεν έχει κλείσει ακόμα η αγορά
+  if (!CLOSEIX) { try { CLOSEIX = indexHistory(await fs.readFile(path.join(ROOT, 'data', 'odds', 'history.jsonl'), 'utf8')); } catch { CLOSEIX = new Map(); } }
+  const m = closingMove(CLOSEIX.get(`E-${round}-${h}-${a}`), p, odds, tip);
+  return m ? { s: m.status, d: Math.round(m.diff * 1000) / 1000, by: m.by, pts: m.pts, cl: m.closeLine, cp: m.closePrice } : null;
+}
 // Σκορ 2ου ημιχρόνου (χωρίς παράταση) από τη ροή καλαθιών των αρχείων shots: sc = [χρόνος, πλευρά, πόντοι, παίκτης, γηπεδούχος, φιλοξενούμενος]
 let H2CACHE = null;
 async function secondHalf(h, a) {
@@ -542,7 +553,8 @@ async function loadTipsters(games, players) {
       else if (g[6] && p.kind === 'h2') { const sh = await secondHalf(h, a); if (sh) { res = gradePick({ kind: 'ml', side: p.side }, sh[0], sh[1]); p.h2 = sh; } }
       else if (g[6]) res = gradePick(p, g[4], g[5]);
       cur = { round, h, a, text: { el: [], en: [], es: [], sr: [], tr: [] }, lang: 'el', label: Object.fromEntries(LANGS.map(lg => [lg, pickLabel(p, h, a, lg)])), odds: odds && odds > 1 ? odds : null, res,
-        score: g && g[6] ? `${g[4]}-${g[5]}` : '', val: p.kind === 'prop' && p.val != null ? p.val : null, stat: p.stat, date: g ? g[1] : '' };
+        score: g && g[6] ? `${g[4]}-${g[5]}` : '', val: p.kind === 'prop' && p.val != null ? p.val : null, stat: p.stat, date: g ? g[1] : '',
+        close: g ? await closingFor(round, h, a, p, odds && odds > 1 ? odds : null, g[1]) : null };
       picks.push(cur);
     }
     picks.forEach((x, i) => {
@@ -565,7 +577,7 @@ async function loadTipsters(games, players) {
     picks.sort((x, y) => y.round - x.round || (y.date || '').localeCompare(x.date || ''));
     out.push({ name, slug, bio: meta.bio || '', bioEn: meta.bio_en || '', bioEs: meta.bio_es || '', bioSr: meta.bio_sr || '', bioTr: meta.bio_tr || meta.bio_en || '', picks, W, L, P: picks.filter(x => x.res === 'P').length,
       pending: picks.filter(x => x.res === 'pending').length, pct: settled.length ? W / settled.length : null,
-      units, roi: staked ? units / staked : null, form: picks.filter(x => x.res === 'W' || x.res === 'L').slice(0, 5).map(x => x.res).join('') });
+      units, roi: staked ? units / staked : null, closeN: picks.filter(x => x.close && x.close.s !== 'same').length, closeW: picks.filter(x => x.close && x.close.s === 'better').length, form: picks.filter(x => x.res === 'W' || x.res === 'L').slice(0, 5).map(x => x.res).join('') });
   }
   return out.sort((x, y) => (y.units - x.units) || ((y.pct ?? -1) - (x.pct ?? -1)));
 }
@@ -1396,6 +1408,8 @@ async function main() {
     if (k === 'fxrules') return B(lg) + PATHS[lg].fantasy + '/' + ({ el: 'odigos', en: 'how-to-play', es: 'como-jugar', sr: 'vodic', tr: 'nasil-oynanir' })[lg] + '/';
     if (k === 'tools') return B(lg) + ({ el: 'ergaleia', en: 'tools', es: 'herramientas', sr: 'alati', tr: 'araclar' })[lg] + '/';
     if (k === 'mvp') return B(lg) + ({ el: 'mvp-euroleague', en: 'euroleague-mvp', es: 'mvp-euroliga', sr: 'mvp-evrolige', tr: 'euroleague-mvp' })[lg] + '/';
+    if (k === 'bet') return B(lg) + ({ el: 'stoixima', en: 'betting', es: 'apuestas', sr: 'kladjenje', tr: 'bahis' })[lg] + '/';
+    if (k === 'betp') return urlFor(lg, 'bet') + ({ el: 'paiktes', en: 'players', es: 'jugadores', sr: 'igraci', tr: 'oyuncular' })[lg] + '/';
     if (k === 'daytip') return B(lg) + ({ el: 'stoixima-tis-imeras', en: 'bet-of-the-day', es: 'apuesta-del-dia', sr: 'tip-dana', tr: 'gunun-bahsi' })[lg] + '/';
     if (k === 'transfers') return B(lg) + ({ el: 'metagrafes', en: 'transfers', es: 'fichajes', sr: 'transferi', tr: 'transferler' })[lg] + '/';
     if (k === 'inj') return B(lg) + ({ el: 'traumaties', en: 'injury-report', es: 'lesionados', sr: 'povrede', tr: 'sakatlik-raporu' })[lg] + '/';
@@ -3395,6 +3409,102 @@ ${html ? `<div class="prose">${html}</div>` : `<p class="sub">${T(`Ο ${esc(t.na
 <p><a class="pread" href="${urlFor(LG, 'team:' + p.h)}">${esc(tName(p.h))}: ${T('στατιστικά', 'stats', 'estadísticas', 'statistika', 'istatistikler')} →</a> &nbsp; <a class="pread" href="${urlFor(LG, 'team:' + p.a)}">${esc(tName(p.a))}: ${T('στατιστικά', 'stats', 'estadísticas', 'statistika', 'istatistikler')} →</a> &nbsp; <a class="pread" href="${urlFor(LG, 'preds')}">${T('Εκτιμήσεις αγωνιστικής', 'Round projections', 'Estimaciones de la jornada', 'Procene za kolo', 'Haftanın tahminleri')} →</a></p>
 ${disclaimer}</article>` });
       }
+    }
+
+    // ---- Στοίχημα: μία σελίδα με καρτέλες Tips · Παίκτες · Αξία (απλή γλώσσα, χωρίς ορολογία)
+    {
+      const ICO = {
+        tips: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+        players: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+        value: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>',
+        ticket: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></svg>',
+        clock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+      };
+      const encDate = e => (e && e.length >= 9 ? new Date(Date.UTC(2020 + +e[8], +e.slice(0, 2) - 1, +e.slice(2, 4), +e.slice(4, 6), +e.slice(6, 8))) : null);
+      const athDay = d => d.toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
+      const hm = d => d.toLocaleTimeString(LOCP, { timeZone: 'Europe/Athens', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+      const dayLong = d => d.toLocaleDateString(LOCP, { timeZone: 'Europe/Athens', weekday: 'long', day: 'numeric', month: 'numeric' });
+      const now = Date.now();
+      const upG = league.games.filter(g => !g[6] && encDate(g[1]) && encDate(g[1]).getTime() > now - 3 * 3600e3).sort((x, y) => encDate(x[1]) - encDate(y[1]));
+      const day = upG.length ? athDay(encDate(upG[0][1])) : null;
+      const dayG = upG.filter(g => athDay(encDate(g[1])) === day);
+      const dayLbl = dayG.length ? dayLong(encDate(dayG[0][1])) : '';
+      const fmt = (v, d = 2) => (LG === 'en' ? v.toFixed(d) : v.toFixed(d).replace('.', ','));
+      const AGEb = LG === 'el' ? 21 : 18;
+      const rgNote = `<p class="btnote">${AGEb}+ · ${T('Παίξε υπεύθυνα. Οι πιθανότητες είναι εκτιμήσεις μας, όχι εγγύηση.', 'Gamble responsibly. Probabilities are our estimates, not a guarantee.', 'Juega con responsabilidad. Las probabilidades son estimaciones, no una garantía.', 'Igrajte odgovorno. Verovatnoće su naše procene, ne garancija.', 'Sorumlu oyna. Olasılıklar tahminimizdir, garanti değildir.')}</p>`;
+      const tabs = cur => `<nav class="bttabs" aria-label="${T('Ενότητες στοιχήματος', 'Betting sections', 'Secciones de apuestas', 'Delovi klađenja', 'Bahis bölümleri')}">${[
+        ['bet', ICO.tips, 'Tips'], ['betp', ICO.players, T('Παίκτες', 'Players', 'Jugadores', 'Igrači', 'Oyuncular')], ['oddsvalue', ICO.value, T('Αξία', 'Value', 'Valor', 'Vrednost', 'Değer')]
+      ].map(([k, ic, l]) => `<a href="${urlFor(LG, k)}"${k === cur ? ' aria-current="page"' : ''}>${ic}${esc(l)}</a>`).join('')}</nav>`;
+      const headB = `<header class="bthead"><span class="btico">${ICO.ticket}</span><div><h1>${T('Στοίχημα', 'Betting', 'Apuestas', 'Klađenje', 'Bahis')}</h1>${dayLbl ? `<p class="sub">${esc(dayLbl)}${dayG[0] ? ' · ' + esc(rdTxt0(dayG[0][0])) : ''}</p>` : ''}</div></header>`;
+      // Η εκτίμησή μας για κάθε επιλογή, σε απλά λόγια
+      const estFor = p => { const m = MPK[`E|${p.round}|${p.h}|${p.a}`]; if (!m) return '';
+        return T(`Η εκτίμησή μας: ${tName(p.h)} ${Math.round(m.p_home * 100)}% · σύνολο ${Math.round(m.total)}`, `Our estimate: ${tName(p.h)} ${Math.round(m.p_home * 100)}% · total ${Math.round(m.total)}`, `Nuestra estimación: ${tName(p.h)} ${Math.round(m.p_home * 100)}% · total ${Math.round(m.total)}`, `Naša procena: ${tName(p.h)} ${Math.round(m.p_home * 100)}% · ukupno ${Math.round(m.total)}`, `Tahminimiz: ${tName(p.h)} %${Math.round(m.p_home * 100)} · toplam ${Math.round(m.total)}`); };
+      const closeTxt = c => { if (!c) return '';
+        const ok = c.s === 'better', same = c.s === 'same';
+        const tag = same ? T('Ίδια τιμή', 'Same price', 'Mismo precio', 'Ista cena', 'Aynı fiyat') : ok ? T('Καλύτερη τιμή', 'Better price', 'Mejor precio', 'Bolja cena', 'Daha iyi fiyat') : T('Χειρότερη τιμή', 'Worse price', 'Peor precio', 'Lošija cena', 'Daha kötü fiyat');
+        const how = c.by === 'line' ? T(`η γραμμή έκλεισε ${fmt(c.cl, 1)}`, `the line closed at ${fmt(c.cl, 1)}`, `la línea cerró en ${fmt(c.cl, 1)}`, `linija se zatvorila na ${fmt(c.cl, 1)}`, `çizgi ${fmt(c.cl, 1)} kapandı`)
+          : T(`η απόδοση έκλεισε ${fmt(c.cp)}`, `the odds closed at ${fmt(c.cp)}`, `la cuota cerró en ${fmt(c.cp)}`, `kvota se zatvorila na ${fmt(c.cp)}`, `oran ${fmt(c.cp)} kapandı`);
+        return `<span class="btclose ${same ? 'same' : ok ? 'up' : 'down'}">${tag}</span> <span class="sub">${how}</span>`; };
+      const hf = tipsters.find(t => t.slug === 'high-fidelity') || tipsters[0];
+      const nextTips = tipsters.flatMap(t => t.picks.filter(p => p.res === 'pending' && p.date && encDate(p.date) && encDate(p.date).getTime() > now - 3 * 3600e3).map(p => ({ ...p, t }))).sort((x, y) => encDate(x.date) - encDate(y.date));
+      const settled = hf ? hf.picks.filter(p => ['W', 'L', 'P'].includes(p.res)).slice(0, 6) : [];
+      const tipCard = p => `<a class="btcard" href="${p.url[LG]}"><span class="btmeta">${ICO.clock} ${esc(whenShort(p))} · ${esc(tName(p.h))} – ${esc(tName(p.a))}</span><span class="btrow"><b>${esc(p.label[LG])}</b>${p.odds ? `<b class="btodds">${fmt(p.odds)}</b>` : ''}</span><span class="sub">${esc(p.t.name)}${estFor(p) ? ' · ' + esc(estFor(p)) : ''}</span></a>`;
+      const doneCard = p => `<a class="btcard" href="${p.url[LG]}"><span class="btrow"><b>${esc(p.label[LG])}${p.odds ? ` @ ${fmt(p.odds)}` : ''}</b><span class="btres ${p.res}">${p.res === 'W' ? T('Κέρδος', 'Won', 'Ganada', 'Dobitan', 'Kazandı') : p.res === 'L' ? T('Χάθηκε', 'Lost', 'Perdida', 'Gubitan', 'Kaybetti') : T('Άκυρο', 'Void', 'Nula', 'Poništen', 'İptal')}${p.score ? ' · ' + esc(scoreTxt(p)) : ''}</span></span><span class="sub">${esc(tName(p.h))} – ${esc(tName(p.a))}</span>${p.close ? `<span>${closeTxt(p.close)}</span>` : ''}</a>`;
+      const mainTips = `<article class="btpage">${headB}${tabs('bet')}
+${hf ? `<section class="btbox"><h2>${esc(hf.name)}</h2><div class="btstats"><div><b>${hf.W}-${hf.L}</b><span>${T('Νίκες-Ήττες', 'Won-Lost', 'Ganadas-Perdidas', 'Dobitni-Gubitni', 'Kazanç-Kayıp')}</span></div><div><b class="${hf.units > 0 ? 'up' : hf.units < 0 ? 'down' : ''}">${(hf.units > 0 ? '+' : '') + fmt(hf.units)}</b><span>${T('Μονάδες', 'Units', 'Unidades', 'Jedinice', 'Birim')}</span></div><div><b class="${hf.closeN && hf.closeW / hf.closeN >= 0.5 ? 'up' : 'down'}">${hf.closeW} / ${hf.closeN}</b><span>${T('Η αγορά μάς έδωσε δίκιο', 'The market agreed', 'El mercado nos dio la razón', 'Tržište nam je dalo za pravo', 'Piyasa bize hak verdi')}</span></div></div>
+<p class="sub">${T('<b>«Η αγορά μάς έδωσε δίκιο»</b>: αφού δόθηκε το tip, οι εταιρείες κατέβασαν την απόδοση ή μετακίνησαν τη γραμμή προς τη μεριά μας, δηλαδή το πιάσαμε σε καλύτερη τιμή από όσο έκλεισε. Είναι το πιο σίγουρο σημάδι ότι ένα tip ήταν σωστό, ακόμα κι όταν τελικά χάνει.', '<b>“The market agreed”</b>: after the tip was posted, bookmakers cut the odds or moved the line our way, so we got a better price than the close. It is the surest sign a tip was right, even when it loses.', '<b>«El mercado nos dio la razón»</b>: tras publicar el tip, las casas bajaron la cuota o movieron la línea a nuestro favor; conseguimos mejor precio que el de cierre. Es la señal más fiable de que un tip era bueno, aunque pierda.', '<b>„Tržište nam je dalo za pravo”</b>: posle objave tipa kladionice su spustile kvotu ili pomerile liniju u našu korist, pa smo dobili bolju cenu od zatvaranja. To je najsigurniji znak da je tip bio dobar, čak i kad izgubi.', '<b>“Piyasa bize hak verdi”</b>: tip paylaşıldıktan sonra şirketler oranı düşürdü veya çizgiyi bizim lehimize kaydırdı; kapanıştan daha iyi fiyat aldık. Kaybetse bile bir tipin doğru olduğunun en güvenilir işaretidir.')}</p></section>` : ''}
+<h2 class="btsec">${T('Επόμενα tips', 'Upcoming tips', 'Próximos tips', 'Sledeći tipovi', 'Sıradaki tipler')}</h2>
+${nextTips.length ? `<div class="btlist">${nextTips.map(tipCard).join('')}</div>` : `<p class="sub">${T('Δεν έχουν δοθεί ακόμα tips για τους επόμενους αγώνες.', 'No tips for the next games yet.', 'Todavía no hay tips para los próximos partidos.', 'Još nema tipova za naredne utakmice.', 'Sonraki maçlar için henüz tip yok.')}</p>`}
+${settled.length ? `<h2 class="btsec">${T('Τα τελευταία: αποτέλεσμα και τι έκανε η αγορά', 'Latest: result and what the market did', 'Últimos: resultado y qué hizo el mercado', 'Poslednji: ishod i šta je uradilo tržište', 'Son tipler: sonuç ve piyasanın tepkisi')}</h2><div class="btlist">${settled.map(p => doneCard({ ...p, t: hf })).join('')}</div>` : ''}
+<p class="sub"><a href="${urlFor(LG, 'tipsters')}">${T('Όλα τα tips και το ιστορικό', 'All tips and history', 'Todos los tips y el historial', 'Svi tipovi i istorija', 'Tüm tipler ve geçmiş')} →</a></p>
+<p class="btnote">${T('«Έκλεισε»: η τελευταία απόδοση της Stoiximan πριν από το τζάμπολ. Όταν η γραμμή διαφέρει, η σύγκριση γίνεται κατά προσέγγιση.', '“Closed”: Stoiximan’s last price before tip-off. When the line differs, the comparison is approximate.', '«Cerró»: la última cuota de Stoiximan antes del inicio. Si la línea es distinta, la comparación es aproximada.', '„Zatvorila se”: poslednja kvota Stoiximana pre početka. Kada se linija razlikuje, poređenje je približno.', '“Kapandı”: Stoiximan’ın maç öncesi son oranı. Çizgi farklıysa karşılaştırma yaklaşıktır.')}</p>${rgNote}</article>`;
+      await simplePage('bet', { view: 'odds',
+        title: T(`Στοίχημα EuroLeague σήμερα: tips, παίκτες και αξία | ${SITE_NAME}`, `EuroLeague betting today: tips, players and value | ${SITE_NAME}`, `Apuestas EuroLeague hoy: tips, jugadores y valor | ${SITE_NAME}`, `Klađenje Evroliga danas: tipovi, igrači i vrednost | ${SITE_NAME}`, `Bugün EuroLeague bahis: tipler, oyuncular ve değer | ${SITE_NAME}`),
+        desc: T('Τα tips του High Fidelity με την απόδοση και αν η αγορά μάς έδωσε δίκιο, στοιχήματα παικτών με το ιστορικό τους και όπου βλέπουμε αξία.', 'High Fidelity tips with odds and whether the market agreed, player bets with their record, and where we see value.', 'Los tips de High Fidelity con cuota y si el mercado nos dio la razón, apuestas de jugadores con su historial y dónde vemos valor.', 'Tipovi High Fidelity sa kvotom i da li nam je tržište dalo za pravo, opklade na igrače sa istorijom i gde vidimo vrednost.', 'High Fidelity tipleri, oranları ve piyasanın hak verip vermediği, oyuncu bahisleri ve değer gördüğümüz yerler.'),
+        main: mainTips });
+
+      // ---- Καρτέλα «Παίκτες»: κάρτες ημέρας από το ιστορικό 10 αγώνων απέναντι στη γραμμή της Stoiximan
+      const STATK = { pts: 'pts', reb: 'reb', ast: 'ast', fg3: '3pm' };
+      const SL = { pts: T('πόντοι', 'points', 'puntos', 'poena', 'sayı'), reb: T('ριμπάουντ', 'rebounds', 'rebotes', 'skokova', 'ribaund'), ast: T('ασίστ', 'assists', 'asistencias', 'asistencija', 'asist'), fg3: T('τρίποντα', 'threes', 'triples', 'trojki', 'üçlük') };
+      const normN = x => x.toUpperCase().normalize('NFD').replace(/[^A-Z, ]/g, '');
+      const byName = new Map(players.map(p => [normN(p.n), p]));
+      const cand = [];
+      for (const g of dayG) {
+        const ok = ODDS?.games?.[`E-${g[0]}-${g[2]}-${g[3]}`]?.books?.stoiximan; if (!ok) continue;
+        for (const pr of ok.props || []) {
+          if (!STATK[pr.stat] || !(pr.over > 1) || !(pr.under > 1)) continue;
+          const pl = byName.get(normN(pr.name)); if (!pl) continue;
+          const gs = pl.g.filter(r => r[7] > 0).sort((x, y) => y[0] - x[0]).slice(0, 10); if (gs.length < 8) continue;
+          const v = gs.map(r => propValue(STATK[pr.stat], r)).reverse();   // παλαιότερο → πιο πρόσφατο
+          const un = v.filter(x => x < pr.line).length, side = un * 2 >= v.length ? 'under' : 'over';
+          const hit = side === 'under' ? un : v.length - un, l5 = v.slice(-5).filter(x => side === 'under' ? x < pr.line : x > pr.line).length;
+          let streak = 0; for (let i = v.length - 1; i >= 0 && (side === 'under' ? v[i] < pr.line : v[i] > pr.line); i--) streak++;
+          const price = side === 'under' ? pr.under : pr.over;
+          if (hit >= 7 && l5 >= 4 && price >= 1.6) cand.push({ g, pl, stat: pr.stat, line: pr.line, side, price, v, hit, n: v.length, streak });
+        }
+      }
+      const seenP = new Set();
+      const cards = cand.sort((x, y) => (y.hit / y.n) - (x.hit / x.n) || y.streak - x.streak || y.price - x.price).filter(c => !seenP.has(c.pl.c) && seenP.add(c.pl.c)).slice(0, 3);
+      const sideTxt = c => c.line === 0.5 && c.side === 'over' ? `1+ ${SL[c.stat]}` : `${c.side === 'over' ? 'Over' : 'Under'} ${fmt(c.line, 1)} ${SL[c.stat]}`;
+      const barSvg = c => { const W = 100, H = 40, max = Math.max(...c.v, c.line + 1), bw = W / c.v.length;
+        const bars = c.v.map((x, i) => { const h = Math.max(1.5, x / max * H), hit = c.side === 'under' ? x < c.line : x > c.line; return `<rect x="${(i * bw + bw * 0.12).toFixed(2)}" y="${(H - h).toFixed(2)}" width="${(bw * 0.76).toFixed(2)}" height="${h.toFixed(2)}" rx="1" class="${hit ? 'hit' : 'miss'}"/>`; }).join('');
+        const ly = (H - c.line / max * H).toFixed(2);
+        return `<svg class="btbars" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${esc(niceName(c.pl.n))}: ${c.v.join(', ')}">${bars}<line x1="0" x2="${W}" y1="${ly}" y2="${ly}" class="ln"/></svg>`; };
+      const pCard = c => `<a class="btcard" href="${urlFor(LG, 'oddsanalyzer')}#p=${encodeURIComponent(c.pl.s)}&s=${c.stat}&l=${c.line}"><span class="btmeta">${ICO.clock} ${esc(hm(encDate(c.g[1])))} · ${esc(tName(c.g[2]))} – ${esc(tName(c.g[3]))}</span><span class="btrow"><b>${esc(niceName(c.pl.n))} · ${esc(sideTxt(c))}</b><b class="btodds">${fmt(c.price)}</b></span>
+<span class="bthit"><b>${c.streak >= 6 ? T(`${c.streak} σερί`, `${c.streak} in a row`, `${c.streak} seguidos`, `${c.streak} zaredom`, `${c.streak} üst üste`) : `${c.hit}/${c.n}`}</b> ${T(`στους ${c.n} τελευταίους αγώνες του`, `in his last ${c.n} games`, `en sus últimos ${c.n} partidos`, `u poslednjih ${c.n} utakmica`, `son ${c.n} maçında`)}</span>${barSvg(c)}<span class="sub">${T(`παλαιότερο → πιο πρόσφατο · γραμμή ${fmt(c.line, 1)}`, `oldest → latest · line ${fmt(c.line, 1)}`, `más antiguo → más reciente · línea ${fmt(c.line, 1)}`, `najstarije → najnovije · linija ${fmt(c.line, 1)}`, `en eski → en yeni · çizgi ${fmt(c.line, 1)}`)}</span></a>`;
+      const plList = players.filter(p => p.g.some(r => r[7] > 0)).map(p => [niceName(p.n), p.s]).sort((x, y) => x[0].localeCompare(y[0]));
+      const mainP = `<article class="btpage">${headB}${tabs('betp')}
+<form class="btsearch" action="${urlFor(LG, 'oddsanalyzer')}" data-base="${urlFor(LG, 'oddsanalyzer')}"><label for="btq">${T('Ψάξε παίκτη', 'Find a player', 'Busca un jugador', 'Pronađi igrača', 'Oyuncu ara')}</label><span>${ICO.players}<input id="btq" name="q" list="btql" autocomplete="off" placeholder="${T('π.χ. Vezenkov', 'e.g. Vezenkov', 'p. ej. Vezenkov', 'npr. Vezenkov', 'örn. Vezenkov')}"></span><datalist id="btql">${plList.map(([n]) => `<option value="${esc(n)}">`).join('')}</datalist>
+<small class="sub">${T('Τελευταία 5, 10 και 20 ματς απέναντι στη γραμμή, με και χωρίς συμπαίκτη, και ο αντίπαλος.', 'Last 5, 10 and 20 games against the line, with and without a teammate, and the opponent.', 'Últimos 5, 10 y 20 partidos frente a la línea, con y sin un compañero, y el rival.', 'Poslednjih 5, 10 i 20 utakmica u odnosu na liniju, sa i bez saigrača, i protivnik.', 'Çizgiye göre son 5, 10 ve 20 maç, bir takım arkadaşıyla ve onsuz, ve rakip.')}</small></form>
+<script type="application/json" id="btqs">${JSON.stringify(Object.fromEntries(plList)).replace(/</g, '\\u003c')}</script>
+<script>(()=>{const f=document.querySelector('.btsearch'),m=JSON.parse(document.getElementById('btqs').textContent);f.addEventListener('submit',e=>{e.preventDefault();const v=f.q.value.trim(),k=Object.keys(m).find(n=>n.toLowerCase()===v.toLowerCase())||Object.keys(m).find(n=>n.toLowerCase().includes(v.toLowerCase()));location.href=f.dataset.base+(k?'#p='+encodeURIComponent(m[k]):'');});})();</script>
+<h2 class="btsec">${T('Στοιχήματα παικτών για', 'Player bets for', 'Apuestas de jugadores para el', 'Opklade na igrače za', 'Oyuncu bahisleri:')} ${esc(dayLbl || '')}</h2>
+${cards.length ? `<div class="btlist">${cards.map(pCard).join('')}</div>` : `<p class="sub">${T('Δεν βρήκαμε σήμερα παίκτη με καθαρό ιστορικό απέναντι στη γραμμή.', 'No player with a clear record against today’s line.', 'Hoy no hay ningún jugador con un historial claro frente a la línea.', 'Danas nema igrača sa jasnom istorijom u odnosu na liniju.', 'Bugün çizgiye karşı net geçmişi olan oyuncu yok.')}</p>`}
+<p class="btnote">${T('Οι κάρτες δείχνουν τι έκανε ο παίκτης στα τελευταία ματς, όχι υπόσχεση για το σημερινό. Οι εκτιμήσεις μας για παίκτες μέχρι τώρα δεν έχουν ξεπεράσει τις εταιρείες. Αποδόσεις: Stoiximan.', 'The cards show what the player did in recent games, not a promise for today. Our player estimates have not beaten the bookmakers so far. Odds: Stoiximan.', 'Las tarjetas muestran lo que hizo el jugador en los últimos partidos, no una promesa para hoy. Nuestras estimaciones de jugadores aún no han superado a las casas. Cuotas: Stoiximan.', 'Kartice pokazuju šta je igrač uradio u poslednjim utakmicama, ne obećanje za danas. Naše procene za igrače do sada nisu nadmašile kladionice. Kvote: Stoiximan.', 'Kartlar oyuncunun son maçlarda ne yaptığını gösterir, bugün için söz değildir. Oyuncu tahminlerimiz şu ana kadar şirketleri geçemedi. Oranlar: Stoiximan.')}</p>${rgNote}</article>`;
+      await simplePage('betp', { view: 'odds',
+        title: T(`Στοιχήματα παικτών EuroLeague σήμερα | ${SITE_NAME}`, `EuroLeague player bets today | ${SITE_NAME}`, `Apuestas de jugadores EuroLeague hoy | ${SITE_NAME}`, `Opklade na igrače Evroliga danas | ${SITE_NAME}`, `Bugün EuroLeague oyuncu bahisleri | ${SITE_NAME}`),
+        desc: T('Παίκτες με καθαρό ιστορικό απέναντι στη σημερινή γραμμή: τι έκαναν στους 10 τελευταίους αγώνες, με γράφημα.', 'Players with a clear record against today’s line: their last 10 games, charted.', 'Jugadores con un historial claro frente a la línea de hoy: sus últimos 10 partidos, en gráfico.', 'Igrači sa jasnom istorijom u odnosu na današnju liniju: poslednjih 10 utakmica, grafički.', 'Bugünkü çizgiye karşı net geçmişi olan oyuncular: son 10 maçları, grafikle.'),
+        main: mainP });
     }
 
     // σελίδα εφαρμογής (και σελίδα εκτός σύνδεσης)
