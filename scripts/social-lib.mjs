@@ -128,8 +128,9 @@ export async function checkNet(net) {
   }
   if (net === 'threads') { const j = await jfetch(`https://graph.threads.net/v1.0/me?fields=username&access_token=${clean(E.THREADS_TOKEN)}`, {}, 'threads'); return '@' + j.username; }
   if (net === 'bluesky') { const s = await jfetch('https://bsky.social/xrpc/com.atproto.server.createSession', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ identifier: clean(E.BSKY_HANDLE), password: clean(E.BSKY_APP_PASSWORD) }) }, 'bluesky'); return '@' + s.handle; }
-  if (net === 'fb' || net === 'ig') { const j = await mget(net === 'fb' ? PAGE : IG, { fields: net === 'fb' ? 'name' : 'username' }); return j.name || '@' + j.username; }
-  if (net === 'telegram') { const j = await jfetch(`https://api.telegram.org/bot${clean(E.TELEGRAM_TOKEN)}/getChat?chat_id=${encodeURIComponent(clean(E.TELEGRAM_CHAT))}`, {}, 'telegram'); return j.result?.title; }
+  if (net === 'fb') { const j = await mget(PAGE, { fields: 'name,followers_count,fan_count' }); return `${j.name} (${j.followers_count ?? j.fan_count ?? '?'} ακόλουθοι)`; }
+  if (net === 'ig') { const j = await mget(IG, { fields: 'username,followers_count,media_count' }); return `@${j.username} (${j.followers_count ?? '?'} ακόλουθοι, ${j.media_count ?? '?'} αναρτήσεις)`; }
+  if (net === 'telegram') { const q = `chat_id=${encodeURIComponent(clean(E.TELEGRAM_CHAT))}`, B = `https://api.telegram.org/bot${clean(E.TELEGRAM_TOKEN)}`; const j = await jfetch(`${B}/getChat?${q}`, {}, 'telegram'); const n = await jfetch(`${B}/getChatMemberCount?${q}`, {}, 'telegram').catch(() => ({})); return `${j.result?.title} (${n.result ?? '?'} συνδρομητές)`; }
   if (net === 'x') { const u = 'https://api.x.com/2/users/me'; const j = await jfetch(u, { headers: { Authorization: xAuth('GET', u) } }, 'x'); return '@' + j.data?.username; }
   return 'ok';
 }

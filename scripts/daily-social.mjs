@@ -176,7 +176,7 @@ async function post() {
   const plan = await readJ(PLAN, { items: [] }), state = await readJ(STATE, { posted: [] });
   const on = Object.entries(NETS).filter(([, v]) => v).map(([k]) => k);
   console.log('Συνδεδεμένα δίκτυα:', on.join(', ') || 'κανένα');
-  if (DRY) for (const n of on) { try { console.log(`Έλεγχος ${n}: OK — ${await checkNet(n)}`); } catch (e) { console.error(`Έλεγχος ${n}: ΣΦΑΛΜΑ — ${e.message}`); } }
+  for (const n of on) { try { console.log(`Έλεγχος ${n}: OK — ${await checkNet(n)}`); } catch (e) { console.error(`Έλεγχος ${n}: ΣΦΑΛΜΑ — ${e.message}`); } }
   let failed = 0;
   for (const it of plan.items) {
     if (it.pick && it.gameStart && new Date(it.gameStart) <= new Date()) { console.log('Pick: ο αγώνας άρχισε, παράλειψη'); continue; }
