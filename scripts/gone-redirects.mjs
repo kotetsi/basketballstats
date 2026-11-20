@@ -26,8 +26,6 @@ function walk(dir, rel, out) {
 }
 function isStub(f) { try { return fs.readFileSync(f, 'utf8', { length: 300 }).includes('data-gone-redirect'); } catch { return false; } }
 
-const live = new Set(['/']);
-walk(DIST, '/', live);
 const langOf = u => { const s = u.split('/')[1]; return LANGS.includes(s) ? s : 'el'; };
 const pre = l => (l === 'el' ? '/' : `/${l}/`);
 
@@ -66,6 +64,8 @@ function stub(u, to, lg) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  const live = new Set(['/']);
+  walk(DIST, '/', live);
   let man = [];
   try { man = JSON.parse(fs.readFileSync(MAN, 'utf8')); } catch { }
   const all = new Set(man);
