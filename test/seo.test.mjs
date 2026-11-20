@@ -6,13 +6,15 @@ import { fileURLToPath } from 'node:url';
 
 const root = new URL('../dist/', import.meta.url);
 const standingsPaths = { '':'vathmologia/', 'en/':'standings/', 'es/':'clasificacion/', 'sr/':'tabela/', 'tr/':'puan-durumu/' };
-const portalTitles = { '':'Πύλη Μπασκετικής Ανάλυσης', 'en/':'Basketball Intelligence Portal', 'es/':'Portal de análisis de baloncesto', 'sr/':'Portal košarkaške analitike', 'tr/':'Basketbol Analiz Portalı' };
+const portalTitles = { '':'Σήμερα στην EuroLeague', 'en/':'Today in the EuroLeague', 'es/':'Hoy en la EuroLeague', 'sr/':'Danas u Evroligi', 'tr/':'Bugün EuroLeague’de' };
 for (const lang of ['', 'en/', 'es/', 'sr/', 'tr/']) {
   test(`portal homepage is published: ${lang || 'el'}`, async () => {
     const home = await fs.readFile(new URL(lang + 'index.html', root), 'utf8');
     assert.ok(home.includes(portalTitles[lang]), `localized portal title exists: ${lang || 'el'}`);
     assert.match(home, /data-view="portal"/);
-    assert.equal((home.match(/class="portal-card"/g) || []).length, 12);
+    assert.match(home, /<main class="wrap hmpage">/);
+    assert.match(home, /<nav class="nav nav5"/);
+    assert.doesNotMatch(home, /"@type":"FAQPage"/);
   });
   test(`standings are present before JavaScript: ${lang || 'el'}`, async () => {
     const html = await fs.readFile(new URL(lang + standingsPaths[lang] + 'index.html', root), 'utf8');

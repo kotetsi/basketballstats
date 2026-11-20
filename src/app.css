@@ -980,3 +980,30 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .btsearch input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);outline:none}
 .btsearch span:focus-within{border-color:var(--accent)}
 .btnote{font-size:12px;color:var(--muted);margin:0}
+/* Κεντρικό μενού 5 επιλογών: πάνω στον υπολογιστή, σταθερή μπάρα κάτω στο κινητό */
+.nav.nav5{gap:6px}
+.nav.nav5 a{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:10px;font-weight:700;font-size:15px;opacity:.9}
+.nav.nav5 a[aria-current="page"],.nav.nav5 a.on{opacity:1;background:var(--accent);color:#14202e}
+@media (max-width:720px){
+  .nav.nav5{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;overflow:visible;max-width:none;
+    background:var(--band);border-top:1px solid #22364d;padding:6px max(4px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))}
+  .nav.nav5 a{flex-direction:column;gap:3px;padding:4px 2px;font-size:11px;font-weight:600;justify-content:center;border-radius:10px;background:none!important;color:var(--band-ink)}
+  .nav.nav5 a[aria-current="page"],.nav.nav5 a.on{color:var(--accent)}
+  body:has(.nav.nav5){padding-bottom:76px}
+}
+/* Αρχική «Σήμερα» */
+.hmpage{display:flex;flex-direction:column;gap:16px;padding-block:20px 8px}
+.hmhead h1{margin:4px 0;font-family:var(--display);font-size:clamp(30px,5vw,44px);line-height:1.05}
+.hmgo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:640px}
+.hmgo a{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:16px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-weight:700;text-decoration:none}
+.hmgo a svg{color:var(--accent)}.hmgo a:hover{border-color:var(--accent)}
+.hmcols{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.hmmain{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.hmside{flex:1 1 320px;min-width:0}.hmside h2{display:flex;align-items:center;gap:8px}.hmside h2 svg{color:var(--accent)}
+.hmgame{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.hmteams{display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none}
+.hmbar{display:block;height:8px;border-radius:4px;background:var(--line);overflow:hidden}.hmbar i{display:block;height:100%;background:var(--accent)}
+.hmaway{color:var(--muted);font-weight:600}
+.hmtip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);color:var(--ink);text-decoration:none;font-size:14px;min-height:44px}
+.hmtip span{flex:1}.hmtip svg{color:var(--accent);flex:none}
+.hmlast{display:flex;flex-direction:column;gap:6px;font-size:14px}
