@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-20T07:13:26.056Z",
+  "generatedAt": "2026-11-20T09:01:27.910Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-20T07:13:25.546Z",
+  "collectorUpdated": "2026-11-20T09:01:27.518Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-20T07:13:25.546Z",
+  "lastIngestAt": "2026-11-20T09:01:27.518Z",
   "lastIngestEvents": 0,
   "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-19T14:13:27.156Z",
-  "latestQuoteAgeHours": 17,
+  "latestQuoteAgeHours": 18.8,
   "upcomingGames": 4,
   "gamesWithGreekBooks": 4,
   "greekBookGameQuotes": 5,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-19T11:44:19.500Z",
       "oldest": "2026-11-18T21:03:22.103Z",
-      "newestAgeHours": 19.49
+      "newestAgeHours": 21.29
     },
     {
       "feed": "bet365.gr",
@@ -37,7 +37,7 @@
       "oneSided": 154,
       "newest": "2026-11-19T14:13:27.156Z",
       "oldest": "2026-11-19T14:13:27.156Z",
-      "newestAgeHours": 17
+      "newestAgeHours": 18.8
     }
   ],
   "events": [
@@ -56,7 +56,7 @@
           "complete": 74,
           "oneSided": 0,
           "updated": "2026-11-18T21:03:22.103Z",
-          "ageHours": 34.17
+          "ageHours": 35.97
         }
       ]
     },
@@ -75,7 +75,7 @@
           "complete": 94,
           "oneSided": 0,
           "updated": "2026-11-19T11:44:19.500Z",
-          "ageHours": 19.49
+          "ageHours": 21.29
         }
       ]
     },
@@ -94,7 +94,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T22:27:54.232Z",
-          "ageHours": 32.76
+          "ageHours": 34.56
         }
       ]
     },
@@ -113,7 +113,7 @@
           "complete": 0,
           "oneSided": 154,
           "updated": "2026-11-19T14:13:27.156Z",
-          "ageHours": 17
+          "ageHours": 18.8
         },
         {
           "feed": "stoiximan",
@@ -123,7 +123,7 @@
           "complete": 69,
           "oneSided": 0,
           "updated": "2026-11-19T10:46:58.124Z",
-          "ageHours": 20.44
+          "ageHours": 22.24
         }
       ]
     }
