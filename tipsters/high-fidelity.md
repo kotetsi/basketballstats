@@ -610,3 +610,73 @@ Panatinaikos ima **dva vezana poraza** (74-76 od Barselone u OAKA, 79-84 u Bolon
 Naš model se slaže: daje Žalgirisu **59%**, fer kvota 1,70, dok ga tržište vidi kao blagog autsajdera. Na 1,95 postoji vrednost.
 
 Rizik: Žalgiris je bez **Vilijamsa-Gosa** i **Loa**, a Panatinaikos je dobio oba meča prošle sezone (92-85 u Kaunasu, 92-88 u Atini). Tiket uključuje produžetak.
+
+13 | OLY-MAD | Abalde πόντοι+ριμπάουντ over 8.5 | 1.74
+Η Ρεάλ έρχεται στο ΣΕΦ με πολύ κοντό ρόστερ: λείπουν **Καμπάτσο, Ντεκ, Γιαντούνεν και Γκαρούμπα**, και ο Αλμπέρτο Αμπάλδε έχει γίνει από τα σταθερά κομμάτια της περιφέρειας. Στις τέσσερις αγωνιστικές χωρίς τον Καμπάτσο έπαιξε 17 έως 26 λεπτά.
+
+Έχει περάσει τα 8.5 σε πόντους και ριμπάουντ στα **7 τελευταία** παιχνίδια του (10, 18, 10, 10, 25, 10, 12), με μέσο όρο **13.6**. Το μοντέλο μας δίνει περίπου 70% για το over, η αγορά γύρω στο 53%.
+
+Το ρίσκο: στα πρώτα πέντε ματς της σεζόν, με λιγότερα λεπτά, είχε περάσει το 8.5 μόνο μία φορά. Μετράει και η παράταση.
+
+EN:
+Real Madrid arrive in Piraeus with a very short roster: **Campazzo, Deck, Jantunen and Garuba** are all out, and Alberto Abalde has become one of the constants on the perimeter. In the four rounds without Campazzo he has played between 17 and 26 minutes.
+
+He has gone over 8.5 points plus rebounds in each of his **last 7** games (10, 18, 10, 10, 25, 10, 12), averaging **13.6**. Our model puts the over at around 70%, the market at about 53%.
+
+The risk: in the first five games of the season, with fewer minutes, he cleared 8.5 only once. Overtime counts.
+
+ES:
+El Real Madrid llega al Pireo con una rotación muy corta: no están **Campazzo, Deck, Jantunen ni Garuba**, y Alberto Abalde se ha convertido en una pieza fija del perímetro. En las cuatro jornadas sin Campazzo ha jugado entre 17 y 26 minutos.
+
+Ha superado los 8,5 puntos más rebotes en sus **últimos 7** partidos (10, 18, 10, 10, 25, 10, 12), con una media de **13,6**. Nuestro modelo da al over alrededor de un 70%; el mercado, cerca de un 53%.
+
+El riesgo: en los cinco primeros partidos de la temporada, con menos minutos, solo superó los 8,5 una vez. La prórroga cuenta.
+
+SR:
+Real dolazi u Pirej sa veoma kratkom rotacijom: nema **Kampaca, Deka, Jantunena ni Garube**, a Alberto Abalde je postao stalni deo spoljne linije. U četiri kola bez Kampaca igrao je između 17 i 26 minuta.
+
+Prešao je 8,5 poena plus skokova u **poslednjih 7** utakmica (10, 18, 10, 10, 25, 10, 12), sa prosekom od **13,6**. Naš model daje overu oko 70%, tržište oko 53%.
+
+Rizik: u prvih pet utakmica sezone, sa manje minuta, samo je jednom prešao 8,5. Produžetak se računa.
+
+TR:
+Real Madrid Pire'ye çok kısa bir rotasyonla geliyor: **Campazzo, Deck, Jantunen ve Garuba** yok ve Alberto Abalde dış hattın sabit isimlerinden biri haline geldi. Campazzo'suz geçen dört haftada 17 ile 26 dakika arası süre aldı.
+
+**Son 7** maçının hepsinde sayı artı ribaundda 8.5'u geçti (10, 18, 10, 10, 25, 10, 12), ortalaması **13.6**. Modelimiz üst için yaklaşık %70 veriyor, piyasa ise %53 civarında.
+
+Risk: sezonun ilk beş maçında, daha az süre alırken, 8.5'u yalnızca bir kez geçti. Uzatma dahildir.
+
+13 | OLY-MAD | Donta Hall πόντοι+ριμπάουντ under 8.5 | 2.07
+Ο Ντόντα Χολ έχει περιορισμένο ρόλο στη ρακέτα του Ολυμπιακού: περίπου **13 λεπτά** ανά αγώνα στα τελευταία δέκα, με μέσο όρο **6.2** πόντους και ριμπάουντ. Έμεινε κάτω από το 8.5 στα **8 από τα 10**, και την Τρίτη στο Τελ Αβίβ είχε 4 σε 17 λεπτά.
+
+Το μοντέλο μας βλέπει το under πιο πιθανό από ό,τι η αγορά, και στο 2.07 η απόδοση είναι μεγάλη για επιλογή που βγαίνει τόσο συχνά.
+
+Το ρίσκο: ο **Μιλουτίνοφ** κρίνεται την τελευταία στιγμή. Αν δεν παίξει, ο Χολ θα πάρει περισσότερα λεπτά, όπως με την Μπεσίκτας (20 λεπτά, 19 πόντοι και ριμπάουντ). Μετράει και η παράταση.
+
+EN:
+Donta Hall has a limited role in Olympiacos' frontcourt: around **13 minutes** per game over the last ten, averaging **6.2** points plus rebounds. He stayed under 8.5 in **8 of 10**, and on Tuesday in Tel Aviv he had 4 in 17 minutes.
+
+Our model rates the under as more likely than the market does, and 2.07 is a big price for an outcome that lands this often.
+
+The risk: **Milutinov** is a game-time decision. If he sits, Hall gets more minutes, as he did against Besiktas (20 minutes, 19 points plus rebounds). Overtime counts.
+
+ES:
+Donta Hall tiene un papel limitado en la pintura del Olympiacos: unos **13 minutos** por partido en los últimos diez, con una media de **6,2** puntos más rebotes. Se quedó por debajo de 8,5 en **8 de 10**, y el martes en Tel Aviv sumó 4 en 17 minutos.
+
+Nuestro modelo ve el under más probable que el mercado, y 2,07 es mucha cuota para algo que sale tan a menudo.
+
+El riesgo: **Milutinov** es duda hasta el último momento. Si no juega, Hall tendrá más minutos, como ante el Besiktas (20 minutos, 19 puntos más rebotes). La prórroga cuenta.
+
+SR:
+Donta Hol ima ograničenu ulogu u reketu Olimpijakosa: oko **13 minuta** po utakmici u poslednjih deset, sa prosekom od **6,2** poena plus skokova. Ostao je ispod 8,5 u **8 od 10**, a u utorak u Tel Avivu imao je 4 za 17 minuta.
+
+Naš model vidi under kao verovatniji nego tržište, a 2,07 je visoka kvota za ishod koji prolazi ovako često.
+
+Rizik: nastup **Milutinova** je neizvestan do poslednjeg trenutka. Ako ne igra, Hol će dobiti više minuta, kao protiv Bešiktaša (20 minuta, 19 poena plus skokova). Produžetak se računa.
+
+TR:
+Donta Hall'un Olympiakos'un pota altında sınırlı bir rolü var: son on maçta maç başına yaklaşık **13 dakika**, sayı artı ribaund ortalaması **6.2**. **10 maçın 8'inde** 8.5'un altında kaldı; salı günü Tel Aviv'de 17 dakikada 4 üretti.
+
+Modelimiz altı piyasadan daha olası görüyor ve bu kadar sık gelen bir sonuç için 2.07 yüksek bir oran.
+
+Risk: **Milutinov**'un oynayıp oynamayacağı son dakikada belli olacak. Oynamazsa Hall daha fazla süre alır; Beşiktaş maçında olduğu gibi (20 dakika, 19 sayı artı ribaund). Uzatma dahildir.
