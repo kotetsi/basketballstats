@@ -4,6 +4,7 @@
 //   (το workflow κάνει commit/push, ώστε οι εικόνες να έχουν δημόσιο URL για Instagram/Threads/Viber)
 //   node scripts/daily-social.mjs post      ανεβάζει ό,τι λέει το plan.json σε κάθε συνδεδεμένο δίκτυο, μία φορά (data/daily-social.json)
 //   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick
+//   SOCIAL_PLAN=social/daily/<φάκελος>/plan.json  ανάρτηση έτοιμου plan (π.χ. δοκιμαστικό), χωρίς prepare
 //
 // «Στατιστικό της ημέρας»: από τους αγώνες της τελευταίας βραδιάς, όλα τα υποψήφια (σερί, ρεκόρ σεζόν, τέλειο σουτ,
 // triple-double, σερί νικών ομάδας…) παίρνουν βαθμό σπανιότητας και κερδίζει το ένα. Μόνο επίσημα στατιστικά, τίποτα επινοημένο.
@@ -19,7 +20,7 @@ import { upcomingPicks, cardHtml, when, DISC } from './pick-cards.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://basketballstats.eu', RAW = 'https://raw.githubusercontent.com/kotetsi/basketballstats/main/';
 const MODE = process.argv[2] || 'prepare', DRY = process.env.SOCIAL_DRY === '1', ONLY = process.env.DAILY_ONLY || '';
-const PLAN = path.join(ROOT, 'social', 'daily', 'plan.json'), STATE = path.join(ROOT, 'data', 'daily-social.json');
+const PLAN = process.env.SOCIAL_PLAN ? path.resolve(ROOT, process.env.SOCIAL_PLAN) : path.join(ROOT, 'social', 'daily', 'plan.json'), STATE = path.join(ROOT, 'data', 'daily-social.json');
 const readJ = async (f, d) => { try { return JSON.parse(await fs.readFile(f, 'utf8')); } catch { return d; } };
 const athensDay = (d = new Date()) => d.toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
 

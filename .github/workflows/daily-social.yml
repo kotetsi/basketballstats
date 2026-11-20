@@ -12,6 +12,10 @@ on:
         description: "Μόνο stat ή μόνο pick (κενό = και τα δύο)"
         required: false
         default: ""
+      plan:
+        description: "Ανάρτηση έτοιμου plan που είναι ήδη στο repo (π.χ. social/daily/test-2026-11-20/plan.json) χωρίς prepare (κενό = κανονικά)"
+        required: false
+        default: ""
       dry:
         description: "Δοκιμή: φτιάχνει κάρτες/βίντεο αλλά δεν αναρτά (1 = ναι)"
         required: false
@@ -40,6 +44,7 @@ jobs:
       - name: Στατιστικό και pick της ημέρας (κάρτες + βίντεο)
         env:
           DAILY_ONLY: ${{ inputs.only }}
+        if: ${{ !inputs.plan }}
         run: node scripts/daily-social.mjs prepare
       - name: Δημοσίευση των εικόνων στο repo (δημόσιο URL για Instagram/Threads/Viber)
         run: |
@@ -63,6 +68,7 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
           VIBER_CHANNEL_TOKEN: ${{ secrets.VIBER_CHANNEL_TOKEN }}
           SOCIAL_DRY: ${{ inputs.dry == '1' && '1' || '0' }}
+          SOCIAL_PLAN: ${{ inputs.plan }}
         run: node scripts/daily-social.mjs post
       - name: Αποθήκευση (τι αναρτήθηκε)
         if: always()
