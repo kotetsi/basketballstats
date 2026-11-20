@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-11-20T13:10:00.242Z",
+  "generatedAt": "2026-11-20T13:43:54.863Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-20T13:09:59.927Z",
+  "collectorUpdated": "2026-11-20T13:43:54.493Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-20T13:09:59.927Z",
-  "lastIngestEvents": 0,
-  "lastIngestMatched": 0,
-  "latestQuoteUpdated": "2026-11-19T14:13:27.156Z",
-  "latestQuoteAgeHours": 22.94,
+  "lastIngestAt": "2026-11-20T13:43:54.493Z",
+  "lastIngestEvents": 1,
+  "lastIngestMatched": 1,
+  "latestQuoteUpdated": "2026-11-20T13:09:50.370Z",
+  "latestQuoteAgeHours": 0.57,
   "upcomingGames": 4,
   "gamesWithGreekBooks": 4,
-  "greekBookGameQuotes": 5,
+  "greekBookGameQuotes": 6,
   "gamesWithPlayerProps": 4,
   "independentGreekPropBookmakers": 2,
-  "totalDistinctPlayerProps": 463,
+  "totalDistinctPlayerProps": 609,
   "completeOverUnderPairs": 309,
-  "oneSidedProps": 154,
+  "oneSidedProps": 300,
   "bookmakers": [
     {
       "feed": "stoiximan",
@@ -24,30 +24,40 @@
       "props": 309,
       "complete": 309,
       "oneSided": 0,
-      "newest": "2026-11-19T11:44:19.500Z",
-      "oldest": "2026-11-18T21:03:22.103Z",
-      "newestAgeHours": 25.43
+      "newest": "2026-11-20T12:27:52.232Z",
+      "oldest": "2026-11-18T22:27:54.232Z",
+      "newestAgeHours": 1.27
     },
     {
       "feed": "bet365.gr",
       "brand": "bet365",
-      "games": 1,
-      "props": 154,
+      "games": 2,
+      "props": 300,
       "complete": 0,
-      "oneSided": 154,
-      "newest": "2026-11-19T14:13:27.156Z",
+      "oneSided": 300,
+      "newest": "2026-11-20T13:09:50.370Z",
       "oldest": "2026-11-19T14:13:27.156Z",
-      "newestAgeHours": 22.94
+      "newestAgeHours": 0.57
     }
   ],
   "events": [
     {
       "event": "E-13-IST-ASV",
       "commence": "2026-11-20T17:30:00.000Z",
-      "greekBooks": 1,
-      "booksWithProps": 1,
-      "props": 74,
+      "greekBooks": 2,
+      "booksWithProps": 2,
+      "props": 220,
       "books": [
+        {
+          "feed": "bet365.gr",
+          "brand": "bet365",
+          "games": 1,
+          "props": 146,
+          "complete": 0,
+          "oneSided": 146,
+          "updated": "2026-11-20T13:09:50.370Z",
+          "ageHours": 0.57
+        },
         {
           "feed": "stoiximan",
           "brand": "Stoiximan",
@@ -55,8 +65,8 @@
           "props": 74,
           "complete": 74,
           "oneSided": 0,
-          "updated": "2026-11-18T21:03:22.103Z",
-          "ageHours": 40.11
+          "updated": "2026-11-20T12:27:52.232Z",
+          "ageHours": 1.27
         }
       ]
     },
@@ -75,7 +85,7 @@
           "complete": 94,
           "oneSided": 0,
           "updated": "2026-11-19T11:44:19.500Z",
-          "ageHours": 25.43
+          "ageHours": 25.99
         }
       ]
     },
@@ -94,7 +104,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T22:27:54.232Z",
-          "ageHours": 38.7
+          "ageHours": 39.27
         }
       ]
     },
@@ -113,7 +123,7 @@
           "complete": 0,
           "oneSided": 154,
           "updated": "2026-11-19T14:13:27.156Z",
-          "ageHours": 22.94
+          "ageHours": 23.51
         },
         {
           "feed": "stoiximan",
@@ -123,33 +133,31 @@
           "complete": 69,
           "oneSided": 0,
           "updated": "2026-11-19T10:46:58.124Z",
-          "ageHours": 26.38
+          "ageHours": 26.95
         }
       ]
     }
   ],
   "history": {
     "available": true,
-    "snapshots": 11131,
-    "uniqueSnapshots": 11131,
+    "snapshots": 11425,
+    "uniqueSnapshots": 11425,
     "windows": {
       "open": 132,
       "mid": 6259,
-      "close": 4740,
+      "close": 5034,
       "unknown": 0
     },
-    "eventBookPairs": 36,
+    "eventBookPairs": 37,
     "capturesPerEventBook": {
       "min": 1,
       "median": 2,
       "max": 3
     },
     "firstSeen": "2026-11-16T12:16:32.881Z",
-    "lastSeen": "2026-11-19T16:24:26.703Z"
+    "lastSeen": "2026-11-20T13:43:54.493Z"
   },
   "warnings": [
-    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.",
-    "Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).",
-    "Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς."
+    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus."
   ]
 }
