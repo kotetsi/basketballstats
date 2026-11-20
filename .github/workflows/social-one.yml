@@ -1,0 +1,36 @@
+# Μία ανάρτηση (εικόνα από το repo + κείμενο) σε Facebook/Instagram — δοκιμές και «Στατιστικό της ημέρας».
+name: Social (μία ανάρτηση)
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Εικόνα μέσα στο repo, π.χ. social/test/stat-vezenkov.png"
+        required: true
+      caption:
+        description: "Κείμενο (\\n για νέα γραμμή)"
+        required: true
+      nets:
+        description: "Δίκτυα: fb,ig"
+        required: false
+        default: "fb,ig"
+permissions:
+  contents: read
+concurrency:
+  group: social
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Ανάρτηση
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          FB_PAGE_ID: "1372786612592081"
+          IG_USER_ID: "17841438627851733"
+          IMAGE: ${{ inputs.image }}
+          CAPTION: ${{ inputs.caption }}
+          NETS: ${{ inputs.nets }}
+        run: node scripts/social-one.mjs
