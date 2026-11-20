@@ -1,14 +1,23 @@
-# Μία ανάρτηση (εικόνα από το repo + κείμενο) σε Facebook/Instagram — δοκιμές και «Στατιστικό της ημέρας».
+# Μία ανάρτηση σε Facebook/Instagram: post (εικόνα), reel και story (κάθετο βίντεο) — «Στατιστικό της ημέρας» και δοκιμές.
 name: Social (μία ανάρτηση)
 on:
   workflow_dispatch:
     inputs:
       image:
-        description: "Εικόνα μέσα στο repo, π.χ. social/test/stat-vezenkov.png"
-        required: true
+        description: "Εικόνα για post, μέσα στο repo, π.χ. social/test/stat-vezenkov.png"
+        required: false
+        default: ""
+      video:
+        description: "Κάθετο MP4 για reel/story, μέσα στο repo, π.χ. social/test/stat-vezenkov-reel.mp4"
+        required: false
+        default: ""
       caption:
         description: "Κείμενο (\\n για νέα γραμμή)"
         required: true
+      kinds:
+        description: "Τι ανεβαίνει: post,reel,story"
+        required: false
+        default: "post,reel,story"
       nets:
         description: "Δίκτυα: fb,ig"
         required: false
@@ -31,6 +40,8 @@ jobs:
           FB_PAGE_ID: "1372786612592081"
           IG_USER_ID: "17841438627851733"
           IMAGE: ${{ inputs.image }}
+          VIDEO: ${{ inputs.video }}
           CAPTION: ${{ inputs.caption }}
+          KINDS: ${{ inputs.kinds }}
           NETS: ${{ inputs.nets }}
         run: node scripts/social-one.mjs
