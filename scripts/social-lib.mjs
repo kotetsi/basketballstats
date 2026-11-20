@@ -10,12 +10,14 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 
 const E = process.env, clean = v => String(v || '').trim();
+const TG = () => clean(E.TELEGRAM_TOKEN).replace(/\s+/g, '');   // όπως στο scripts/telegram.mjs: το secret μπορεί να έχει κενά/αλλαγές γραμμής
 const V = 'v21.0', G = `https://graph.facebook.com/${V}`;
 const META = (clean(E.META_PAGE_TOKEN).replace(/\s+/g, '').match(/EAA[A-Za-z0-9]+/) || [''])[0];
 const PAGE = clean(E.FB_PAGE_ID), IG = clean(E.IG_USER_ID);
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const jfetch = async (url, opt, label) => {
-  const r = await fetch(url, opt); const t = await r.text(); let j = {}; try { j = JSON.parse(t); } catch { j = { raw: t.slice(0, 200) }; }
+  let r; try { r = await fetch(url, opt); } catch (e) { throw new Error(`${label}: ${e.message}${e.cause ? ' (' + (e.cause.code || e.cause.message) + ')' : ''}`); }
+  const t = await r.text(); let j = {}; try { j = JSON.parse(t); } catch { j = { raw: t.slice(0, 200) }; }
   if (!r.ok || j.error || j.errors) throw new Error(`${label}: ${j.error?.message || j.errors?.[0]?.message || j.detail || j.message || j.raw || r.status}`);
   return j;
 };
@@ -58,7 +60,7 @@ function xAuth(method, url) {
 
 /** Ποια δίκτυα είναι συνδεδεμένα (έχουν secrets). */
 export const NETS = {
-  fb: !!(META && PAGE), ig: !!(META && IG), threads: !!clean(E.THREADS_TOKEN), telegram: !!(clean(E.TELEGRAM_TOKEN) && clean(E.TELEGRAM_CHAT)),
+  fb: !!(META && PAGE), ig: !!(META && IG), threads: !!clean(E.THREADS_TOKEN), telegram: !!(TG() && clean(E.TELEGRAM_CHAT)),
   bluesky: !!(clean(E.BSKY_HANDLE) && clean(E.BSKY_APP_PASSWORD)), x: !!(clean(E.X_API_KEY) && clean(E.X_API_SECRET) && clean(E.X_ACCESS_TOKEN) && clean(E.X_ACCESS_SECRET)), viber: !!clean(E.VIBER_CHANNEL_TOKEN),
 };
 
@@ -85,7 +87,7 @@ export async function postTo(net, p) {
   }
   if (net === 'telegram') {
     const fd = new FormData(); fd.append('chat_id', clean(E.TELEGRAM_CHAT)); fd.append('caption', p.text.slice(0, 1024)); fd.append('photo', new Blob([img], { type: 'image/png' }), 'card.png');
-    return jfetch(`https://api.telegram.org/bot${clean(E.TELEGRAM_TOKEN)}/sendPhoto`, { method: 'POST', body: fd }, 'telegram');
+    return jfetch(`https://api.telegram.org/bot${TG()}/sendPhoto`, { method: 'POST', body: fd }, 'telegram');
   }
   if (net === 'bluesky') {
     const B = 'https://bsky.social/xrpc';
@@ -130,7 +132,7 @@ export async function checkNet(net) {
   if (net === 'bluesky') { const s = await jfetch('https://bsky.social/xrpc/com.atproto.server.createSession', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ identifier: clean(E.BSKY_HANDLE), password: clean(E.BSKY_APP_PASSWORD) }) }, 'bluesky'); return '@' + s.handle; }
   if (net === 'fb') { const j = await mget(PAGE, { fields: 'name,followers_count,fan_count' }); return `${j.name} (${j.followers_count ?? j.fan_count ?? '?'} ακόλουθοι)`; }
   if (net === 'ig') { const j = await mget(IG, { fields: 'username,followers_count,media_count' }); return `@${j.username} (${j.followers_count ?? '?'} ακόλουθοι, ${j.media_count ?? '?'} αναρτήσεις)`; }
-  if (net === 'telegram') { const q = `chat_id=${encodeURIComponent(clean(E.TELEGRAM_CHAT))}`, B = `https://api.telegram.org/bot${clean(E.TELEGRAM_TOKEN)}`; const j = await jfetch(`${B}/getChat?${q}`, {}, 'telegram'); const n = await jfetch(`${B}/getChatMemberCount?${q}`, {}, 'telegram').catch(() => ({})); return `${j.result?.title} (${n.result ?? '?'} συνδρομητές)`; }
+  if (net === 'telegram') { const q = `chat_id=${encodeURIComponent(clean(E.TELEGRAM_CHAT))}`, B = `https://api.telegram.org/bot${TG()}`; const j = await jfetch(`${B}/getChat?${q}`, {}, 'telegram'); const n = await jfetch(`${B}/getChatMemberCount?${q}`, {}, 'telegram').catch(() => ({})); return `${j.result?.title} (${n.result ?? '?'} συνδρομητές)`; }
   if (net === 'x') { const u = 'https://api.x.com/2/users/me'; const j = await jfetch(u, { headers: { Authorization: xAuth('GET', u) } }, 'x'); return '@' + j.data?.username; }
   return 'ok';
 }
