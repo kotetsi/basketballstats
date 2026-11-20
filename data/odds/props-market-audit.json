@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-20T10:20:28.939Z",
+  "generatedAt": "2026-11-20T10:36:59.737Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-20T10:20:28.624Z",
+  "collectorUpdated": "2026-11-20T10:36:59.336Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-20T10:20:28.624Z",
+  "lastIngestAt": "2026-11-20T10:36:59.336Z",
   "lastIngestEvents": 0,
   "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-19T14:13:27.156Z",
-  "latestQuoteAgeHours": 20.12,
+  "latestQuoteAgeHours": 20.39,
   "upcomingGames": 4,
   "gamesWithGreekBooks": 4,
   "greekBookGameQuotes": 5,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-19T11:44:19.500Z",
       "oldest": "2026-11-18T21:03:22.103Z",
-      "newestAgeHours": 22.6
+      "newestAgeHours": 22.88
     },
     {
       "feed": "bet365.gr",
@@ -37,7 +37,7 @@
       "oneSided": 154,
       "newest": "2026-11-19T14:13:27.156Z",
       "oldest": "2026-11-19T14:13:27.156Z",
-      "newestAgeHours": 20.12
+      "newestAgeHours": 20.39
     }
   ],
   "events": [
@@ -56,7 +56,7 @@
           "complete": 74,
           "oneSided": 0,
           "updated": "2026-11-18T21:03:22.103Z",
-          "ageHours": 37.29
+          "ageHours": 37.56
         }
       ]
     },
@@ -75,7 +75,7 @@
           "complete": 94,
           "oneSided": 0,
           "updated": "2026-11-19T11:44:19.500Z",
-          "ageHours": 22.6
+          "ageHours": 22.88
         }
       ]
     },
@@ -94,7 +94,7 @@
           "complete": 72,
           "oneSided": 0,
           "updated": "2026-11-18T22:27:54.232Z",
-          "ageHours": 35.88
+          "ageHours": 36.15
         }
       ]
     },
@@ -113,7 +113,7 @@
           "complete": 0,
           "oneSided": 154,
           "updated": "2026-11-19T14:13:27.156Z",
-          "ageHours": 20.12
+          "ageHours": 20.39
         },
         {
           "feed": "stoiximan",
@@ -123,7 +123,7 @@
           "complete": 69,
           "oneSided": 0,
           "updated": "2026-11-19T10:46:58.124Z",
-          "ageHours": 23.56
+          "ageHours": 23.83
         }
       ]
     }
