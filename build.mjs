@@ -22,6 +22,7 @@ import * as OBM from './src/odds/build-odds.mjs';
 import * as OVAL from './src/odds/value.mjs';
 import * as ORED from './src/odds/redflags.mjs';
 import * as OLED from './src/odds/ledger.mjs';
+import { blendPreds } from './src/odds/blend.mjs';
 import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from './src/odds/core.mjs';
 import * as PROPM from './src/odds/props.mjs';
 import * as SB from './src/shots/build-shots.mjs';
@@ -892,6 +893,9 @@ async function main() {
   let GRREG = null; try { GRREG = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'odds', 'bookmakers-gr.json'), 'utf8')); } catch { }
   if (GRREG) OVAL.applyGrRegistry(OB.latest, GRREG);
   const ODDS = OB.latest;
+  // οι πιθανότητες που δείχνουμε: 30% μοντέλο / 70% αγορά (backtest 3 σεζόν) · το ωμό μοντέλο μένει στο p_model
+  const MRAW = (MPRED?.games || []).filter(g => g.comp === 'E').map(g => ({ ...g }));
+  if (MPRED && GRREG) console.log('Μίξη μοντέλου/αγοράς:', blendPreds(MPRED, OB.latest, GRREG), 'αγώνες');
   const SH = await SB.loadShots(ROOT);
   const REFROWS = await RB.loadRefs(ROOT, ['E2023', 'E2024', 'E2025', 'E2026'].filter(s => s <= SEASON));
   const SHLA = SH ? SB.leagueAverages(SH) : null;
@@ -938,7 +942,7 @@ async function main() {
   const LEDL = OLED.parseLedger(await fs.readFile(path.join(ROOT, 'data', 'ledger', 'predictions.jsonl'), 'utf8').catch(() => ''));
   const LEDV = OLED.verifyChain(LEDL);
   const LEDR = LEDL.length ? OLED.ledgerReport(LEDL, OB, GRREG, league.games) : null;
-  const REDF = GRREG ? { now: ORED.currentFlags(VBOARD), track: ORED.trackRecord(OB, GRREG, league.games) } : null;
+  const REDF = GRREG ? { now: ORED.currentFlags(OVAL.valueBoard({ games: MRAW, latest: OB.latest, reg: GRREG, sig: SIG })), track: ORED.trackRecord(OB, GRREG, league.games) } : null;
   if (REDF) console.log(`Κόκκινοι αγώνες: ${REDF.now.length} τώρα · απολογισμός ${REDF.track.n} (${REDF.track.won} σωστά, ${REDF.track.profit >= 0 ? '+' : ''}${REDF.track.profit} μον.)`);
   const VREG = GRREG ? OVAL.registryStatus(GRREG, OB.latest) : [];
   let FXD = null;
@@ -2792,7 +2796,7 @@ ${notes}</article>`;
         : '<p class="sub">Αυτή τη στιγμή δεν υπάρχει αγώνας με διαφωνία πάνω από 8 μονάδες και θετική αξία.</p>';
       const T0 = REDF.track;
       const hist = T0.n ? `<h3>Πώς πήγαν μέχρι τώρα</h3><p class="sub">${T0.n} κόκκινοι αγώνες · ${T0.won} σωστά · <b class="${T0.profit >= 0 ? 'pos' : 'neg'}">${T0.profit >= 0 ? '+' : ''}${T0.profit.toFixed(2)} μονάδες</b> με 1 μονάδα στην καλύτερη ελληνική απόδοση κλεισίματος. Το δείγμα είναι ακόμα μικρό.</p><div class="tbl"><table class="redt"><thead><tr><th>Αγ.</th><th class="l">Αγώνας</th><th class="l">Επιλογή</th><th>Απόδοση</th><th>Διαφορά</th><th>Σκορ</th><th>Κέρδος</th></tr></thead><tbody>${T0.rows.map(x => `<tr><td>${x.r}</td><td class="l">${gL(x)}</td><td class="l">${esc(tName(x.team))}</td><td>${x.price.toFixed(2)}</td><td>${Math.round(x.gap)}</td><td>${x.hs}-${x.as} ${x.won ? '✓' : '✗'}</td><td class="${x.won ? 'pos' : 'neg'}">${x.profit >= 0 ? '+' : ''}${x.profit.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>` : '';
-      return `<section id="redFlags" class="redflags"><h2>🔴 Μεγάλες διαφωνίες με την αγορά</h2><p class="sub">Αγώνες όπου η πιθανότητα νίκης του μοντέλου μας απέχει πάνω από 8 μονάδες από την πιθανότητα των αδειοδοτημένων ελληνικών εταιρειών (χωρίς γκανιότα) και η πλευρά του μοντέλου έχει θετική αξία. Παράδειγμα: μοντέλο 43%, αγορά 28% → διαφορά 15. Πριν από κάθε τέτοιο αγώνα έλεγξε τις <a href="${urlFor(LG, 'inj')}">απουσίες</a>: μια μεγάλη διαφορά μπορεί να σημαίνει ότι η αγορά ξέρει κάτι που το μοντέλο δεν ξέρει.</p>${now}${hist}<p class="note">Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Αποδόσεις: Stoiximan, bet365, Pamestoixima (μέσω OddsPapi), ενημέρωση ${ODDS?.updated ? esc(tm(ODDS.updated)) : '–'} · 21+ · Παίξτε υπεύθυνα.</p></section>`;
+      return `<section id="redFlags" class="redflags"><h2>🔴 Μεγάλες διαφωνίες με την αγορά</h2><p class="sub">Αγώνες όπου η πιθανότητα νίκης του μοντέλου μας απέχει πάνω από 8 μονάδες από την πιθανότητα των αδειοδοτημένων ελληνικών εταιρειών (χωρίς γκανιότα) και η πλευρά του μοντέλου έχει θετική αξία. Παράδειγμα: μοντέλο 43%, αγορά 28% → διαφορά 15. Πριν από κάθε τέτοιο αγώνα έλεγξε τις <a href="${urlFor(LG, 'inj')}">απουσίες</a>: μια μεγάλη διαφορά μπορεί να σημαίνει ότι η αγορά ξέρει κάτι που το μοντέλο δεν ξέρει.</p>${now}${hist}<p class="note">Οι εκτιμήσεις είναι στατιστικές και δεν αποτελούν συμβουλή στοιχήματος. Αποδόσεις: Stoiximan, bet365, Pamestoixima (μέσω OddsPapi), ενημέρωση ${ODDS?.updated ? esc(tm(ODDS.updated)) : '–'} · 21+ · Παίξτε υπεύθυνα.</p><p class="note">Τα ποσοστά που βλέπεις στα προγνωστικά της EuroLeague είναι 30% μοντέλο και 70% αγορά, όταν υπάρχουν φρέσκες ελληνικές αποδόσεις: σε έλεγχο 921 αγώνων των σεζόν 2023–2026 αυτή η μίξη έδωσε πιο σωστές πιθανότητες από το μοντέλο μόνο του. Ο πίνακας εδώ χρησιμοποιεί το μοντέλο μόνο του. Στον ίδιο έλεγχο οι μεγάλες διαφωνίες δεν έβγαλαν σταθερό κέρδος από σεζόν σε σεζόν· δες τις ως σημάδι για έλεγχο (απουσίες, νέα), όχι ως σίγουρο στοίχημα.</p></section>`;
     })();
     await page('preds', { view: 'preds', extra: redSec,
       title: T(`EuroLeague προγνωστικά ${lastRound + 1}ης αγωνιστικής: εκτιμήσεις και ανάλυση | ${SITE_NAME}`, `EuroLeague predictions Round ${lastRound + 1}: projected scores and analysis | ${SITE_NAME}`, `Pronósticos EuroLeague jornada ${lastRound + 1}: marcadores estimados y análisis | ${SITE_NAME}`, `Prognoze Evrolige za ${lastRound + 1}. kolo: procenjeni rezultati i analiza | ${SITE_NAME}`, `EuroLeague tahminleri ${lastRound + 1}. hafta: tahmini skorlar ve analiz | ${SITE_NAME}`),
@@ -4019,7 +4023,7 @@ ${rgBlock()}
           const mk = Object.entries(g.markets).filter(([, ls]) => ls.length);
           const ph = g.hasPred ? g.markets.ml[0]?.sel || null : null;
           const pred = (MPRED?.games || []).find(x => x.comp === 'E' && x.r === g.r && x.h === g.h && x.a === g.a);
-          const head = `<div class="vbhead"><span class="vbdate">${esc(fA(g.t))}</span><b>${esc(tName(g.h))} – ${esc(tName(g.a))}</b>${pred ? `<span class="sub">Μοντέλο: ${esc(tName(g.h))} ${pc(pred.p_home)} (δίκαιη ${od(1 / pred.p_home)}) · ${esc(tName(g.a))} ${pc(1 - pred.p_home)} (δίκαιη ${od(1 / (1 - pred.p_home))})</span>` : '<span class="sub">Δεν υπάρχει πρόβλεψη μοντέλου: δεν υπολογίζεται EV.</span>'}</div>`;
+          const head = `<div class="vbhead"><span class="vbdate">${esc(fA(g.t))}</span><b>${esc(tName(g.h))} – ${esc(tName(g.a))}</b>${pred ? `<span class="sub">${pred.p_mkt != null ? 'Πιθανότητα (30% μοντέλο + 70% αγορά)' : 'Μοντέλο'}: ${esc(tName(g.h))} ${pc(pred.p_home)} (δίκαιη ${od(1 / pred.p_home)}) · ${esc(tName(g.a))} ${pc(1 - pred.p_home)} (δίκαιη ${od(1 / (1 - pred.p_home))})</span>` : '<span class="sub">Δεν υπάρχει πρόβλεψη μοντέλου: δεν υπολογίζεται EV.</span>'}</div>`;
           const tables = (mk.length ? mk : [['ml', []]]).map(([m, ls]) => {
             if (!ls.length) return `<div class="vbm" data-m="${m}"><h4>${MK[m]}</h4><table class="antbl vbt"><tbody>${brands.map(b => `<tr data-b="${b.key}"><td class="l">${esc(b.brand)}</td><td colspan="2">Μη διαθέσιμη απόδοση</td></tr>`).join('')}</tbody></table></div>`;
             return ls.map(l => `<div class="vbm" data-m="${m}"><h4>${MK[m]}${l.line != null ? ` · γραμμή ${l.line}` : ''}</h4><div class="tbl"><table class="antbl vbt"><thead><tr><th class="l">Εταιρεία</th><th>${esc(selName(g, m, 0, l.line))}</th><th>${esc(selName(g, m, 1, l.line))}</th></tr></thead><tbody>
