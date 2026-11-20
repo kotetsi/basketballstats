@@ -25,7 +25,28 @@ export function marketSnap(oddsGame, reg) {
   const best = [0, 1].map(i => L.reduce((m, [k, b]) => (b.ml[i] > m.price ? { price: b.ml[i], book: b.title || k } : m), { price: 0 }));
   const fair = L.map(([, b]) => devig(b.ml)?.fair).filter(Boolean);
   const pm = fair.length ? fair.reduce((s, f) => s + f[0], 0) / fair.length : null;
-  return { best: best.map(b => b.price), books: best.map(b => b.book), p: r4(pm), n: L.length };
+  return { best: best.map(b => b.price), books: best.map(b => b.book), p: r4(pm), n: L.length, ah: ahSnap(oddsGame, ok) };
+}
+
+/** κύρια γραμμή χάντικαπ (γηπεδούχου) στα επιβεβαιωμένα feeds: η πιο συχνή γραμμή, με την καλύτερη τιμή ανά πλευρά */
+export function ahSnap(oddsGame, ok) {
+  const S = Object.entries(oddsGame?.books || {}).filter(([k, b]) => (!ok || ok.has(k)) && b.spread?.line != null && b.spread.h > 1 && b.spread.a > 1);
+  if (!S.length) return null;
+  const cnt = {};
+  for (const [, b] of S) cnt[b.spread.line] = (cnt[b.spread.line] || 0) + 1;
+  const line = +Object.entries(cnt).sort((a, b) => b[1] - a[1] || Math.abs(a[0]) - Math.abs(b[0]))[0][0];
+  const L = S.filter(([, b]) => b.spread.line === line);
+  return { line, best: [Math.max(...L.map(([, b]) => b.spread.h)), Math.max(...L.map(([, b]) => b.spread.a))], n: L.length };
+}
+
+/** επιλογή χάντικαπ: όταν η προβλεπόμενη διαφορά απέχει AH_MIN+ πόντους από τη γραμμή (backtest 3 σεζόν: +5% σε ~250 επιλογές, όχι ακόμα αποδεδειγμένο) */
+export const AH_MIN = 3;
+export function ahPick(margin, ah) {
+  if (margin == null || !ah) return null;
+  const edge = margin + ah.line;
+  if (Math.abs(edge) < AH_MIN) return null;
+  const side = edge > 0 ? 0 : 1;
+  return { side, line: ah.line, price: ah.best[side], edge: Math.round(edge * 10) / 10 };
 }
 
 /**
@@ -85,6 +106,13 @@ export function ledgerReport(lines, O, reg, games, { minEv = 0 } = {}) {
     const b = ((close[h.event] ||= {})[h.book] ||= {});
     if (!b[h.sel] || h.seen >= b[h.sel].seen) b[h.sel] = { price: h.price, seen: h.seen };
   }
+  const closeAh = {};
+  for (const h of O?.hist || []) {
+    if (h.market !== 'spread' || h.sel !== 'home' || (ok && !ok.has(h.book))) continue;
+    const e = lastPre[h.event]; if (!e || h.seen > e.tip) continue;
+    const b = ((closeAh[h.event] ||= {})[h.book]);
+    if (!b || h.seen >= b.seen) closeAh[h.event][h.book] = { line: h.line, seen: h.seen };
+  }
   const rows = [];
   for (const [gid, e] of Object.entries(lastPre)) {
     const g = res[gid]; if (!g) continue;
@@ -100,6 +128,13 @@ export function ledgerReport(lines, O, reg, games, { minEv = 0 } = {}) {
         row.bet = { side: s, price, book: e.mkt.books?.[s], ev: r4(ev[s]), won, profit: r4(won ? price - 1 : -1), clv: pc == null ? null : r4(price * (s === 0 ? pc : 1 - pc) - 1) };
       }
     }
+    const ap = ahPick(e.margin, e.mkt?.ah);
+    if (ap) {
+      const d = g[4] - g[5] + ap.line, cover = ap.side === 0 ? d > 0 : d < 0;
+      const cl = Object.values(closeAh[gid] || {}).map(x => x.line);
+      const lc = cl.length ? cl.sort((a, b) => a - b)[Math.floor(cl.length / 2)] : null;
+      row.ah = { ...ap, push: d === 0, won: d !== 0 && cover, profit: d === 0 ? 0 : r4(cover ? ap.price - 1 : -1), clvPts: lc == null ? null : (ap.side === 0 ? ap.line - lc : lc - ap.line) };
+    }
     rows.push(row);
   }
   rows.sort((a, b) => b.r - a.r || a.gid.localeCompare(b.gid));
@@ -112,6 +147,8 @@ export function ledgerReport(lines, O, reg, games, { minEv = 0 } = {}) {
     bets: bets.length, won: bets.filter(x => x.bet.won).length, profit: r4(bets.reduce((s, x) => s + x.bet.profit, 0)),
     roi: bets.length ? r4(100 * bets.reduce((s, x) => s + x.bet.profit, 0) / bets.length) : null,
     clvN: bc.length, clv: avg(bc, x => x.bet.clv), clvPos: bc.length ? r4(bc.filter(x => x.bet.clv > 0).length / bc.length) : null,
+    ...(() => { const A = rows.filter(x => x.ah), Ac = A.filter(x => x.ah.clvPts != null);
+      return { ahN: A.length, ahWon: A.filter(x => x.ah.won).length, ahProfit: r4(A.reduce((s, x) => s + x.ah.profit, 0)), ahRoi: A.length ? r4(100 * A.reduce((s, x) => s + x.ah.profit, 0) / A.length) : null, ahClv: Ac.length ? r4(Ac.reduce((s, x) => s + x.ah.clvPts, 0) / Ac.length) : null }; })(),
     rows,
   };
 }
