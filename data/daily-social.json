@@ -1,6 +1,8 @@
 {
  "posted": [
   "stat:2026-11-19:manual-vezenkov",
-  "pick:2026-11-20:already-posted"
+  "pick:2026-11-20:already-posted",
+  "stat:2026-11-19-test-pari:fb",
+  "stat:2026-11-19-test-pari:ig"
  ]
 }
