@@ -3,7 +3,7 @@
 //                                           στο social/daily/<ημερομηνία>/ και γράφει το social/daily/plan.json
 //   (το workflow κάνει commit/push, ώστε οι εικόνες να έχουν δημόσιο URL για Instagram/Threads/Viber)
 //   node scripts/daily-social.mjs post      ανεβάζει ό,τι λέει το plan.json σε κάθε συνδεδεμένο δίκτυο, μία φορά (data/daily-social.json)
-//   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick
+//   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick|shots
 //   SOCIAL_PLAN=social/daily/<φάκελος>/plan.json  ανάρτηση έτοιμου plan (π.χ. δοκιμαστικό), χωρίς prepare
 //
 // «Στατιστικό της ημέρας»: από τους αγώνες της τελευταίας βραδιάς, όλα τα υποψήφια (σερί, ρεκόρ σεζόν, τέλειο σουτ,
@@ -16,12 +16,14 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { statCardHtml, statStoryHtml, STAT_VIDEO_SECS } from './stat-card.mjs';
 import { upcomingPicks, cardHtml, when, DISC } from './pick-cards.mjs';
+import { shotReelHtml, shotOrder, SHOT_REEL_SECS } from './shot-reel.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://basketballstats.eu', RAW = 'https://raw.githubusercontent.com/kotetsi/basketballstats/main/';
 const MODE = process.argv[2] || 'prepare', DRY = process.env.SOCIAL_DRY === '1', ONLY = process.env.DAILY_ONLY || '';
 const PLAN = process.env.SOCIAL_PLAN ? path.resolve(ROOT, process.env.SOCIAL_PLAN) : path.join(ROOT, 'social', 'daily', 'plan.json'), STATE = path.join(ROOT, 'data', 'daily-social.json');
 const readJ = async (f, d) => { try { return JSON.parse(await fs.readFile(f, 'utf8')); } catch { return d; } };
+const CONF_SEASON = (await readJ(path.join(ROOT, 'site.config.json'), {})).season || 'E2026';
 const athensDay = (d = new Date()) => d.toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
 
 if (MODE === 'post') { await post(); process.exit(0); }
@@ -51,7 +53,7 @@ const D = [today, yesterday].find(d => days.includes(d));
 const plan = { date: today, items: [] };
 const outDir = path.join(ROOT, 'social', 'daily', today);
 
-if (D && ONLY !== 'pick' && !state.posted.some(k => k.startsWith(`stat:${D}:`))) {
+if (D && ONLY !== 'pick' && ONLY !== 'shots' && !state.posted.some(k => k.startsWith(`stat:${D}:`))) {
   const C = [];   // υποψήφια: { score, card, caption }
   const all = data.players.map(p => ({ p, G: played(p) })).filter(o => o.G.length);
   const teamOf = p => p.t.split(';').pop();
@@ -115,7 +117,38 @@ if (D && ONLY !== 'pick' && !state.posted.some(k => k.startsWith(`stat:${D}:`)))
   }
 }
 
-if (ONLY !== 'stat' && !state.posted.some(k => k.startsWith(`pick:${today}:`))) {
+// «Όλα τα σουτ του»: Reel με το shot chart του παίκτη με τους περισσότερους πόντους από σουτ της βραδιάς
+// (τουλάχιστον 10 σουτ με θέση). Μόνο Facebook/Instagram Reels· ο κορυφαίος σε κάθε περίπτωση από τα επίσημα δεδομένα σουτ.
+if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`shots:${D}:`))) {
+  const sdir = path.join(ROOT, 'data', 'shots', CONF_SEASON);
+  const games = [];
+  for (const f of await fs.readdir(sdir).catch(() => [])) { const g = await readJ(path.join(sdir, f), null); if (g?.d === D && g.s?.length) games.push(g); }
+  const byP = new Map();
+  for (const g of games) for (const r of g.s) {
+    const [pi, home, q, clk, made, three, x, y] = r, pid = g.ids[pi];
+    if (!byP.has(pid)) byP.set(pid, { pid, g, home, shots: [] });
+    byP.get(pid).shots.push({ q, clk, made, three, x, y });
+  }
+  const pts = o => o.shots.reduce((s, x) => s + (x.made ? (x.three ? 3 : 2) : 0), 0);
+  const best = [...byP.values()].filter(o => o.shots.filter(s => s.x != null).length >= 10).sort((a, b) => pts(b) - pts(a) || b.shots.length - a.shots.length)[0];
+  const pl = best && data.players.find(p => p.c === best.pid), row = pl && played(pl).find(x => x[1] === D);
+  if (best && pl && row) {
+    const g = best.g, c = best.home ? g.h : g.a, opp = best.home ? g.a : g.h, my = best.home ? g.hs : g.as, ot = best.home ? g.as : g.hs;
+    const shots = best.shots.sort(shotOrder), name = grName(pl.n);
+    const fgm = row[9] + row[11], fga = row[10] + row[12];
+    const res = `${my > ot ? 'Νίκη' : 'Ήττα'} ${my}-${ot}`;
+    const line = `${row[8]} πόντοι · ${fgm}/${fga} σουτ εντός παιδιάς, ${row[11]}/${row[12]} τρίποντα, ${row[13]}/${row[14]} βολές.`;
+    const html = shotReelHtml({ team: team(c), player: name, who: `${tn(c)} · ${res} κόντρα ${vs(opp)}`, line, shots });
+    await fs.mkdir(outDir, { recursive: true });
+    const img = path.join(outDir, 'shots.png'), vid = path.join(outDir, 'shots.mp4');
+    if (!DRY) { await renderStill(html, img, SHOT_REEL_SECS); await renderVideo(html, vid, SHOT_REEL_SECS); }
+    const when2 = D === today ? 'απόψε' : 'χθες', text = `🎯 Όλα τα σουτ του ${name} ${when2}\n\n${row[8]} πόντοι με ${fgm}/${fga} εντός παιδιάς και ${row[11]}/${row[12]} τρίποντα (${res} κόντρα ${vs(opp)}).\n\nΤα shot charts όλων των παικτών: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball #shotchart`;
+    plan.items.push({ key: `shots:${D}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🎯 Όλα τα σουτ του ${name}: ${row[8]} πόντοι, ${fgm}/${fga} · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig'], alt: `Shot chart: ${name}, ${fgm}/${fga}` });
+    console.log(`Σουτ της βραδιάς (${D}): ${name}, ${row[8]} πόντοι, ${shots.length} σουτ`);
+  } else console.log(`Σουτ της βραδιάς (${D}): δεν βρέθηκε παίκτης με ≥10 σουτ (${games.length} αγώνες στα data/shots)`);
+}
+
+if (ONLY !== 'stat' && ONLY !== 'shots' && !state.posted.some(k => k.startsWith(`pick:${today}:`))) {
   const rank = Object.fromEntries(data.league.stand.map(s => [s[1], s[0]]));
   const P = upcomingPicks(data, ['high-fidelity']).filter(t => athensDay(t.start) === today)
     .map(t => ({ t, sc: (['OLY', 'PAN'].some(c => c === t.h || c === t.a) ? 100 : 0) - (rank[t.h] || 20) - (rank[t.a] || 20) }))
@@ -153,14 +186,19 @@ function beat(out, secs) {   // δικό μας beat (kick, snare, hi-hat, μπ�
     '-filter_complex', `[1:a]highpass=f=1200[s];[2:a]highpass=f=7000[h];[4:a]lowpass=f=1500[p];[0:a][s][h][3:a][p]amix=inputs=5:normalize=0,alimiter=limit=0.9,afade=t=in:d=0.3,afade=t=out:st=${d - 1}:d=1,aformat=channel_layouts=stereo[a]`,
     '-map', '[a]', '-c:a', 'aac', '-b:a', '160k', out]);
 }
-async function renderVideo(html, out) {
+async function renderStill(html, file, t) {   // το τελικό καρέ ενός κινούμενου HTML ως εικόνα 1080×1920
+  const { chromium } = await import('playwright');
+  const b = await chromium.launch(), pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
+  await pg.setContent(html); await pg.evaluate(x => window.setT(x), t); await pg.screenshot({ path: file, type: 'png' }); await b.close();
+}
+async function renderVideo(html, out, secs = STAT_VIDEO_SECS) {
   const { chromium } = await import('playwright');
   const dir = out + '.frames'; await fs.mkdir(dir, { recursive: true });
   const b = await chromium.launch(), pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   await pg.setContent(html);
-  for (let i = 0; i < 30 * STAT_VIDEO_SECS; i++) { await pg.evaluate(t => window.setT(t), i / 30); await pg.screenshot({ path: path.join(dir, String(i).padStart(4, '0') + '.png') }); }
+  for (let i = 0; i < 30 * secs; i++) { await pg.evaluate(t => window.setT(t), i / 30); await pg.screenshot({ path: path.join(dir, String(i).padStart(4, '0') + '.png') }); }
   await b.close();
-  const a = out + '.m4a'; beat(a, STAT_VIDEO_SECS);
+  const a = out + '.m4a'; beat(a, secs);
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '30', '-i', path.join(dir, '%04d.png'), '-i', a, '-shortest', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', out]);
   await fs.rm(dir, { recursive: true, force: true }); await fs.rm(a, { force: true });
 }
@@ -185,6 +223,7 @@ async function post() {
     for (const net of on) {
       const k = `${it.key}:${net}`;
       if (state.posted.includes(k)) continue;
+      if (it.nets && !it.nets.includes(net)) continue;   // π.χ. το Reel των σουτ πάει μόνο σε Facebook/Instagram
       if (net === 'telegram' && it.pick) continue;   // τα picks πάνε ήδη όλα στο Telegram από το scripts/telegram.mjs
       if (DRY) { console.log(`[δοκιμή] ${k}`); continue; }
       try { await postTo(net, p); state.posted.push(k); console.log('Αναρτήθηκε', k); }
