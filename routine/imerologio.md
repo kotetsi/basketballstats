@@ -6,3 +6,4 @@
 | Ημερομηνία | Στατιστικό | Pick | Τραυματίες / μεταγραφές | Fantasy | FB / IG / TG / Viber | GSC 7 ημ. | Σημειώσεις |
 |---|---|---|---|---|---|---|---|
 | 2026-11-20 | Βεζένκοφ 4 σερί 20+ — FB, IG (post/Reel/Story), YouTube Short, TikTok (με το χέρι) | Ολυμπιακός–Ρεάλ (παλιά ροή FB/IG + Telegram) | — | — | — / — / — / 0 | — | Πρώτη μέρα· νέα κανάλια YouTube @basketballstatseu, TikTok @basketballstats.eu, Viber, Bluesky (χωρίς κλειδί) |
+| 2026-11-21 | Tyson Carter 31 πόντ. (7/10 τρίπ.), 30 PIR κόντρα στην Μπαρτσελόνα — FB, IG (post/Reel/Story), Telegram (00:40, από την καθυστερημένη εκτέλεση των 18:10)· Viber απέτυχε | — (Σάββατο, χωρίς αγώνες) | — | — | 0 / 8 / 6 / 0 | — | Viber: «webhookNotSet» — το κανάλι θέλει set_webhook· η προγραμματισμένη εκτέλεση των 12:10 δεν έτρεξε, την έτρεξα με το χέρι 17:07 (τίποτα νέο). YouTube/TikTok με το χέρι |
