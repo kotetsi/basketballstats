@@ -15,6 +15,7 @@ const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), '
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const FORCE = process.argv.includes('--force');
 const SPLITS = process.argv.includes('--splits');   // ξαναϋπολογισμός μόνο αγώνων χωρίς ατομικά splits (ps)
+const PAIRS = process.argv.includes('--pairs');     // ξαναϋπολογισμός μόνο αγώνων χωρίς ζεύγη πεντάδων (mu, για το RAPM)
 const MAX = +arg('--max', 400);
 const DEADLINE = Date.now() + 1000 * +arg('--secs', 900); // όριο χρόνου ανά εκτέλεση
 const cur = process.env.SEASON || CONF.season || 'E2026';
@@ -65,9 +66,9 @@ async function season(code) {
     const gc = String(g.gameCode ?? g.code ?? String(g.identifier || '').split('_').pop());
     if (!gc) continue;
     if (!FORCE && have.has(gc)) {
-      if (!SPLITS) continue;
+      if (!SPLITS && !PAIRS) continue;
       const cur = JSON.parse(await fs.readFile(path.join(dir, gc + '.json'), 'utf8').catch(() => '{}'));
-      if (cur.ps) continue;
+      if ((!SPLITS || cur.ps) && (!PAIRS || cur.mu)) continue;
     }
     if (done >= MAX || Date.now() > DEADLINE) { console.log(`${code}: όριο, συνέχεια στην επόμενη εκτέλεση`); break; }
     const [pbp, box] = await Promise.all([get(`${LIVE}/PlayByPlay?gamecode=${gc}&seasoncode=${code}`), get(`${LIVE}/Boxscore?gamecode=${gc}&seasoncode=${code}`)]);
@@ -98,6 +99,8 @@ async function season(code) {
       box: { [A]: teamBox(byTeam[A] || {}), [B]: teamBox(byTeam[B] || {}) },
       ids, pl, st: { [A]: pack(A), [B]: pack(B) }, chk: { ...r.checks, ok },
       // ατομικά splits για τα props: [παίκτης, [5 περίοδοι × (δευτ., πόντοι, ριμπ., ασίστ, τρίποντα, κλεψ., κοψ., λάθη)], [[συμπαίκτης, ίδια 8 με αυτόν στο παρκέ], …]]
+      // ζεύγη πεντάδων για το RAPM: [[5 παίκτες A], [5 παίκτες B], δευτ., [πόντοι, FGA, FTA, OREB, TOV] A, ίδια B]
+      mu: r.matchups.map(m => [m.a.map(id => ix[id] ?? -1), m.b.map(id => ix[id] ?? -1), m.s, m.sa, m.sb]),
       ps: Object.fromEntries([A, B].map(tm => [tm, Object.entries(r.ps[tm] || {}).filter(([id]) => id in ix).map(([id, o]) => [ix[id], o.q, Object.entries(o.w).filter(([x]) => x in ix).map(([x, v]) => [ix[x], ...v])])])),
     };
     await fs.writeFile(path.join(dir, gc + '.json'), JSON.stringify(out));

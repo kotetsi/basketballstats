@@ -88,6 +88,9 @@ export function buildStints(pbp, starters) {
     }
   };
 
+  // ζεύγη πεντάδων (για RAPM): πεντάδα A απέναντι σε πεντάδα B, δευτερόλεπτα και [πόντοι, FGA, FTA, OREB, TOV] κάθε πλευράς
+  const mu = new Map();
+  const mcell = () => { const k = [...on[A]].sort().join(',') + '|' + [...on[B]].sort().join(','); let c = mu.get(k); if (!c) { c = { a: [...on[A]].sort(), b: [...on[B]].sort(), s: 0, sa: [0, 0, 0, 0, 0], sb: [0, 0, 0, 0, 0] }; mu.set(k, c); } return c; };
   const key = (tm, clutch) => [...on[tm]].sort().join(',') + '|' + clutch;
   const cell = (tm, clutch) => {
     const k = key(tm, clutch); let c = acc[tm].get(k);
@@ -105,7 +108,7 @@ export function buildStints(pbp, starters) {
   const advanceTo = t => {
     if (t > t0) {
       const cl = isClutch(t0, q0, score[A] - score[B]) ? 1 : 0;
-      if (valid()) { cell(A, cl).s += t - t0; cell(B, cl).s += t - t0; } else lost.secs += t - t0;
+      if (valid()) { cell(A, cl).s += t - t0; cell(B, cl).s += t - t0; mcell().s += t - t0; } else lost.secs += t - t0;
       for (const tm of [A, B]) if (on[tm].size === 5) for (const pid of on[tm]) {
         const o = pso(tm, pid); o.q[qi(q0)][0] += t - t0;
         for (const x of on[tm]) if (x !== pid) (o.w[x] ||= new Array(PSN).fill(0))[0] += t - t0;
@@ -130,6 +133,8 @@ export function buildStints(pbp, starters) {
     if (valid()) {
       const mine = cell(e.team, cl), theirs = cell(opp, cl);
       for (const [k, v] of Object.entries(eff)) { mine.own[IX[k]] += v; theirs.opp[IX[k]] += v; }
+      const m = mcell(), side = e.team === A ? m.sa : m.sb;
+      side[0] += eff.pts || 0; side[1] += (eff.fga2 || 0) + (eff.fga3 || 0); side[2] += eff.fta || 0; side[3] += eff.oreb || 0; side[4] += eff.tov || 0;
     } else lost.events++;
     if (e.pid && on[e.team].has(e.pid)) {
       const v = [0, eff.pts || 0, (eff.oreb || 0) + (eff.dreb || 0), eff.ast || 0, eff.fgm3 || 0, eff.stl || 0, eff.blk || 0, eff.tov || 0];
@@ -164,7 +169,7 @@ export function buildStints(pbp, starters) {
   const out = { [A]: [...acc[A].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)), [B]: [...acc[B].values()].filter(x => x.s > 0 || x.own.some(Boolean) || x.opp.some(Boolean)) };
   const sumPts = tm => out[tm].reduce((a, x) => a + x.own[0], 0);
   return {
-    teams: [A, B], stints: out, total, secs: end, shots, scoring, ps,
+    teams: [A, B], stints: out, total, secs: end, shots, scoring, ps, matchups: [...mu.values()].filter(x => x.s > 0 || x.sa[0] || x.sb[0]),
     checks: { scoreA: score[A], scoreB: score[B], stintPtsA: sumPts(A), stintPtsB: sumPts(B), lostSecs: lost.secs, lostEvents: lost.events },
   };
 }

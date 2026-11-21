@@ -1,0 +1,31 @@
+# Μία φορά (ή όποτε χρειαστεί): ξανακατεβάζει το play-by-play των αγώνων που δεν έχουν ζεύγη πεντάδων (mu, για το RAPM)
+# και τα αποθηκεύει στο data/pbp. Οι νέοι αγώνες τα παίρνουν ήδη από το update.yml (scripts/pbp.mjs).
+name: Ζεύγη πεντάδων (RAPM) - backfill
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Σεζόν χωρισμένες με κενό"
+        required: false
+        default: "E2026 E2025"
+permissions:
+  contents: write
+concurrency:
+  group: data-write
+jobs:
+  pairs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Play-by-play → ζεύγη πεντάδων
+        run: |
+          for s in ${{ inputs.seasons }}; do timeout 1500 node scripts/pbp.mjs --pairs --season $s --max 500 --secs 1400 || echo "$s: σφάλμα"; done
+      - name: Αποθήκευση
+        run: |
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add data/pbp
+          git diff --cached --quiet || (git commit -m "Play-by-play: ζεύγη πεντάδων για το RAPM" && for i in 1 2 3 4; do git push && break; sleep 15; git pull --rebase -q -X theirs; done)
