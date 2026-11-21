@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-11-21T23:04:13.394Z",
+  "generatedAt": "2026-11-21T23:11:31.148Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-20T22:06:44.725Z",
-  "collectorUpdatedAgeHours": 24.96,
+  "collectorUpdated": "2026-11-21T23:11:30.782Z",
+  "collectorUpdatedAgeHours": 0,
   "lastIngestAt": "2026-11-20T22:06:44.725Z",
   "lastIngestEvents": 3,
   "lastIngestMatched": 3,
   "latestQuoteUpdated": "2026-11-17T15:30:22.910Z",
-  "latestQuoteAgeHours": 103.56,
-  "upcomingGames": 3,
+  "latestQuoteAgeHours": 103.69,
+  "upcomingGames": 10,
   "gamesWithGreekBooks": 3,
   "greekBookGameQuotes": 3,
   "gamesWithPlayerProps": 0,
@@ -26,13 +26,13 @@
       "oneSided": 0,
       "newest": "2026-11-17T15:30:22.910Z",
       "oldest": "2026-11-17T15:30:21.949Z",
-      "newestAgeHours": 103.56
+      "newestAgeHours": 103.69
     }
   ],
   "events": [
     {
       "event": "E-14-BES-PRS",
-      "commence": "2026-11-24T17:00:00.000Z",
+      "commence": "2026-11-24T17:00:00Z",
       "greekBooks": 1,
       "booksWithProps": 0,
       "props": 0,
@@ -45,13 +45,13 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:21.949Z",
-          "ageHours": 103.56
+          "ageHours": 103.69
         }
       ]
     },
     {
       "event": "E-14-RED-VIR",
-      "commence": "2026-11-24T18:00:00.000Z",
+      "commence": "2026-11-24T18:00:00Z",
       "greekBooks": 1,
       "booksWithProps": 0,
       "props": 0,
@@ -64,13 +64,13 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:22.365Z",
-          "ageHours": 103.56
+          "ageHours": 103.69
         }
       ]
     },
     {
       "event": "E-14-MUN-TEL",
-      "commence": "2026-11-24T19:00:00.000Z",
+      "commence": "2026-11-24T19:00:00Z",
       "greekBooks": 1,
       "booksWithProps": 0,
       "props": 0,
@@ -83,9 +83,65 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:22.910Z",
-          "ageHours": 103.56
+          "ageHours": 103.69
         }
       ]
+    },
+    {
+      "event": "E-14-PAM-PAN",
+      "commence": "2026-11-24T19:30:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
+    },
+    {
+      "event": "E-14-ASV-MIL",
+      "commence": "2026-11-24T19:45:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
+    },
+    {
+      "event": "E-14-BAR-ULK",
+      "commence": "2026-11-24T20:00:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
+    },
+    {
+      "event": "E-14-DUB-PAR",
+      "commence": "2026-11-25T16:00:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
+    },
+    {
+      "event": "E-14-OLY-HTA",
+      "commence": "2026-11-25T19:15:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
+    },
+    {
+      "event": "E-14-BAS-IST",
+      "commence": "2026-11-25T19:30:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
+    },
+    {
+      "event": "E-14-MAD-ZAL",
+      "commence": "2026-11-25T19:45:00Z",
+      "greekBooks": 0,
+      "booksWithProps": 0,
+      "props": 0,
+      "books": []
     }
   ],
   "history": {

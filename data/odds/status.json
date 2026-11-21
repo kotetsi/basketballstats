@@ -209,7 +209,7 @@
    }
   }
  },
- "lastError": "2026-11-21T23:04:13.173Z",
+ "lastError": "2026-11-21T23:11:30.557Z",
  "error": "μηνιαίο όριο 240 κλήσεων",
  "provider": "oddspapi",
  "lastCall": "2026-11-20T22:06:44.725Z",
@@ -423,5 +423,22 @@
   "2639657": "Diarra, Aliou",
   "2692486": "Faye, Mouhamed",
   "2826111": "Moore Jr., Wendell"
+ },
+ "providers": {
+  "theoddsapi": {
+   "provider": "theoddsapi",
+   "lastCall": "2026-11-21T23:11:30.782Z",
+   "lastSuccess": "2026-11-21T23:11:30.782Z",
+   "events": 10,
+   "matched": 10,
+   "added": 274,
+   "propAdded": 0,
+   "quota": {
+    "remaining": "494",
+    "used": "6"
+   },
+   "error": null,
+   "lastChange": "2026-11-21T23:11:30.782Z"
+  }
  }
 }
