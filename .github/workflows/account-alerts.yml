@@ -1,4 +1,5 @@
-# Προσωπικές ειδοποιήσεις Fantasy (Telegram + browser) για τους συνδεδεμένους χρήστες, κάθε 30 λεπτά.
+# Προσωπικές ειδοποιήσεις Fantasy (Telegram + browser) για τους συνδεδεμένους χρήστες, κάθε 30 λεπτά,
+# και δημόσιες ειδοποιήσεις push για όλους (scripts/public-alerts.mjs).
 # Χωρίς CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID δεν κάνει τίποτα.
 name: Ειδοποιήσεις λογαριασμών
 on:
@@ -23,4 +24,11 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          ALERTS_DRY: ${{ inputs.dry && '1' || '0' }}
+      - name: Δημόσιες ειδοποιήσεις push (picks, τραυματίες, τελικά σκορ, χωρίς λογαριασμό)
+        if: always()
+        run: node scripts/public-alerts.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ALERTS_DRY: ${{ inputs.dry && '1' || '0' }}

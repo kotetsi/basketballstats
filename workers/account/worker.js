@@ -149,6 +149,28 @@ export default {
         const { accessToken } = await req.json(); const who = await verifyFacebook(accessToken, env);
         return R({ token: await login(env, 'facebook', who) });
       }
+      // ---------- δημόσιες ειδοποιήσεις push (χωρίς λογαριασμό): picks, τραυματίες και τελικό σκορ της ομάδας του επισκέπτη
+      if (p === '/push/public' && (req.method === 'POST' || req.method === 'DELETE')) {
+        const b = await req.json().catch(() => ({})), endpoint = String(b.endpoint || '');
+        if (!/^https:\/\//.test(endpoint) || endpoint.length > 1000) return R({ error: 'bad_sub' }, 400);
+        if (req.method === 'DELETE') {
+          const s = await env.DB.prepare('SELECT id, user_id FROM push_subs WHERE endpoint = ?').bind(endpoint).first();
+          if (s) await env.DB.batch([env.DB.prepare('DELETE FROM pub_prefs WHERE sub_id = ?').bind(s.id), ...(s.user_id === 'pub' ? [env.DB.prepare('DELETE FROM push_queue WHERE sub_id = ?').bind(s.id), env.DB.prepare('DELETE FROM push_subs WHERE id = ?').bind(s.id)] : [])]);
+          return R({ ok: true });
+        }
+        const lang = ['el', 'en', 'es', 'sr', 'tr'].includes(b.lang) ? b.lang : 'el', t = b.topics || {};
+        const topics = { p: t.p ? 1 : 0, t: /^[A-Z]{2,4}$/.test(t.t || '') ? t.t : null, i: t.i ? 1 : 0, s: t.s ? 1 : 0 };
+        if (!topics.p && !(topics.t && (topics.i || topics.s))) return R({ error: 'no_topics' }, 400);
+        await env.DB.prepare("INSERT INTO push_subs (user_id, endpoint, created) VALUES ('pub', ?, ?) ON CONFLICT(endpoint) DO NOTHING").bind(endpoint, now()).run();
+        const s = await env.DB.prepare('SELECT id FROM push_subs WHERE endpoint = ?').bind(endpoint).first();
+        await env.DB.prepare('INSERT INTO pub_prefs (sub_id, lang, topics, created) VALUES (?, ?, ?, ?) ON CONFLICT(sub_id) DO UPDATE SET lang = excluded.lang, topics = excluded.topics').bind(s.id, lang, JSON.stringify(topics), now()).run();
+        return R({ ok: true, topics });
+      }
+      if (p === '/push/public' && req.method === 'GET') {
+        const ep = url.searchParams.get('ep') || '';
+        const r = await env.DB.prepare('SELECT pp.topics FROM push_subs ps JOIN pub_prefs pp ON pp.sub_id = ps.id WHERE ps.endpoint = ?').bind(ep).first();
+        return R({ topics: r ? JSON.parse(r.topics) : null });
+      }
       const u = await auth(req, env);
       if (!u) return R({ error: 'auth' }, 401);
       if (p.startsWith('/premium/data/')) {

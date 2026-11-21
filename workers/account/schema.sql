@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS state (user_id TEXT PRIMARY KEY, data TEXT NOT NULL, 
 CREATE TABLE IF NOT EXISTS telegram (user_id TEXT PRIMARY KEY, chat_id TEXT NOT NULL UNIQUE, created INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS tg_codes (code TEXT PRIMARY KEY, user_id TEXT NOT NULL, exp INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS push_subs (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, endpoint TEXT NOT NULL UNIQUE, created INTEGER NOT NULL);
+-- δημόσιες ειδοποιήσεις (χωρίς λογαριασμό): τι θέλει κάθε συνδρομή push. topics = {"p":1 picks, "t":"OLY" ομάδα, "i":1 τραυματίες ομάδας, "s":1 τελικό σκορ ομάδας}
+CREATE TABLE IF NOT EXISTS pub_prefs (sub_id INTEGER PRIMARY KEY, lang TEXT NOT NULL, topics TEXT NOT NULL, created INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS push_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, sub_id INTEGER NOT NULL, text TEXT NOT NULL, url TEXT, created INTEGER NOT NULL);
 -- τι έχει ήδη σταλεί (κλειδί ειδοποίησης ανά χρήστη): τίποτα δεν στέλνεται δύο φορές
 CREATE TABLE IF NOT EXISTS sent (user_id TEXT NOT NULL, key TEXT NOT NULL, ts INTEGER NOT NULL, PRIMARY KEY (user_id, key));

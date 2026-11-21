@@ -91,3 +91,20 @@ test('VAPID: κλειδί του worker → υπογραφή ES256 στο Action
   assert.ok(crypto.verify('sha256', Buffer.from('a.b'), { key: pub, dsaEncoding: 'ieee-p1363' }, sig));
   assert.equal(raw.length, 65);
 });
+
+test('δημόσιες ειδοποιήσεις push: εγγραφή χωρίς λογαριασμό, ενημέρωση, έλεγχος, διαγραφή', async () => {
+  const ep = 'https://fcm.googleapis.com/fcm/send/pub-1';
+  assert.equal((await call('/push/public', { method: 'POST', body: { endpoint: ep, topics: { p: 1 } }, origin: 'https://evil.example' })).status, 403);
+  assert.equal((await call('/push/public', { method: 'POST', body: { endpoint: 'http://x', topics: { p: 1 } } })).status, 400);
+  assert.equal((await call('/push/public', { method: 'POST', body: { endpoint: ep, topics: { t: 'OLY' } } })).status, 400, 'ομάδα χωρίς τίποτα επιλεγμένο');
+  let r = await (await call('/push/public', { method: 'POST', body: { endpoint: ep, lang: 'en', topics: { p: 1, t: 'oly<script>', i: 1, s: 0 } } })).json();
+  assert.deepEqual(r.topics, { p: 1, t: null, i: 1, s: 0 });
+  r = await (await call('/push/public', { method: 'POST', body: { endpoint: ep, lang: 'xx', topics: { p: 0, t: 'OLY', i: 1, s: 1 } } })).json();
+  assert.deepEqual(r.topics, { p: 0, t: 'OLY', i: 1, s: 1 });
+  const row = env.DB.raw.prepare('SELECT ps.user_id, pp.lang FROM push_subs ps JOIN pub_prefs pp ON pp.sub_id = ps.id WHERE ps.endpoint = ?').get(ep);
+  assert.equal(row.user_id, 'pub'); assert.equal(row.lang, 'el');
+  assert.deepEqual((await (await call('/push/public?ep=' + encodeURIComponent(ep))).json()).topics, { p: 0, t: 'OLY', i: 1, s: 1 });
+  assert.equal((await call('/push/public', { method: 'DELETE', body: { endpoint: ep } })).status, 200);
+  assert.equal(env.DB.raw.prepare('SELECT COUNT(*) n FROM push_subs WHERE endpoint = ?').get(ep).n, 0);
+  assert.equal((await (await call('/push/public?ep=' + encodeURIComponent(ep))).json()).topics, null);
+});
