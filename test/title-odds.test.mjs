@@ -32,3 +32,20 @@ test('simRatings: ortg/drtg/pace από τις γραμμές αγώνων, χω
   const pA = 40 + 25 - 10 + 12 + 0.44 * 20, pB = 42 + 22 - 8 + 14 + 0.44 * 15, pp = (pA + pB) / 2;
   assert.ok(Math.abs(R.A.ortg - 80 / pp * 100) < 1e-9 && Math.abs(R.A.drtg - 70 / pp * 100) < 1e-9 && Math.abs(R.A.pace - pp) < 1e-9);
 });
+
+// xPTS (src/odds/xpts.mjs)
+import { xptsRows } from '../src/odds/xpts.mjs';
+import { project } from '../src/odds/props.mjs';
+test('xptsRows: πόντοι πάνω από τα αναμενόμενα μειώνονται κατά λ, γραμμές χωρίς σουτ μένουν ίδιες, last = πραγματικά', () => {
+  const row = (r, pts, m3) => { const x = new Array(26).fill(0); x[0] = r; x[7] = 1500; x[8] = pts; x[11] = m3; return x; };
+  const rows = [row(1, 20, 4), row(2, 10, 0), row(3, 12, 1), row(4, 8, 0)];
+  const LZ = { top3: 0.35, rim: 0.6, two: 0.5, three: 0.35 };
+  const idx = new Map([['P|1', [['top3', 1, 1], ['top3', 1, 1], ['top3', 1, 1], ['top3', 1, 1], ['rim', 0, 1]]]]);   // 4/4 τρίποντα + 1 δίποντο
+  const X = xptsRows(rows, 'P', idx, LZ, { lam: 0.5 });
+  const act = 4 * 3 + 2, xp = 4 * 0.35 * 3 + 0.6 * 2;
+  assert.ok(Math.abs(X[0][8] - (20 - 0.5 * (act - xp))) < 1e-9);
+  assert.ok(Math.abs(X[0][11] - (4 - 0.5 * (4 - 4 * 0.35))) < 1e-9);
+  assert.equal(X[1], rows[1]); assert.equal(rows[0][8], 20);
+  const a = project(rows, 'pts'), b = project(rows, 'pts', { xrows: X });
+  assert.ok(b.mu < a.mu); assert.deepEqual(b.last, a.last);
+});

@@ -25,6 +25,7 @@ import * as OLED from './src/odds/ledger.mjs';
 import { blendPreds } from './src/odds/blend.mjs';
 import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from './src/odds/core.mjs';
 import * as PROPM from './src/odds/props.mjs';
+import { leagueZonePct, loadShotIndex, xptsRows } from './src/odds/xpts.mjs';
 import { indexHistory, closingMove } from './src/odds/closing.mjs';
 import * as SB from './src/shots/build-shots.mjs';
 import { wpSeries, wpSVG, clockOf } from './src/game/wp.mjs';
@@ -1016,6 +1017,9 @@ async function main() {
   const PROPSJ = {};
   // πλαίσιο αγώνα για τα props: προβλεπόμενοι πόντοι κάθε ομάδας στον επόμενο αγώνα της (Game Predictor, data/matchups/latest.json)
   const PCTX = {};
+  // xPTS: ιστορικό πόντων/τριπόντων «διορθωμένο για τύχη» από τις ζώνες σουτ (PARAMS.xLam, scripts/props-xpts-backtest.mjs)
+  const XLZ = leagueZonePct(path.join(ROOT, 'data', 'shots')), XIDX = loadShotIndex(path.join(ROOT, 'data', 'shots', SEASON), league.games);
+  const XADJ = XIDX.size ? (pl, c) => xptsRows(pl, c, XIDX, XLZ, { lam: PROPM.PARAMS.xLam, k: PROPM.PARAMS.xK }) : null;
   try {
     const ML = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'matchups', 'latest.json'), 'utf8'));
     for (const g of (ML.games || []).filter(g => g.comp === 'E').sort((a, b) => a.t.localeCompare(b.t))) {
@@ -1032,7 +1036,7 @@ async function main() {
       for (const [gid, G] of Object.entries(OB.latest?.games || {})) {
         const [, r, h, a] = gid.split('-');
         if (new Date(G.t) - now < -3 * 3600e3 || !Object.values(G.books || {}).some(b => b.props?.length)) continue;
-        const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors, ctx: PCTX });
+        const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors, ctx: PCTX, adj: XADJ });
         if (R.best.length) games[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
       }
       PROPSJ[jur] = games;
@@ -1043,7 +1047,7 @@ async function main() {
       const [, r, h, a] = gid.split('-');
       const books = Object.fromEntries(Object.entries(G.books || {}).filter(([k, b]) => /^superbet/.test(k) && b.props?.length));
       if (new Date(G.t) - now < -3 * 3600e3 || !Object.keys(books).length) continue;
-      const R = PROPM.gameProps({ h, a, books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur: 'rs', priors, ctx: PCTX });
+      const R = PROPM.gameProps({ h, a, books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur: 'rs', priors, ctx: PCTX, adj: XADJ });
       if (R.best.length) sbg[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
     }
     PROPSJ.sb = sbg;
@@ -1075,7 +1079,7 @@ async function main() {
     }
     const FXP = Object.fromEntries((FXD?.players || []).map(p => [p.c, p]));
     const posOf = p => FXP[p.c]?.pos || (['Guard', 'Forward', 'Center'].includes(p.pos) ? p.pos : null);
-    const PJ = PROPM.nextProjections(Object.keys(next), { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, priors, ctx: PCTX });
+    const PJ = PROPM.nextProjections(Object.keys(next), { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, priors, ctx: PCTX, adj: XADJ });
     const DEF = PROPM.defenseVsPos(solo, posOf);
     // ατομικά splits από το play-by-play (scripts/pbp.mjs → ps): ανά περίοδο και με κάθε συμπαίκτη στο παρκέ
     const SP = {};
