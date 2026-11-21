@@ -35,7 +35,7 @@ description_tr: Strazburg'daki bir mahalle sahasından EuroLeague sayı krallı�
 
 ## Αξίζει ο Ιφί στο EuroLeague Fantasy;
 
-Πριν από την 11η αγωνιστική, ο Ιφί είχε [28,7 PIR κατά μέσο όρο στα τρία τελευταία παιχνίδια του](https://basketballstats.eu/arthra/fantasy-agonistiki-11/). Η [Φενέρμπαχτσε](https://basketballstats.eu/arthra/analysi-pari-fenerbahce-11/) ήταν δύσκολος αντίπαλος για τους γκαρντ, οπότε η τιμή του μετράει στην απόφαση. Αν χωράει στο ρόστερ σου χωρίς να χρειαστεί να αποδυναμώσεις άλλη θέση, αξίζει να τον εξετάσεις. Το σκοράρισμα είναι ο βασικός λόγος, και οι ασίστ τού δίνουν ακόμη έναν τρόπο να ανεβάσει την αξιολόγησή του. Δες και [ποιους προτείνουμε για αρχηγούς στην 11η αγωνιστική](https://basketballstats.eu/fantasy/agonistiki-11/arxigoi/).
+Πριν από την 11η αγωνιστική, ο Ιφί είχε [28,7 PIR κατά μέσο όρο στα τρία τελευταία παιχνίδια του](https://basketballstats.eu/arthra/fantasy-agonistiki-11/). Η [Φενέρμπαχτσε](https://basketballstats.eu/agonas/pari-fenerbahce-11/) ήταν δύσκολος αντίπαλος για τους γκαρντ, οπότε η τιμή του μετράει στην απόφαση. Αν χωράει στο ρόστερ σου χωρίς να χρειαστεί να αποδυναμώσεις άλλη θέση, αξίζει να τον εξετάσεις. Το σκοράρισμα είναι ο βασικός λόγος, και οι ασίστ τού δίνουν ακόμη έναν τρόπο να ανεβάσει την αξιολόγησή του. Δες και [ποιους προτείνουμε για αρχηγούς στην 11η αγωνιστική](https://basketballstats.eu/fantasy/agonistiki-11/arxigoi/).
 
 === English ===
 
@@ -55,7 +55,7 @@ Years later, on Efes's home floor, Hifi led [Paris](https://basketballstats.eu/e
 
 ## Is Hifi worth it in EuroLeague Fantasy?
 
-Before Round 11, Hifi was averaging [28.7 PIR over his last three games](https://basketballstats.eu/en/articles/fantasy-picks-round-11/). [Fenerbahce](https://basketballstats.eu/en/articles/preview-paris-fenerbahce-11/) were a tough opponent for guards, so his price matters in the decision. If he fits in your roster without weakening another position, he is worth considering. Scoring is the main reason, and his assists give him one more way to push his rating up. See also [our captain picks for Round 11](https://basketballstats.eu/en/fantasy/round-11/captains/).
+Before Round 11, Hifi was averaging [28.7 PIR over his last three games](https://basketballstats.eu/en/articles/fantasy-picks-round-11/). [Fenerbahce](https://basketballstats.eu/en/game/paris-fenerbahce-11/) were a tough opponent for guards, so his price matters in the decision. If he fits in your roster without weakening another position, he is worth considering. Scoring is the main reason, and his assists give him one more way to push his rating up. See also [our captain picks for Round 11](https://basketballstats.eu/en/fantasy/round-11/captains/).
 
 === Español ===
 
@@ -75,7 +75,7 @@ Años después, en la cancha del Efes, Hifi llevó al [Paris](https://basketball
 
 ## ¿Merece la pena Hifi en el EuroLeague Fantasy?
 
-Antes de la jornada 11, Hifi promediaba [28,7 de PIR en sus tres últimos partidos](https://basketballstats.eu/es/articulos/fantasy-jornada-11/). El [Fenerbahçe](https://basketballstats.eu/es/articulos/analisis-paris-fenerbahce-11/) era un rival difícil para los bases y escoltas, así que su precio pesa en la decisión. Si cabe en tu plantilla sin debilitar otra posición, merece la pena tenerlo en cuenta. La anotación es el motivo principal, y las asistencias le dan otra forma de subir su valoración. Mira también [nuestros capitanes para la jornada 11](https://basketballstats.eu/es/fantasy/jornada-11/capitanes/).
+Antes de la jornada 11, Hifi promediaba [28,7 de PIR en sus tres últimos partidos](https://basketballstats.eu/es/articulos/fantasy-jornada-11/). El [Fenerbahçe](https://basketballstats.eu/es/partido/paris-fenerbahce-11/) era un rival difícil para los bases y escoltas, así que su precio pesa en la decisión. Si cabe en tu plantilla sin debilitar otra posición, merece la pena tenerlo en cuenta. La anotación es el motivo principal, y las asistencias le dan otra forma de subir su valoración. Mira también [nuestros capitanes para la jornada 11](https://basketballstats.eu/es/fantasy/jornada-11/capitanes/).
 
 === Srpski ===
 
@@ -95,7 +95,7 @@ Godinama kasnije, na terenu Efesa, Hifi je odveo [Pariz](https://basketballstats
 
 ## Da li se Hifi isplati u Evroliga Fantasy-ju?
 
-Pred 11. kolo Hifi je imao [prosečno 28,7 PIR-a u poslednje tri utakmice](https://basketballstats.eu/sr/clanci/fantasy-11-kolo/). [Fenerbahče](https://basketballstats.eu/sr/clanci/analiza-pariz-fenerbahce-11/) je bio težak protivnik za bekove, pa njegova cena utiče na odluku. Ako staje u tvoj tim bez slabljenja druge pozicije, vredi ga razmotriti. Poeni su glavni razlog, a asistencije mu daju još jedan način da podigne indeks. Pogledaj i [naše predloge za kapitene u 11. kolu](https://basketballstats.eu/sr/fantasy/kolo-11/kapiteni/).
+Pred 11. kolo Hifi je imao [prosečno 28,7 PIR-a u poslednje tri utakmice](https://basketballstats.eu/sr/clanci/fantasy-11-kolo/). [Fenerbahče](https://basketballstats.eu/sr/utakmica/pariz-fenerbahce-11/) je bio težak protivnik za bekove, pa njegova cena utiče na odluku. Ako staje u tvoj tim bez slabljenja druge pozicije, vredi ga razmotriti. Poeni su glavni razlog, a asistencije mu daju još jedan način da podigne indeks. Pogledaj i [naše predloge za kapitene u 11. kolu](https://basketballstats.eu/sr/fantasy/kolo-11/kapiteni/).
 
 === Türkçe ===
 
@@ -115,4 +115,4 @@ Yıllar sonra, Efes'in sahasında Hifi [Paris](https://basketballstats.eu/tr/tak
 
 ## Hifi, EuroLeague Fantasy'de alınmaya değer mi?
 
-11. hafta öncesinde Hifi'nin [son üç maçındaki PIR ortalaması 28,7'ydi](https://basketballstats.eu/tr/makaleler/fantasy-tavsiyeleri-hafta-11/). [Fenerbahçe](https://basketballstats.eu/tr/makaleler/analiz-paris-fenerbahce-11/) guard'lar için zor bir rakipti, bu yüzden fiyatı karar verirken önemli. Başka bir pozisyonu zayıflatmadan kadrona sığıyorsa, düşünmeye değer. Asıl neden sayı üretmesi; asistleri de ona puanını yükseltmek için bir yol daha sunuyor. [11. hafta kaptan önerilerimize](https://basketballstats.eu/tr/fantasy/hafta-11/kaptanlar/) de göz at.
+11. hafta öncesinde Hifi'nin [son üç maçındaki PIR ortalaması 28,7'ydi](https://basketballstats.eu/tr/makaleler/fantasy-tavsiyeleri-hafta-11/). [Fenerbahçe](https://basketballstats.eu/tr/mac/paris-fenerbahce-11/) guard'lar için zor bir rakipti, bu yüzden fiyatı karar verirken önemli. Başka bir pozisyonu zayıflatmadan kadrona sığıyorsa, düşünmeye değer. Asıl neden sayı üretmesi; asistleri de ona puanını yükseltmek için bir yol daha sunuyor. [11. hafta kaptan önerilerimize](https://basketballstats.eu/tr/fantasy/hafta-11/kaptanlar/) de göz at.

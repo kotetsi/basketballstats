@@ -1456,7 +1456,7 @@ if(c!=='y'&&c!=='n')document.addEventListener('DOMContentLoaded',show);})();
   // ---- εφαρμογή (PWA): εικονίδια, manifest ανά γλώσσα, service worker
   for (const f of await fs.readdir(path.join(ROOT, 'src'))) if (/\.(png|svg)$/.test(f) || /^google[0-9a-f]+\.html$/.test(f)) await fs.copyFile(path.join(ROOT, 'src', f), path.join(OUT, f));
   for (const lg of LANGS) {
-    const T = (el, en, es, sr, tr) => ({ el, en, es, sr, tr: tr ?? en })[lg];
+    const T = (el, en, es, sr, tr) => ({ el, en, es, sr, tr: tr || en })[lg];
     await fs.mkdir(path.join(OUT, lg === 'el' ? '' : lg), { recursive: true });
     await fs.writeFile(path.join(OUT, lg === 'el' ? '' : lg, 'manifest.webmanifest'), JSON.stringify({
       name: T(`${SITE_NAME}: στατιστικά EuroLeague`, `${SITE_NAME}: EuroLeague stats`, `${SITE_NAME}: estadísticas de la EuroLeague`, `${SITE_NAME}: statistika Evrolige`, `${SITE_NAME}: EuroLeague istatistikleri`), short_name: SITE_NAME, lang: lg, dir: 'ltr',
@@ -1500,7 +1500,7 @@ self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil
 .top{position:relative}.brand{padding-right:132px;max-width:100%;box-sizing:border-box}@media (max-width:640px){.brand{flex-wrap:wrap;row-gap:2px}.brand span{flex-basis:100%}}.langs{position:absolute;right:16px;top:16px;display:flex;gap:6px}.langsw{color:var(--band-ink);text-decoration:none;font:600 13px var(--body);letter-spacing:.5px;border:1px solid #3a4152;border-radius:6px;padding:4px 8px;opacity:.85}.langsw:hover{opacity:1;border-color:var(--accent)}@media (min-width:641px){.brand{padding-right:0}.langs{position:static;order:9;margin-left:auto}}@media (max-width:440px){.brand b{font-size:23px}.langs{gap:4px;right:12px}.langsw{padding:3px 6px;font-size:12px}.brand{padding-right:110px}}</style>
 `;
   const pwaHead = lg => {
-    const T = (el, en, es, sr, tr) => ({ el, en, es, sr, tr: tr ?? en })[lg];
+    const T = (el, en, es, sr, tr) => ({ el, en, es, sr, tr: tr || en })[lg];
     return `<script>
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('${BASE}sw.js'));
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.bsInstall=e;document.documentElement.classList.add('can-install');});
@@ -1515,7 +1515,7 @@ ${pwaStyle}`;
   };
 
   for (const LG of LANGS) {
-    const T = (el, en, es, sr, tr) => ({ el, en, es, sr, tr: tr ?? en })[LG];
+    const T = (el, en, es, sr, tr) => ({ el, en, es, sr, tr: tr || en })[LG];
     const OTHERS = LANGS.filter(x => x !== LG);
     const BL = B(LG);
     const ord = n => T(n + 'η', ordEn(n), n + '.º', n + '.', n + '.');
@@ -1567,20 +1567,34 @@ ${pwaStyle}`;
       const have = LANGS.filter(l => all[l]);
       const alts = have.length > 1 ? have.map(l => `<link rel="alternate" hreflang="${l}" href="${esc(SITE_URL + all[l])}">\n`).join('') +
         `<link rel="alternate" hreflang="x-default" href="${esc(SITE_URL + (all.el || all.en || url))}">\n` : '';
+      // SEO: το Google κόβει τίτλους πάνω από ~60 χαρακτήρες και περιγραφές πάνω από ~155,
+      // οπότε στους μεγάλους τίτλους φεύγει το « | BasketballStats» και οι περιγραφές κόβονται σε λέξη.
+      const SFX = ` | ${SITE_NAME}`;
+      const sTitle = title.length > 60 && title.endsWith(SFX) ? title.slice(0, -SFX.length) : title;
+      const sDesc = desc.length > 158 ? desc.slice(0, 155).replace(/[\s,;:·–-]+\S*$/, '') + '…' : desc;
+      const ogImg = `${SITE_URL}/og-${LG}.png`;
       return `<!doctype html>
 <html lang="${LG}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>${esc(title)}</title>
-<meta name="description" content="${esc(desc)}">
+<title>${esc(sTitle)}</title>
+<meta name="description" content="${esc(sDesc)}">
 <link rel="canonical" href="${esc(SITE_URL + url)}">
 ${alts}<meta property="og:type" content="website">
 <meta property="og:locale" content="${{ el: 'el_GR', en: 'en_GB', es: 'es_ES', sr: 'sr_RS', tr: 'tr_TR' }[LG]}">
 <meta property="og:site_name" content="${esc(SITE_NAME)}">
 <meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(desc)}">
+<meta property="og:description" content="${esc(sDesc)}">
 <meta property="og:url" content="${esc(SITE_URL + url)}">
+<meta property="og:image" content="${ogImg}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(SITE_NAME)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(sDesc)}">
+<meta name="twitter:image" content="${ogImg}">
 <meta name="theme-color" content="#1d2330">
 <link rel="manifest" href="${BL}manifest.webmanifest">
 <link rel="icon" href="${BASE}favicon.svg" type="image/svg+xml">
@@ -3158,7 +3172,7 @@ ${coaches.length ? `<h2>${T('Προπονητές', 'Coaches', 'Entrenadores', '
 <li>${T('Πάτα «Join» και είσαι μέσα. Η κατάταξη ενημερώνεται εδώ μετά από κάθε αγωνιστική.', 'Press “Join” and you are in. The standings are updated here after every round.', 'Pulsa «Join» y listo.', 'Pritisni «Join» i to je to.', '«Join»e bas, tamam.')}</li></ol>
 ${LRd ? `<h2>${T(`Νικητής της ${last}ης αγωνιστικής`, `Round ${last} winner`, `Ganador de la jornada ${last}`, `Pobednik ${last}. kola`, `${last}. hafta kazananı`)}</h2>${tbl(LRd.round, T('Πόντοι', 'Points', 'Puntos', 'Poeni', 'Puan'))}
 <h2>${T(`Η κορυφή της κατάταξης μετά την ${last}η αγωνιστική`, `Top of the standings after Round ${last}`, `Clasificación tras la jornada ${last}`, `Vrh tabele posle ${last}. kola`, `${last}. hafta sonrası zirve`)}</h2>${tbl(LRd.total, T('Σύνολο', 'Total', 'Total', 'Ukupno', 'Toplam'))}` : ''}
-<p class="leadnav"><a href="${urlFor(LG, 'fantasy')}">Fantasy</a>${FXD ? `<a href="${urlFor(LG, 'fxcap:' + FXD.round)}">${T('Αρχηγοί', 'Captains', 'Capitanes', 'Kapiteni', 'Kaptanlar')} · ${esc(rdTxt0(FXD.round))}</a><a href="${urlFor(LG, 'fxprice:' + FXD.round)}">${T('Τιμές', 'Prices', 'Precios', 'Cene', 'Fiyatlar')}</a>` : ''}<a href="${urlFor(LG, 'fxcal')}">${T('Ημερολόγιο', 'Calendar', 'Calendario', 'Kalendar', 'Takvim')}</a></p>
+<p class="leadnav"><a href="${urlFor(LG, 'fantasy')}">Fantasy</a>${FXD ? `<a href="${urlFor(LG, 'fxcap:' + FXD.round)}">${T('Αρχηγοί', 'Captains', 'Capitanes', 'Kapiteni', 'Kaptanlar')} · ${esc(rdTxt0(FXD.round))}</a>${prRounds.includes(FXD.round) ? `<a href="${urlFor(LG, 'fxprice:' + FXD.round)}">${T('Τιμές', 'Prices', 'Precios', 'Cene', 'Fiyatlar')}</a>` : ''}` : ''}<a href="${urlFor(LG, 'fxcal')}">${T('Ημερολόγιο', 'Calendar', 'Calendario', 'Kalendar', 'Takvim')}</a></p>
 <p class="note">${T('Δείχνουμε μόνο τα ονόματα των ομάδων, όπως εμφανίζονται στη λίγκα, όχι τα ονόματα των μάνατζερ. Το EuroLeague Fantasy Challenge είναι το επίσημο παιχνίδι της EuroLeague· η λίγκα είναι ανεπίσημη, του site.', 'We show team names only, as they appear in the league, not managers’ names. EuroLeague Fantasy Challenge is the official EuroLeague game; the league is unofficial, run by the site.', 'Solo mostramos nombres de equipos, no de mánagers.', 'Prikazujemo samo imena timova, ne menadžera.', 'Yalnızca takım adlarını gösteriyoruz.')}</p>
 </article>`, ld: crumbs([[SITE_NAME, B(LG)], ['Fantasy', urlFor(LG, 'fantasy')], [lT, urlFor(LG, 'fxleague')]]) });
       }
@@ -3209,7 +3223,7 @@ ${LRd ? `<h2>${T(`Νικητής της ${last}ης αγωνιστικής`, `Ro
 <p class="lede2">${esc(cmI)}</p>
 <div id="cmpApp"><div class="cmpin"></div><p><button type="button" class="pread" data-share>${CL.share}</button></p></div>
 <div id="cmpOut">${CM.table(CL, DEF.map(c => CP.find(p => p[0] === c)), teamsS, cbase)}</div>
-<p class="leadnav"><a href="${urlFor(LG, 'fantasy')}">Fantasy</a><a href="${urlFor(LG, 'fxprice:' + FXD.round)}">💰 ${T('Τιμές', 'Prices', 'Precios', 'Cene', 'Fiyatlar')}</a><a href="${urlFor(LG, 'fxcap:' + FXD.round)}">👑 ${T('Αρχηγοί', 'Captains', 'Capitanes', 'Kapiteni', 'Kaptanlar')}</a><a href="${urlFor(LG, 'fx:manager')}">Trade planner</a><a href="${urlFor(LG, 'fxcal')}">🗓 ${T('Ημερολόγιο', 'Calendar', 'Calendario', 'Kalendar', 'Takvim')}</a></p>
+<p class="leadnav"><a href="${urlFor(LG, 'fantasy')}">Fantasy</a>${prRounds.includes(FXD.round) ? `<a href="${urlFor(LG, 'fxprice:' + FXD.round)}">💰 ${T('Τιμές', 'Prices', 'Precios', 'Cene', 'Fiyatlar')}</a>` : ''}<a href="${urlFor(LG, 'fxcap:' + FXD.round)}">👑 ${T('Αρχηγοί', 'Captains', 'Capitanes', 'Kapiteni', 'Kaptanlar')}</a><a href="${urlFor(LG, 'fx:manager')}">Trade planner</a><a href="${urlFor(LG, 'fxcal')}">🗓 ${T('Ημερολόγιο', 'Calendar', 'Calendario', 'Kalendar', 'Takvim')}</a></p>
 <h2>${T('Συχνές ερωτήσεις', 'FAQ', 'Preguntas frecuentes', 'Česta pitanja', 'Sık sorulanlar')}</h2>${cmFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
 <p class="note">${T('Οι εκτιμήσεις είναι στατιστικές και δεν εγγυώνται απόδοση. Τιμές και ποσοστά επιλογής: επίσημο EuroLeague Fantasy Challenge.', 'Projections are statistical and do not guarantee performance. Prices and ownership: official EuroLeague Fantasy Challenge.', 'Las proyecciones son estadísticas. Precios y elección: EuroLeague Fantasy Challenge oficial.', 'Procene su statističke. Cene i izbor: zvanični EuroLeague Fantasy Challenge.', 'Tahminler istatistikseldir. Fiyat ve sahiplik: resmi EuroLeague Fantasy Challenge.')}</p>
 <script type="application/json" id="cmpctx">${JSON.stringify({ L: CL, P: CP, teams: teamsS, base: cbase, def: DEF }).replace(/</g, '\\u003c')}</script><script type="module" src="${BASE}assets/fantasy/compare.js?v=${ver}"></script>
