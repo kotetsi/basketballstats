@@ -209,8 +209,8 @@
    }
   }
  },
- "lastError": "2026-11-09T16:42:51.532Z",
- "error": null,
+ "lastError": "2026-11-21T07:04:15.970Z",
+ "error": "μηνιαίο όριο 240 κλήσεων",
  "provider": "oddspapi",
  "lastCall": "2026-11-20T22:06:44.725Z",
  "lastSuccess": "2026-11-20T22:06:44.725Z",
