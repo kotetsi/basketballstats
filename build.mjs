@@ -1561,6 +1561,25 @@ ${pwaStyle}`;
     const uL = k => urlFor(LG, k), FAMS = TOOLS.families(T, uL, HAS);
     const bodyAttrs = (view, id) => `data-view="${view}"${id ? ` data-id="${esc(id)}"` : ''} data-base="${BL}" data-root="${BASE}"`;
 
+    // Κονταίνει τον <title> σε ≤60 χαρακτήρες με σταθερή σειρά βημάτων, μόνο όσο χρειάζεται:
+    // 1) « | BasketballStats»  2) τελευταίο « | …» (π.χ. « | EuroLeague»)  3) παρένθεση στο τέλος (ομάδα)
+    // 4) ό,τι ακολουθεί το τελευταίο «: » (αν μένουν ≥25 χαρακτήρες). Η σεζόν μένει πάντα (ξεχωρίζει π.χ. τις σελίδες ιστορικού).
+    const USED_T = new Set();
+    function fitTitle(t, sfx) {
+      const MAX = 60, steps = [
+        x => x.endsWith(sfx) ? x.slice(0, -sfx.length) : x,
+        x => x.replace(/ \| [^|]+$/, ''),
+        x => x.replace(/ \([^()]*\)$/, ''),
+        x => { const i = x.lastIndexOf(': '); return i >= 25 ? x.slice(0, i) : x; },
+      ];
+      // υποψήφιοι από τον πλήρη προς τον πιο σύντομο· ποτέ τίτλος που έχει ήδη άλλη σελίδα της ίδιας γλώσσας
+      const cands = [t];
+      for (const f of steps) { if (cands[cands.length - 1].length <= MAX) break; const n = f(cands[cands.length - 1]).trim(); if (n !== cands[cands.length - 1]) cands.push(n); }
+      const free = cands.filter(c => !USED_T.has(c));
+      const pick = free.find(c => c.length <= MAX) ?? free[free.length - 1] ?? t;
+      USED_T.add(pick);
+      return pick;
+    }
     function head(title, desc, url, altsMap) {
       // hreflang: όλες οι γλώσσες στις οποίες υπάρχει η σελίδα (και η τρέχουσα)
       const all = { ...altsMap, [LG]: url };
@@ -1570,7 +1589,7 @@ ${pwaStyle}`;
       // SEO: το Google κόβει τίτλους πάνω από ~60 χαρακτήρες και περιγραφές πάνω από ~155,
       // οπότε στους μεγάλους τίτλους φεύγει το « | BasketballStats» και οι περιγραφές κόβονται σε λέξη.
       const SFX = ` | ${SITE_NAME}`;
-      const sTitle = title.length > 60 && title.endsWith(SFX) ? title.slice(0, -SFX.length) : title;
+      const sTitle = fitTitle(title, SFX);
       const sDesc = desc.length > 158 ? desc.slice(0, 155).replace(/[\s,;:·–-]+\S*$/, '') + '…' : desc;
       const ogImg = `${SITE_URL}/og-${LG}.png`;
       return `<!doctype html>
@@ -4487,7 +4506,7 @@ ${shCfg({ kind: 'game', api: `${BASE}api/games/${SEASON}-${g.gc}/shot-chart.json
       const sc = LG === 'sr' ? `${hs}:${as}` : `${hs}-${as}`;
       const title = pl
         ? T(`${vs} ${sc}: στατιστικά & box score αγώνα (${rdTxt(r)} EuroLeague)`, `${vs} ${sc}: box score & game stats (EuroLeague ${rdTxt(r)})`, `${vs} ${sc}: estadísticas y box score (${rdTxt(r).toLowerCase()} de la EuroLeague)`, `${vs} ${sc}: statistika i box score (${rdTxt(r)} Evrolige)`, `${vs} ${sc}: maç istatistikleri ve box score (EuroLeague ${rdTxt(r)})`)
-        : T(`${vs} πρόβλεψη (${dS}): ώρα, κανάλι, απουσίες | EuroLeague`, `${vs} prediction (${dS}): tip-off time, TV, injuries | EuroLeague`, `${vs} pronóstico (${dS}): horario, TV, bajas | EuroLeague`, `${vs} prognoza (${dS}): satnica, TV, povrede | Evroliga`, `${vs} maçı ne zaman, saat kaçta, hangi kanalda? (${dS}) Tahmin ve sakatlıklar | EuroLeague`);
+        : T(`${vs} πρόβλεψη (${dS}): ώρα, κανάλι, απουσίες | EuroLeague`, `${vs} prediction (${dS}): tip-off time, TV, injuries | EuroLeague`, `${vs} pronóstico (${dS}): horario, TV, bajas | EuroLeague`, `${vs} prognoza (${dS}): satnica, TV, povrede | Evroliga`, `${vs} maçı hangi kanalda? (${dS}): tahmin, saat ve sakatlıklar | EuroLeague`);
       const desc = pl
         ? T(`${vs} ${sc} στην ${rdTxt(r)} της ${S}: οι κορυφαίοι του αγώνα, η φόρμα, οι τέσσερις παράγοντες και τα μεταξύ τους.`, `${vs} ${sc} in ${rdTxt(r)} of the ${S}: top performers, form, four factors and head-to-head.`, `${vs} ${sc} en la ${rdTxt(r).toLowerCase()} de la ${S}: los mejores del partido, la forma, los cuatro factores y los enfrentamientos.`, `${vs} ${sc} u ${rdTxt(r)} ${S}: najbolji igrači utakmice, forma, četiri faktora i međusobni dueli.`, `${vs} ${sc} – ${S}, ${rdTxt(r)}: maçın yıldızları, form, four factors ve aralarındaki maçlar.`)
         : T(`${vs} (${dt}): εκτίμηση σκορ, πιθανότητα νίκης, φόρμα, τέσσερις παράγοντες, απουσίες και βασικοί παίκτες με τις γραμμές τους.`, `${vs} (${dt}): projected score, win probability, form, four factors, injuries and key players with their lines.`, `${vs} (${dt}): marcador estimado, probabilidad de victoria, forma, cuatro factores, bajas y jugadores clave con sus líneas.`, `${vs} (${dt}): procenjeni rezultat, verovatnoća pobede, forma, četiri faktora, povrede i ključni igrači sa linijama.`, `${vs} (${dt}): tahmini skor, kazanma ihtimali, form, four factors, sakatlıklar ve kilit oyuncuların barajları.`);
