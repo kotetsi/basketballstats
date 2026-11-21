@@ -52,3 +52,9 @@ Novasports (Ελλάδα), Movistar Plus+ (Ισπανία), Arena Sport (Σερ�
 13 | OLY | MAD | Novasports Prime | - | - | S Sport Plus
 13 | BAR | RED | Novasports 4 | - | - | S Sport
 13 | PAR | BES | Novasports Start | Baloncesto por M+ 3 | - | S Sport 2
+14 | BES | PRS | - | Baloncesto por M+ | - | -
+14 | RED | VIR | - | Baloncesto por M+ 2 | - | -
+14 | MUN | TEL | - | Baloncesto por M+ 3 | - | -
+14 | PAM | PAN | - | M+ Vamos | - | -
+14 | ASV | MIL | - | Baloncesto por M+ 4 | - | -
+14 | BAR | ULK | - | Baloncesto por M+ | - | -
