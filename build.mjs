@@ -50,6 +50,7 @@ import * as CAT from './src/compare/catalog.mjs';
 import * as PAIR from './src/compare/pairs.mjs';
 import * as TOOLS from './src/tools.mjs';
 import { simSeason, simRatings } from './src/sim/season.mjs';
+import { rapmRows, fitRapm } from './src/analytics/rapm.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), 'utf8').catch(() => '{}'));
@@ -894,6 +895,27 @@ async function main() {
   const AN = { E: await AB.loadComp(ROOT, SEASON), U: await AB.loadComp(ROOT, 'U' + SEASON.slice(1)) };
   const ANL = Object.fromEntries(Object.entries(AN).filter(([, C]) => C).map(([k, C]) => [k, AB.leagueTable(C)]));
   const ANOO = Object.fromEntries(Object.entries(AN).filter(([, C]) => C).map(([k, C]) => [k, AB.allOnOff(C)]));
+  // ---- RAPM (src/analytics/rapm.mjs): ζεύγη πεντάδων της τρέχουσας σεζόν + της προηγούμενης με βάρος 0,5, λ = 2000.
+  // Επιλογή με cross-validation ανά αγώνα (scripts/rapm-eval.mjs, 22/11/2026: 127 αγώνες 2026-27 + 349 του 2025-26):
+  // RMSE ανά stint 76,31 (όλοι μέσοι) → 76,11 (μόνο φετινή σεζόν: 76,16)· λ 1000–3000 και βάρος 0,5–1 δίνουν πρακτικά το ίδιο.
+  const RAPM = await (async () => {
+    const load = async (code, w) => {
+      const dir = path.join(ROOT, 'data', 'pbp', code), out = [];
+      let files = []; try { files = (await fs.readdir(dir)).filter(f => f.endsWith('.json')); } catch { return out; }
+      for (const f of files) { try { const g = JSON.parse(await fs.readFile(path.join(dir, f), 'utf8')); if (g.mu && !(g.chk && g.chk.ok === false && g.chk.lostSecs > 300)) out.push({ ids: g.ids.map(x => String(x).replace(/^P/, '')), mu: g.mu, w }); } catch { } }
+      return out;
+    };
+    try {
+      const cur = await load(SEASON, 1); if (cur.length < 30) return null;
+      const prev = await load('E' + (+SEASON.slice(1) - 1), 0.5);
+      const fit = fitRapm(rapmRows([...cur, ...prev]).rows, 2000);
+      const poss = {}; for (const r of rapmRows(cur).rows) for (const p of [...r.off, ...r.def]) poss[p] = (poss[p] || 0) + r.poss / 2;
+      const L = Object.keys(poss).filter(p => poss[p] >= 300).map(p => ({ id: p, o: fit.off[p], d: fit.def[p], t: fit.off[p] + fit.def[p], poss: Math.round(poss[p]) })).sort((a, b) => b.t - a.t);
+      L.forEach((x, i) => { x.rk = i + 1; });
+      console.log(`RAPM: ${cur.length} αγώνες (+${prev.length} προηγ. σεζόν), ${L.length} παίκτες ≥300 κατοχές, έδρα ${fit.h.toFixed(1)}· πρώτοι: ${L.slice(0, 3).map(x => `${x.id} ${x.t.toFixed(1)}`).join(', ')}`);
+      return { games: cur.length, prev: prev.length, h: fit.h, list: L };
+    } catch (e) { console.error('RAPM: σφάλμα', e.message); return null; }
+  })();
   if (AN.E) console.log(`Analytics: ${AN.E.games.length} αγώνες EuroLeague${AN.U ? `, ${AN.U.games.length} EuroCup` : ''} με play-by-play`);
   const MCH = await AB.loadHeaders(ROOT);
   let MPRED = null;
@@ -3812,6 +3834,16 @@ ${method}</section>`;
         return `<div class="tbl"><table class="sortable antbl"><thead><tr><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım')}</th><th data-k>${T('Αγ.', 'G', 'PJ', 'Ut.', 'Maç')}</th><th data-k>${T('Ν-Η', 'W-L', 'V-D', 'P-I', 'G-M')}</th>${K.map(k => `<th data-k title="${esc(TIP[k])}">${esc(MN[k].replace('Offensive Rating', 'ORtg').replace('Defensive Rating', 'DRtg').replace('Net Rating', 'Net'))}</th>`).join('')}<th class="l">Lineups</th></tr></thead><tbody>${rows.map(t => { const r = LT.rows[t]; return `<tr><td class="l">${cp === 'E' ? `<a href="${urlFor(LG, 'team:' + t)}#analytics">${esc(nmT(t))}</a>` : esc(nmT(t))}</td><td>${r.gp}</td><td data-v="${r.w}">${r.w}-${r.gp - r.w}</td>${K.map(k => `<td data-v="${r[k] ?? ''}" class="${k === 'net' ? 'net ' + nc(r[k]) : ''}" title="${LT.pct[t][k]}%">${af(k, r[k])}</td>`).join('')}<td class="l"><a href="${urlFor(LG, 'lu:' + cp + '-' + t)}">→</a></td></tr>`; }).join('')}
 <tr class="avg"><td class="l">${T('Μέσος όρος', 'Average', 'Media', 'Prosek', 'Ortalama')}</td><td></td><td></td>${K.map(k => `<td>${af(k, LT.avg[k])}</td>`).join('')}<td></td></tr></tbody></table></div>`;
       };
+      // RAPM: πίνακας όλων των παικτών με ≥300 κατοχές (σελίδα On/Off)
+      const rapmSec = () => {
+        if (!RAPM?.list?.length) return '';
+        const ncr = v => (v > 1 ? 'pos' : v < -1 ? 'neg' : 'neu'), byC = Object.fromEntries(players.map(p => [p.c, p])), sg = v => Math.abs(v) < 0.05 ? '0.0' : (v > 0 ? '+' : '−') + Math.abs(v).toFixed(1);
+        const rows = RAPM.list.filter(x => byC[x.id] && TEAMS[byC[x.id].t.split(';').pop()]);
+        return `<h2 id="rapm">${T('Πραγματική επίδραση παικτών (RAPM)', 'Real player impact (RAPM)', 'Impacto real de los jugadores (RAPM)', 'Stvarni uticaj igrača (RAPM)', 'Oyuncuların gerçek etkisi (RAPM)')}</h2>
+<p class="sub">${esc(T('Πόσους πόντους ανά 100 κατοχές προσθέτει κάθε παίκτης στη διαφορά της ομάδας του σε σχέση με έναν μέσο παίκτη, αφού αφαιρεθεί η επίδραση των συμπαικτών και των αντιπάλων που ήταν μαζί του στο παρκέ. Επίθεση: πόσους περισσότερους πόντους βάζει η ομάδα του· Άμυνα: πόσους λιγότερους δέχεται.', 'How many points per 100 possessions each player adds to his team’s margin compared with an average player, after removing the effect of the teammates and opponents who shared the court with him. Offense: how many more points his team scores; Defense: how many fewer it allows.', 'Cuántos puntos por cada 100 posesiones añade cada jugador al diferencial de su equipo frente a un jugador medio, descontando el efecto de los compañeros y rivales que estaban con él en pista. Ataque: cuántos puntos más anota su equipo; Defensa: cuántos menos recibe.', 'Koliko poena na 100 poseda svaki igrač dodaje razlici svog tima u odnosu na prosečnog igrača, kada se ukloni uticaj saigrača i protivnika koji su bili s njim na terenu. Napad: koliko više poena tim postiže; Odbrana: koliko manje prima.', 'Her oyuncunun, sahayı paylaştığı takım arkadaşları ve rakiplerin etkisi çıkarıldıktan sonra, ortalama bir oyuncuya göre takımının farkına 100 hücumda kaç sayı eklediği. Hücum: takımı kaç sayı fazla atıyor; Savunma: kaç sayı az yiyor.'))}</p>
+<div class="tbl"><table class="sortable antbl"><thead><tr><th data-k>#</th><th class="l">${T('Παίκτης', 'Player', 'Jugador', 'Igrač', 'Oyuncu')}</th><th class="l">${T('Ομάδα', 'Team', 'Equipo', 'Tim', 'Takım')}</th><th data-k>${T('Κατοχές', 'Poss.', 'Posesiones', 'Posedi', 'Hücum')}</th><th data-k>${T('Επίθεση', 'Offense', 'Ataque', 'Napad', 'Hücum')}</th><th data-k>${T('Άμυνα', 'Defense', 'Defensa', 'Odbrana', 'Savunma')}</th><th data-k>${T('Σύνολο', 'Total', 'Total', 'Ukupno', 'Toplam')}</th></tr></thead><tbody>${rows.map((x, i) => { const p = byC[x.id], t = p.t.split(';').pop(); return `<tr><td data-v="${i + 1}">${i + 1}</td><td class="l"><a href="${urlFor(LG, 'player:' + p.s)}">${esc(niceName(p.n))}</a></td><td class="l">${esc(tName(t))}</td><td data-v="${x.poss}">${x.poss}</td><td class="net ${ncr(x.o)}" data-v="${x.o}">${sg(x.o)}</td><td class="net ${ncr(x.d)}" data-v="${x.d}">${sg(x.d)}</td><td class="net ${ncr(x.t)}" data-v="${x.t}"><b>${sg(x.t)}</b></td></tr>`; }).join('')}</tbody></table></div>
+<p class="note">${esc(T(`Ridge regression (RAPM) σε όλα τα κομμάτια των αγώνων χωρίς αλλαγή πεντάδας, από το επίσημο play-by-play: ${RAPM.games} αγώνες της σεζόν και, με μισό βάρος, ${RAPM.prev} της προηγούμενης. Οι τιμές «μαζεύονται» προς το 0 ώστε να μη βγαίνουν ακραίες με μικρό δείγμα· εμφανίζονται παίκτες με τουλάχιστον 300 κατοχές φέτος. Η έδρα αξίζει ${sg(RAPM.h)} πόντους ανά 100 κατοχές. Στατιστική εκτίμηση με αβεβαιότητα: διαφορές κάτω από 1 πόντο δεν είναι ουσιαστικές.`, `Ridge regression (RAPM) on every stretch of play without a lineup change, from the official play-by-play: ${RAPM.games} games this season and, at half weight, ${RAPM.prev} from last season. Values are shrunk towards 0 so that small samples do not produce extremes; players with at least 300 possessions this season are shown. Home court is worth ${sg(RAPM.h)} points per 100 possessions. A statistical estimate with uncertainty: differences below 1 point are not meaningful.`, `Ridge regression (RAPM) sobre cada tramo de juego sin cambio de quinteto, a partir del play-by-play oficial: ${RAPM.games} partidos de esta temporada y, con la mitad de peso, ${RAPM.prev} de la anterior. Los valores se acercan a 0 para que las muestras pequeñas no den extremos; se muestran jugadores con al menos 300 posesiones esta temporada. El factor cancha vale ${sg(RAPM.h)} puntos por 100 posesiones. Estimación estadística con incertidumbre: diferencias de menos de 1 punto no son significativas.`, `Ridge regresija (RAPM) na svakom delu igre bez promene petorke, iz zvaničnog play-by-play zapisa: ${RAPM.games} utakmica ove sezone i, sa upola manjom težinom, ${RAPM.prev} iz prošle. Vrednosti se skupljaju ka 0 da mali uzorak ne bi dao ekstreme; prikazani su igrači sa najmanje 300 poseda ove sezone. Domaći teren vredi ${sg(RAPM.h)} poena na 100 poseda. Statistička procena sa nesigurnošću: razlike manje od 1 poena nisu značajne.`, `Resmi play-by-play verisinden, beşli değişmeden oynanan her bölüm üzerinde ridge regresyon (RAPM): bu sezon ${RAPM.games} maç ve yarım ağırlıkla geçen sezondan ${RAPM.prev} maç. Küçük örneklemlerin uç değerler üretmemesi için değerler 0’a doğru çekilir; bu sezon en az 300 hücum oynamış oyuncular gösterilir. Saha avantajı 100 hücumda ${sg(RAPM.h)} sayı değerinde. Belirsizlik içeren istatistiksel bir tahmindir: 1 sayının altındaki farklar anlamlı değildir.`))}</p>`;
+      };
       const ooTable = cp => {
         const L = (ANOO[cp] || []).filter(x => x.on.min >= 100 && (cp === 'U' || TEAMS[x.t])).sort((a, b) => b.diff.net - a.diff.net);
         if (!L.length) return '';
@@ -3829,7 +3861,7 @@ ${method}</section>`;
       await simplePage('onoff', { view: 'lead', title: T(`On/Off EuroLeague ${SEASON_LABEL}: Net Rating με και χωρίς κάθε παίκτη | ${SITE_NAME}`, `EuroLeague ${SEASON_LABEL} on/off: net rating with and without every player | ${SITE_NAME}`, `On/off EuroLeague ${SEASON_LABEL}: Net Rating con y sin cada jugador | ${SITE_NAME}`, `On/off Evroliga ${SEASON_LABEL}: Net Rating sa i bez svakog igrača | ${SITE_NAME}`, `EuroLeague ${SEASON_LABEL} on/off: her oyuncuyla ve onsuz net rating | ${SITE_NAME}`),
         desc: T('Πόσο καλύτερα ή χειρότερα παίζει κάθε ομάδα όταν ένας παίκτης είναι στο παρκέ: Net, ORtg και DRtg on/off για EuroLeague και EuroCup.', 'How much better or worse each team plays with a player on court: on/off net, offensive and defensive rating for the EuroLeague and EuroCup.', 'Cuánto mejor o peor juega cada equipo con un jugador en pista: Net, ORtg y DRtg on/off en la EuroLeague y la EuroCup.', 'Koliko bolje ili lošije tim igra kada je igrač na terenu: on/off Net, ORtg i DRtg u Evroligi i Evrokupu.', 'Bir oyuncu sahadayken her takım ne kadar daha iyi ya da kötü oynuyor: EuroLeague ve EuroCup için on/off net, hücum ve savunma rating.'),
         main: `<article class="article lead wide anpage"><p class="crumbs"><a href="${urlFor(LG, 'ana')}">Team Analytics</a></p><h1>On/Off ${SEASON_LABEL}</h1><p class="lede2">${esc(T('Παίκτες με τουλάχιστον 100 λεπτά. On/Off = Net Rating ομάδας με τον παίκτη στο παρκέ μείον χωρίς αυτόν. Κλικ σε παίκτη για φίλτρα, τάση και WOWY.', 'Players with at least 100 minutes. On/off = team net rating with the player on court minus without him. Click a player for filters, trend and WOWY.', 'Jugadores con al menos 100 minutos. On/off = Net Rating del equipo con el jugador en pista menos sin él. Pulsa un jugador para filtros, tendencia y WOWY.', 'Igrači sa najmanje 100 minuta. On/off = Net Rating tima sa igračem na terenu minus bez njega. Klik na igrača za filtere, trend i WOWY.', 'En az 100 dakika oynamış oyuncular. On/off = oyuncu sahadayken takımın net rating değeri eksi o yokken. Filtreler, trend ve WOWY için bir oyuncuya tıkla.'))}</p>
-<h2>EuroLeague</h2>${ooTable('E')}${AN.U ? `<h2>EuroCup</h2>${ooTable('U')}` : ''}${method}</article>${anCtx('E')}`,
+${rapmSec()}<h2>On/Off · EuroLeague</h2>${ooTable('E')}${AN.U ? `<h2>On/Off · EuroCup</h2>${ooTable('U')}` : ''}${method}</article>${anCtx('E')}`,
         ld: crumbs([[SITE_NAME, B(LG)], ['Team Analytics', urlFor(LG, 'ana')], ['On/Off', urlFor(LG, 'onoff')]]) });
     }
     const srow = Object.fromEntries(league.stand.map(s => [s[1], s]));
