@@ -84,6 +84,9 @@ jobs:
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           ODDS_PROVIDER: ${{ vars.ODDS_PROVIDER }}
+          # προαιρετικές μεταβλητές του repo (Settings → Variables): κενές = προεπιλογές του scripts/odds.mjs
+          ODDS_MONTHLY_CAP: ${{ vars.ODDS_MONTHLY_CAP }}
+          ODDSPAPI_WINDOWS: ${{ vars.ODDSPAPI_WINDOWS }}
         run: node scripts/odds.mjs ${{ github.event.inputs.odds_force == 'true' && '--force' || '' }}; echo "rc=$?" >> "$GITHUB_OUTPUT"
         continue-on-error: true
       - name: "Αποδόσεις κύριων αγορών από δεύτερο πάροχο (The Odds API, μόνο αν υπάρχει THEODDSAPI_KEY)"
