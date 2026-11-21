@@ -211,6 +211,17 @@ export const jurisdictions = (key, title, lic = LIC, gr = GRREG) => {
     return (!c || c === j) && Object.values(lic?.[j]?.brands || {}).some(al => al.some(a => { const x = clean(a); return x.length >= 3 && n.includes(x); }));
   });
 };
+// Έλεγχος λογικής για αγορές δύο επιλογών: και οι δύο τιμές > 1 και άθροισμα αντίστροφων (overround) 0,98–1,15.
+// Πιάνει τιμές-«σκουπίδια» όπως 1,01/1,01 ή 1,52/1,02 (Betfair Exchange χωρίς ρευστότητα), που δείχνουν ψεύτικη αξία.
+export const saneTwoWay = (a, b) => a > 1 && b > 1 && 1 / a + 1 / b >= 0.98 && 1 / a + 1 / b <= 1.15;
+export function saneMarkets(m = {}) {
+  const out = { ...m };
+  if (out.ml && !saneTwoWay(out.ml[0], out.ml[1])) delete out.ml;
+  if (out.spread && !saneTwoWay(out.spread.h, out.spread.a)) delete out.spread;
+  if (out.total && !saneTwoWay(out.total.over, out.total.under)) delete out.total;
+  return out;
+}
+
 async function main() {
   LIC = await readJSON(path.join(DIR, 'licensed.json'), null);
   GRREG = await readJSON(path.join(DIR, 'bookmakers-gr.json'), null);
@@ -247,7 +258,10 @@ async function main() {
     for (const [k, b] of Object.entries(prev?.books || {})) if ((b.src || 'oddspapi') !== PROVIDER) G.books[k] = b;
     const brandOf = b => clean(b.title || b.key).replace(/\s+/g, '');
     const propSnapStart = propSnaps.length;
-    for (const b of evBooks.filter(b => jurisdictions(b.key, b.title).length)) {
+    for (const b0 of evBooks.filter(b => jurisdictions(b.key, b.title).length)) {
+      // αγορές με αδύνατες τιμές (π.χ. Betfair Exchange χωρίς ρευστότητα: 1,01 και στις δύο πλευρές) δεν αποθηκεύονται
+      const b = { ...b0, markets: saneMarkets(b0.markets) };
+      if (!Object.keys(b.markets).length) continue;
       // ο ίδιος bookmaker από δύο παρόχους: κρατάμε του oddspapi (έχει props και ελέγχεται από το μητρώο)
       if (!PRIMARY && Object.values(G.books).some(x => (x.src || 'oddspapi') !== PROVIDER && brandOf(x) === brandOf(b))) continue;
       if (PRIMARY) for (const [k, x] of Object.entries(G.books)) if (x.src && x.src !== PROVIDER && brandOf(x) === brandOf(b)) delete G.books[k];
