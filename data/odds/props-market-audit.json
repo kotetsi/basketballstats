@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-21T23:36:48.371Z",
+  "generatedAt": "2026-11-21T23:41:18.340Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-21T23:11:30.782Z",
-  "collectorUpdatedAgeHours": 0.42,
-  "lastIngestAt": "2026-11-20T22:06:44.725Z",
-  "lastIngestEvents": 3,
-  "lastIngestMatched": 3,
+  "collectorUpdated": "2026-11-21T23:41:17.938Z",
+  "collectorUpdatedAgeHours": 0,
+  "lastIngestAt": "2026-11-21T23:41:17.938Z",
+  "lastIngestEvents": 0,
+  "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-17T15:30:22.910Z",
-  "latestQuoteAgeHours": 104.11,
+  "latestQuoteAgeHours": 104.18,
   "upcomingGames": 10,
   "gamesWithGreekBooks": 3,
   "greekBookGameQuotes": 3,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-17T15:30:22.910Z",
       "oldest": "2026-11-17T15:30:21.949Z",
-      "newestAgeHours": 104.11
+      "newestAgeHours": 104.18
     }
   ],
   "events": [
@@ -45,7 +45,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:21.949Z",
-          "ageHours": 104.11
+          "ageHours": 104.18
         }
       ]
     },
@@ -64,7 +64,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:22.365Z",
-          "ageHours": 104.11
+          "ageHours": 104.18
         }
       ]
     },
@@ -83,7 +83,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:22.910Z",
-          "ageHours": 104.11
+          "ageHours": 104.18
         }
       ]
     },
@@ -165,6 +165,7 @@
   },
   "warnings": [
     "Δεν βρέθηκαν ελληνικά feeds με Player Props στους προσεχείς αγώνες.",
-    "Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες)."
+    "Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).",
+    "Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς."
   ]
 }
