@@ -625,25 +625,16 @@ function renderPosDef(){
   sortable(document.getElementById('fanPosT'),[{k:'team',h:U.pd.team,l:1,v:c=>tName(c),f:c=>tlink(c),d:1}].concat(POSK.map(k=>({k,h:U.pd[k],t:U.pd.cellT,v:c=>PD[c][k][0],f:c=>cell(c,k),d:-1}))),codes,'Center',-1,c=>{location.href=tUrl(c);});
 }
 
-// ---- 5. Season simulation: chances of top 4, playoffs (1-6), play-in (7-10)
-function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+// ---- 5. Season simulation: chances of top 4, playoffs (1-6), play-in (7-10), Final Four and title (simSeason: src/sim/season.mjs, inlined by build.mjs)
 let SIMC=null;
 function simulate(){
   if(SIMC)return SIMC;
-  const teams=STAND.map(s=>s[1]).filter(c=>TS[c]),idx=Object.fromEntries(teams.map((c,i)=>[c,i])),n=teams.length,N=5000;
-  const R=rng(20262027+GAMES.filter(g=>g[6]).length),gs=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R());};
-  const bW=teams.map(c=>SROW[c][2]),bD=teams.map(c=>SROW[c][4]-SROW[c][5]);
-  const rem=GAMES.filter(g=>!g[6]&&g[2] in idx&&g[3] in idx).map(g=>{const x=predict(g[2],g[3]);return [idx[g[2]],idx[g[3]],x?x.ph-x.pa:HCA];});
-  const cnt=teams.map(()=>new Array(n).fill(0)),ws=new Array(n).fill(0);
-  for(let s=0;s<N;s++){const W=bW.slice(),Dd=bD.slice(),off=teams.map(()=>3*gs());
-    for(const [h,a,m] of rem){const d=m+off[h]-off[a]+11*gs();if(d>0)W[h]++;else W[a]++;Dd[h]+=d;Dd[a]-=d;}
-    teams.map((_,i)=>i).sort((x,y)=>W[y]-W[x]||Dd[y]-Dd[x]).forEach((t,p)=>{cnt[t][p]++;});
-    for(let i=0;i<n;i++)ws[i]+=W[i];}
-  const tot=teams.map(c=>SROW[c][2]+SROW[c][3]+rem.filter(g=>teams[g[0]]===c||teams[g[1]]===c).length);
-  SIMC={N,rem:rem.length,by:Object.fromEntries(teams.map((c,i)=>{const p=cnt[i].map(x=>x/N),sum=(a,b)=>p.slice(a,b).reduce((x,y)=>x+y,0);
-    let best=0;p.forEach((x,j)=>{if(x>p[best])best=j;});
-    return [c,{p,top4:sum(0,4),top6:sum(0,6),pin:sum(6,10),out:sum(10,n),w:ws[i]/N,g:tot[i],best:best+1}];}))};
-  return SIMC;
+  const teams=STAND.map(s=>s[1]).filter(c=>TS[c]),idx=Object.fromEntries(teams.map((c,i)=>[c,i]));
+  const mg=(i,j)=>{const x=predict(teams[i],teams[j]);return x?x.ph-x.pa:HCA;};
+  const rem=GAMES.filter(g=>!g[6]&&g[2] in idx&&g[3] in idx).map(g=>[idx[g[2]],idx[g[3]],mg(idx[g[2]],idx[g[3]])]);
+  const S=simSeason({teams,bW:teams.map(c=>SROW[c][2]),bD:teams.map(c=>SROW[c][4]-SROW[c][5]),rem,mg,hca:HCA,N:5000,seed:20262027+GAMES.filter(g=>g[6]).length});
+  teams.forEach(c=>{S.by[c].g=SROW[c][2]+SROW[c][3]+rem.filter(g=>teams[g[0]]===c||teams[g[1]]===c).length;});
+  SIMC=S;return SIMC;
 }
 const pc0=v=>v>=.995?'>99%':v<=0?'–':v<.01?'<1%':Math.round(v*100)+'%';
 const pcell=v=>'<span class="pcl" style="--a:'+Math.round(v*100)+'%">'+pc0(v)+'</span>';
@@ -651,7 +642,7 @@ function renderOdds(){
   const el=document.getElementById('standOdds');if(!el||!U.po)return;const S=simulate();
   if(!S.rem){el.hidden=true;return;}
   const codes=Object.keys(S.by);
-  el.innerHTML='<h2>'+U.po.title+'</h2><p class="sub">'+fm(U.po.sub,{n:S.N.toLocaleString(),g:S.rem})+'</p><div class="tbl"><table id="oddsT" class="sortable"></table></div><p class="note">'+U.po.note+'</p>';
+  el.innerHTML='<h2>'+U.po.title+'</h2><p class="sub">'+fm(U.po.sub,{n:S.N.toLocaleString(),g:S.rem})+'</p><div class="tbl"><table id="oddsT" class="sortable"></table></div><p class="note">'+U.po.note+(U.po.note2||'')+'</p>';
   const x=c=>S.by[c];
   sortable(document.getElementById('oddsT'),[
     {k:'pos',h:'#',v:c=>-SROW[c][0],f:c=>SROW[c][0],d:-1},
@@ -661,14 +652,32 @@ function renderOdds(){
     {k:'top6',h:U.po.top6,v:c=>x(c).top6,f:c=>pcell(x(c).top6)},
     {k:'pin',h:U.po.pin,v:c=>x(c).pin,f:c=>pcell(x(c).pin)},
     {k:'out',h:U.po.out,v:c=>x(c).out,f:c=>pcell(x(c).out)},
-    {k:'best',h:U.po.best,v:c=>-x(c).best,f:c=>ord(x(c).best)}],codes,'top6',-1,c=>{location.href=tUrl(c);});
+    {k:'f4',h:U.po.f4,v:c=>x(c).f4,f:c=>pcell(x(c).f4)},
+    {k:'champ',h:U.po.champ,t:U.po.champT,v:c=>x(c).champ,f:c=>pcell(x(c).champ)},
+    {k:'best',h:U.po.best,v:c=>-x(c).best,f:c=>ord(x(c).best)}],codes,'champ',-1,c=>{location.href=tUrl(c);});
+  const h=titleHist(codes.slice().sort((a,b)=>x(b).champ-x(a).champ).slice(0,6));
+  if(h)el.insertAdjacentHTML('beforeend',h);
+}
+// chart: title odds after every round (D.tho from data/title-odds.json)
+function titleHist(codes){
+  const H=D.tho||{},rs=Object.keys(H).map(Number).sort((a,b)=>a-b);if(rs.length<2||!U.po.histT)return '';
+  const W=640,Hh=250,L=34,Rr=58,T=12,B=26,mx=Math.max(.1,...rs.flatMap(r=>codes.map(c=>(H[r].t[c]||[])[3]||0)));
+  const st=mx>.4?.1:.05,top=Math.ceil(mx/st-1e-9)*st,X=i=>L+(W-L-Rr)*(rs.length>1?i/(rs.length-1):0),Y=v=>T+(Hh-T-B)*(1-v/top);
+  let g='';for(let k=0;k*st<=top+1e-9;k++){const v=k*st;g+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" class="thg"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" class="tht" text-anchor="end">'+Math.round(v*100)+'%</text>';}
+  rs.forEach((r,i)=>{if(rs.length<=12||i%2===0||i===rs.length-1)g+='<text x="'+X(i)+'" y="'+(Hh-6)+'" class="tht" text-anchor="middle">'+fm(U.po.rnd,{n:r})+'</text>';});
+  const ends=[],col=c=>{const m=/^#?([0-9a-f]{6})$/i.exec(tColor(c));if(!m)return '#888';const n=parseInt(m[1],16),l=(0.2126*(n>>16)+0.7152*((n>>8)&255)+0.0722*(n&255))/255;return l>.85||l<.08?'#888':'#'+m[1];};
+  codes.forEach(c=>{const pts=rs.map((r,i)=>{const v=(H[r].t[c]||[])[3];return v==null?null:[X(i),Y(v)];}).filter(Boolean);if(!pts.length)return;
+    g+='<polyline fill="none" stroke="'+col(c)+'" stroke-width="3" points="'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'"/>';
+    const e=pts[pts.length-1];ends.push([c,e[1]]);g+='<circle cx="'+e[0]+'" cy="'+e[1]+'" r="4" fill="'+col(c)+'"/>';});
+  ends.sort((a,b)=>a[1]-b[1]);let last=-99;ends.forEach(e=>{const y=Math.max(e[1]+4,last+13);last=y;g+='<text x="'+(W-Rr+8)+'" y="'+y+'" class="thl">'+e[0]+'</text>';});
+  return '<h3>'+U.po.histT+'</h3><p class="sub">'+U.po.histSub+'</p><svg class="thist" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="'+hx(U.po.histT)+'">'+g+'</svg>'+(rs.some(r=>H[r].b)&&U.po.histB?'<p class="note">'+U.po.histB+'</p>':'');
 }
 function renderTOdds(c){
   const el=document.getElementById('tOdds');if(!el||!U.po)return;const S=simulate(),x=S.by[c];
   if(!x||!S.rem){el.hidden=true;return;}
   const bars=x.p.map((v,i)=>'<i title="'+hx(ord(i+1)+': '+pc0(v))+'" style="height:'+Math.max(2,Math.round(v/Math.max(...x.p)*100))+'%" class="'+(i<6?'z1':i<10?'z2':'z0')+'"></i>').join('');
   el.innerHTML='<h2>'+U.po.teamT+'</h2><p class="sub">'+fm(U.po.teamSub,{r:Math.round(x.w)+'–'+(x.g-Math.round(x.w)),b:ord(x.best)})+'</p>'+
-    '<div class="otiles"><div><b>'+pc0(x.top4)+'</b><span>'+U.po.top4+'</span></div><div><b>'+pc0(x.top6)+'</b><span>'+U.po.top6+'</span></div><div><b>'+pc0(x.pin)+'</b><span>'+U.po.pin+'</span></div><div><b>'+pc0(x.out)+'</b><span>'+U.po.out+'</span></div></div>'+
+    '<div class="otiles"><div><b>'+pc0(x.top4)+'</b><span>'+U.po.top4+'</span></div><div><b>'+pc0(x.top6)+'</b><span>'+U.po.top6+'</span></div><div><b>'+pc0(x.pin)+'</b><span>'+U.po.pin+'</span></div><div><b>'+pc0(x.out)+'</b><span>'+U.po.out+'</span></div>'+(U.po.f4?'<div><b>'+pc0(x.f4)+'</b><span>'+U.po.f4+'</span></div><div><b>'+pc0(x.champ)+'</b><span>'+U.po.champ+'</span></div>':'')+'</div>'+
     '<div class="odist" role="img" aria-label="'+hx(U.po.dist)+'">'+bars+'</div><div class="odistl"><span>1</span><span>'+x.p.length+'</span></div><p class="note">'+U.po.dist+' · <a href="'+BASE+({el:'vathmologia/',en:'standings/',es:'clasificacion/',sr:'tabela/',tr:'puan-durumu/'}[LGK]||'')+'#standOdds">'+U.po.all+'</a></p>';
 }
 

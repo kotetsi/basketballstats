@@ -314,7 +314,8 @@ a.pklink:hover{color:var(--accent)}
 /* άμυνα ανά θέση, πιθανότητες */
 .pdc{display:inline-block;min-width:3.4em;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;padding:1px 6px;border-radius:5px;background:color-mix(in srgb,var(--e) 22%,transparent);border-left:3px solid var(--e)}
 .pcl{display:inline-block;min-width:3.6em;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--accent) var(--a),transparent);color:var(--ink)}
-.otiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.otiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.thist{width:100%;max-width:720px;height:auto;display:block;margin:6px 0 4px}.thist .thg{stroke:var(--line);stroke-width:1}.thist .tht{font-size:11px;fill:currentColor;opacity:.65}.thist .thl{font-size:12px;font-weight:700;fill:currentColor}
 .otiles div{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
 .otiles b{display:block;font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
 .otiles span{font-size:12px;color:var(--muted)}
