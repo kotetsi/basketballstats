@@ -86,6 +86,14 @@ jobs:
           ODDS_PROVIDER: ${{ vars.ODDS_PROVIDER }}
         run: node scripts/odds.mjs ${{ github.event.inputs.odds_force == 'true' && '--force' || '' }}; echo "rc=$?" >> "$GITHUB_OUTPUT"
         continue-on-error: true
+      - name: "Αποδόσεις κύριων αγορών από δεύτερο πάροχο (The Odds API, μόνο αν υπάρχει THEODDSAPI_KEY)"
+        # 1 κλήση = όλοι οι επόμενοι αγώνες· 3 αγορές × 2 περιοχές = 6 credits ανά κλήση, ~47 εκτελέσεις/μήνα ≈ 280 από τα 500 δωρεάν credits
+        env:
+          ODDS_API_KEY: ${{ secrets.THEODDSAPI_KEY }}
+          ODDS_PROVIDER: theoddsapi
+          ODDS_REGIONS: eu,uk
+        run: node scripts/odds.mjs || echo "theoddsapi - σφάλμα"
+        continue-on-error: true
       - name: "Market Data Audit: ελληνικά Player Props και freshness"
         if: always()
         run: node scripts/props-market-audit.mjs | tee data/odds/props-market-audit.json

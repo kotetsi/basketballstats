@@ -1,9 +1,15 @@
 // Odds ingestion από ΑΔΕΙΟΔΟΤΗΜΕΝΟ πάροχο (όχι scraping bookmakers).
 // Χρειάζεται ODDS_API_KEY στα GitHub Secrets. Χωρίς κλειδί δεν κάνει τίποτα.
 //
-//   ODDS_PROVIDER = theoddsapi (προεπιλογή)   · adapters: theoddsapi, generic (JSON σε ODDS_GENERIC_URL)
-//   ODDS_MIN_INTERVAL_MIN = 90                · rate limiting ανάμεσα σε κλήσεις (εξοικονόμηση quota)
+//   ODDS_PROVIDER = oddspapi (προεπιλογή)     · adapters: oddspapi, theoddsapi, generic (JSON σε ODDS_GENERIC_URL)
+//   ODDS_MIN_INTERVAL_MIN = 180               · rate limiting ανάμεσα σε κλήσεις (εξοικονόμηση quota, όχι για oddspapi)
 //   node scripts/odds.mjs [--force]           · --force: αγνοεί το rate limit
+//
+// Πολλοί πάροχοι: το workflow τρέχει το script μία φορά ανά πάροχο (π.χ. oddspapi για props, theoddsapi για τις
+// κύριες αγορές). Οι τιμές ΣΥΓΧΩΝΕΥΟΝΤΑΙ στο latest.json: κάθε bookmaker έχει «src» = πάροχος· ο oddspapi έχει
+// προτεραιότητα, και ένας bookmaker που υπάρχει ήδη από άλλον πάροχο δεν διπλασιάζεται. Οι bookmakers του
+// theoddsapi γράφονται με πρόθεμα «toa_», ώστε να μη θεωρηθούν ποτέ επιβεβαιωμένα ελληνικά feeds του μητρώου.
+// Η κατάσταση των άλλων παρόχων (εκτός oddspapi) γράφεται στο status.providers[<πάροχος>].
 //
 // Αρχεία:
 //   data/odds/history.jsonl        αλλαγές main markets (append-only, idempotent)
@@ -83,7 +89,9 @@ const ADAPTERS = {
     const pick = (o, ks) => { for (const k of ks) if (o[k] != null) return o[k]; return null; };
     const metaF = path.join(DIR, 'oddspapi_meta.json');
     let meta = await readJSON(metaF, {});
-    if (!meta.at || Date.now() - new Date(meta.at) > 7 * 864e5) {
+    // ομάδες/αγορές/bookmakers αλλάζουν σπάνια: ανανέωση κάθε ODDSPAPI_META_DAYS μέρες (3 κλήσεις)
+    const META_DAYS = +(process.env.ODDSPAPI_META_DAYS || 30);
+    if (!meta.at || Date.now() - new Date(meta.at) > META_DAYS * 864e5) {
       const parts = await call('participants', { sportId: SPORT, tournamentId: TOUR });
       const markets = await call('markets', { sportId: SPORT });
       const books = await call('bookmakers', {}).catch(() => []);
@@ -95,10 +103,16 @@ const ADAPTERS = {
       };
       await fs.writeFile(metaF, JSON.stringify(meta));
     }
-    // fixtures (μία φορά τη μέρα)
+    // fixtures: όχι κάθε μέρα. Νέα κλήση μόνο αν η λίστα είναι παλιότερη από ODDSPAPI_FIXTURES_DAYS μέρες
+    // ή αν κάποιος δικός μας αγώνας EuroLeague των επόμενων 96 ωρών λείπει από αυτήν.
     const today = new Date().toISOString().slice(0, 10);
-    if (st.fixturesDay !== today || !st.fixtures) {
-      const to = new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10);
+    const FIX_DAYS = +(process.env.ODDSPAPI_FIXTURES_DAYS || 3);
+    const fixAge = st.fixturesDay ? (Date.parse(today) - Date.parse(st.fixturesDay)) / 864e5 : Infinity;
+    const ours = (ctx.fx?.fixtures || []).filter(f => f.comp === 'E' && new Date(f.t) - Date.now() > 0 && new Date(f.t) - Date.now() < 96 * 3600e3);
+    const missing = ours.some(f => !(st.fixtures || []).some(x => Math.abs(new Date(x.start) - new Date(f.t)) < 3 * 3600e3));
+    // «λείπει αγώνας»: το πολύ μία επιπλέον κλήση τη μέρα (π.χ. αναβληθείς αγώνας που δεν θα εμφανιστεί ποτέ)
+    if (!st.fixtures || fixAge >= FIX_DAYS || (missing && st.fixturesDay !== today)) {
+      const to = new Date(Date.now() + (FIX_DAYS + 4) * 864e5).toISOString().slice(0, 10);
       const fx = await call('fixtures', { sportId: SPORT, tournamentId: TOUR, from: today, to });
       st.fixtures = arr(fx).map(f => ({ id: String(pick(f, ['fixtureId', 'id'])), p1: String(f.participant1Id), p2: String(f.participant2Id), start: f.startTime || f.trueStartTime }));
       st.fixturesDay = today;
@@ -111,7 +125,9 @@ const ADAPTERS = {
     for (const f of st.fixtures) {
       const hrs = (new Date(f.start) - now) / 3600e3;
       if (hrs < -1 || hrs > 96) continue;
-      const WINS = (process.env.ODDSPAPI_WINDOWS || 'open,mid,close').split(',');
+      // προεπιλογή: μόνο «mid» (~1 μέρα πριν, τότε ανεβαίνουν τα props) και «close» (για το CLV)·
+      // το «open» κόστιζε μία κλήση ανά αγώνα και εξαντλούσε το μηνιαίο όριο των 250 κλήσεων
+      const WINS = (process.env.ODDSPAPI_WINDOWS || 'mid,close').split(',');
       // player props συνήθως ανεβαίνουν ~1 μέρα πριν: αν η πρώτη λήψη δεν είχε props, παίρνουμε και το «mid» παράθυρο
       if ((st.props ||= {})[f.id] === 0 && !WINS.includes('mid')) WINS.push('mid');
       const win = hrs <= 4 ? 'close' : hrs <= 30 ? 'mid' : 'open';
@@ -205,10 +221,13 @@ async function main() {
   const fx = await readJSON(path.join(ROOT, 'data', 'matchups', 'fixtures.json'), { fixtures: [] });
   const now = Date.now();
   const soon = fx.fixtures.filter(f => f.comp === 'E' && new Date(f.t) - now < 4 * 864e5 && new Date(f.t) - now > -3 * 3600e3);
-  if (!FORCE && PROVIDER !== 'oddspapi' && status.lastCall && now - new Date(status.lastCall) < MIN_INT * 60000) { console.log('Odds: rate limit, επόμενη κλήση αργότερα'); return stale(status); }
+  // ο oddspapi γράφει την κατάσταση στο πάνω επίπεδο (όπως πριν)· οι υπόλοιποι πάροχοι στο status.providers[πάροχος]
+  const PRIMARY = PROVIDER === 'oddspapi';
+  const pst = PRIMARY ? status : ((status.providers ||= {})[PROVIDER] ||= {});
+  if (!FORCE && !PRIMARY && pst.lastCall && now - new Date(pst.lastCall) < MIN_INT * 60000) { console.log('Odds: rate limit, επόμενη κλήση αργότερα'); return stale(pst); }
   if (!FORCE && !soon.length) { console.log('Odds: κανένας αγώνας τις επόμενες 4 μέρες'); return 0; }
   let res;
-  try { res = await ADAPTERS[PROVIDER]({ status, fx }); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); status.lastError = new Date().toISOString(); status.error = e.message; await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(status, true); }
+  try { res = await ADAPTERS[PROVIDER]({ status, fx }); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); pst.lastError = new Date().toISOString(); pst.error = e.message; await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(pst, true); }
   const ts = new Date().toISOString();
   // αντιστοίχιση με τους δικούς μας αγώνες
   const snaps = [], propSnaps = [], latest = await readJSON(path.join(DIR, 'latest.json'), { games: {} });
@@ -217,13 +236,22 @@ async function main() {
     const h = codeOf(ev.home), a = codeOf(ev.away);
     const f = fx.fixtures.find(x => x.comp === 'E' && x.h === h && x.a === a && Math.abs(new Date(x.t) - new Date(ev.commence)) < 3 * 864e5);
     if (!f) continue;
-    if (!ev.books.some(b => jurisdictions(b.key, b.title).length)) continue;
+    // bookmakers του theoddsapi με πρόθεμα: δεν συμπίπτουν ποτέ με feeds του oddspapi/του ελληνικού μητρώου
+    const evBooks = PRIMARY ? ev.books : ev.books.map(b => ({ ...b, key: `toa_${b.key}` }));
+    if (!evBooks.some(b => jurisdictions(b.key, b.title).length)) continue;
     matched++;
     const gid = `E-${f.r}-${h}-${a}`;
-    const G = (latest.games[gid] = { t: f.t, commence: ev.commence, provider: PROVIDER, books: {}, updated: ts });
+    // συγχώνευση: κρατάμε τους bookmakers των ΑΛΛΩΝ παρόχων και ξαναγράφουμε μόνο του τρέχοντος
+    const prev = latest.games[gid];
+    const G = (latest.games[gid] = { t: f.t, commence: ev.commence, provider: prev?.provider || PROVIDER, books: {}, updated: ts });
+    for (const [k, b] of Object.entries(prev?.books || {})) if ((b.src || 'oddspapi') !== PROVIDER) G.books[k] = b;
+    const brandOf = b => clean(b.title || b.key).replace(/\s+/g, '');
     const propSnapStart = propSnaps.length;
-    for (const b of ev.books.filter(b => jurisdictions(b.key, b.title).length)) {
-      G.books[b.key] = { title: b.title, upd: b.upd, lic: jurisdictions(b.key, b.title), ...b.markets };
+    for (const b of evBooks.filter(b => jurisdictions(b.key, b.title).length)) {
+      // ο ίδιος bookmaker από δύο παρόχους: κρατάμε του oddspapi (έχει props και ελέγχεται από το μητρώο)
+      if (!PRIMARY && Object.values(G.books).some(x => (x.src || 'oddspapi') !== PROVIDER && brandOf(x) === brandOf(b))) continue;
+      if (PRIMARY) for (const [k, x] of Object.entries(G.books)) if (x.src && x.src !== PROVIDER && brandOf(x) === brandOf(b)) delete G.books[k];
+      G.books[b.key] = { title: b.title, upd: b.upd, lic: jurisdictions(b.key, b.title), src: PROVIDER, ...b.markets };
       const add = (market, sel, price, line) => price > 1 && snaps.push({ provider: PROVIDER, event: gid, book: b.key, market, sel, line: line ?? null, price, t: b.upd || ts, seen: ts });
       if (b.markets.ml) { add('ml', 'home', b.markets.ml[0]); add('ml', 'away', b.markets.ml[1]); }
       if (b.markets.spread) { add('spread', 'home', b.markets.spread.h, b.markets.spread.line); add('spread', 'away', b.markets.spread.a, -b.markets.spread.line); }
@@ -253,10 +281,11 @@ async function main() {
   if (added.length) await fs.appendFile(hf, added.map(x => JSON.stringify(x)).join('\n') + '\n');
   if (propAdded.length) await fs.appendFile(phf, propAdded.map(x => JSON.stringify(x)).join('\n') + '\n');
   const totalAdded = added.length + propAdded.length;
-  latest.provider = PROVIDER; latest.updated = ts;
+  if (PRIMARY || !latest.provider) latest.provider = PROVIDER;
+  latest.updated = ts;
   await fs.writeFile(path.join(DIR, 'latest.json'), JSON.stringify(latest));
-  Object.assign(status, { provider: PROVIDER, lastCall: ts, lastSuccess: ts, events: res.events.length, matched, added: totalAdded, propAdded: propAdded.length, quota: res.quota, error: null });
-  if (totalAdded) status.lastChange = ts;
+  Object.assign(pst, { provider: PROVIDER, lastCall: ts, lastSuccess: ts, events: res.events.length, matched, added: totalAdded, propAdded: propAdded.length, quota: res.quota, error: null });
+  if (totalAdded) pst.lastChange = ts;
   await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1));
   console.log(`Odds (${PROVIDER}): ${res.events.length} αγώνες από τον πάροχο, ${matched} αντιστοιχίστηκαν, ${totalAdded} νέες τιμές (${propAdded.length} player props) · quota: ${res.quota.remaining ?? '?'}`);
   return 0;
