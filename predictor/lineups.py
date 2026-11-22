@@ -20,7 +20,10 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import lsqr
 
-LAMBDA = float(os.environ.get('PRED_RAPM_LAMBDA', '3000'))     # συρρίκνωση προς την αφετηρία box score (σε μονάδες κατοχών· ελεγμένο 800–6000)
+# συρρίκνωση προς την αφετηρία box score (σε μονάδες κατοχών). Σύγκριση 22/11/2026 (predictor/ablation.py, 1.248 αγώνες walk-forward,
+# 429 με απουσίες ≥15% των λεπτών): λ 3000 → 1500: MAE διαφοράς 9,911 → 9,897, σε αγώνες με απουσίες log-loss 0,6165 → 0,6157 και
+# MAE 10,003 → 9,956· καμπύλη ομαλή με ελάχιστο στο 1000–1500. Χωρίς RAPM πεντάδων: log-loss 0,6254 (με απουσίες 0,6187).
+LAMBDA = float(os.environ.get('PRED_RAPM_LAMBDA', '1500'))
 HALF_LIFE_DAYS = float(os.environ.get('PRED_RAPM_HL', '240'))  # χρονική απόσβεση των stints
 REFIT_EVERY = 10                                                # νέο fit κάθε τόσους νέους αγώνες
 MIN_POSS = 1.0
