@@ -1,5 +1,5 @@
 # Καθημερινή ρουτίνα social: «Στατιστικό της ημέρας» (από τους αγώνες της προηγούμενης βραδιάς) και ένα pick του High Fidelity
-# για τους αγώνες της ημέρας, και Reel «Όλα τα σουτ του» (μόνο Facebook/Instagram), σε κάθε συνδεδεμένο δίκτυο (Facebook, Instagram, Threads, Telegram, Bluesky, X, Viber).
+# για τους αγώνες της ημέρας, και Reel «Όλα τα σουτ του» (μόνο Facebook/Instagram), σε κάθε συνδεδεμένο δίκτυο (Facebook, Instagram, Threads, Telegram, Bluesky, X, Viber, YouTube Shorts μόνο για τα Reels).
 # Ένα δίκτυο χωρίς secrets απλώς παραλείπεται. Τίποτα δεν αναρτάται δύο φορές (data/daily-social.json).
 name: Social καθημερινά
 on:
@@ -67,6 +67,10 @@ jobs:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
           VIBER_CHANNEL_TOKEN: ${{ secrets.VIBER_CHANNEL_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_PRIVACY: ${{ vars.YT_PRIVACY }}
           SOCIAL_DRY: ${{ inputs.dry == '1' && '1' || '0' }}
           SOCIAL_PLAN: ${{ inputs.plan }}
         run: node scripts/daily-social.mjs post

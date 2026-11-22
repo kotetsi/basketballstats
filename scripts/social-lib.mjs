@@ -6,6 +6,8 @@
 //   Bluesky: BSKY_HANDLE, BSKY_APP_PASSWORD (App Password από Ρυθμίσεις → Privacy and security → App passwords)
 //   X: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET (OAuth 1.0a, δικαίωμα Read and write)
 //   Viber κανάλι: VIBER_CHANNEL_TOKEN (Channel → Settings → Developer tools)
+//   YouTube Shorts: YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN (OAuth, scopes youtube.upload + youtube.readonly)· YT_PRIVACY
+//     (public/unlisted/private, προεπιλογή public — όσο η εφαρμογή Google δεν έχει περάσει τον έλεγχο, το YouTube τα κάνει private)
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 
@@ -49,6 +51,26 @@ const fbVideo = async (edge, vid, finish) => {
   return mpost(`${PAGE}/${edge}`, { upload_phase: 'finish', video_id: s.video_id, ...finish });
 };
 
+// ---------- YouTube (Shorts): OAuth refresh token → resumable upload ----------
+let ytTok = null;
+async function ytToken() {
+  if (ytTok) return ytTok;
+  const j = await jfetch('https://oauth2.googleapis.com/token', { method: 'POST', body: new URLSearchParams({ client_id: clean(E.YT_CLIENT_ID), client_secret: clean(E.YT_CLIENT_SECRET), refresh_token: clean(E.YT_REFRESH_TOKEN), grant_type: 'refresh_token' }) }, 'youtube token');
+  return (ytTok = j.access_token);
+}
+/** ανέβασμα κάθετου βίντεο ≤ 60΄΄ (το YouTube το βάζει αυτόματα στα Shorts) */
+export async function ytUpload(vid, { title, description, tags = [] }) {
+  const tok = await ytToken();
+  const meta = { snippet: { title: String(title).slice(0, 100), description: String(description).slice(0, 4900), tags: tags.slice(0, 15), categoryId: '17', defaultLanguage: 'el', defaultAudioLanguage: 'el' },
+    status: { privacyStatus: ['public', 'unlisted', 'private'].includes(clean(E.YT_PRIVACY)) ? clean(E.YT_PRIVACY) : 'public', selfDeclaredMadeForKids: false } };
+  const r = await fetch('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', { method: 'POST', headers: { Authorization: `Bearer ${tok}`, 'content-type': 'application/json; charset=UTF-8', 'X-Upload-Content-Type': 'video/mp4', 'X-Upload-Content-Length': String(vid.length) }, body: JSON.stringify(meta) });
+  if (!r.ok) throw new Error(`youtube: ${(await r.json().catch(() => ({}))).error?.message || r.status}`);
+  const u = await fetch(r.headers.get('location'), { method: 'PUT', headers: { 'content-type': 'video/mp4' }, body: vid });
+  const j = await u.json().catch(() => ({}));
+  if (!u.ok) throw new Error(`youtube upload: ${j.error?.message || u.status}`);
+  return { id: j.id, privacy: j.status?.privacyStatus };
+}
+
 // ---------- X: OAuth 1.0a ----------
 const pct = s => encodeURIComponent(s).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
 function xAuth(method, url) {
@@ -62,6 +84,7 @@ function xAuth(method, url) {
 export const NETS = {
   fb: !!(META && PAGE), ig: !!(META && IG), threads: !!clean(E.THREADS_TOKEN), telegram: !!(TG() && clean(E.TELEGRAM_CHAT)),
   bluesky: !!(clean(E.BSKY_HANDLE) && clean(E.BSKY_APP_PASSWORD)), x: !!(clean(E.X_API_KEY) && clean(E.X_API_SECRET) && clean(E.X_ACCESS_TOKEN) && clean(E.X_ACCESS_SECRET)), viber: !!clean(E.VIBER_CHANNEL_TOKEN),
+  yt: !!(clean(E.YT_CLIENT_ID) && clean(E.YT_CLIENT_SECRET) && clean(E.YT_REFRESH_TOKEN)),
 };
 
 /**
@@ -79,6 +102,12 @@ export async function postTo(net, p) {
       if (k === 'story' && vid) done.push(net === 'fb' ? await fbVideo('video_stories', vid, {}) : await igVideo('STORIES', vid));
     }
     return done.length;
+  }
+  if (net === 'yt') {
+    if (!vid) throw new Error('youtube: χωρίς βίντεο');
+    const title = p.ytTitle || String(p.short || p.text).split('\n')[0].replace(/basketballstats\.eu/gi, '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
+    const tags = [...new Set(((p.text || '').match(/#[\p{L}\p{N}_]+/gu) || []).map(t => t.slice(1)).concat(['EuroLeague', 'basketball', 'μπάσκετ']))];
+    return ytUpload(vid, { title: /#shorts/i.test(title) ? title : `${title.slice(0, 90)} #Shorts`, description: `${p.text}\n\nΌλα τα στατιστικά της EuroLeague: https://basketballstats.eu`, tags });
   }
   if (net === 'threads') {
     const T = 'https://graph.threads.net/v1.0', tok = clean(E.THREADS_TOKEN);
@@ -133,6 +162,7 @@ export async function checkNet(net) {
   if (net === 'fb') { const j = await mget(PAGE, { fields: 'name,followers_count,fan_count' }); return `${j.name} (${j.followers_count ?? j.fan_count ?? '?'} ακόλουθοι)`; }
   if (net === 'ig') { const j = await mget(IG, { fields: 'username,followers_count,media_count' }); return `@${j.username} (${j.followers_count ?? '?'} ακόλουθοι, ${j.media_count ?? '?'} αναρτήσεις)`; }
   if (net === 'telegram') { const q = `chat_id=${encodeURIComponent(clean(E.TELEGRAM_CHAT))}`, B = `https://api.telegram.org/bot${TG()}`; const j = await jfetch(`${B}/getChat?${q}`, {}, 'telegram'); const n = await jfetch(`${B}/getChatMemberCount?${q}`, {}, 'telegram').catch(() => ({})); return `${j.result?.title} (${n.result ?? '?'} συνδρομητές)`; }
+  if (net === 'yt') { const tok = await ytToken(); const j = await jfetch('https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true', { headers: { Authorization: `Bearer ${tok}` } }, 'youtube'); const c = j.items?.[0]; return c ? `${c.snippet.title} (${c.statistics.subscriberCount ?? '?'} συνδρομητές, ${c.statistics.viewCount ?? '?'} προβολές)` : 'ok'; }
   if (net === 'x') { const u = 'https://api.x.com/2/users/me'; const j = await jfetch(u, { headers: { Authorization: xAuth('GET', u) } }, 'x'); return '@' + j.data?.username; }
   return 'ok';
 }

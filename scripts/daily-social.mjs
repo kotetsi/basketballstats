@@ -112,7 +112,7 @@ if (D && ONLY !== 'pick' && ONLY !== 'shots' && !state.posted.some(k => k.starts
     await fs.mkdir(outDir, { recursive: true });
     const img = path.join(outDir, 'stat.png'), vid = path.join(outDir, 'stat.mp4');
     if (!DRY) await render(statCardHtml(w.card), img, 1080, 1350), await renderVideo(statStoryHtml(w.card), vid);
-    plan.items.push({ key: `stat:${D}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `📊 ${w.caption.split('\n')[0]} basketballstats.eu`, kinds: ['post', 'reel', 'story'], alt: w.caption.split('\n')[0] });
+    plan.items.push({ key: `stat:${D}`, ytTitle: w.caption.split(/(?<=[.!])\s/)[0].replace(/[.!]$/, ''), image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `📊 ${w.caption.split('\n')[0]} basketballstats.eu`, kinds: ['post', 'reel', 'story'], alt: w.caption.split('\n')[0] });
     console.log(`Στατιστικό της ημέρας (${D}, ${C.length} υποψήφια, βαθμός ${w.score}):\n${w.caption}`);
   }
 }
@@ -143,7 +143,7 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
     const img = path.join(outDir, 'shots.png'), vid = path.join(outDir, 'shots.mp4');
     if (!DRY) { await renderStill(html, img, SHOT_REEL_SECS); await renderVideo(html, vid, SHOT_REEL_SECS); }
     const when2 = D === today ? 'απόψε' : 'χθες', text = `🎯 Όλα τα σουτ του ${name} ${when2}\n\n${row[8]} πόντοι με ${fgm}/${fga} εντός παιδιάς και ${row[11]}/${row[12]} τρίποντα (${res} κόντρα ${vs(opp)}).\n\nΤα shot charts όλων των παικτών: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball #shotchart`;
-    plan.items.push({ key: `shots:${D}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🎯 Όλα τα σουτ του ${name}: ${row[8]} πόντοι, ${fgm}/${fga} · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig'], alt: `Shot chart: ${name}, ${fgm}/${fga}` });
+    plan.items.push({ key: `shots:${D}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🎯 Όλα τα σουτ του ${name}: ${row[8]} πόντοι, ${fgm}/${fga} · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `Όλα τα σουτ του ${name}: ${row[8]} πόντοι, ${fgm}/${fga} εντός παιδιάς`, alt: `Shot chart: ${name}, ${fgm}/${fga}` });
     console.log(`Σουτ της βραδιάς (${D}): ${name}, ${row[8]} πόντοι, ${shots.length} σουτ`);
   } else console.log(`Σουτ της βραδιάς (${D}): δεν βρέθηκε παίκτης με ≥10 σουτ (${games.length} αγώνες στα data/shots)`);
 }
@@ -225,6 +225,7 @@ async function post() {
       if (state.posted.includes(k)) continue;
       if (it.nets && !it.nets.includes(net)) continue;   // π.χ. το Reel των σουτ πάει μόνο σε Facebook/Instagram
       if (net === 'telegram' && it.pick) continue;   // τα picks πάνε ήδη όλα στο Telegram από το scripts/telegram.mjs
+      if (net === 'yt' && !(it.video && (it.kinds || []).includes('reel'))) continue;   // YouTube: μόνο τα Reels (στατιστικό, σουτ), όχι τα picks
       if (DRY) { console.log(`[δοκιμή] ${k}`); continue; }
       try { await postTo(net, p); state.posted.push(k); console.log('Αναρτήθηκε', k); }
       catch (e) { console.error('Απέτυχε', k, '—', e.message); failed++; }
