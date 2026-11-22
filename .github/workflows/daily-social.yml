@@ -1,5 +1,5 @@
 # Καθημερινή ρουτίνα social: «Στατιστικό της ημέρας», pick του High Fidelity, Reel «Όλα τα σουτ του», και ανά αγωνιστική τα Reels «Ποιος είναι φαβορί;», «Top 5» και «Κούρσα σκόρερ»
-# για τους αγώνες της ημέρας, και Reel «Όλα τα σουτ του» (μόνο Facebook/Instagram), σε κάθε συνδεδεμένο δίκτυο (Facebook, Instagram, Threads, Telegram, Bluesky, X, Viber, YouTube Shorts μόνο για τα Reels).
+# σε κάθε συνδεδεμένο δίκτυο (Facebook, Instagram, Threads, Telegram, Bluesky, X, Viber· YouTube Shorts μόνο για τα Reels).
 # Ένα δίκτυο χωρίς secrets απλώς παραλείπεται. Τίποτα δεν αναρτάται δύο φορές (data/daily-social.json).
 name: Social καθημερινά
 on:
