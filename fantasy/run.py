@@ -60,6 +60,21 @@ def official_prices(rnd: int) -> dict:
     return res
 
 
+def official_positions(rnd: int) -> dict:
+    """Θέση κάθε παίκτη όπως τη μετράει το EuroLeague Fantasy (G/F/C), από το πιο πρόσφατο prices-rK.csv με K ≤ rnd
+    που έχει στήλη θέσης. Το Fantasy έχει δικές του θέσεις (π.χ. ο Marinkovic είναι G ενώ η EuroLeague τον γράφει F)."""
+    names = {"G": "Guard", "F": "Forward", "C": "Center"}
+    off = ROOT / "fantasy" / "official"
+    for k in sorted((int(f.stem[8:]) for f in off.glob("prices-r*.csv") if f.stem[8:].isdigit() and int(f.stem[8:]) <= rnd), reverse=True):
+        res = {}
+        for row in csv.reader(l for l in (off / f"prices-r{k}.csv").read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")):
+            if len(row) >= 9 and row[8].strip() in names:
+                res[row[0].strip().upper()] = names[row[8].strip()]
+        if res:
+            return res
+    return {}
+
+
 def coach_points(margin: float) -> float:
     if margin > 0:
         return 10 if margin <= 10 else 20 if margin <= 20 else 25
@@ -175,6 +190,11 @@ def main():
     log("επίσημες τιμές:", len(prices_over), "· κυλιόμενες από r%s:" % roll_base if roll_base else "", len(rolled) if roll_base else "")
     status_over = read_overrides("status.csv")
     pos_of = {p["c"]: p.get("pos") or "Forward" for p in cache["players"]}
+    # οι θέσεις του Fantasy έχουν προτεραιότητα (από αυτές μετράει ο σχηματισμός)
+    off_pos = official_positions(target)
+    n_pos = sum(1 for c, ps in off_pos.items() if c in pos_of and pos_of[c] != ps)
+    pos_of.update({c: ps for c, ps in off_pos.items() if c in pos_of})
+    log("θέσεις Fantasy:", len(off_pos), "· διαφορετικές από EuroLeague:", n_pos)
     pl_by = {p["c"]: p for p in cache["players"]}
     players = []
     for i, r in pred.iterrows():
