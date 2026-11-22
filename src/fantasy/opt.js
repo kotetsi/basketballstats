@@ -25,7 +25,7 @@ async function init() {
   Object.assign(state, store.get('opt-v2') || {});
   renderControls();
   const pre = X.pre?.[form().mode];
-  if (pre && !state.lock.length && !state.exclude.length && !state.sold.length && +form().budget === 100 && +form().maxPerTeam === 6 && form().formation === 'auto') { last = pre; show(); } else run();
+  if (pre && !state.lock.length && !state.exclude.length && !state.sold.length && +form().budget === 100 && +form().maxPerTeam === 6 && form().formation === 'auto' && !form().coach) { last = pre; show(); } else run();
 }
 const form = () => Object.fromEntries(new FormData(app.querySelector('#optForm')));
 
@@ -46,7 +46,12 @@ function run() {
   const btn = app.querySelector('[data-act="run"]'); btn.disabled = true; btn.textContent = L.running;
   setTimeout(() => {
     const t0 = Date.now();
-    const o = { budget: +fv.budget || 100, maxPerTeam: +fv.maxPerTeam || 6, mode: fv.mode, formation: fv.formation, lock: state.lock, exclude: state.exclude, sold: state.sold, coach: fv.coach || null, timeLimitMs: 3000 };
+    // κανόνας του παιχνιδιού: έως 6 ανά ομάδα (παλιές αποθηκευμένες ρυθμίσεις μπορεί να έχουν μεγαλύτερο αριθμό)
+    const mpt = Math.min(6, Math.max(1, +fv.maxPerTeam || 6));
+    if (+fv.maxPerTeam !== mpt) { const el = app.querySelector('#optForm').elements.maxPerTeam; if (el) el.value = mpt; fv.maxPerTeam = String(mpt); state.f = fv; store.set('opt-v2', state); }
+    // «pwin»: ο προπονητής της ομάδας με τη μεγαλύτερη πιθανότητα νίκης (σε ισοπαλία ο φθηνότερος)
+    const coachPick = fv.coach === 'pwin' ? (D.coaches.filter(c => c.opp).sort((a, b) => (b.pwin ?? 0) - (a.pwin ?? 0) || a.price - b.price)[0]?.t || null) : (fv.coach || null);
+    const o = { budget: +fv.budget || 100, maxPerTeam: mpt, mode: fv.mode, formation: fv.formation, lock: state.lock, exclude: state.exclude, sold: state.sold, coach: coachPick, timeLimitMs: 3000 };
     const pool = D.players.filter(p => p.opp || o.lock.includes(p.c));
     const sol = solve(pool, D.coaches.filter(c => c.opp), o);
     let plan = null, ex = null;
@@ -59,7 +64,7 @@ function run() {
 
 function metrics(lu, coach) {
   if (!lu) return null;
-  return simulate({ start: lu.start, sixth: lu.sixth, bench: lu.bench, captain: lu.captain, coach, formation: 'auto' }, D.players, D.coaches);
+  return simulate({ start: lu.start, sixth: lu.sixth, bench: lu.bench, captain: lu.captain, coach, formation: 'auto' }, D.players, D.coaches, { cap: last?.opts?.budget || 100 });
 }
 
 function show() {
@@ -99,7 +104,7 @@ function show() {
 ${errs.length ? `<ul class="fmerr">${errs.map(e => `<li>${esc((L.err[e.k] || e.k).replace('{c}', P.get(e.c)?.dn || ''))}</li>`).join('')}</ul>` : `<p class="optok">✓ ${esc(L.valid)}</p>`}
 <div class="wigrid"><div class="wik"><span>${esc(L.expected)}${plan?.multiTurn ? ' (' + esc(L.withTurns) + ')' : ''}</span><b>${f1(plan ? plan.expected : m.expected)}</b></div><div class="wik"><span>Floor (P10)</span><b>${f1(plan ? plan.floor : m.floor)}</b></div><div class="wik"><span>Median</span><b>${f1(plan ? plan.median : m.median)}</b></div><div class="wik"><span>Ceiling (P90)</span><b>${f1(plan ? plan.ceiling : m.ceiling)}</b></div><div class="wik"><span>Risk</span><b>${m.risk}</b></div><div class="wik"><span>${esc(L.capRisk)}</span><b>${capRisk}</b></div><div class="wik"><span>${esc(L.benchRisk)}</span><b>${benchRisk}</b></div><div class="wik"><span>${esc(L.budget)}</span><b>${f1(m.cost)}</b><small>${esc(L.left)} ${f1(m.budget)}</small></div></div>
 <div class="expow"><span class="sub">${esc(L.exposure)}</span>${expo}</div>
-<div class="fxfilters"><label>${esc(L.captain)} <select data-cap>${lu.start.map(c => `<option value="${c}"${c === lu.captain ? ' selected' : ''}>${nm(c)}</option>`).join('')}</select></label><label>${esc(L.coach)} <select data-coach>${D.coaches.filter(c => c.opp).map(c => `<option value="${c.t}"${c.t === coachT ? ' selected' : ''}>${tm(c.t)} · ${f1(c.price)} · ${f1(c.exp)}</option>`).join('')}</select></label><span class="sub">${esc(L.coachWhy)}: ${(ex?.coach?.reasons || []).map(k => esc(L.why[k] || k)).join(', ')}</span></div>
+<div class="fxfilters"><label>${esc(L.captain)} <select data-cap>${lu.start.map(c => `<option value="${c}"${c === lu.captain ? ' selected' : ''}>${nm(c)}</option>`).join('')}</select></label><label>${esc(L.coach)} <select data-coach>${D.coaches.filter(c => c.opp).map(c => `<option value="${c.t}"${c.t === coachT ? ' selected' : ''}>${tm(c.t)} · ${f1(c.price)} cr · ${c.pwin != null ? Math.round(c.pwin * 100) + '% ' : ''}· ${f1(c.exp)}</option>`).join('')}</select></label><span class="sub">${esc(L.coachWhy)}: ${(ex?.coach?.reasons || []).map(k => esc(L.why[k] || k)).join(', ')}</span></div>
 <div class="tbl"><table class="antbl"><thead><tr><th class="l">${esc(L.player)} (${esc(lu.formation)})</th><th>${esc(L.slotH)}</th><th title="${esc(L.rangeTip)}">P10 / ${esc(L.proj)} / P90</th><th>${esc(L.fp)}</th><th class="l">${esc(L.whyH)}</th></tr></thead><tbody>${lu.start.map(c => row(c, 'start')).join('')}${row(lu.sixth, 'sixth')}${lu.bench.map(c => row(c, 'bench')).join('')}</tbody></table></div>
 ${held}${cmp}
 ${plan ? `<h3>${esc(L.turnPlan)}</h3><div class="fmtimeline">${turns}</div>` : ''}
