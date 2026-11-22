@@ -44,9 +44,29 @@ def _ord(d: str) -> int:
         return 0
 
 
+USE_MU = os.environ.get('PRED_RAPM_MU', '0') == '1'               # ακριβή ζεύγη πεντάδων (πεδίο mu), όπου υπάρχουν
+
+
 def stints_of(raw: dict) -> dict:
     """Από το data/pbp αρχείο: {ομάδα: [(πεντάδα (ids), κατοχές επίθεσης, πόντοι, πεντάδα αντιπάλου)]}."""
     ids = [str(x).strip().lstrip('P') for x in raw.get('ids') or []]
+    mu = raw.get('mu')
+    if USE_MU and mu and ids and raw.get('h') and raw.get('a'):
+        # ακριβή ζεύγη από το play-by-play (scripts/pbp.mjs): [πεντάδα h, πεντάδα a, δευτ., [πόντοι, FGA, FTA, OREB, TOV] h, ίδια a]
+        out = {raw['h']: [], raw['a']: []}
+        for a, b, _secs, sa, sb in mu:
+            try:
+                A = tuple(ids[i] for i in a)
+                B = tuple(ids[i] for i in b)
+            except (IndexError, TypeError):
+                continue
+            if len(A) != 5 or len(B) != 5:
+                continue
+            for t, off, dfn, s in ((raw['h'], A, B, sa), (raw['a'], B, A, sb)):
+                p = s[1] - s[3] + s[4] + 0.44 * s[2]
+                if p >= MIN_POSS:
+                    out[t].append((off, p, s[0], dfn))
+        return out
     st = raw.get('st') or {}
     teams = list(st.keys())
     if len(teams) != 2 or not ids:

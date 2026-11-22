@@ -12,12 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { label: "RAPM λ=800", env: "PRED_RAPM_LAMBDA=800" }
-          - { label: "RAPM λ=1000", env: "PRED_RAPM_LAMBDA=1000" }
-          - { label: "RAPM λ=1500", env: "PRED_RAPM_LAMBDA=1500" }
-          - { label: "RAPM λ=2000", env: "PRED_RAPM_LAMBDA=2000" }
-          - { label: "RAPM λ=1500 χρονική απόσβεση 120", env: "PRED_RAPM_LAMBDA=1500 PRED_RAPM_HL=120" }
-          - { label: "RAPM λ=1500 χρονική απόσβεση 400", env: "PRED_RAPM_LAMBDA=1500 PRED_RAPM_HL=400" }
+          - { label: "προσέγγιση ζευγών λ=1500 (τρέχον)", env: "" }
+          - { label: "ακριβή ζεύγη λ=1500", env: "PRED_RAPM_MU=1" }
+          - { label: "ακριβή ζεύγη λ=1000", env: "PRED_RAPM_MU=1 PRED_RAPM_LAMBDA=1000" }
+          - { label: "ακριβή ζεύγη λ=2500", env: "PRED_RAPM_MU=1 PRED_RAPM_LAMBDA=2500" }
+          - { label: "ακριβή ζεύγη λ=4000", env: "PRED_RAPM_MU=1 PRED_RAPM_LAMBDA=4000" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

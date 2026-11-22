@@ -154,6 +154,19 @@ def main():
     gen = now.isoformat(timespec='seconds')
     OUT.mkdir(parents=True, exist_ok=True)
     meta = {'model_version': MODEL_VERSION, 'engine': ENGINE, 'generated_at': gen, 'train_games': len(rows), 'features': len(P.names), 'total_shift': {c: round(v, 2) for c, v in TSHIFT.items()}}
+    # ratings παικτών του RAPM πεντάδων (EuroLeague) για τη σελίδα On/Off του site: o = επίθεση, d = άμυνα (θετικό = καλή άμυνα),
+    # σε πόντους ανά 100 κατοχές σε σχέση με τον μέσο παίκτη· ίδιο fit με αυτό που χρησιμοποιούν οι προβλέψεις
+    try:
+        RP = B.rapm['E']
+        RP._fit = None                                   # φρέσκο fit με όλους τους αγώνες ως τώρα
+        mu_p, hadv, PR = RP.ratings(B._featfn(cur['E']))
+        if mu_p is not None:
+            from lineups import LAMBDA, HALF_LIFE_DAYS, USE_MU
+            (OUT / 'rapm.json').write_text(json.dumps({'season': cur['E'], 'generated_at': now.isoformat(timespec='seconds'), 'lambda': LAMBDA,
+                'half_life_days': HALF_LIFE_DAYS, 'exact_pairs': USE_MU, 'mu': round(mu_p, 2), 'home': round(hadv, 2),
+                'players': {p: [round(o, 2), round(-d, 2)] for p, (o, d) in PR.items()}}))
+    except Exception as e:
+        print('RAPM ratings: σφάλμα', e)
     (OUT / 'latest.json').write_text(json.dumps({**meta, 'sigma': sigma, 'home_adv': P.home_adv, 'games': preds}, ensure_ascii=False))
     if bt:
         (OUT / 'backtest.json').write_text(json.dumps({**meta, 'summary': summ, 'by_season': {s: summarize([x for x in bt if x['season'] == s]) for s in sorted({x['season'] for x in bt})}}, ensure_ascii=False))
