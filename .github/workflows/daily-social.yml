@@ -1,4 +1,4 @@
-# Καθημερινή ρουτίνα social: «Στατιστικό της ημέρας» (από τους αγώνες της προηγούμενης βραδιάς) και ένα pick του High Fidelity
+# Καθημερινή ρουτίνα social: «Στατιστικό της ημέρας», pick του High Fidelity, Reel «Όλα τα σουτ του», και ανά αγωνιστική τα Reels «Ποιος είναι φαβορί;», «Top 5» και «Κούρσα σκόρερ»
 # για τους αγώνες της ημέρας, και Reel «Όλα τα σουτ του» (μόνο Facebook/Instagram), σε κάθε συνδεδεμένο δίκτυο (Facebook, Instagram, Threads, Telegram, Bluesky, X, Viber, YouTube Shorts μόνο για τα Reels).
 # Ένα δίκτυο χωρίς secrets απλώς παραλείπεται. Τίποτα δεν αναρτάται δύο φορές (data/daily-social.json).
 name: Social καθημερινά
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Μόνο stat, μόνο shots (Reel με τα σουτ της βραδιάς) ή μόνο pick (κενό = όλα)"
+        description: "Μόνο ένα: stat, shots, pick, preview (φαβορί αγωνιστικής), top5, race (κούρσα σκόρερ) · κενό = όλα"
         required: false
         default: ""
       plan:

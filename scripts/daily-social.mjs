@@ -3,7 +3,7 @@
 //                                           στο social/daily/<ημερομηνία>/ και γράφει το social/daily/plan.json
 //   (το workflow κάνει commit/push, ώστε οι εικόνες να έχουν δημόσιο URL για Instagram/Threads/Viber)
 //   node scripts/daily-social.mjs post      ανεβάζει ό,τι λέει το plan.json σε κάθε συνδεδεμένο δίκτυο, μία φορά (data/daily-social.json)
-//   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick|shots
+//   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick|shots|preview|top5|race
 //   SOCIAL_PLAN=social/daily/<φάκελος>/plan.json  ανάρτηση έτοιμου plan (π.χ. δοκιμαστικό), χωρίς prepare
 //
 // «Στατιστικό της ημέρας»: από τους αγώνες της τελευταίας βραδιάς, όλα τα υποψήφια (σερί, ρεκόρ σεζόν, τέλειο σουτ,
@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { statCardHtml, statStoryHtml, STAT_VIDEO_SECS } from './stat-card.mjs';
 import { upcomingPicks, cardHtml, when, DISC } from './pick-cards.mjs';
 import { shotReelHtml, shotOrder, SHOT_REEL_SECS } from './shot-reel.mjs';
+import { previewHtml, previewSecs, top5Html, TOP5_SECS, raceHtml, raceSecs } from './round-videos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://basketballstats.eu', RAW = 'https://raw.githubusercontent.com/kotetsi/basketballstats/main/';
@@ -53,7 +54,7 @@ const D = [today, yesterday].find(d => days.includes(d));
 const plan = { date: today, items: [] };
 const outDir = path.join(ROOT, 'social', 'daily', today);
 
-if (D && ONLY !== 'pick' && ONLY !== 'shots' && !state.posted.some(k => k.startsWith(`stat:${D}:`))) {
+if (D && (!ONLY || ONLY === 'stat') && !state.posted.some(k => k.startsWith(`stat:${D}:`))) {
   const C = [];   // υποψήφια: { score, card, caption }
   const all = data.players.map(p => ({ p, G: played(p) })).filter(o => o.G.length);
   const teamOf = p => p.t.split(';').pop();
@@ -148,7 +149,84 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
   } else console.log(`Σουτ της βραδιάς (${D}): δεν βρέθηκε παίκτης με ≥10 σουτ (${games.length} αγώνες στα data/shots)`);
 }
 
-if (ONLY !== 'stat' && ONLY !== 'shots' && !state.posted.some(k => k.startsWith(`pick:${today}:`))) {
+// ------------------------------------------------------------------ Reels ανά αγωνιστική
+// Προεπισκόπηση: την πρώτη μέρα κάθε αγωνιστικής, όλοι οι αγώνες με τις πιθανότητες του μοντέλου (data.mp).
+// Top 5: τη μέρα μετά (ή το ίδιο βράδυ) του τελευταίου αγώνα μιας αγωνιστικής, οι 5 κορυφαίοι σε PIR.
+// Κούρσα σκόρερ: δύο μέρες μετά το τέλος της αγωνιστικής (για να μην πέφτει την ίδια μέρα με το Top 5).
+{
+  const G = data.league.games, gDay = g => athensDay(gDate(g[1]));
+  const rounds = [...new Set(G.map(g => g[0]))].sort((a, b) => a - b);
+  const ofR = r => G.filter(g => g[0] === r);
+  const done = r => ofR(r).length && ofR(r).every(g => g[6]);
+  const lastDay = r => ofR(r).map(gDay).sort().pop(), firstDay = r => ofR(r).map(gDay).sort()[0];
+  const dAgo = n => athensDay(new Date(new Date(today + 'T12:00:00Z') - n * 864e5));
+  const nm = c => [tn(c), team(c)[1]];
+  const rowsOf = r => data.players.flatMap(p => played(p).filter(x => x[0] === r).map(x => ({ p, x })));
+  const fullName = n => grName(n);
+
+  // 1. Προεπισκόπηση
+  for (const r of rounds.filter(r => !done(r) && firstDay(r) === today)) {
+    if ((ONLY && ONLY !== 'preview') || state.posted.some(k => k.startsWith(`preview:${r}:`))) continue;
+    const byDay = new Map();
+    for (const g of ofR(r).filter(g => !g[6]).sort((a, b) => gDate(a[1]) - gDate(b[1]))) {
+      const d = gDay(g); if (!byDay.has(d)) byDay.set(d, []);
+      const m = data.mp?.[`${g[2]}|${g[3]}`];
+      byDay.get(d).push({ h: nm(g[2]), a: nm(g[3]), time: hhmm(gDate(g[1])), ph: m ? m[2] : null, hc: g[2], ac: g[3] });
+    }
+    const dayLbl = d => new Date(d + 'T12:00:00Z').toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'numeric', timeZone: 'UTC' });
+    const o = { round: r, days: [...byDay].map(([d, games]) => ({ label: dayLbl(d), games })) };
+    const all = o.days.flatMap(d => d.games); if (!all.length) continue;
+    const fav = all.filter(g => g.ph != null).map(g => ({ g, p: Math.max(g.ph, 1 - g.ph), c: g.ph >= .5 ? g.hc : g.ac })).sort((a, b) => b.p - a.p);
+    const close = [...fav].sort((a, b) => a.p - b.p)[0];
+    const html = previewHtml(o), secs = previewSecs(o);
+    await fs.mkdir(outDir, { recursive: true });
+    const img = path.join(outDir, 'preview.png'), vid = path.join(outDir, 'preview.mp4');
+    if (!DRY) { await renderStill(html, img, secs); await renderVideo(html, vid, secs); }
+    const lines = o.days.map(d => `📅 ${d.label}\n` + d.games.map(g => `${g.h[0]} – ${g.a[0]} (${g.time})${g.ph != null ? `: ${Math.round(g.ph * 100)}% – ${100 - Math.round(g.ph * 100)}%` : ''}`).join('\n')).join('\n\n');
+    const hl = fav[0] ? `\n\nΜεγαλύτερο φαβορί: ${tn(fav[0].c)} (${Math.round(fav[0].p * 100)}%).${close && close !== fav[0] ? ` Πιο ισορροπημένο: ${close.g.h[0]} – ${close.g.a[0]}.` : ''}` : '';
+    const text = `🔮 ${r}η αγωνιστική EuroLeague: ποιος είναι φαβορί;\n\n${lines}${hl}\n\nΠιθανότητες νίκης από το μοντέλο μας, όχι εγγύηση. Όλες οι προβλέψεις: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball`;
+    plan.items.push({ key: `preview:${r}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🔮 ${r}η αγωνιστική EuroLeague: ποιος είναι φαβορί; Οι πιθανότητες όλων των αγώνων · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `${r}η αγωνιστική EuroLeague: ποιος είναι φαβορί;`, alt: `Πιθανότητες νίκης ${r}ης αγωνιστικής` });
+    console.log(`Προεπισκόπηση ${r}ης αγωνιστικής: ${all.length} αγώνες`);
+  }
+
+  // 2. Top 5 (PIR) της αγωνιστικής που μόλις τελείωσε
+  const R5 = rounds.filter(r => done(r) && (ONLY === 'top5' || (D && lastDay(r) === D))).pop();
+  if (R5 && (!ONLY || ONLY === 'top5') && !state.posted.some(k => k.startsWith(`top5:${R5}:`))) {
+    const T = rowsOf(R5).sort((a, b) => b.x[25] - a.x[25] || b.x[8] - a.x[8]).slice(0, 5);
+    if (T.length === 5) {
+      const players = T.map(({ p, x }) => { const c = p.t.split(';').pop(); return { name: fullName(p.n), team: team(c), pir: x[25], line: `${x[8]} πόντοι · ${x[15] + x[16]} ριμπάουντ · ${x[17]} ασίστ`, opp: vs(x[2]) }; });
+      const html = top5Html({ round: R5, players });
+      await fs.mkdir(outDir, { recursive: true });
+      const img = path.join(outDir, 'top5.png'), vid = path.join(outDir, 'top5.mp4');
+      if (!DRY) { await renderStill(html, img, TOP5_SECS); await renderVideo(html, vid, TOP5_SECS); }
+      const text = `🏆 Το Top 5 της ${R5}ης αγωνιστικής (PIR)\n\n${players.map((q, i) => `${i + 1}. ${q.name} (${q.team[0]}): ${q.pir} PIR · ${q.line}`).join('\n')}\n\nΌλα τα στατιστικά: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball`;
+      plan.items.push({ key: `top5:${R5}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🏆 Top 5 της ${R5}ης αγωνιστικής: 1. ${players[0].name} ${players[0].pir} PIR · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `Το Top 5 της ${R5}ης αγωνιστικής EuroLeague: ${players[0].name} στο Νο1`, alt: `Top 5 ${R5}ης αγωνιστικής` });
+      console.log(`Top 5 ${R5}ης αγωνιστικής: ${players.map(q => q.name + ' ' + q.pir).join(', ')}`);
+    }
+  }
+
+  // 3. Κούρσα σκόρερ (σύνολο πόντων) μέχρι την τελευταία ολοκληρωμένη αγωνιστική
+  const RR = rounds.filter(r => done(r)).pop();
+  if (RR >= 3 && (!ONLY || ONLY === 'race') && !state.posted.some(k => k.startsWith(`race:${RR}:`)) && (ONLY === 'race' || [dAgo(2), dAgo(3), dAgo(4)].includes(lastDay(RR)))) {
+    const tot = new Map(), frames = [];
+    for (let r = 1; r <= RR; r++) {
+      for (const { p, x } of rowsOf(r)) tot.set(p.c, (tot.get(p.c) || 0) + x[8]);
+      if (r >= 3) frames.push({ r, v: Object.fromEntries([...tot].sort((a, b) => b[1] - a[1]).slice(0, 20)) });
+    }
+    const keys = new Set(frames.flatMap(f => Object.keys(f.v))), byC = new Map(data.players.map(p => [p.c, p]));
+    const who = Object.fromEntries([...keys].map(k => { const p = byC.get(k), c = p.t.split(';').pop(); return [k, [fullName(p.n), tn(c), team(c)[1]]]; }));
+    const o = { round: RR, label: 'Οι κορυφαίοι σκόρερ', frames, who, top: 10 }, secs = raceSecs(o), html = raceHtml(o);
+    const fin = Object.entries(frames.at(-1).v).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    await fs.mkdir(outDir, { recursive: true });
+    const img = path.join(outDir, 'race.png'), vid = path.join(outDir, 'race.mp4');
+    if (!DRY) { await renderStill(html, img, secs); await renderVideo(html, vid, secs); }
+    const text = `🏁 Η κούρσα των σκόρερ της EuroLeague μετά από ${RR} αγωνιστικές\n\n${fin.map(([k, v], i) => `${i + 1}. ${who[k][0]} (${who[k][1]}): ${v} πόντοι`).join('\n')}\n\nΠοιος θα τελειώσει πρώτος; 👇\n\nΌλοι οι κορυφαίοι: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball`;
+    plan.items.push({ key: `race:${RR}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🏁 Η κούρσα των σκόρερ της EuroLeague μετά από ${RR} αγωνιστικές: πρώτος ο ${who[fin[0][0]][0]} με ${fin[0][1]} · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `Η κούρσα των σκόρερ της EuroLeague: αγωνιστική προς αγωνιστική (1η–${RR}η)`, alt: `Bar race σκόρερ 1η–${RR}η αγωνιστική` });
+    console.log(`Κούρσα σκόρερ έως την ${RR}η: πρώτος ${who[fin[0][0]][0]} ${fin[0][1]}`);
+  }
+}
+
+if ((!ONLY || ONLY === 'pick') && !state.posted.some(k => k.startsWith(`pick:${today}:`))) {
   const rank = Object.fromEntries(data.league.stand.map(s => [s[1], s[0]]));
   const P = upcomingPicks(data, ['high-fidelity']).filter(t => athensDay(t.start) === today)
     .map(t => ({ t, sc: (['OLY', 'PAN'].some(c => c === t.h || c === t.a) ? 100 : 0) - (rank[t.h] || 20) - (rank[t.a] || 20) }))
@@ -172,7 +250,7 @@ if (DRY) console.log(JSON.stringify(plan, null, 1));
 // ------------------------------------------------------------------ helpers
 async function render(html, file, w, h) {
   const { chromium } = await import('playwright');
-  const b = await chromium.launch(), pg = await b.newPage({ viewport: { width: w, height: h } });
+  const b = await chromium.launch(process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {}), pg = await b.newPage({ viewport: { width: w, height: h } });
   await pg.setContent(html); await pg.screenshot({ path: file, type: 'png' }); await b.close();
 }
 function beat(out, secs) {   // δικό μας beat (kick, snare, hi-hat, μπάσο, χαλί), χωρίς δικαιώματα
@@ -188,13 +266,13 @@ function beat(out, secs) {   // δικό μας beat (kick, snare, hi-hat, μπ�
 }
 async function renderStill(html, file, t) {   // το τελικό καρέ ενός κινούμενου HTML ως εικόνα 1080×1920
   const { chromium } = await import('playwright');
-  const b = await chromium.launch(), pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
+  const b = await chromium.launch(process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {}), pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   await pg.setContent(html); await pg.evaluate(x => window.setT(x), t); await pg.screenshot({ path: file, type: 'png' }); await b.close();
 }
 async function renderVideo(html, out, secs = STAT_VIDEO_SECS) {
   const { chromium } = await import('playwright');
   const dir = out + '.frames'; await fs.mkdir(dir, { recursive: true });
-  const b = await chromium.launch(), pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
+  const b = await chromium.launch(process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {}), pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   await pg.setContent(html);
   for (let i = 0; i < 30 * secs; i++) { await pg.evaluate(t => window.setT(t), i / 30); await pg.screenshot({ path: path.join(dir, String(i).padStart(4, '0') + '.png') }); }
   await b.close();
