@@ -1008,3 +1008,13 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .hmtip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);color:var(--ink);text-decoration:none;font-size:14px;min-height:44px}
 .hmtip span{flex:1}.hmtip svg{color:var(--accent);flex:none}
 .hmlast{display:flex;flex-direction:column;gap:6px;font-size:14px}
+
+/* κουτί Telegram (picks, Fantasy, απουσίες) */
+.tgbox{margin:14px 0}
+.tgbox a{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:#e8f5fc;border:1px solid #b9e0f4;color:#0b3a52!important;text-decoration:none;font-size:.95rem;line-height:1.35}
+.tgbox a:hover{background:#d9effa}
+.tgbox .tgi{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#229ed9;color:#fff;font-size:.9rem;flex:none}
+.tgbox span:not(.tgi){flex:1 1 220px}
+.tgbox b{white-space:nowrap;color:#1d86b9}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .tgbox a{background:#11303f;border-color:#1f4d63;color:#dbeef8!important}:root:not([data-theme="light"]) .tgbox a:hover{background:#163a4c}:root:not([data-theme="light"]) .tgbox b{color:#7cc8ec}}
+:root[data-theme="dark"] .tgbox a{background:#11303f;border-color:#1f4d63;color:#dbeef8!important}:root[data-theme="dark"] .tgbox a:hover{background:#163a4c}:root[data-theme="dark"] .tgbox b{color:#7cc8ec}

@@ -1,15 +1,18 @@
 // Αναρτήσεις στο κανάλι Telegram του BasketballStats. Τρέχει στο τέλος κάθε build στο GitHub Actions· χωρίς token δεν κάνει τίποτα.
 //   1. κάθε ΝΕΟ pick των tipsters του TELEGRAM_TIPSTERS (προεπιλογή: high-fidelity), μία φορά, μόνο αν ο αγώνας δεν έχει αρχίσει
 //   2. (μόνο με TELEGRAM_ROUNDS=1) προεπισκόπηση αγωνιστικής πριν και αποτελέσματα μετά
+//   3. (με TELEGRAM_FANTASY=1) μία ανάρτηση Fantasy ανά αγωνιστική: βέλτιστη σύνθεση, αρχηγός, προπονητής, άνοδοι τιμής
 //   TELEGRAM_TOKEN  token του bot (@BotFather)      TELEGRAM_CHAT  κανάλι, π.χ. @eubasketballstats_eu
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tradesAllowed } from '../src/fantasy/rules.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TOKEN = String(process.env.TELEGRAM_TOKEN || '').replace(/\s+/g, ''), CHAT = String(process.env.TELEGRAM_CHAT || '').trim();
 const TIPSTERS = String(process.env.TELEGRAM_TIPSTERS || 'high-fidelity').split(',').map(s => s.trim()).filter(Boolean);
 const ROUNDS = process.env.TELEGRAM_ROUNDS === '1';
+const FANTASY = process.env.TELEGRAM_FANTASY === '1';
 const DRY = process.env.TELEGRAM_DRY === '1';
 const SITE = 'https://basketballstats.eu';
 if (!TOKEN || !CHAT) { console.log('Telegram: δεν έχουν οριστεί TELEGRAM_TOKEN / TELEGRAM_CHAT, παράλειψη.'); process.exit(0); }
@@ -64,6 +67,47 @@ if (ROUNDS && next) {
     let p = '';
     if (par && par.round === r) p = `\n\n🎯 <b>Το παρολί του μοντέλου</b> (${Math.round(par.P * 100)}%, δίκαιη απόδοση ${(1 / par.P).toFixed(2)}):\n${par.picks.map(x => `• ${esc(tn(x.fav))} (${Math.round(x.p * 100)}%)`).join('\n')}\n${par.url}${par.record?.n ? `\nΜέχρι τώρα: ${par.record.hits}/${par.record.picks} επιλογές, ${par.record.won}/${par.record.n} παρολί` : ''}`;
     posts.push({ key: 'pre-' + r, text: `🏀 <b>EuroLeague · ${r}η αγωνιστική</b>\n\n${L.join('\n')}${p}\n\n🔮 Προβλέψεις αγώνων: ${SITE}/prognostika/\n🧮 Fantasy PIR Projections: ${SITE}/fantasy/projections/\n\n${RG}` });
+  }
+}
+// 3. Fantasy: μία φορά ανά αγωνιστική, πριν από το πρώτο τζάμπολ της, όταν υπάρχουν οι επίσημες τιμές
+//    (ή από 30 ώρες πριν, με όποιες τιμές υπάρχουν), και μόνο 09:00–23:00 ώρα Αθήνας για να μη χτυπά τη νύχτα
+if (FANTASY) {
+  const fx = await readJ(path.join(ROOT, 'data', 'fantasy', 'latest.json'));
+  const opt = await readJ(path.join(ROOT, 'dist', 'api', 'fantasy', 'optimizer', 'balanced.json'));
+  const pm = await readJ(path.join(ROOT, 'fantasy', 'official', 'price-model.json'), { slope: 0.036 });
+  const hr = +new Date().toLocaleString('en-GB', { timeZone: 'Europe/Athens', hour: '2-digit', hourCycle: 'h23' });
+  const r = fx?.round, key = 'fantasy-r' + r;
+  const rg = games.filter(g => g[0] === r).sort((a, b) => gd(a[1]) - gd(b[1]));
+  const first = rg.length ? gd(rg[0][1]) : null, now = Date.now();
+  const offShare = fx ? fx.players.filter(p => p.price_src === 'official').length / Math.max(1, fx.players.length) : 0;
+  const ready = fx && opt && opt.round === r && opt.start?.length === 5 && first && first > now && (offShare > 0.8 || first - now < 30 * 3600e3);
+  if (ready && hr >= 9 && hr < 23 && !state.posted.includes(key)) {
+    const P = new Map(fx.players.map(p => [p.c, p]));
+    const nm = c => { const n = P.get(c)?.n || c, [l, f = ''] = n.split(','); const tc = x => x.toLowerCase().replace(/(^|[\s-])\p{L}/gu, m => m.toUpperCase()); return esc(`${tc(f.trim())} ${tc(l.trim())}`.trim()); };
+    const pl = c => { const p = P.get(c); return p ? `${nm(c)} <i>(${esc(tn(p.t))}, ${p.price.toFixed(1)})</i>` : esc(c); };
+    const coach = fx.coaches.find(x => x.t === opt.coach);
+    const unl = !Number.isFinite(tradesAllowed(r));
+    // πιθανή άνοδος τιμής: μοντέλο τιμών (fantasy/official/price-model.json), μόνο διαθέσιμοι παίκτες με τουλάχιστον 2 αγώνες
+    const rise = fx.players.filter(p => p.opp && p.status === 'playing' && (p.gp ?? 0) >= 2)
+      .map(p => ({ c: p.c, ch: pm.slope * ((p.pp || 0) * (1 + 0.1 * (p.pwin ?? 0.5)) - p.price) }))
+      .sort((a, b) => b.ch - a.ch).slice(0, 5).filter(x => x.ch >= 0.1);
+    const exp = opt.projected?.expected;
+    const lines = [
+      `🧮 <b>EuroLeague Fantasy · ${r}η αγωνιστική</b>`,
+      unl ? '\n🔓 <b>Ελεύθερες αλλαγές</b> αυτή την αγωνιστική: αλλάζεις και τους 10 παίκτες και τον προπονητή.' : '',
+      `\n<b>Η βέλτιστη σύνθεση</b> (${Number(opt.cost).toFixed(1)}/100 credits${exp ? `, ~${Math.round(exp)} αναμενόμενοι πόντοι` : ''}):`,
+      `© Αρχηγός: ${pl(opt.captain)}`,
+      `🏀 Πεντάδα: ${opt.start.filter(c => c !== opt.captain).map(pl).join(', ')}`,
+      `6️⃣ 6ος: ${pl(opt.sixth)}`,
+      `🪑 Πάγκος: ${opt.bench.map(pl).join(', ')}`,
+      coach ? `🧑‍💼 Προπονητής: ${esc(tn(coach.t))} <i>(${coach.price.toFixed(1)}${coach.pwin != null ? `, πιθανότητα νίκης ${Math.round(coach.pwin * 100)}%` : ''})</i>` : '',
+      rise.length ? `\n📈 <b>Πιθανή άνοδος τιμής</b>: ${rise.map(x => `${nm(x.c)} (+${(Math.round(x.ch * 10) / 10).toFixed(1)})`).join(', ')}` : '',
+      offShare <= 0.8 ? '\n<i>Οι επίσημες τιμές της αγωνιστικής δεν έχουν βγει ακόμα: χρησιμοποιούνται οι τελευταίες επίσημες + η αναμενόμενη αλλαγή.</i>' : '',
+      `\n👉 Φτιάξε τη δική σου με κλείδωμα/αποκλεισμό παικτών: ${SITE}/fantasy/optimizer/`,
+      `📊 Όλες οι εκτιμήσεις PIR: ${SITE}/fantasy/projections/`,
+      `\n<i>Στατιστικές εκτιμήσεις, όχι εγγύηση· οι απουσίες μπορεί να αλλάξουν μέχρι το τζάμπολ.</i>`,
+    ];
+    posts.push({ key, text: lines.filter(Boolean).join('\n') });
   }
 }
 for (const p of posts) {
