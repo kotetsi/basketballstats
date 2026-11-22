@@ -3743,7 +3743,7 @@ ${rgNote}</main>`;
     await simplePage('legal', { view: 'legal', title: T(`Πολιτική απορρήτου | ${SITE_NAME}`, `Privacy policy | ${SITE_NAME}`, `Política de privacidad | ${SITE_NAME}`, `Politika privatnosti | ${SITE_NAME}`, `Gizlilik politikası | ${SITE_NAME}`),
       desc: T(`Πώς το ${SITE_NAME} χρησιμοποιεί cookies και προσωπικά δεδομένα.`, `How ${SITE_NAME} uses cookies and personal data.`, `Cómo usa ${SITE_NAME} las cookies y los datos personales.`, `Kako ${SITE_NAME} koristi kolačiće i lične podatke.`, `${SITE_NAME} çerezleri ve kişisel verileri nasıl kullanıyor?`),
       main: LG === 'tr' ? LEGAL_TR : LG === 'sr' ? LEGAL_SR : LG === 'es' ? LEGAL_ES : LG === 'el' ? `<div class="legal"><h1>Πολιτική απορρήτου</h1>
-<p>Το ${esc(SITE_NAME)} (${esc(SITE_URL)}) ανήκει στην/στον ${esc(owner)}. Για κάθε θέμα σχετικά με τα δεδομένα σας επικοινωνήστε στο ${esc(email)}.</p>
+<p>Το ${esc(SITE_NAME)} (${esc(SITE_URL)}) ανήκει στην ${esc(owner)} (Ξανθίππου 7, 155 61 Χολαργός). Για κάθε θέμα σχετικά με τα δεδομένα σας επικοινωνήστε στο ${esc(email)}.</p>
 <h2>Τι δεδομένα συλλέγουμε</h2>
 <p>Δεν ζητάμε εγγραφή και δεν συλλέγουμε ονόματα ή στοιχεία επικοινωνίας. Ο διακομιστής καταγράφει τεχνικά στοιχεία (όπως διεύθυνση IP και τύπο συσκευής) για λόγους ασφάλειας και λειτουργίας.</p>
 <h2>Cookies και διαφημίσεις</h2>
@@ -3760,7 +3760,7 @@ ${rgNote}</main>`;
 <h2>Πηγή στατιστικών</h2>
 <p>Τα στατιστικά προέρχονται από τα επίσημα δημόσια δεδομένα της EuroLeague. Το ${esc(SITE_NAME)} δεν συνδέεται με την EuroLeague.</p>
 <p class="sub">Τελευταία ενημέρωση: ${esc(athens)}</p></div>` : `<div class="legal"><h1>Privacy policy</h1>
-<p>${esc(SITE_NAME)} (${esc(SITE_URL)}) is owned by ${esc(owner)}. For any question about your data, contact ${esc(email)}.</p>
+<p>${esc(SITE_NAME)} (${esc(SITE_URL)}) is owned by ${esc(owner)} (Xanthippou 7, 155 61 Cholargos, Greece). For any question about your data, contact ${esc(email)}.</p>
 <h2>What data we collect</h2>
 <p>We do not ask you to register and we do not collect names or contact details. The server logs technical data (such as IP address and device type) for security and operation.</p>
 <h2>Cookies and advertising</h2>
