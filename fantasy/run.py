@@ -25,6 +25,7 @@ from model import FEATSET, MODEL_VERSION, PirModel, backtest, ncdf  # noqa: E402
 import features2 as F2  # noqa: E402
 import vacated as VAC  # noqa: E402
 import price_roll as PROLL  # noqa: E402
+import market as MKT  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "fantasy"
@@ -154,12 +155,18 @@ def main():
     tg = [g for g in games if g[0] == target]
     days = sorted({game_date(g[1]).isoformat() for g in tg})
     team_game = {}
+    # αποδόσεις (fantasy/market.py): 30% μοντέλο + 70% αγορά για πιθανότητα νίκης και διαφορά, όπως στο src/odds/blend.mjs
+    mkt_all = MKT.load_latest()
+    n_mkt = 0
     for g in tg:
         pg = proj_game(g[2], g[3])
-        mu = (pg[0] - pg[1]) if pg else 0.0
-        for team, opp, home, m in ((g[2], g[3], 1, mu), (g[3], g[2], 0, -mu)):
+        mu0 = (pg[0] - pg[1]) if pg else 0.0
+        mu, ph, src = MKT.blend(mu0, mkt_all.get(f"E-{target}-{g[2]}-{g[3]}"))
+        n_mkt += src == "blend"
+        for team, opp, home, m, pw, m0 in ((g[2], g[3], 1, mu, ph, mu0), (g[3], g[2], 0, -mu, 1 - ph, -mu0)):
             team_game[team] = {"opp": opp, "home": home, "day": days.index(game_date(g[1]).isoformat()), "date": g[1],
-                               "pwin": round(ncdf(m / SD_MARGIN), 3), "margin": round(m, 1)}
+                               "pwin": round(pw, 3), "margin": round(m, 1), "margin_model": round(m0, 1), "odds": 1 if src == "blend" else 0}
+    log("αποδόσεις στην πιθανότητα νίκης:", n_mkt, "από", len(tg), "αγώνες")
 
     off_now = official_prices(target)
     # χωρίς επίσημες τιμές για την αγωνιστική: οι τελευταίες επίσημες + μοντέλο αλλαγής τιμής (fantasy/price_roll.py, MAE ≈ 0,03 credits στο backtest)
@@ -345,7 +352,7 @@ def main():
         c_off = float(prices_over.get("COACH-" + t, 0) or 0)
         c_roll = 0 if c_off else float(rolled.get("COACH-" + t, 0) or 0)
         price = c_off or c_roll or round(4 + 6 * (1 - rank / max(len(strength) - 1, 1)), 1)
-        coaches.append({"t": t, "price": price, "price_src": "official" if c_off else "rolled" if c_roll else "estimate", **cd, "opp": g["opp"], "home": g["home"], "day": g["day"], "pwin": g["pwin"]})
+        coaches.append({"t": t, "price": price, "price_src": "official" if c_off else "rolled" if c_roll else "estimate", **cd, "opp": g["opp"], "home": g["home"], "day": g["day"], "pwin": g["pwin"], "margin": g["margin"], "odds": g["odds"]})
     coaches.sort(key=lambda x: -x["exp"])
     pos_median = {ps: float(np.median([x["pp"] for x in players if x["pos"] == ps and x["status"] == "playing"] or [0])) for ps in ("Guard", "Forward", "Center")}
 
