@@ -3697,6 +3697,8 @@ ${rgNote}</main>`;
 <h2>Fuentes tipográficas</h2>
 <p>Las fuentes se cargan desde Google Fonts, por lo que tu dirección IP se envía a Google al cargar la página.</p>
 <p>Los vídeos de YouTube se muestran como imagen y solo se cargan desde YouTube (youtube-nocookie.com) cuando pulsas reproducir; a partir de ese momento se aplica la política de privacidad de Google.</p>
+<h2>Servicios API de YouTube</h2>
+<p>Publicamos vídeos cortos (Shorts) en nuestro propio canal de YouTube a través de los Servicios API de YouTube. Esta función solo accede a nuestro canal y no accede a la cuenta de YouTube ni a ningún dato de los visitantes. Al ver nuestros vídeos en YouTube aceptas los <a href="https://www.youtube.com/t/terms">Términos de servicio de YouTube</a>; se aplica la <a href="https://policies.google.com/privacy">Política de privacidad de Google</a>. Puedes revocar el acceso de cualquier aplicación a una cuenta de Google en la <a href="https://security.google.com/settings/security/permissions">página de permisos de seguridad de Google</a>.</p>
 <h2>Tus derechos</h2>
 <p>Según el Reglamento General de Protección de Datos (RGPD) tienes derecho a acceder a tus datos, rectificarlos, suprimirlos y oponerte a su tratamiento, así como a presentar una reclamación ante la Autoridad Helénica de Protección de Datos (www.dpa.gr) o ante la autoridad de tu país (en España, la AEPD).</p>
 <h2>Origen de las estadísticas</h2>
@@ -3713,6 +3715,8 @@ ${rgNote}</main>`;
 <h2>Yazı tipleri</h2>
 <p>Yazı tipleri Google Fonts üzerinden yüklenir; bu nedenle sayfa yüklenirken IP adresin Google’a iletilir.</p>
 <p>YouTube videoları görsel olarak gösterilir ve yalnızca oynat düğmesine bastığında YouTube’dan (youtube-nocookie.com) yüklenir; o andan itibaren Google’ın gizlilik politikası geçerlidir.</p>
+<h2>YouTube API Hizmetleri</h2>
+<p>Kısa videolarımızı (Shorts) YouTube API Hizmetleri aracılığıyla kendi YouTube kanalımıza yüklüyoruz. Bu özellik yalnızca kendi kanalımıza erişir; ziyaretçilerin YouTube hesabına veya herhangi bir verisine erişmez. YouTube’daki videolarımızı izleyerek <a href="https://www.youtube.com/t/terms">YouTube Hizmet Şartları</a>’nı kabul etmiş olursunuz; <a href="https://policies.google.com/privacy">Google Gizlilik Politikası</a> geçerlidir. Herhangi bir uygulamanın Google hesabına erişimini <a href="https://security.google.com/settings/security/permissions">Google güvenlik izinleri sayfasından</a> kaldırabilirsiniz.</p>
 <h2>Hakların</h2>
 <p>Genel Veri Koruma Tüzüğü (GDPR) uyarınca verilerine erişme, bunları düzeltme ve silme ile işlenmelerine itiraz etme hakkına ve Yunanistan Kişisel Verileri Koruma Kurumu’na (www.dpa.gr) ya da kendi ülkendeki yetkili makama (Türkiye’de: Kişisel Verileri Koruma Kurumu, KVKK) şikâyette bulunma hakkına sahipsin.</p>
 <h2>İstatistiklerin kaynağı</h2>
@@ -3729,6 +3733,8 @@ ${rgNote}</main>`;
 <h2>Fontovi</h2>
 <p>Fontovi se učitavaju sa usluge Google Fonts, pa se vaša IP adresa prilikom učitavanja stranice šalje Googleu.</p>
 <p>YouTube video snimci se prikazuju kao slika i učitavaju se sa YouTube-a (youtube-nocookie.com) tek kada pritisnete pusti; od tog trenutka važi Google-ova politika privatnosti.</p>
+<h2>YouTube API usluge</h2>
+<p>Kratke video snimke (Shorts) objavljujemo na našem YouTube kanalu putem YouTube API usluga. Ova funkcija pristupa samo našem kanalu i ne pristupa YouTube nalogu niti bilo kojim podacima posetilaca. Gledanjem naših video snimaka na YouTube-u prihvatate <a href="https://www.youtube.com/t/terms">YouTube uslove korišćenja</a>; primenjuje se <a href="https://policies.google.com/privacy">Google politika privatnosti</a>. Pristup bilo koje aplikacije Google nalogu možete opozvati na <a href="https://security.google.com/settings/security/permissions">stranici bezbednosnih dozvola Google-a</a>.</p>
 <h2>Vaša prava</h2>
 <p>Prema Opštoj uredbi o zaštiti podataka (GDPR) imate pravo na pristup, ispravku i brisanje svojih podataka i na prigovor na njihovu obradu, kao i pravo da podnesete pritužbu grčkom organu za zaštitu podataka (www.dpa.gr) ili nadležnom organu u svojoj zemlji (u Srbiji: Poverenik za informacije od javnog značaja i zaštitu podataka o ličnosti).</p>
 <h2>Izvor statistike</h2>
@@ -3747,6 +3753,8 @@ ${rgNote}</main>`;
 <h2>Γραμματοσειρές</h2>
 <p>Οι γραμματοσειρές φορτώνονται από την υπηρεσία Google Fonts, οπότε η διεύθυνση IP σας διαβιβάζεται στην Google κατά τη φόρτωση της σελίδας.</p>
 <p>Τα βίντεο του YouTube εμφανίζονται ως εικόνα και φορτώνουν από το YouTube (youtube-nocookie.com) μόνο όταν πατήσετε αναπαραγωγή· από εκείνη τη στιγμή ισχύει η πολιτική απορρήτου της Google.</p>
+<h2>Υπηρεσίες API του YouTube</h2>
+<p>Ανεβάζουμε σύντομα βίντεο (Shorts) στο δικό μας κανάλι YouTube μέσω των Υπηρεσιών API του YouTube (YouTube API Services). Η λειτουργία αυτή έχει πρόσβαση μόνο στο δικό μας κανάλι και δεν έχει πρόσβαση στον λογαριασμό YouTube ή σε οποιαδήποτε δεδομένα των επισκεπτών. Βλέποντας τα βίντεό μας στο YouTube αποδέχεστε τους <a href="https://www.youtube.com/t/terms">Όρους Παροχής Υπηρεσιών του YouTube</a>· ισχύει η <a href="https://policies.google.com/privacy">Πολιτική Απορρήτου της Google</a>. Μπορείτε να ανακαλέσετε την πρόσβαση οποιασδήποτε εφαρμογής σε λογαριασμό Google από τη <a href="https://security.google.com/settings/security/permissions">σελίδα αδειών ασφαλείας της Google</a>.</p>
 <h2>Τα δικαιώματά σας</h2>
 <p>Σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (ΓΚΠΔ) έχετε δικαίωμα πρόσβασης, διόρθωσης, διαγραφής και εναντίωσης στην επεξεργασία των δεδομένων σας, καθώς και δικαίωμα καταγγελίας στην Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα (www.dpa.gr).</p>
 <h2>Πηγή στατιστικών</h2>
@@ -3762,6 +3770,8 @@ ${rgNote}</main>`;
 <h2>Fonts</h2>
 <p>Fonts are loaded from Google Fonts, so your IP address is sent to Google when the page loads.</p>
 <p>YouTube videos are shown as an image and only load from YouTube (youtube-nocookie.com) when you press play; from then on Google’s privacy policy applies.</p>
+<h2>YouTube API Services</h2>
+<p>We publish short videos (Shorts) to our own YouTube channel using YouTube API Services. This feature only accesses our own channel; it does not access visitors’ YouTube accounts or any visitor data. By watching our videos on YouTube you agree to the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a>; the <a href="https://policies.google.com/privacy">Google Privacy Policy</a> applies. You can revoke any app’s access to a Google account on the <a href="https://security.google.com/settings/security/permissions">Google security permissions page</a>.</p>
 <h2>Your rights</h2>
 <p>Under the General Data Protection Regulation (GDPR) you have the right to access, correct and delete your data and to object to its processing, as well as the right to lodge a complaint with the Hellenic Data Protection Authority (www.dpa.gr) or your local data protection authority.</p>
 <h2>Source of the stats</h2>
