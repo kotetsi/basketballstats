@@ -22,7 +22,7 @@ export const SOURCES = {
   tiktok: 'TikTok',
   youtube: 'YouTube',
   vidcast: 'Vidcast',
-  stoixima: 'stoixima.com.gr',
+  // stoixima.com.gr: όχι αυτόματα (απόφαση του Νίκου, 22/11/2026)
 };
 
 const LINKS = path.join(ROOT, 'data', 'telegram-links.json'), STATS = path.join(ROOT, 'data', 'telegram-stats.json');
