@@ -19,7 +19,14 @@ for (const line of fs.readFileSync(new URL(`./raw-r${R}.txt`, import.meta.url), 
   if (c.length > 1) c = c.filter(p => p.t === t);
   if (!c.length) c = P.filter(p => ok(p) && p.t === t);   // άλλο μικρό όνομα (π.χ. Olek/Aleksander Balcerowski)
   if (c.length !== 1) { miss.push(`${line}  (${c.length} υποψήφιοι)`); continue; }
-  out.push([c[0].c, cr, plus, c[0].n, pop, d3, d5, d10]);
+  // ίδιος κωδικός από δύο γραμμές (π.χ. δύο «K. Hayes»): κρατάμε αυτή με την ίδια ομάδα
+  const prev = out.findIndex(r => r[0] === c[0].c);
+  if (prev >= 0) {
+    if (c[0].t === t && out[prev].team !== t) { miss.push(`${out[prev].raw}  (διπλή αντιστοίχιση, κρατήθηκε η γραμμή της ίδιας ομάδας)`); out[prev] = Object.assign([c[0].c, cr, plus, c[0].n, pop, d3, d5, d10], { team: t, raw: line }); }
+    else miss.push(`${line}  (διπλή αντιστοίχιση με ${c[0].n})`);
+    continue;
+  }
+  out.push(Object.assign([c[0].c, cr, plus, c[0].n, pop, d3, d5, d10], { team: t, raw: line }));
 }
 fs.writeFileSync(new URL(`./prices-r${R}.csv`, import.meta.url), `# Επίσημες τιμές EuroLeague Fantasy πριν από την ${R}η αγωνιστική: code,price,change,name,pop‰,d3,d5,d10 (δέκατα)\n` + out.map(r => r.map(x => /,/.test(x) ? `"${x}"` : x).join(',')).join('\n') + '\n');
 console.log('ok', out.length, 'χωρίς αντιστοίχιση', miss.length); miss.forEach(x => console.log('  ' + x));
