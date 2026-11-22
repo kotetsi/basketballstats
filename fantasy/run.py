@@ -24,6 +24,7 @@ from features import build_rows, game_date, team_tables, team_ratings_before, SE
 from model import FEATSET, MODEL_VERSION, PirModel, backtest, ncdf  # noqa: E402
 import features2 as F2  # noqa: E402
 import vacated as VAC  # noqa: E402
+import price_roll as PROLL  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "fantasy"
@@ -160,8 +161,11 @@ def main():
             team_game[team] = {"opp": opp, "home": home, "day": days.index(game_date(g[1]).isoformat()), "date": g[1],
                                "pwin": round(ncdf(m / SD_MARGIN), 3), "margin": round(m, 1)}
 
-    prices_over = {**official_prices(target), **read_overrides("prices.csv")}
-    log("επίσημες τιμές:", len(prices_over))
+    off_now = official_prices(target)
+    # χωρίς επίσημες τιμές για την αγωνιστική: οι τελευταίες επίσημες + μοντέλο αλλαγής τιμής (fantasy/price_roll.py, MAE ≈ 0,03 credits στο backtest)
+    rolled, roll_base = ({}, None) if off_now else PROLL.roll(cache, target)
+    prices_over = {**off_now, **read_overrides("prices.csv")}
+    log("επίσημες τιμές:", len(prices_over), "· κυλιόμενες από r%s:" % roll_base if roll_base else "", len(rolled) if roll_base else "")
     status_over = read_overrides("status.csv")
     pos_of = {p["c"]: p.get("pos") or "Forward" for p in cache["players"]}
     pl_by = {p["c"]: p for p in cache["players"]}
@@ -186,10 +190,11 @@ def main():
         proj = max(float(r["proj_pir"]), 0.0) * mult
         base = 0.5 * (np.mean(l10) if l10 else 0) + 0.5 * max(float(r["proj_pir"]), 0)
         price_off = float(prices_over.get(c, prices_over.get(p["n"].upper(), 0)) or 0)
-        price = price_off or round(min(24, max(4, 4 + 0.75 * base)), 1)
+        price_roll = 0 if price_off else float(rolled.get(c.upper(), 0) or 0)
+        price = price_off or price_roll or round(min(24, max(4, 4 + 0.75 * base)), 1)
         tg_ = team_game.get(r["team"], {})
         players.append({
-            "c": c, "n": p["n"], "t": r["team"], "pos": pos_of[c], "price": price, "price_src": "official" if price_off else "estimate", "status": status, "status_src": status_src,
+            "c": c, "n": p["n"], "t": r["team"], "pos": pos_of[c], "price": price, "price_src": "official" if price_off else "rolled" if price_roll else "estimate", "status": status, "status_src": status_src,
             "l5": round(float(np.mean(l5)), 1) if l5 else 0, "l10": round(float(np.mean(l10)), 1) if l10 else 0,
             "pirpm": round(sum(x[PIR] for x in played[-10:]) / mins10, 3) if mins10 else 0,
             "pm": round(float(r["proj_min"]) * mult, 1), "pp0": round(max(float(r["proj_pir"]), 0.0), 1), "pm0": round(float(r["proj_min"]), 1), "ppm": round(float(r["proj_pirpm"]), 3), "pp": round(proj, 1),
@@ -337,8 +342,10 @@ def main():
     for t, g in team_game.items():
         cd = coach_dist(g["margin"])
         rank = strength.index(t) if t in strength else len(strength) // 2
-        price = float(prices_over.get("COACH-" + t, 0) or 0) or round(4 + 6 * (1 - rank / max(len(strength) - 1, 1)), 1)
-        coaches.append({"t": t, "price": price, **cd, "opp": g["opp"], "home": g["home"], "day": g["day"], "pwin": g["pwin"]})
+        c_off = float(prices_over.get("COACH-" + t, 0) or 0)
+        c_roll = 0 if c_off else float(rolled.get("COACH-" + t, 0) or 0)
+        price = c_off or c_roll or round(4 + 6 * (1 - rank / max(len(strength) - 1, 1)), 1)
+        coaches.append({"t": t, "price": price, "price_src": "official" if c_off else "rolled" if c_roll else "estimate", **cd, "opp": g["opp"], "home": g["home"], "day": g["day"], "pwin": g["pwin"]})
     coaches.sort(key=lambda x: -x["exp"])
     pos_median = {ps: float(np.median([x["pp"] for x in players if x["pos"] == ps and x["status"] == "playing"] or [0])) for ps in ("Guard", "Forward", "Center")}
 
@@ -356,7 +363,7 @@ def main():
         bt_file.write_text(json.dumps(bt), encoding="utf-8")
     now = datetime.now(timezone.utc)
     latest = {"round": target, "generated": now.isoformat(timespec="seconds"), "model": MODEL_VERSION, "n_train": model.n_train,
-              "days": days, "players": players, "coaches": coaches, "pos_median": pos_median,
+              "days": days, "price_base": roll_base, "players": players, "coaches": coaches, "pos_median": pos_median,
               "backtest": {k: bt.get(k) for k in ("mae", "mae_base", "coverage_80", "mae_min", "n", "upto")}}
     OUT.mkdir(parents=True, exist_ok=True)
     update_news(latest)
