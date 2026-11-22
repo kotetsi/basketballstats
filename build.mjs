@@ -1005,7 +1005,7 @@ async function main() {
   try { PMODEL = JSON.parse(fsSync.readFileSync(path.join(ROOT, 'fantasy', 'official', 'price-model.json'), 'utf8')); } catch { }
   if (FXD) try {
     for (const l of fsSync.readFileSync(path.join(ROOT, 'fantasy', 'official', `prices-r${OFFP || !PRB ? FXD.round : PRB}.csv`), 'utf8').split('\n')) {
-      const m = l.match(/^([^#,][^,]*),[^,]+,[^,]+,(?:"[^"]*"|[^,]*),[^,]*,([^,]*),([^,]*),([^,]*)$/); if (!m) continue;
+      const m = l.match(/^([^#,][^,]*),[^,]+,[^,]+,(?:"[^"]*"|[^,]*),[^,]*,([^,]*),([^,]*),([^,]*)(?:,[A-Z]*)?$/); if (!m) continue;
       const v = x => (x === '' || x === 'x' ? null : +x / 10);
       OFFD[m[1]] = { 3: v(m[2]), 5: v(m[3]), 10: v(m[4]) };
     }
@@ -3029,7 +3029,7 @@ ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: t
         const odir = path.join(ROOT, 'fantasy', 'official');
         for (const f of (await fs.readdir(odir)).filter(f => /^prices-r\d+\.csv$/.test(f))) {
           const r = +f.match(/\d+/)[0];
-          PRC[r] = (await fs.readFile(path.join(odir, f), 'utf8')).split('\n').filter(l => l && !l.startsWith('#')).map(l => { const m = l.match(/^([^,]+),([^,]+),([^,]+),("[^"]*"|[^,]*)(?:,(\d*))?(?:,([^,]*),([^,]*),([^,]*))?$/); if (!m) return {}; const dv = x => (x === undefined || x === '' || x === 'x' ? null : +x / 10); return { c: m[1], pr: +m[2], ch: +m[3], n: m[4].replace(/^"|"$/g, ''), pop: m[5] === undefined || m[5] === '' ? null : +m[5] / 10, d3: dv(m[6]), d5: dv(m[7]) }; }).filter(x => x.pr > 0);
+          PRC[r] = (await fs.readFile(path.join(odir, f), 'utf8')).split('\n').filter(l => l && !l.startsWith('#')).map(l => { const m = l.match(/^([^,]+),([^,]+),([^,]+),("[^"]*"|[^,]*)(?:,(\d*))?(?:,([^,]*),([^,]*),([^,]*))?(?:,([A-Z]*))?$/); if (!m) return {}; const dv = x => (x === undefined || x === '' || x === 'x' ? null : +x / 10); return { c: m[1], pr: +m[2], ch: +m[3], n: m[4].replace(/^"|"$/g, ''), pop: m[5] === undefined || m[5] === '' ? null : +m[5] / 10, d3: dv(m[6]), d5: dv(m[7]) }; }).filter(x => x.pr > 0);
         }
       } catch { }
       const prRounds = Object.keys(PRC).map(Number).filter(r => PRC[r].length >= 100).sort((a, b) => b - a);

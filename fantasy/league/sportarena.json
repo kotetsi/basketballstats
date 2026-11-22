@@ -3,7 +3,7 @@
   "public": true,
   "teams": 164,
   "game": "https://euroleaguefantasy.euroleaguebasketball.net/",
-  "updated": "2026-11-19",
+  "updated": "2026-11-22",
   "note": "Μόνο ονόματα ομάδων, όχι ονόματα μάνατζερ. Round = πόντοι της αγωνιστικής, total = σύνολο μετά από αυτή.",
   "rounds": {
     "10": {
@@ -141,6 +141,52 @@
         [
           "rounti4",
           1998.75
+        ]
+      ]
+    },
+    "13": {
+      "round": [
+        [
+          "panaoly",
+          221.4
+        ],
+        [
+          "Aris(tea)",
+          204.9
+        ],
+        [
+          "Tinder Bologna BC",
+          197.1
+        ],
+        [
+          "orko",
+          196.15
+        ],
+        [
+          "High Threedelity",
+          195.45
+        ]
+      ],
+      "total": [
+        [
+          "χασιωω",
+          2232.85
+        ],
+        [
+          "Red Drops",
+          2223.85
+        ],
+        [
+          "ΑΝΤΙΓΟΝΟΥΛΑ",
+          2179.85
+        ],
+        [
+          "The Dark Pointsenger",
+          2174.25
+        ],
+        [
+          "Red Drops!",
+          2166.85
         ]
       ]
     }
