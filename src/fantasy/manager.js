@@ -4,6 +4,7 @@ import { validateRoster, rosterCost, tradeEval, multiTrade, planRound, captainEl
 import { optimize } from './optimizer.mjs';
 import { adviseCaptain, captainRow } from './captain.mjs';
 import { simulate, saveScenario, compareScenarios, delta, MAX_SCEN, AXES } from './whatif.mjs';
+import { tradesAllowed } from './rules.mjs';
 
 const X = JSON.parse(document.getElementById('fmctx').textContent);
 const L = X.L;
@@ -20,6 +21,9 @@ const LANG = String(X.loc || 'el').slice(0, 2);
 const trTitle = h => (h.i18n && (h.i18n[LANG] || (LANG !== 'el' && h.i18n.en))) || h.title;   // σερβικά: χωρίς μοντέλο → αγγλικά
 const trNote = h => (trTitle(h) !== h.title ? ` <small class="trnote" title="${esc(h.title)}">· ${esc(L.autoTr || '')} ${esc(h.title)}</small>` : '');
 const team = () => S.teams[S.active];
+// ελεύθερες αλλαγές (μετά τις αγωνιστικές 6, 13, 18, 23, 28, 34 και στα playoffs): όλοι οι 10 παίκτες + ο προπονητής
+const UNL = () => !Number.isFinite(tradesAllowed(D.round));
+const trLeft = t => (UNL() ? 11 : (t.transfers ?? 4));
 const rosterOf = t => t.roster.map(c => P.get(c)).filter(Boolean);
 const save = () => store.set(S);
 const todayTurn = () => { const d = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Athens' }); const i = D.days.indexOf(d); return i >= 0 ? i : D.days[0] > d ? 0 : D.days.length - 1; };
@@ -29,7 +33,7 @@ const tm = t => esc(X.teams[t] || t);
 const dayL = i => (i == null ? '–' : esc(X.days[i] || ''));
 const stBadge = s => (s && s !== 'playing' ? ` <span class="fxst fxst-${s}">${esc(L.st[s] || s)}</span>` : '');
 
-function newTeam(name) { return { id: Date.now().toString(36), name, roster: [], coach: null, formation: 'auto', captain: null, transfers: 2, bank: null }; }
+function newTeam(name) { return { id: Date.now().toString(36), name, roster: [], coach: null, formation: 'auto', captain: null, transfers: 4, bank: null }; }
 function lineupFor(t) {
   const ro = rosterOf(t);
   if (ro.length !== 10 || validateRoster(ro).some(e => e.k.startsWith('pos'))) return null;
@@ -58,7 +62,7 @@ function teamBar() {
   const cost = rosterCost(ro, coach), bank = t.bank != null ? t.bank : Math.round((CAP - cost) * 10) / 10;
   return `<div class="fmbar"><label>${esc(L.team)} <select data-act="pick">${S.teams.map((x, i) => `<option value="${i}"${i === S.active ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
 <button type="button" data-act="new">+ ${esc(L.newTeam)}</button><button type="button" data-act="rename">${esc(L.rename)}</button>${S.teams.length > 1 ? `<button type="button" data-act="del">${esc(L.del)}</button>` : ''}
-<span class="fmbudget"><b>${f1(cost)}</b> / ${CAP} credits · ${esc(L.bank)} <b class="${bank < 0 ? 'dn' : ''}">${f1(bank)}</b> · ${ro.length}/10 · ${esc(L.transfersLeft)} <b>${t.transfers ?? '–'}</b></span></div>`;
+<span class="fmbudget"><b>${f1(cost)}</b> / ${CAP} credits · ${esc(L.bank)} <b class="${bank < 0 ? 'dn' : ''}">${f1(bank)}</b> · ${ro.length}/10 · ${esc(L.transfersLeft)} <b>${UNL() ? '∞' : (t.transfers ?? '–')}</b></span></div>${UNL() ? `<p class="fmswap">🔓 ${esc(L.unlimitedRound || '')}</p>` : ''}`;
 }
 
 // ---------- Η ομάδα μου
@@ -76,7 +80,7 @@ ${errs.length ? `<ul class="fmerr">${errs.map(e => `<li>${esc(L.err[e.k] ? L.err
 <label>${esc(L.coach)} <select data-act="coach"><option value="">–</option>${D.coaches.slice().sort((a, b) => String(X.teams[a.t]).localeCompare(String(X.teams[b.t]))).map(c => `<option value="${c.t}"${c.t === t.coach ? ' selected' : ''}>${tm(c.t)} · ${f1(c.price)} cr · ${f1(c.exp)}</option>`).join('')}</select></label>
 <label>${esc(L.formation)} <select data-act="formation">${['auto', ...Object.keys(FORMATIONS)].map(f => `<option value="${f}"${(t.formation || 'auto') === f ? ' selected' : ''}>${f === 'auto' ? esc(L.best) : f}</option>`).join('')}</select></label>
 <label>${esc(L.captain)} <select data-act="captain"><option value="">${esc(L.auto)}</option>${caps.map(c => `<option value="${c}"${c === t.captain ? ' selected' : ''}>${pName(c)}</option>`).join('')}</select></label>
-<label>${esc(L.transfersLeft)} <input type="number" min="0" max="20" value="${t.transfers ?? 2}" data-act="transfers"></label>
+<label>${esc(L.transfersLeft)} <input type="number" min="0" max="20" value="${UNL() ? 11 : (t.transfers ?? 4)}" data-act="transfers"${UNL() ? ' disabled' : ''}></label>
 <label>${esc(L.bank)} <input type="number" step="0.1" value="${t.bank ?? ''}" placeholder="${esc(L.auto)}" data-act="bank"></label></div>
 ${capWarn}
 <div class="fmgrid">${byPos}</div>
@@ -99,7 +103,7 @@ function viewTrade() {
   const cands = D.players.filter(p => p.pos === outP.pos && !t.roster.includes(p.c)).sort((a, b) => (afford(b) - afford(a)) || (b.p3 || 0) - (a.p3 || 0));
   const inC = cands.some(p => p.c === sel.in) ? sel.in : cands[0]?.c;
   const risk = sel.risk || 'balanced';
-  const r = inC ? tradeEval(ro, outP.c, inC, D.players, { bank, transfersLeft: t.transfers ?? 2, risk, coach }) : null;
+  const r = inC ? tradeEval(ro, outP.c, inC, D.players, { bank, transfersLeft: trLeft(t), risk, coach }) : null;
   const rr = (k, a, b) => `<tr><td class="l">${esc(k)}</td><td>${a}</td><td>${b}</td></tr>`;
   const res = r && r.inn ? `<div class="fmres"><p class="fmrecw">${REC(r.rec)} <span class="sub">score ${f1(r.score)}</span></p>
 ${r.errors.length ? `<ul class="fmerr">${r.errors.map(e => `<li>${esc(L.err[e.k] ? L.err[e.k].replace('{t}', X.teams[e.t] || e.t || '').replace('{n}', e.n ?? '').replace('{max}', e.max ?? '').replace('{bank}', f1(e.bankAfter)) : e.k)}</li>`).join('')}</ul>` : ''}
@@ -113,9 +117,9 @@ ${rr(L.priceH, f1(r.out.price), f1(r.inn.price))}${rr(L.proj, f1(r.out.pp), f1(r
 <label>${esc(L.sell)} <select name="out">${ro.map(p => `<option value="${p.c}"${p.c === outP.c ? ' selected' : ''}>${esc(p.dn)} · ${esc(L.pos[p.pos])} · ${p.price}</option>`).join('')}</select></label>
 <label>${esc(L.buy)} <select name="in">${cands.slice(0, 120).map(p => `<option value="${p.c}"${p.c === inC ? ' selected' : ''}>${esc(p.dn)} · ${tm(p.t)} · ${p.price} · ${f1(p.p3)}${p.status !== 'playing' ? ' · ' + esc(L.st[p.status]) : ''}${afford(p) ? '' : ' · 💰✕'}</option>`).join('')}</select></label>
 <label>${esc(L.risk.h)} <select name="risk">${['safe', 'balanced', 'ceiling'].map(k => `<option value="${k}"${k === risk ? ' selected' : ''}>${esc(L.riskP[k])}</option>`).join('')}</select></label>
-<span class="sub">${esc(L.bank)} ${f1(bank)} · ${esc(L.transfersLeft)} ${t.transfers ?? 2}</span></form>${res}
+<span class="sub">${esc(L.bank)} ${f1(bank)} · ${esc(L.transfersLeft)} ${UNL() ? '∞' : trLeft(t)}</span></form>${res}
 <h3>Multi-trade optimizer</h3><p class="sub">${esc(L.mtHelp)}</p>
-<form class="fxfilters" data-form="mt" onsubmit="return false"><label>${esc(L.maxTrades)} <select name="k">${[1, 2, 3, 4].map(k => `<option${k === (mt?.k || 2) ? ' selected' : ''}>${k}</option>`).join('')}</select></label>
+<form class="fxfilters" data-form="mt" onsubmit="return false"><label>${esc(L.maxTrades)} <select name="k">${(UNL() ? [1, 2, 3, 4, 5, 6, 8, 10] : [1, 2, 3, 4]).map(k => `<option${k === (mt?.k || 2) ? ' selected' : ''}>${k}</option>`).join('')}</select></label>
 <label>${esc(L.horizon)} <select name="h"><option value="3"${mt?.h !== 1 && mt?.h !== 5 ? ' selected' : ''}>${esc(L.next3)}</option><option value="5"${mt?.h === 5 ? ' selected' : ''}>${esc(L.next5 || 'Next 5')}</option><option value="1"${mt?.h === 1 ? ' selected' : ''}>${esc(L.nextRound)}</option></select></label>
 <button type="button" data-act="mt" class="fxrun">${esc(L.findTrades)}</button></form>
 <div data-mtout>${mt?.res ? mtView(mt.res, mt.h) : ''}</div></section>`;
@@ -312,11 +316,11 @@ app.addEventListener('click', e => {
     const fm = app.querySelector('[data-form="mt"]'), k = +fm.elements.k.value, h = +fm.elements.h.value;
     const ro = rosterOf(t), coach = D.coaches.find(c => c.t === t.coach), bank = t.bank != null ? t.bank : Math.round((CAP - rosterCost(ro, coach)) * 10) / 10;
     b.disabled = true; b.textContent = '…';
-    setTimeout(() => { S.mt = { k, h, res: multiTrade(ro, D.players, { bank, transfersLeft: t.transfers ?? 2, maxTrades: k, horizonRounds: h, risk: S.trade?.risk || 'balanced' }) }; S.mt.res.roster = S.mt.res.roster.map(p => p.c); render(); }, 20);
+    setTimeout(() => { S.mt = { k, h, res: multiTrade(ro, D.players, { bank, transfersLeft: trLeft(t), maxTrades: k, horizonRounds: h, risk: S.trade?.risk || 'balanced' }) }; S.mt.res.roster = S.mt.res.roster.map(p => p.c); render(); }, 20);
   }
   if (a === 'applymt' && S.mt?.res) {
     if (!confirm(L.confirmApply)) return;
-    t.roster = S.mt.res.roster.slice(); t.transfers = Math.max(0, (t.transfers ?? 2) - S.mt.res.trades.length); t.bank = null; S.mt = null; save(); render();
+    t.roster = S.mt.res.roster.slice(); if (!UNL()) t.transfers = Math.max(0, (t.transfers ?? 4) - S.mt.res.trades.length); t.bank = null; S.mt = null; save(); render();
   }
 });
 app.addEventListener('change', e => {
