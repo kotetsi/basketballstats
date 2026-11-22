@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-22T02:51:17.413Z",
+  "generatedAt": "2026-11-22T06:44:54.374Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-22T02:51:17.017Z",
+  "collectorUpdated": "2026-11-22T06:44:54.040Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-22T02:51:17.017Z",
+  "lastIngestAt": "2026-11-22T06:44:53.629Z",
   "lastIngestEvents": 0,
   "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-17T15:30:22.910Z",
-  "latestQuoteAgeHours": 107.35,
+  "latestQuoteAgeHours": 111.24,
   "upcomingGames": 10,
   "gamesWithGreekBooks": 3,
   "greekBookGameQuotes": 3,
@@ -26,7 +26,7 @@
       "oneSided": 0,
       "newest": "2026-11-17T15:30:22.910Z",
       "oldest": "2026-11-17T15:30:21.949Z",
-      "newestAgeHours": 107.35
+      "newestAgeHours": 111.24
     }
   ],
   "events": [
@@ -45,7 +45,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:21.949Z",
-          "ageHours": 107.35
+          "ageHours": 111.24
         }
       ]
     },
@@ -64,7 +64,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:22.365Z",
-          "ageHours": 107.35
+          "ageHours": 111.24
         }
       ]
     },
@@ -83,7 +83,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-17T15:30:22.910Z",
-          "ageHours": 107.35
+          "ageHours": 111.24
         }
       ]
     },
