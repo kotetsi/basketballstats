@@ -165,7 +165,8 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
   const fullName = n => grName(n);
 
   // 1. Προεπισκόπηση
-  for (const r of rounds.filter(r => !done(r) && firstDay(r) === today)) {
+  // με DAILY_ONLY=preview (χειροκίνητα): η επόμενη αγωνιστική που δεν έχει ολοκληρωθεί, όποια μέρα κι αν είναι
+  for (const r of rounds.filter(r => !done(r) && (firstDay(r) === today || (ONLY === 'preview' && r === rounds.find(q => !done(q)))))) {
     if ((ONLY && ONLY !== 'preview') || state.posted.some(k => k.startsWith(`preview:${r}:`))) continue;
     const byDay = new Map();
     for (const g of ofR(r).filter(g => !g[6]).sort((a, b) => gDate(a[1]) - gDate(b[1]))) {
