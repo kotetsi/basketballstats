@@ -12,11 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { label: "τρέχον (RAPM πεντάδων με box-score prior)", env: "" }
-          - { label: "χωρίς RAPM πεντάδων", env: "PRED_LINEUPS=0" }
-          - { label: "RAPM χωρίς box-score prior", env: "PRED_RAPM_PRIOR=0" }
+          - { label: "RAPM λ=800", env: "PRED_RAPM_LAMBDA=800" }
+          - { label: "RAPM λ=1000", env: "PRED_RAPM_LAMBDA=1000" }
           - { label: "RAPM λ=1500", env: "PRED_RAPM_LAMBDA=1500" }
-          - { label: "RAPM λ=6000", env: "PRED_RAPM_LAMBDA=6000" }
+          - { label: "RAPM λ=2000", env: "PRED_RAPM_LAMBDA=2000" }
+          - { label: "RAPM λ=1500 χρονική απόσβεση 120", env: "PRED_RAPM_LAMBDA=1500 PRED_RAPM_HL=120" }
+          - { label: "RAPM λ=1500 χρονική απόσβεση 400", env: "PRED_RAPM_LAMBDA=1500 PRED_RAPM_HL=400" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
