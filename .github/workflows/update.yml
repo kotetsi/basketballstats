@@ -116,6 +116,8 @@ jobs:
         run: node scripts/portal-home.mjs
       - name: Έλεγχος SEO (στατική βαθμολογία και δεδομένα αγώνων)
         run: node --check scripts/portal-home.mjs && node --test test/seo.test.mjs
+      - name: "SEO: noindex σε σελίδες χαμηλής αξίας (συγκρίσεις, EuroCup, πεντάδες, matchup, παίκτες/αγώνες sr/tr)"
+        run: node --test test/seo-prune.test.mjs && node scripts/seo-prune.mjs
       - name: Ανακατευθύνσεις για σελίδες που δεν υπάρχουν πια (αντί για 404)
         run: node scripts/gone-redirects.mjs
       - name: "Έλεγχος σελίδας Σύγκρισης στον browser (επιλογές, φίλτρα, URLs, SEO, κινητό)"
