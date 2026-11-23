@@ -16,6 +16,7 @@ import * as SR from './src/sr.mjs';
 import * as TRL from './src/tr.mjs';
 import * as OPT from './src/fantasy/optimizer.mjs';
 import { tradesAllowed as RULES_TA } from './src/fantasy/rules.mjs';
+import { fantasyGuide } from './src/fantasy/guide.mjs';
 import * as OPTR from './src/fantasy/render.mjs';
 import * as AB from './src/analytics/build-analytics.mjs';
 import { impliedProbs } from './src/matchup/sim.mjs';
@@ -589,8 +590,8 @@ async function loadTipsters(games, players) {
   return out.sort((x, y) => (y.units - x.units) || ((y.pct ?? -1) - (x.pct ?? -1)));
 }
 
-async function loadArticles() {
-  const dir = path.join(ROOT, 'articles');
+async function loadArticles(sub = 'articles') {
+  const dir = path.join(ROOT, sub);
   let files = [];
   try { files = (await fs.readdir(dir)).filter(f => f.endsWith('.md') && !f.startsWith('_')); } catch { return []; }
   const list = [];
@@ -608,7 +609,7 @@ async function loadArticles() {
     const slug = meta.slug || slugify(meta.title) || slugify(f.replace(/\.md$/, ''));
     const date = meta.date || '';
     const dateOf = loc => (date ? new Date(date + 'T12:00:00Z').toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' }) : '');
-    const a = { type: meta.type === 'prognostiko' ? 'prognostiko' : 'arthro', round: meta.round ? +meta.round : null, game: (meta.game || '').toUpperCase(), author: meta.author || '', authorUrl: meta.author_url || '', date,
+    const a = { type: meta.type === 'prognostiko' ? 'prognostiko' : 'arthro', meta, round: meta.round ? +meta.round : null, game: (meta.game || '').toUpperCase(), author: meta.author || '', authorUrl: meta.author_url || '', date,
       el: { title: meta.title, desc: meta.description || '', slug, dateText: dateOf('el-GR'), url: BASE + 'arthra/' + slug + '/', html: markdown(bodyEl) } };
     if (meta.title_en && bodyEn && bodyEn.trim()) {
       const se = meta.slug_en || slugify(meta.title_en) || slug;
@@ -656,16 +657,22 @@ async function fetchAll() {
     if (!st) return null;
     const b = bio?.data?.find(x => x.type === 'J') || bio?.data?.[0];
     const per = b?.person || {};
+    const myTeams = [];
     const g = (st.games || []).filter(x => x.game.played).map(x => {
       const G = x.game, s = x.stats;
-      const home = G.local.club.code === tc; const me = home ? G.local : G.road, op = home ? G.road : G.local;
+      // παίκτης με 2 ομάδες στη σεζόν: το feed δίνει «BAS;DUB» (όχι με χρονική σειρά)· η ομάδα του αγώνα είναι όποια από τις δύο έπαιζε
+      const tcs = tc.split(';'), home = tcs.includes(G.local.club.code); const me = home ? G.local : G.road, op = home ? G.road : G.local;
+      myTeams.push([G.utcDate || '', me.club.code]);
       return [G.round, G.utcDate.slice(0, 10), op.club.code, home ? 1 : 0, me.score, op.score, s.startFive ? 1 : 0, Math.round(s.timePlayed || 0),
         s.points, s.fieldGoalsMade2, s.fieldGoalsAttempted2, s.fieldGoalsMade3, s.fieldGoalsAttempted3, s.freeThrowsMade, s.freeThrowsAttempted,
         s.offensiveRebounds, s.defensiveRebounds, s.assistances, s.steals, s.turnovers, s.blocksFavour, s.blocksAgainst,
         s.foulsCommited, s.foulsReceived, s.plusMinus, s.valuation].map(v => (v == null ? 0 : v));
     });
     const a = advM[c] || {}, m = miscM[c] || {};
-    return { c, n: p.player.name, t: tc, age: p.player.age, h: per.height || null, w: per.weight || null,
+    // η τρέχουσα ομάδα (του πιο πρόσφατου αγώνα) πάει τελευταία: παντού χρησιμοποιείται το t.split(';').pop()
+    let t = tc;
+    if (tc.includes(';') && myTeams.length) { const cur = myTeams.sort((x, y) => x[0].localeCompare(y[0])).pop()[1]; if (tc.split(';').includes(cur)) t = [...tc.split(';').filter(x => x !== cur), cur].join(';'); }
+    return { c, n: p.player.name, t, age: p.player.age, h: per.height || null, w: per.weight || null,
       bd: (per.birthDate || '').slice(0, 10), ct: per.country?.name || '', pos: b?.positionName || '', no: b?.dorsal || '',
       poss: a.possesions || 0, dd: m.doubleDoubles || 0, td: m.tripleDoubles || 0, g };
   })).filter(Boolean);
@@ -1045,6 +1052,8 @@ async function main() {
   await fs.mkdir(path.join(OUT, 'assets'), { recursive: true });
   await fs.mkdir(PREMIUM_OUT, { recursive: true });
   const articles = await loadArticles();
+  // ανάλυση Fantasy ανά αγωνιστική (fantasy/editorial/rN.md): μπαίνει στην κορυφή της σελίδας «Fantasy: ποιους να πάρεις» της αγωνιστικής
+  const FEDIT = Object.fromEntries((await loadArticles('fantasy/editorial')).filter(x => x.round).map(x => [x.round, x]));
   const tipsters = await loadTipsters(league.games, players);
   const INJ = await loadInjuries(players, league.games);
   const TRF = await loadTransfers(players);
@@ -2908,7 +2917,18 @@ ${notes}</article>`;
       const nm = q => (LG === 'el' && GRN[q.n]) || niceName(q.n);
       return `<section class="fxinj"><h2>🩹 ${T(`Απόντες για την ${lastRound + 1}η αγωνιστική`, `Out for Round ${lastRound + 1}`, `Bajas para la jornada ${lastRound + 1}`, `Odsutni za ${lastRound + 1}. kolo`, `${lastRound + 1}. haftanın eksikleri`)}</h2><p class="sub">${T('Ταξινομημένοι κατά PIR: αυτούς πρόσεξε πριν κλειδώσεις την ομάδα σου.', 'Sorted by PIR: check these before you lock your team.', 'Ordenados por PIR: revísalos antes de cerrar tu equipo.', 'Po PIR-u: proveri ih pre nego što zaključaš tim.', 'PIR’a göre sıralı: takımını kilitlemeden önce bunlara bak.')}</p><ul class="injl">${L.map(([q, v, pir]) => `<li><span class="injm${({ inj: '', out: ' x', dbt: ' d', miss: ' o' })[v.k || (v.m ? 'inj' : 'miss')]}">✚</span><a href="${urlFor(LG, 'player:' + q.s)}">${esc(nm(q))}</a> <small>${esc(tName(q.t.split(';').pop()))} · ${f1(pir)} PIR</small><span class="injt">${esc(v.t)}</span></li>`).join('')}</ul><p><a class="pread" href="${urlFor(LG, 'inj')}">${T('Όλο το Injury Report →', 'Full Injury Report →', 'Parte de lesionados completo →', 'Kompletan izveštaj o povredama →', 'Sakatlık raporunun tamamı →')}</a> · <a class="pread" href="${urlFor(LG, 'fxrules')}">${T('Πώς παίζεται το Fantasy Challenge →', 'How the Fantasy Challenge works →', 'Cómo se juega el Fantasy Challenge →', 'Kako se igra Fantasy Challenge →', 'Fantasy Challenge nasıl oynanır →')}</a></p></section>`;
     })();
-    await simplePage('fxrules', { view: 'lead',
+    // κεντρικός οδηγός (el/en): κανόνες από το rules.mjs, ζωντανά νούμερα από το latest.json· οι άλλες γλώσσες κρατούν τη σύντομη εκδοχή
+    const FXG = (() => {
+      const rd = f => { try { return JSON.parse(fsSync.readFileSync(path.join(ROOT, 'fantasy', 'official', f), 'utf8')); } catch { return null; } };
+      const pB = Object.fromEntries(players.map(p => [p.c, p]));
+      return fantasyGuide({ LG, esc, url: k => urlFor(LG, k), name: c => (LG === 'el' && GRN[pB[c]?.n]) || niceName(pB[c]?.n || c), team: tName, slug: c => pB[c]?.s,
+        FXD, calendar: rd('calendar.json'), priceModel: rd('price-model.json'), today: new Date().toISOString().slice(0, 10), season: SEASON_LABEL, siteName: SITE_NAME });
+    })();
+    if (FXG) await simplePage('fxrules', { view: 'lead', title: `${FXG.title} | ${SITE_NAME}`, desc: FXG.desc, main: FXG.main,
+      ld: [crumbs([[SITE_NAME, B(LG)], ['EuroLeague Fantasy', urlFor(LG, 'fantasy')], [T('Οδηγός', 'Guide', 'Guía', 'Vodič', 'Rehber'), urlFor(LG, 'fxrules')]]),
+        { '@context': 'https://schema.org', '@type': 'Article', headline: FXG.h1, inLanguage: LG, dateModified: new Date().toISOString().slice(0, 10), author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL + '/' }, publisher: { '@type': 'Organization', name: SITE_NAME } },
+        { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FXG.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
+    else await simplePage('fxrules', { view: 'lead',
       title: T(`EuroLeague Fantasy Challenge ${SEASON_LABEL}: οδηγός, πώς βγαίνουν οι πόντοι (PIR) και tips | ${SITE_NAME}`, `EuroLeague Fantasy Challenge ${SEASON_LABEL}: how to play, PIR scoring and tips | ${SITE_NAME}`, `EuroLeague Fantasy Challenge ${SEASON_LABEL}: cómo se juega, puntuación PIR y consejos | ${SITE_NAME}`, `EuroLeague Fantasy Challenge ${SEASON_LABEL}: kako se igra, PIR bodovanje i saveti | ${SITE_NAME}`, `EuroLeague Fantasy Challenge ${SEASON_LABEL}: nasıl oynanır, PIR puanlaması ve ipuçları | ${SITE_NAME}`),
       desc: T('Τι είναι το επίσημο EuroLeague Fantasy Challenge, πώς υπολογίζεται το PIR που δίνει τους πόντους, και πώς να διαλέξεις παίκτες κάθε αγωνιστική με προβλέψεις, πρόγραμμα και τραυματίες.', 'What the official EuroLeague Fantasy Challenge is, how PIR (the scoring stat) is calculated, and how to pick players each round using projections, schedule and injuries.', 'Qué es el EuroLeague Fantasy Challenge oficial, cómo se calcula el PIR que da los puntos y cómo elegir jugadores cada jornada con proyecciones, calendario y lesionados.', 'Šta je zvanični EuroLeague Fantasy Challenge, kako se računa PIR koji donosi bodove i kako da biraš igrače svakog kola uz projekcije, raspored i povrede.', 'Resmi EuroLeague Fantasy Challenge nedir, puanları belirleyen PIR nasıl hesaplanır ve her hafta tahminlere, fikstüre ve sakatlıklara bakarak oyuncu nasıl seçilir.'),
       main: `<article class="article lead wide anpage"><p class="crumbs"><a href="${urlFor(LG, 'fantasy')}">EuroLeague Fantasy</a></p><h1>${T('EuroLeague Fantasy Challenge: ο οδηγός', 'EuroLeague Fantasy Challenge: the guide', 'EuroLeague Fantasy Challenge: la guía', 'EuroLeague Fantasy Challenge: vodič', 'EuroLeague Fantasy Challenge: rehber')}</h1>
@@ -2997,18 +3017,25 @@ ${notes}</article>`;
         ? T(`Οι προτάσεις μας για το Fantasy της ${r}ης αγωνιστικής, όπως βγήκαν από τα στατιστικά πριν από την αγωνιστική, και πόσο PIR έφερε τελικά ο καθένας.${gotAvg != null ? ` Οι ${got.length} προτάσεις μας έφεραν κατά μέσο όρο ${f1(gotAvg)} PIR.` : ''}`, `Our Fantasy picks for Round ${r}, based on the stats before the round, and how much PIR each one actually scored.${gotAvg != null ? ` Our ${got.length} picks averaged ${f1(gotAvg)} PIR.` : ''}`, `Nuestras recomendaciones de Fantasy para la jornada ${r}, según las estadísticas previas, y cuánto PIR hizo finalmente cada uno.${gotAvg != null ? ` Nuestras ${got.length} recomendaciones promediaron ${f1(gotAvg)} de PIR.` : ''}`, `Naši Fantasy predlozi za ${r}. kolo, na osnovu statistike pre kola, i koliko je PIR-a svaki od njih ostvario.${gotAvg != null ? ` Naših ${got.length} predloga imalo je prosečno ${f1(gotAvg)} PIR-a.` : ''}`, `${r}. hafta için Fantasy seçimlerimiz (hafta öncesi istatistiklere göre) ve her birinin gerçekte kaç PIR yaptığı.${gotAvg != null ? ` ${got.length} seçimimizin ortalaması ${f1(gotAvg)} PIR oldu.` : ''}`)
         : T(`Ποιους να πάρεις στο Fantasy της ${r}ης αγωνιστικής της EuroLeague: οι καλύτερες επιλογές ανά θέση με βάση τη φόρμα, το PIR και το πόσο εύκολο είναι το ματς. Πρώτη επιλογή: ${niceName(top1.p.n)} (${f1(top1.proj)} εκτιμώμενο PIR).`, `Who to pick in EuroLeague Fantasy for Round ${r}: the best options by position based on form, PIR and how easy the matchup is. Top pick: ${niceName(top1.p.n)} (${f1(top1.proj)} projected PIR).`, `A quién fichar en el Fantasy de la EuroLeague en la jornada ${r}: las mejores opciones por posición según la forma, el PIR y la dificultad del rival. Primera opción: ${niceName(top1.p.n)} (${f1(top1.proj)} de PIR estimado).`, `Koga izabrati u Evroliga Fantasy za ${r}. kolo: najbolje opcije po pozicijama na osnovu forme, PIR-a i težine meča. Prvi izbor: ${niceName(top1.p.n)} (${f1(top1.proj)} procenjenog PIR-a).`, `EuroLeague Fantasy ${r}. hafta için kimi almalı: forma, PIR değerine ve eşleşmenin kolaylığına göre pozisyon bazında en iyi seçenekler. İlk tercih: ${niceName(top1.p.n)} (${f1(top1.proj)} tahmini PIR).`);
       const prevNext = [fRounds.find(x => x === r + 1), fRounds.find(x => x === r - 1)];
+      const ED = FEDIT[r] && FEDIT[r][LG];
+      const edAuthor = FEDIT[r]?.author || SITE_NAME;
+      const edHtml = ED ? `<p class="byline">${esc(T('Από', 'By', 'Por', 'Autor:', 'Yazan:'))} ${esc(edAuthor)} · <time datetime="${esc(FEDIT[r].date)}">${esc(ED.dateText)}</time></p>
+<div class="abody fedit">${ED.html}</div>
+<h2 class="fdata">${T('Οι εκτιμήσεις του μοντέλου ανά θέση', 'Model projections by position', 'Proyecciones del modelo por posición', 'Projekcije modela po poziciji', 'Pozisyona göre model tahminleri')}</h2>` : '';
       const main = `<article class="article fpick">
 <p class="kicker">Fantasy · ${esc(rdTxt0(r))}</p>
-<h1>${esc(fTitle(r))}</h1>
-<p class="lede2">${esc(intro)}</p>
+<h1>${esc(ED ? ED.title : fTitle(r))}</h1>
+<p class="lede2">${esc(ED && ED.desc ? ED.desc : intro)}</p>
+${edHtml}
 ${Object.keys(POSF).map(ps => `<h2>${esc(POSF[ps])}</h2>${tbl(picks[ps])}`).join('')}
 ${gems.length ? `<h2>${T('Κρυφά διαμάντια', 'Hidden gems', 'Joyas ocultas', 'Skriveni biseri', 'Gizli cevherler')}</h2><p class="sub">${T('Παίκτες με χαμηλότερο μέσο όρο αλλά με ματς απέναντι σε άμυνα που δίνει πολλά στη θέση τους', 'Players with lower averages but a matchup against a defense that gives up a lot at their position', 'Jugadores con menos promedio pero ante una defensa que concede mucho en su posición', 'Igrači sa nižim prosekom, ali protiv odbrane koja mnogo prima na njihovoj poziciji', 'Ortalaması daha düşük ama kendi pozisyonunda çok şey veren bir savunmayla eşleşen oyuncular')}</p>${tbl(gems)}` : ''}
 ${avoid.length ? `<h2>${T('Προσοχή: δύσκολο ματς', 'Careful: tough matchup', 'Cuidado: rival difícil', 'Oprez: težak meč', 'Dikkat: zor eşleşme')}</h2><p class="sub">${T('Μεγάλα ονόματα που παίζουν με άμυνα που δίνει λίγα στη θέση τους', 'Big names facing a defense that gives up little at their position', 'Grandes nombres ante una defensa que concede poco en su posición', 'Velika imena protiv odbrane koja malo prima na njihovoj poziciji', 'Kendi pozisyonunda az şey veren bir savunmaya karşı oynayan büyük isimler')}</p>${tbl(avoid)}` : ''}
 <p class="note">${T('Η εκτίμηση συνδυάζει τον μέσο όρο PIR της σεζόν, τη φόρμα των 3 τελευταίων αγώνων, το PIR που δίνει ο αντίπαλος στη θέση του παίκτη και την έδρα. Μετράνε όσοι έχουν τουλάχιστον 3 αγώνες και 15 λεπτά μέσο όρο· οι τραυματίες δεν προτείνονται.', 'The projection combines season PIR average, form over the last 3 games, the PIR the opponent allows at the player’s position and home court. Players with at least 3 games and 15 minutes per game; injured players are excluded.', 'La estimación combina el PIR medio de la temporada, la forma de los 3 últimos partidos, el PIR que concede el rival en la posición del jugador y el factor cancha. Cuentan los jugadores con al menos 3 partidos y 15 minutos de media; los lesionados no se recomiendan.', 'Procena kombinuje prosečan PIR sezone, formu u poslednje 3 utakmice, PIR koji protivnik prima na poziciji igrača i domaći teren. Računaju se igrači sa najmanje 3 utakmice i 15 minuta u proseku; povređeni se ne predlažu.', 'Tahmin; sezonun PIR ortalamasını, son 3 maçtaki formu, rakibin oyuncunun pozisyonunda izin verdiği PIR değerini ve iç saha faktörünü birleştirir. En az 3 maç ve maç başına 15 dakika oynamış oyuncular dahildir; sakat oyuncular önerilmez.')}</p>
 <p class="leadnav">${prevNext[1] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[1])}">← ${esc(rdTxt0(prevNext[1]))}</a>` : ''}<a href="${urlFor(LG, 'fantasy')}">Fantasy</a><a href="${urlFor(LG, 'fxrounds')}">${T('Όλες οι αγωνιστικές', 'All rounds', 'Todas las jornadas', 'Sva kola', 'Tüm haftalar')}</a>${prevNext[0] ? `<a href="${urlFor(LG, 'fpick:' + prevNext[0])}">${esc(rdTxt0(prevNext[0]))} →</a>` : ''}</p>
 </article>`;
-      await simplePage('fpick:' + r, { view: 'articles', title: `${fTitle(r)} | ${SITE_NAME}`, desc: intro.slice(0, 300), main,
-        ld: [{ '@context': 'https://schema.org', '@type': 'Article', headline: fTitle(r), inLanguage: LG, datePublished: data.fetchedAt.slice(0, 10), dateModified: data.fetchedAt.slice(0, 10), author: { '@type': 'Organization', name: SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME } }, crumbs([[SITE_NAME, B(LG)], [T('Άρθρα', 'Articles', 'Artículos', 'Članci', 'Makaleler'), urlFor(LG, 'articles')], [fTitle(r), urlFor(LG, 'fpick:' + r)]])] });
+      const edPerson = ED && FEDIT[r].author && FEDIT[r].author !== SITE_NAME;
+      await simplePage('fpick:' + r, { view: 'articles', title: `${ED ? ED.title : fTitle(r)} | ${SITE_NAME}`, desc: (ED && ED.desc ? ED.desc : intro).slice(0, 300), main,
+        ld: [{ '@context': 'https://schema.org', '@type': 'Article', headline: ED ? ED.title : fTitle(r), inLanguage: LG, datePublished: ED ? FEDIT[r].date : data.fetchedAt.slice(0, 10), dateModified: data.fetchedAt.slice(0, 10), author: edPerson ? { '@type': 'Person', name: FEDIT[r].author, ...(FEDIT[r].authorUrl ? { url: FEDIT[r].authorUrl } : {}) } : { '@type': 'Organization', name: SITE_NAME, url: SITE_URL + '/' }, publisher: { '@type': 'Organization', name: SITE_NAME } }, crumbs([[SITE_NAME, B(LG)], [T('Άρθρα', 'Articles', 'Artículos', 'Članci', 'Makaleler'), urlFor(LG, 'articles')], [fTitle(r), urlFor(LG, 'fpick:' + r)]])] });
     }
 
     // ---- Fantasy ανά αγωνιστική: αρχηγοί (από τις πραγματικές εκτιμήσεις του μοντέλου), ομάδα της αγωνιστικής
