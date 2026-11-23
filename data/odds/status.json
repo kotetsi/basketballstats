@@ -134,8 +134,8 @@
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-22T10:59:25.037Z",
- "lastSuccess": "2026-11-22T10:59:25.037Z",
+ "lastCall": "2026-11-23T07:34:14.829Z",
+ "lastSuccess": "2026-11-23T07:34:14.829Z",
  "events": 0,
  "matched": 0,
  "added": 0,
@@ -349,18 +349,18 @@
  "providers": {
   "theoddsapi": {
    "provider": "theoddsapi",
-   "lastCall": "2026-11-22T09:53:45.556Z",
-   "lastSuccess": "2026-11-22T09:53:45.556Z",
+   "lastCall": "2026-11-23T07:34:15.264Z",
+   "lastSuccess": "2026-11-23T07:34:15.264Z",
    "events": 10,
    "matched": 10,
-   "added": 156,
+   "added": 232,
    "propAdded": 0,
    "quota": {
-    "remaining": "476",
-    "used": "24"
+    "remaining": "470",
+    "used": "30"
    },
    "error": null,
-   "lastChange": "2026-11-22T09:53:45.556Z"
+   "lastChange": "2026-11-23T07:34:15.264Z"
   }
  }
 }
