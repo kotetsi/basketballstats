@@ -680,3 +680,108 @@ Donta Hall'un Olympiakos'un pota altında sınırlı bir rolü var: son on maçt
 Modelimiz altı piyasadan daha olası görüyor ve bu kadar sık gelen bir sonuç için 2.07 yüksek bir oran.
 
 Risk: **Milutinov**'un oynayıp oynamayacağı son dakikada belli olacak. Oynamazsa Hall daha fazla süre alır; Beşiktaş maçında olduğu gibi (20 dakika, 19 sayı artı ribaund). Uzatma dahildir.
+
+14 | RED-VIR | Tyson Carter πόντοι over 13.5 | 1.90
+Ο Τάισον Κάρτερ έχει πάρει μεγάλο ρόλο στην επίθεση του Ερυθρού Αστέρα: στα τρία τελευταία ματς σημείωσε **18, 21 και 31** πόντους, με τα λεπτά του να ανεβαίνουν (21, 26, 29). Πέρασε τους 13.5 σε 4 από τα 6 τελευταία του παιχνίδια.
+
+Η επιλογή στηρίζεται στην πρόσφατη φόρμα. Με βάση όλη τη σεζόν το μοντέλο μας το βλέπει περίπου 50-50.
+
+Το ρίσκο: στις πρώτες αγωνιστικές, με 11 έως 17 λεπτά, έμενε στους 2 έως 6 πόντους. Αν μειωθεί ο χρόνος του, η γραμμή δεν βγαίνει. Μετράει και η παράταση.
+
+EN:
+Tyson Carter has taken on a big role in Crvena Zvezda's offence: **18, 21 and 31** points in the last three games, with his minutes rising (21, 26, 29). He has gone over 13.5 in 4 of his last 6.
+
+This pick rests on recent form. Over the whole season our model puts it at roughly 50-50.
+
+The risk: in the early rounds, playing 11 to 17 minutes, he scored 2 to 6 points. If his minutes drop, the line won't land. Overtime counts.
+
+ES:
+Tyson Carter ha asumido un gran papel en el ataque del Estrella Roja: **18, 21 y 31** puntos en los tres últimos partidos, con sus minutos al alza (21, 26, 29). Ha superado los 13,5 en 4 de sus últimos 6.
+
+La apuesta se apoya en la forma reciente. Con toda la temporada, nuestro modelo la ve más o menos al 50%.
+
+El riesgo: en las primeras jornadas, con 11 a 17 minutos, se quedaba entre 2 y 6 puntos. Si baja su tiempo en pista, la línea no sale. La prórroga cuenta.
+
+SR:
+Tajson Karter je preuzeo veliku ulogu u napadu Crvene zvezde: **18, 21 i 31** poen u poslednje tri utakmice, uz sve veću minutažu (21, 26, 29). Prešao je 13,5 u 4 od poslednjih 6.
+
+Tip se oslanja na trenutnu formu. Posmatrajući celu sezonu, naš model ga vidi otprilike 50-50.
+
+Rizik: u prvim kolima, sa 11 do 17 minuta, postizao je 2 do 6 poena. Ako mu se smanji minutaža, linija ne prolazi. Produžetak se računa.
+
+TR:
+Tyson Carter, Kızılyıldız hücumunda büyük bir rol üstlendi: son üç maçta **18, 21 ve 31** sayı attı ve süresi artıyor (21, 26, 29). Son 6 maçının 4'ünde 13.5'u geçti.
+
+Bu seçim son forma dayanıyor. Tüm sezona bakınca modelimiz yaklaşık yarı yarıya görüyor.
+
+Risk: ilk haftalarda 11 ile 17 dakika arası oynarken 2 ile 6 sayı arasında kalıyordu. Süresi düşerse çizgi gelmez. Uzatma dahildir.
+
+14 | PAM-PAN | Sako ριμπάουντ over 6.5 | 1.77
+Ο Νιλ Σακό είναι από τους πιο σταθερούς ριμπάουντερ της Βαλένθια τον τελευταίο μήνα: στα τρία τελευταία ματς μάζεψε **7, 11 και 11** ριμπάουντ σε 18 έως 21 λεπτά. Πέρασε τα 6.5 σε **6 από τα 7** τελευταία του παιχνίδια.
+
+Η επιλογή στηρίζεται στην πρόσφατη φόρμα. Με βάση όλη τη σεζόν το μοντέλο μας το βλέπει περίπου 50-50.
+
+Το ρίσκο: απέναντι έχει δυνατή ρακέτα (Λεσόρ, Γιαμπουσελέ) και με περιορισμένα λεπτά λίγα ριμπάουντ κάνουν τη διαφορά. Μετράει και η παράταση.
+
+EN:
+Neal Sako has been one of Valencia's most reliable rebounders over the past month: **7, 11 and 11** boards in the last three games, in 18 to 21 minutes. He has gone over 6.5 in **6 of his last 7**.
+
+This pick rests on recent form. Over the whole season our model puts it at roughly 50-50.
+
+The risk: he faces a strong frontcourt (Lessort, Yabusele), and with limited minutes a couple of rebounds make the difference. Overtime counts.
+
+ES:
+Neal Sako ha sido uno de los reboteadores más fiables del Valencia en el último mes: **7, 11 y 11** rebotes en los tres últimos partidos, en 18 a 21 minutos. Ha superado los 6,5 en **6 de sus últimos 7**.
+
+La apuesta se apoya en la forma reciente. Con toda la temporada, nuestro modelo la ve más o menos al 50%.
+
+El riesgo: enfrente tiene una pintura potente (Lessort, Yabusele) y con pocos minutos un par de rebotes deciden. La prórroga cuenta.
+
+SR:
+Nil Sako je u poslednjih mesec dana jedan od najpouzdanijih skakača Valensije: **7, 11 i 11** skokova u poslednje tri utakmice, za 18 do 21 minut. Prešao je 6,5 u **6 od poslednjih 7**.
+
+Tip se oslanja na trenutnu formu. Posmatrajući celu sezonu, naš model ga vidi otprilike 50-50.
+
+Rizik: naspram sebe ima jak reket (Lesor, Jabusele), a uz ograničenu minutažu par skokova pravi razliku. Produžetak se računa.
+
+TR:
+Neal Sako son bir ayda Valencia'nın en istikrarlı ribaundçularından biri: son üç maçta 18 ile 21 dakikada **7, 11 ve 11** ribaund aldı. Son 7 maçının **6'sında** 6.5'u geçti.
+
+Bu seçim son forma dayanıyor. Tüm sezona bakınca modelimiz yaklaşık yarı yarıya görüyor.
+
+Risk: karşısında güçlü bir pota altı var (Lessort, Yabusele) ve sınırlı sürede birkaç ribaund farkı belirler. Uzatma dahildir.
+
+14 | BES-PRS | Mouhamed Faye ριμπάουντ over 4.5 | 1.87
+Ο Μουχαμέντ Φαγέ πήρε **5, 7 και 8** ριμπάουντ στα τρία τελευταία ματς της Παρί, παίζοντας σταθερά γύρω στα 20 λεπτά. Πέρασε τα 4.5 σε **8 από τα 10** τελευταία του παιχνίδια.
+
+Η επιλογή στηρίζεται στην πρόσφατη φόρμα. Με βάση όλη τη σεζόν το μοντέλο μας είναι λίγο κάτω από το 50%.
+
+Το ρίσκο: όταν παίζει λιγότερο, πέφτει γρήγορα (με 14 λεπτά στην 10η αγωνιστική είχε 0). Μετράει και η παράταση.
+
+EN:
+Mouhamed Faye grabbed **5, 7 and 8** rebounds in Paris' last three games, playing a steady 20 minutes or so. He has gone over 4.5 in **8 of his last 10**.
+
+This pick rests on recent form. Over the whole season our model has it just under 50%.
+
+The risk: when his minutes drop, so do his numbers (14 minutes in Round 10 brought 0). Overtime counts.
+
+ES:
+Mouhamed Faye capturó **5, 7 y 8** rebotes en los tres últimos partidos del Paris, con unos 20 minutos estables. Ha superado los 4,5 en **8 de sus últimos 10**.
+
+La apuesta se apoya en la forma reciente. Con toda la temporada, nuestro modelo la sitúa algo por debajo del 50%.
+
+El riesgo: cuando juega menos, baja rápido (con 14 minutos en la jornada 10 se quedó en 0). La prórroga cuenta.
+
+SR:
+Muhamed Faje je uhvatio **5, 7 i 8** skokova u poslednje tri utakmice Pariza, uz stabilnih dvadesetak minuta. Prešao je 4,5 u **8 od poslednjih 10**.
+
+Tip se oslanja na trenutnu formu. Posmatrajući celu sezonu, naš model je malo ispod 50%.
+
+Rizik: kad igra manje, brojke brzo padaju (sa 14 minuta u 10. kolu imao je 0). Produžetak se računa.
+
+TR:
+Mouhamed Faye, Paris'in son üç maçında yaklaşık 20 dakikalık istikrarlı sürelerle **5, 7 ve 8** ribaund aldı. Son 10 maçının **8'inde** 4.5'u geçti.
+
+Bu seçim son forma dayanıyor. Tüm sezona bakınca modelimiz %50'nin biraz altında.
+
+Risk: süresi azaldığında rakamları hızla düşüyor (10. haftada 14 dakikada 0). Uzatma dahildir.
