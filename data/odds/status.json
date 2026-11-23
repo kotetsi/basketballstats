@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 241,
+  "calls": 244,
   "fixtures": [
    {
     "id": "id1100013873263198",
@@ -67,27 +67,36 @@
   "fixturesDay": "2026-11-21",
   "done": {
    "id1100013873263198": [
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263200": [
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263202": [
-    "open"
+    "open",
+    "mid"
    ],
    "id1100013873263204": [],
    "id1100013873263206": [],
    "id1100013873263208": []
   },
   "props": {
-   "id1100013873263198": 0,
-   "id1100013873263200": 0,
-   "id1100013873263202": 0
+   "id1100013873263198": 2080,
+   "id1100013873263200": 1297,
+   "id1100013873263202": 1564
   },
   "propDone": {
-   "id1100013873263198": [],
-   "id1100013873263200": [],
-   "id1100013873263202": [],
+   "id1100013873263198": [
+    "mid"
+   ],
+   "id1100013873263200": [
+    "mid"
+   ],
+   "id1100013873263202": [
+    "mid"
+   ],
    "id1100013873263204": [],
    "id1100013873263206": [],
    "id1100013873263208": []
@@ -97,18 +106,30 @@
     "open": {
      "count": 1,
      "lastAttempt": "2026-11-20T22:06:42.026Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-23T13:27:05.886Z"
     }
    },
    "id1100013873263200": {
     "open": {
      "count": 1,
      "lastAttempt": "2026-11-20T22:06:42.026Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-23T13:27:05.886Z"
     }
    },
    "id1100013873263202": {
     "open": {
      "count": 1,
      "lastAttempt": "2026-11-20T22:06:42.026Z"
+    },
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-23T13:27:05.886Z"
     }
    },
    "id1100013873263204": {
@@ -134,18 +155,18 @@
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-23T10:57:46.328Z",
- "lastSuccess": "2026-11-23T10:57:46.328Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-23T13:27:08.962Z",
+ "lastSuccess": "2026-11-23T13:27:08.962Z",
+ "events": 3,
+ "matched": 3,
+ "added": 1342,
  "quota": {
-  "used": 241,
+  "used": 244,
   "cap": 250,
   "month": "2026-11"
  },
- "lastChange": "2026-11-20T22:06:44.725Z",
- "propAdded": 0,
+ "lastChange": "2026-11-23T13:27:08.962Z",
+ "propAdded": 944,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -184,6 +205,7 @@
   "928894": "Ulanovas, Edgaras",
   "930940": "Hackett, Daniel",
   "930976": "Papagiannis, Georgios",
+  "994295": "Zizic, Ante",
   "996303": "Baldwin, Wade",
   "996313": "Jones, Damian",
   "1124125": "Bacon, Dwayne",
@@ -198,6 +220,7 @@
   "1142664": "Blakeney, Antonio",
   "1142682": "Brown, Sterling",
   "1157544": "Brooks, Armoni",
+  "1158264": "Baldwin, Kamar",
   "1158502": "Mitoglou, Dinos",
   "1159096": "Gabriel, Wenyen",
   "1159354": "Hall, Devon",
@@ -243,6 +266,7 @@
   "1325720": "Wallace, Keaton",
   "1327784": "Shorts, TJ",
   "1327816": "Gibson, Umoja",
+  "1328796": "Jeffries, DaQuan",
   "1329426": "Cole, RJ",
   "1427257": "DiBartolomeo, John",
   "1429697": "Franks, Robert",
