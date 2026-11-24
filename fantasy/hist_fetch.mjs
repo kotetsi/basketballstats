@@ -48,21 +48,26 @@ export async function fetchSeason(S) {
     const [bio, st] = await Promise.all([get(`${FEED}/v2/competitions/E/seasons/${S}/people/${c}`).catch(() => null), get(`${FEED}/v2/competitions/E/seasons/${S}/people/${c}/stats`).catch(() => null)]);
     if (!st) return null;
     const b = bio?.data?.find(x => x.type === 'J') || bio?.data?.[0];
-    const teams = new Set();
+    const teams = new Set(), rowTeam = [];
     const g = (st.games || []).filter(x => x.game.played && rsRounds.has(x.game.round)).map(x => {
       const G = x.game, s = x.stats;
       // η ομάδα του παίκτη σε εκείνον τον αγώνα (για όσους άλλαξαν ομάδα μέσα στη σεζόν)
-      const me0 = G.local.club.code === tc ? G.local : G.road.club.code === tc ? G.road : null;
+      // με statisticSortMode=accumulated ο παίκτης που άλλαξε ομάδα έρχεται ως «A;B»: η ομάδα του αγώνα είναι όποια από τις δύο έπαιζε
+      // (όπως στο fetchAll() του build.mjs). Πριν, το «A;B» δεν ταίριαζε ποτέ και η γραμμή πήγαινε πάντα στον γηπεδούχο.
+      const tcs = tc.split(';');
+      const me0 = tcs.includes(G.local.club.code) ? G.local : tcs.includes(G.road.club.code) ? G.road : null;
       const myCode = me0 ? me0.club.code : (s.teamCode || x.team?.code || G.local.club.code);
       const home = G.local.club.code === myCode; const me = home ? G.local : G.road, op = home ? G.road : G.local;
-      teams.add(me.club.code);
+      teams.add(me.club.code); rowTeam.push([G.round, me.club.code]);
       return [G.round, G.utcDate.slice(0, 10), op.club.code, home ? 1 : 0, me.score, op.score, s.startFive ? 1 : 0, Math.round(s.timePlayed || 0),
         s.points, s.fieldGoalsMade2, s.fieldGoalsAttempted2, s.fieldGoalsMade3, s.fieldGoalsAttempted3, s.freeThrowsMade, s.freeThrowsAttempted,
         s.offensiveRebounds, s.defensiveRebounds, s.assistances, s.steals, s.turnovers, s.blocksFavour, s.blocksAgainst,
         s.foulsCommited, s.foulsReceived, s.plusMinus, s.valuation].map(v => (v == null ? 0 : v));
     }).sort((a, b) => a[0] - b[0]);
     if (!g.length) return null;
-    const t = [...teams].filter(x => x !== tc).concat(tc).filter((x, i, a) => a.indexOf(x) === i).join(';');
+    // όλες οι ομάδες του παίκτη, με τελευταία την ομάδα του πιο πρόσφατου αγώνα (παντού χρησιμοποιείται το t.split(';').pop())
+    const byRound = [...rowTeam].sort((a, b) => a[0] - b[0]).map(x => x[1]);
+    const t = byRound.filter((x, i, a) => a.lastIndexOf(x) === i).join(';') || tc;
     return { c, n: p.player.name, t, pos: b?.positionName || '', g };
   })).filter(Boolean);
   return { season: S, fetchedAt: new Date().toISOString(), source: 'feeds.incrowdsports.com (official EuroLeague feed)', players, league: { games } };
