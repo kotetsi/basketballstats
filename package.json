@@ -6,7 +6,14 @@
   "scripts": {
     "build": "node build.mjs",
     "build:offline": "node build.mjs --offline",
-    "preview": "cd dist && python3 -m http.server 8080"
+    "preview": "cd dist && python3 -m http.server 8080",
+    "test": "node scripts/run-tests.mjs",
+    "test:full": "node scripts/run-tests.mjs --full",
+    "build:check": "node build.mjs --offline --readonly",
+    "engine:validate": "node scripts/engine-validate.mjs",
+    "dist:size": "node scripts/dist-size.mjs"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }

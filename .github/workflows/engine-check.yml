@@ -1,0 +1,59 @@
+# Intelligence Engine: έλεγχοι σε κάθε pull request προς το main (χωρίς deploy, χωρίς secrets, χωρίς εγγραφή στο repo).
+# Τρέχει όλα τα tests (Node + Python), το offline build σε --readonly, validation δεδομένων και έλεγχο μεγέθους του dist/.
+name: Engine PR checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-node18:
+    name: Unit tests (Node 18, ελάχιστη υποστηριζόμενη έκδοση)
+    runs-on: ubuntu-latest
+    # ενημερωτικό μέχρι να επιβεβαιωθεί ότι όλα τα υπάρχοντα tests τρέχουν σε Node 18 (η παραγωγή τρέχει σε Node 20)
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Έλεγχος σύνταξης
+        run: for f in build.mjs scripts/*.mjs src/engine/*.mjs; do node --check "$f" || exit 1; done
+      - name: Node unit tests
+        run: node scripts/run-tests.mjs --no-python
+
+  full:
+    name: Πλήρης έλεγχος (Node 20 + Python, offline build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: fantasy/requirements.txt
+      - name: Βιβλιοθήκες Python
+        run: pip install -r fantasy/requirements.txt -r predictor/requirements.txt
+      - name: Όλα τα tests, offline build (--readonly), validation, μέγεθος dist
+        run: node scripts/run-tests.mjs --full --require-python
+      - name: Αναφορά validation δεδομένων
+        if: always()
+        run: node scripts/engine-validate.mjs --out engine-validation.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: engine-validation
+          path: engine-validation.json
+          if-no-files-found: ignore
+          retention-days: 14
