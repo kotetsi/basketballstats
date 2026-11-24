@@ -150,7 +150,7 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
 }
 
 // ------------------------------------------------------------------ Reels ανά αγωνιστική
-// Ομάδα του μοντέλου (Fantasy): βλ. ενότητα 4 πιο κάτω.
+// Ομάδα του μοντέλου (Fantasy): την πρώτη μέρα κάθε αγωνιστικής, πριν από το πρώτο τζάμπολ (ενότητα 4 πιο κάτω).
 // Προεπισκόπηση: την πρώτη μέρα κάθε αγωνιστικής, όλοι οι αγώνες με τις πιθανότητες του μοντέλου (data.mp).
 // Top 5: τη μέρα μετά (ή το ίδιο βράδυ) του τελευταίου αγώνα μιας αγωνιστικής, οι 5 κορυφαίοι σε PIR.
 // Κούρσα σκόρερ: δύο μέρες μετά το τέλος της αγωνιστικής (για να μην πέφτει την ίδια μέρα με το Top 5).
@@ -230,8 +230,7 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
   // 4. Η ομάδα του μοντέλου: την πρώτη μέρα της αγωνιστικής (πριν από το πρώτο τζάμπολ), η βέλτιστη σύνθεση του optimizer (balanced)
   //    με τιμές, εκτιμήσεις PIR, αντίπαλο και αρχηγό. Με DAILY_ONLY=team: η επόμενη αγωνιστική όποια μέρα κι αν είναι.
   const RT = rounds.find(r => !done(r));
-  // ΠΡΟΣΩΡΙΝΑ μόνο χειροκίνητα (DAILY_ONLY=team) μέχρι να εγκριθεί η αυτόματη ανάρτηση· για αυτόματο: (!ONLY || ONLY === 'team') && (ONLY === 'team' || firstDay(RT) === today)
-  if (RT && ONLY === 'team' && !state.posted.some(k => k.startsWith(`team:${RT}:`))) {
+  if (RT && (!ONLY || ONLY === 'team') && (ONLY === 'team' || firstDay(RT) === today) && !state.posted.some(k => k.startsWith(`team:${RT}:`))) {
     try {
       const opt = process.env.SOCIAL_OPT ? JSON.parse(await fs.readFile(process.env.SOCIAL_OPT, 'utf8')) : await (await fetch(`${SITE}/api/fantasy/optimizer/balanced.json?t=${Date.now()}`)).json();
       const fx = await readJ(path.join(ROOT, 'data', 'fantasy', 'latest.json'), {});
