@@ -18,7 +18,7 @@ node video-factory/dashboard/server.mjs                               # http://1
 4. Βλέπεις και κατεβάζεις τα MP4 και τους υπότιτλους → **Approve for publication**.
 5. Ανεβάζεις το βίντεο εσύ, πατάς **Mark published** και αργότερα περνάς προβολές και κλικ στο **Performance**.
 
-Για κανονική AI φωνή χρειάζεται ένα κλειδί: `OPENAI_API_KEY`, `ELEVENLABS_API_KEY` ή `GOOGLE_TTS_API_KEY`. Για AI σενάριο χρειάζεται το `ANTHROPIC_API_KEY`. Στο GitHub: Actions → **Video Factory** → Run workflow.
+Η προεπιλεγμένη AI φωνή είναι το **Kokoro**: δωρεάν, ανοιχτό μοντέλο, χωρίς κλειδί. Στο GitHub δουλεύει αμέσως. Τοπικά θέλει `npm i --no-save kokoro-js@1.2.1`. Για ελληνικά ή άλλη φωνή υπάρχουν τα κλειδιά `ELEVENLABS_API_KEY`, `OPENAI_API_KEY` ή `GOOGLE_TTS_API_KEY`. Για AI σενάριο χρειάζεται το `ANTHROPIC_API_KEY`. Στο GitHub: Actions → **Video Factory** → Run workflow.
 
 ## Commands
 

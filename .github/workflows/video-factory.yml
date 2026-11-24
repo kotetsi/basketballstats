@@ -15,8 +15,8 @@ on:
         description: "Duration: short, medium, long, editorial"
         default: "medium"
       voice:
-        description: "Voice id (see video-factory/src/config.mjs): openai-onyx, openai-nova, elevenlabs-adam, google-charon, local-en"
-        default: "openai-onyx"
+        description: "Voice id (see video-factory/src/config.mjs): kokoro-michael, kokoro-fenrir, kokoro-george, kokoro-heart (free) · openai-onyx, elevenlabs-adam, google-charon (need keys) · local-en (test)"
+        default: "kokoro-michael"
       style:
         description: "energetic, analyst, hype"
         default: "energetic"
@@ -60,8 +60,16 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng
           npm i --no-save --no-audit --no-fund playwright@1.48.2
           npx playwright install --with-deps chromium
+      - name: Free AI voice (Kokoro, Apache-2.0)
+        run: npm i --no-save --no-audit --no-fund kokoro-js@1.2.1
+      - name: Cache the Kokoro model
+        uses: actions/cache@v4
+        with:
+          path: .cache/hf
+          key: kokoro-82m-v1-q8
       - name: Produce
         env:
+          VF_HF_CACHE: ${{ github.workspace }}/.cache/hf
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}

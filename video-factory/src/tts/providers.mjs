@@ -1,5 +1,8 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { createRequire } from 'node:module';
 
 // Narration providers behind one interface:
 //   synth({ text, voice, speed, lang }, { fetchImpl, env }) → { bytes: Buffer, ext: 'wav'|'mp3' }
@@ -17,7 +20,35 @@ async function http(fetchImpl, url, opts, name) {
   return res;
 }
 
+// Kokoro: open-weight model (Apache-2.0), runs locally on CPU via kokoro-js. The model
+// (~90 MB, q8) is downloaded from Hugging Face on first use and cached (see VF_HF_CACHE).
+let KOKORO = null;
+async function kokoroModel(impl) {
+  if (impl) return impl;
+  if (!KOKORO) KOKORO = (async () => {
+    const tf = await import('@huggingface/transformers').catch(() => null);
+    if (tf?.env && process.env.VF_HF_CACHE) tf.env.cacheDir = process.env.VF_HF_CACHE;
+    const { KokoroTTS } = await import('kokoro-js');
+    return KokoroTTS.from_pretrained(process.env.VF_KOKORO_MODEL || 'onnx-community/Kokoro-82M-v1.0-ONNX', { dtype: process.env.VF_KOKORO_DTYPE || 'q8', device: 'cpu' });
+  })();
+  return KOKORO;
+}
+const hasModule = m => { try { createRequire(import.meta.url).resolve(m); return true; } catch { return false; } };
+
 export const PROVIDERS = {
+  kokoro: {
+    requires: [],
+    requiresModule: 'kokoro-js',
+    async synth({ text, voice, speed }, { kokoro } = {}) {
+      const tts = await kokoroModel(kokoro);
+      const audio = await tts.generate(text, { voice: voice.voice || 'am_michael', speed: Math.max(0.6, Math.min(1.5, speed)) });
+      const tmp = path.join(os.tmpdir(), `vf-kokoro-${process.pid}-${Date.now()}.wav`);
+      await audio.save(tmp);
+      const bytes = fs.readFileSync(tmp); fs.rmSync(tmp, { force: true });
+      return { bytes, ext: 'wav' };
+    },
+  },
+
   // Local, offline, free. Robotic: for tests and drafts only.
   espeak: {
     requires: [],
@@ -75,6 +106,7 @@ export const PROVIDERS = {
 export function providerStatus(voice, env = process.env) {
   const p = PROVIDERS[voice.provider];
   if (!p) return { ok: false, reason: `unknown provider ${voice.provider}` };
+  if (p.requiresModule && !hasModule(p.requiresModule) && !env.VF_SKIP_MODULE_CHECK) return { ok: false, reason: `npm package ${p.requiresModule} not installed (npm i --no-save ${p.requiresModule})` };
   const missing = p.requires.filter(k => !env[k]);
   return missing.length ? { ok: false, reason: `missing ${missing.join(', ')}` } : { ok: true };
 }

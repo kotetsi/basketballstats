@@ -50,6 +50,10 @@ export function loadConfig(overrides = {}) {
 
 // Voices: provider + provider-specific voice id. Add more in video-factory/config.json → "voices".
 export const VOICES = {
+  'kokoro-michael': { provider: 'kokoro', voice: 'am_michael', lang: 'en', label: 'Kokoro Michael (free, US male, natural)' },
+  'kokoro-fenrir': { provider: 'kokoro', voice: 'am_fenrir', lang: 'en', label: 'Kokoro Fenrir (free, US male, deeper)' },
+  'kokoro-george': { provider: 'kokoro', voice: 'bm_george', lang: 'en', label: 'Kokoro George (free, British male)' },
+  'kokoro-heart': { provider: 'kokoro', voice: 'af_heart', lang: 'en', label: 'Kokoro Heart (free, US female, highest quality)' },
   'local-en': { provider: 'espeak', voice: 'en-us', lang: 'en', label: 'Local (espeak-ng, robotic, for tests only)' },
   'local-el': { provider: 'espeak', voice: 'el', lang: 'el', label: 'Local Greek (espeak-ng, tests only)' },
   'openai-onyx': { provider: 'openai', voice: 'onyx', model: 'gpt-4o-mini-tts', lang: 'en', label: 'OpenAI Onyx (deep, sports-broadcast)', instructions: 'Energetic sports analyst. Clear, confident, upbeat. Slight emphasis on numbers.' },

@@ -23,7 +23,7 @@ const safe = id => { if (!/^[a-z0-9][a-z0-9._-]{0,150}$/i.test(id)) throw new Er
 const now = () => new Date().toISOString();
 const sha = f => crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex').slice(0, 16);
 // rough per-provider cost per 1k characters, for the metadata only (USD)
-const COST_PER_1K = { espeak: 0, openai: 0.015, elevenlabs: 0.2, google: 0.03 };
+const COST_PER_1K = { kokoro: 0, espeak: 0, openai: 0.015, elevenlabs: 0.2, google: 0.03 };
 
 export class Productions {
   constructor(cfg, deps = {}) {
@@ -121,7 +121,7 @@ export class Productions {
     const story = this.story(p), out = this.out(id);
     fs.mkdirSync(out, { recursive: true });
     const t0 = Date.now();
-    const narration = await narrate(p.script, { voiceId: p.settings.voiceId, style: p.settings.style, cfg: this.cfg, outDir: path.join(out, 'narration'), fetchImpl: this.deps.fetchImpl || globalThis.fetch, env: this.deps.env || process.env, log: m => this.log(m) });
+    const narration = await narrate(p.script, { voiceId: p.settings.voiceId, style: p.settings.style, cfg: this.cfg, outDir: path.join(out, 'narration'), fetchImpl: this.deps.fetchImpl || globalThis.fetch, env: this.deps.env || process.env, kokoro: this.deps.kokoro, log: m => this.log(m) });
     const timeline = buildTimeline(p.script, narration);
     const cues = buildCues(timeline);
     fs.writeFileSync(path.join(out, 'captions.srt'), toSrt(cues));

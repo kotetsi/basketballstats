@@ -14,7 +14,7 @@ export function probeSecs(file) {
   return Math.round(parseFloat(out) * 1000) / 1000;
 }
 
-export async function narrate(script, { voiceId, style = 'energetic', cfg, outDir, fetchImpl = globalThis.fetch, env = process.env, log = () => {} }) {
+export async function narrate(script, { voiceId, style = 'energetic', cfg, outDir, fetchImpl = globalThis.fetch, env = process.env, log = () => {}, kokoro }) {
   const voice = cfg.voices[voiceId];
   if (!voice) throw new Error(`unknown voice ${voiceId}`);
   const st = providerStatus(voice, env);
@@ -30,7 +30,7 @@ export async function narrate(script, { voiceId, style = 'energetic', cfg, outDi
     const cached = path.join(cacheDir, `${key}.wav`);
     if (!fs.existsSync(cached)) {
       log(`tts ${voice.provider}: ${s.id}`);
-      const { bytes, ext } = await PROVIDERS[voice.provider].synth({ text, voice, speed, lang: voice.lang }, { fetchImpl, env });
+      const { bytes, ext } = await PROVIDERS[voice.provider].synth({ text, voice, speed, lang: voice.lang }, { fetchImpl, env, kokoro });
       const raw = path.join(cacheDir, `${key}.raw.${ext}`);
       fs.writeFileSync(raw, bytes);
       // trim leading/trailing silence so the timeline is tight, then normalise format

@@ -92,3 +92,21 @@ test('end to end: local voice → mixed audio → real MP4 (H.264 + AAC) in 9:16
     assert.ok(Math.abs(+info.format.duration - tl.total) < 0.3, `${info.format.duration} vs ${tl.total}`);
   }
 });
+
+test('Kokoro (free open model): status when not installed, synthesis through the same interface', async () => {
+  const { providerStatus: st, PROVIDERS: P } = await import('../src/tts/providers.mjs');
+  const { createRequire } = await import('node:module');
+  let installed = true; try { createRequire(import.meta.url).resolve('kokoro-js'); } catch { installed = false; }
+  if (!installed) assert.match(st({ provider: 'kokoro' }, {}).reason, /kokoro-js not installed/);
+  assert.ok(st({ provider: 'kokoro' }, { VF_SKIP_MODULE_CHECK: '1' }).ok, 'no API key needed');
+  if (!HAS_FFMPEG) return;
+  const wav = toneWav(1), calls = [];
+  const fake = { generate: async (text, o) => { calls.push({ text, ...o }); return { save: async f => fs.writeFileSync(f, wav) }; } };
+  const r = await P.kokoro.synth({ text: 'Vezenkov scores again.', voice: { voice: 'am_michael' }, speed: 1.08 }, { kokoro: fake });
+  assert.equal(r.ext, 'wav'); assert.equal(r.bytes.length, wav.length);
+  assert.deepEqual(calls[0], { text: 'Vezenkov scores again.', voice: 'am_michael', speed: 1.08 });
+  // through the narration pipeline (per-line, cached)
+  const cfg = tmpCfg(), sc = templateScript(story(), { preset: 'short' });
+  const n = await narrate(sc, { voiceId: 'kokoro-michael', cfg, outDir: fs.mkdtempSync(cfg.cacheDir + '-k'), env: { VF_SKIP_MODULE_CHECK: '1' }, kokoro: fake });
+  assert.equal(n.provider, 'kokoro'); assert.equal(n.segments.length, sc.segments.length);
+});

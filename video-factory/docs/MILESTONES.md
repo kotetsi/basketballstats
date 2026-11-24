@@ -5,7 +5,7 @@
 | Working production dashboard | done: stories, productions, script editor, preview, final render, download, history, approval, metrics |
 | ≥ 3 visual templates | done: leaderboard, comparison (with radar), spotlight (big number + game timeline), plus intro/outro |
 | AI-generated scripts | done: Claude rewrite with fact guard. Needs `ANTHROPIC_API_KEY`; otherwise the fact-checked template script is used |
-| AI narration integration | done: OpenAI, ElevenLabs, Google, local espeak behind one interface. Needs a provider key for a natural voice |
+| AI narration integration | done: Kokoro (free, default), OpenAI, ElevenLabs, Google, local espeak behind one interface |
 | Real MP4 rendering | done: H.264/AAC, yuv420p, faststart, 30 fps |
 | 9:16 and 16:9 (and 1:1) | done |
 | Subtitles | done: burned in + SRT/VTT |
@@ -14,7 +14,7 @@
 
 ## Next
 
-1. Add an AI-voice key (OpenAI is the cheapest; ElevenLabs is best for Greek) and re-render the demo videos.
+1. Run the Video Factory workflow once with `voice=kokoro-michael` to get the demo videos with the free AI voice; add ElevenLabs later for Greek.
 2. Greek scripts and labels.
 3. More templates: shot chart (reuse `scripts/shot-reel.mjs`), team comparison, round recap, timeline of a season.
 4. Stories from `daily-social` / the Data Studio.

@@ -3,7 +3,12 @@
   "assets": {
     "font-inter": {
       "type": "font",
-      "files": ["assets/fonts/Inter-Regular.woff2", "assets/fonts/Inter-Medium.woff2", "assets/fonts/Inter-Bold.woff2", "assets/fonts/Inter-ExtraBold.woff2"],
+      "files": [
+        "assets/fonts/Inter-Regular.woff2",
+        "assets/fonts/Inter-Medium.woff2",
+        "assets/fonts/Inter-Bold.woff2",
+        "assets/fonts/Inter-ExtraBold.woff2"
+      ],
       "source": "https://github.com/rsms/inter",
       "license": "SIL Open Font License 1.1",
       "licenseFile": "assets/fonts/LICENSE-Inter.txt",
@@ -29,9 +34,26 @@
     }
   },
   "narration": {
-    "espeak": { "license": "GPL-3.0 software; generated audio is not restricted", "commercialUse": true },
-    "openai": { "license": "OpenAI usage policies; output owned by the user; disclose AI-generated voice", "commercialUse": true },
-    "elevenlabs": { "license": "Commercial use requires a paid plan (Starter or above)", "commercialUse": "paid plans only" },
-    "google": { "license": "Google Cloud terms; output usable commercially", "commercialUse": true }
+    "kokoro": {
+      "license": "Apache-2.0 (model weights, kokoro-js); trained on permissive / public-domain audio",
+      "source": "https://huggingface.co/hexgrad/Kokoro-82M",
+      "commercialUse": true
+    },
+    "espeak": {
+      "license": "GPL-3.0 software; generated audio is not restricted",
+      "commercialUse": true
+    },
+    "openai": {
+      "license": "OpenAI usage policies; output owned by the user; disclose AI-generated voice",
+      "commercialUse": true
+    },
+    "elevenlabs": {
+      "license": "Commercial use requires a paid plan (Starter or above)",
+      "commercialUse": "paid plans only"
+    },
+    "google": {
+      "license": "Google Cloud terms; output usable commercially",
+      "commercialUse": true
+    }
   }
 }
