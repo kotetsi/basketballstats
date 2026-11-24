@@ -23,3 +23,8 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(out));
 console.log(`engine-projections: αγωνιστική ${out.round}, ${out.players.length} παίκτες, ποιότητα ${JSON.stringify(out.quality_counts)}, pregame=${out.pregame} → ${path.relative(ROOT, OUT)}`);
 if (!fantasy || fantasy.round !== out.round) console.warn('engine-projections: το data/fantasy/latest.json δεν είναι για την ίδια αγωνιστική: χωρίς PIR και κατάσταση παικτών');
+// συνέπεια με το Fantasy (Φάση 5: το Fantasy παίρνει τα λεπτά του engine): ίδιο αναμενόμενο PIR, εκτός από την προσαρμογή απόντων συμπαικτών
+if (fantasy && fantasy.round === out.round) {
+  const fx = new Map(fantasy.players.map(p => [p.c, p])), bad = out.players.filter(p => p.pir && fx.get(p.player_id) && !fx.get(p.player_id).vx && Math.abs(p.pir.mean_exp - fx.get(p.player_id).pp) > 0.15);
+  console.log(`engine-projections: συνέπεια με το Fantasy: ${bad.length ? `${bad.length} παίκτες με διαφορετικό PIR (π.χ. ${bad.slice(0, 3).map(p => p.player_name).join(', ')})` : 'ίδιο αναμενόμενο PIR'}${fantasy.minutes_model ? '' : ' · το Fantasy ΔΕΝ χρησιμοποίησε τα λεπτά του engine'}`);
+}
