@@ -28,7 +28,10 @@ const enc = d => d.slice(5, 7) + d.slice(8, 10) + d.slice(11, 13) + d.slice(14, 
 export async function fetchSeason(S) {
   const q = `seasonMode=Single&seasonCode=${S}&limit=500`;
   const [trad, gamesRes] = await Promise.all([
-    get(`${FEED}/v3/competitions/E/statistics/players/traditional?${q}&statisticMode=PerGame`),
+    // statisticSortMode=accumulated: ΟΛΟΙ οι παίκτες που αγωνίστηκαν. Χωρίς αυτό το feed επιστρέφει μόνο όσους περνούν το όριο
+    // αγώνων/λεπτών και τα ιστορικά αρχεία έχαναν παίκτες (2.614 αγώνες-ομάδες με άθροισμα πόντων ≠ σκορ, scripts/engine-validate.mjs).
+    // Ίδια διόρθωση με το fetchAll() του build.mjs για την τρέχουσα σεζόν.
+    get(`${FEED}/v3/competitions/E/statistics/players/traditional?${q}&statisticMode=PerGame&statisticSortMode=accumulated`),
     get(`${FEED}/v2/competitions/E/seasons/${S}/games?limit=500`),
   ]);
   const all = (gamesRes?.data || []).filter(x => x.status === 'result');

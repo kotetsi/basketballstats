@@ -1,0 +1,51 @@
+# Intelligence Engine, Φάση 3: νέα λήψη των ιστορικών σεζόν (E2020–E2025) με ΟΛΟΥΣ τους παίκτες και νέο
+# walk-forward backtest του μοντέλου Fantasy στα διορθωμένα δεδομένα. Τρέχει ΜΟΝΟ σε branches data-refetch
+# (ποτέ στο main), χωρίς secrets και χωρίς deploy· τα αποτελέσματα γίνονται commit στο ίδιο branch για έλεγχο στο PR.
+# Τα παλιά αρχεία (για σύγκριση στις ίδιες γραμμές) μένουν στο ιστορικό του main.
+name: Engine historical refetch
+
+on:
+  push:
+    branches: ["feature/engine-phase3-hist-refetch"]
+    paths:
+      - "fantasy/hist_fetch.mjs"
+      - ".github/workflows/hist-refetch.yml"
+      - ".github/hist-refetch.trigger"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hist-refetch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: fantasy/requirements.txt
+      - name: Βιβλιοθήκες Python
+        run: pip install -r fantasy/requirements.txt
+      - name: Νέα λήψη E2020–E2025 (όλοι οι παίκτες)
+        run: timeout 5400 node fantasy/hist_fetch.mjs E2020 E2021 E2022 E2023 E2024 E2025 --force
+      - name: Validation δεδομένων
+        run: node scripts/engine-validate.mjs --out data/fantasy/hist/validation.json || echo "validation: βρέθηκαν σφάλματα (δες validation.json)"
+      - name: Walk-forward backtest από την αρχή στα νέα δεδομένα
+        run: timeout 5400 python fantasy/perf_run.py --full
+      - name: Commit στο branch (όχι στο main)
+        run: |
+          git config user.name "basketballstats-bot"
+          git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add data/fantasy/hist data/fantasy/perf
+          git diff --cached --quiet && echo "καμία αλλαγή" && exit 0
+          git commit -qm "Engine: νέα λήψη ιστορικών σεζόν με όλους τους παίκτες + walk-forward backtest"
+          git push origin HEAD:${{ github.ref_name }}
