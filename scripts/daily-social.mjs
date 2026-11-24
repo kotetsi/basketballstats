@@ -3,7 +3,7 @@
 //                                           στο social/daily/<ημερομηνία>/ και γράφει το social/daily/plan.json
 //   (το workflow κάνει commit/push, ώστε οι εικόνες να έχουν δημόσιο URL για Instagram/Threads/Viber)
 //   node scripts/daily-social.mjs post      ανεβάζει ό,τι λέει το plan.json σε κάθε συνδεδεμένο δίκτυο, μία φορά (data/daily-social.json)
-//   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick|shots|preview|top5|race
+//   SOCIAL_DATA=dist/assets/data.json  τοπικά δεδομένα · SOCIAL_DRY=1 μόνο εμφάνιση · DAILY_ONLY=stat|pick|shots|preview|top5|race|team
 //   SOCIAL_PLAN=social/daily/<φάκελος>/plan.json  ανάρτηση έτοιμου plan (π.χ. δοκιμαστικό), χωρίς prepare
 //
 // «Στατιστικό της ημέρας»: από τους αγώνες της τελευταίας βραδιάς, όλα τα υποψήφια (σερί, ρεκόρ σεζόν, τέλειο σουτ,
@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { statCardHtml, statStoryHtml, STAT_VIDEO_SECS } from './stat-card.mjs';
 import { upcomingPicks, cardHtml, when, DISC } from './pick-cards.mjs';
 import { shotReelHtml, shotOrder, SHOT_REEL_SECS } from './shot-reel.mjs';
-import { previewHtml, previewSecs, top5Html, TOP5_SECS, raceHtml, raceSecs } from './round-videos.mjs';
+import { previewHtml, previewSecs, top5Html, TOP5_SECS, raceHtml, raceSecs, teamHtml, TEAM_SECS } from './round-videos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://basketballstats.eu', RAW = 'https://raw.githubusercontent.com/kotetsi/basketballstats/main/';
@@ -150,6 +150,7 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
 }
 
 // ------------------------------------------------------------------ Reels ανά αγωνιστική
+// Ομάδα του μοντέλου (Fantasy): βλ. ενότητα 4 πιο κάτω.
 // Προεπισκόπηση: την πρώτη μέρα κάθε αγωνιστικής, όλοι οι αγώνες με τις πιθανότητες του μοντέλου (data.mp).
 // Top 5: τη μέρα μετά (ή το ίδιο βράδυ) του τελευταίου αγώνα μιας αγωνιστικής, οι 5 κορυφαίοι σε PIR.
 // Κούρσα σκόρερ: δύο μέρες μετά το τέλος της αγωνιστικής (για να μην πέφτει την ίδια μέρα με το Top 5).
@@ -224,6 +225,35 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
     const text = `🏁 Η κούρσα των σκόρερ της EuroLeague μετά από ${RR} αγωνιστικές\n\n${fin.map(([k, v], i) => `${i + 1}. ${who[k][0]} (${who[k][1]}): ${v} πόντοι`).join('\n')}\n\nΠοιος θα τελειώσει πρώτος; 👇\n\nΌλοι οι κορυφαίοι: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball`;
     plan.items.push({ key: `race:${RR}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🏁 Η κούρσα των σκόρερ της EuroLeague μετά από ${RR} αγωνιστικές: πρώτος ο ${who[fin[0][0]][0]} με ${fin[0][1]} · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `Η κούρσα των σκόρερ της EuroLeague: αγωνιστική προς αγωνιστική (1η–${RR}η)`, alt: `Bar race σκόρερ 1η–${RR}η αγωνιστική` });
     console.log(`Κούρσα σκόρερ έως την ${RR}η: πρώτος ${who[fin[0][0]][0]} ${fin[0][1]}`);
+  }
+
+  // 4. Η ομάδα του μοντέλου: την πρώτη μέρα της αγωνιστικής (πριν από το πρώτο τζάμπολ), η βέλτιστη σύνθεση του optimizer (balanced)
+  //    με τιμές, εκτιμήσεις PIR, αντίπαλο και αρχηγό. Με DAILY_ONLY=team: η επόμενη αγωνιστική όποια μέρα κι αν είναι.
+  const RT = rounds.find(r => !done(r));
+  // ΠΡΟΣΩΡΙΝΑ μόνο χειροκίνητα (DAILY_ONLY=team) μέχρι να εγκριθεί η αυτόματη ανάρτηση· για αυτόματο: (!ONLY || ONLY === 'team') && (ONLY === 'team' || firstDay(RT) === today)
+  if (RT && ONLY === 'team' && !state.posted.some(k => k.startsWith(`team:${RT}:`))) {
+    try {
+      const opt = process.env.SOCIAL_OPT ? JSON.parse(await fs.readFile(process.env.SOCIAL_OPT, 'utf8')) : await (await fetch(`${SITE}/api/fantasy/optimizer/balanced.json?t=${Date.now()}`)).json();
+      const fx = await readJ(path.join(ROOT, 'data', 'fantasy', 'latest.json'), {});
+      const first = Math.min(...ofR(RT).map(g => +gDate(g[1])));
+      if (opt.round !== RT || fx.round !== RT) throw new Error(`optimizer για την ${opt.round}η, μοντέλο για την ${fx.round}η (θέλω ${RT}η)`);
+      if (!ONLY && Date.now() > first) throw new Error('η αγωνιστική άρχισε ήδη');
+      const off = Object.fromEntries((await fs.readFile(path.join(ROOT, 'fantasy', 'official', `prices-r${RT}.csv`), 'utf8').catch(() => '')).split('\n').filter(l => /^\d/.test(l)).map(l => { const c = l.split(','); return [c[0], c[c.length - 1].trim()]; }));
+      const FP = Object.fromEntries((fx.players || []).map(p => [p.c, p])), DP = Object.fromEntries(data.players.map(p => [p.c, p]));
+      const surname = n => { const g = grName(n).split(' '); return g.length > 1 ? g.slice(1).join(' ') : g[0]; };
+      const cardOf = c => { const p = FP[c]; if (!p) throw new Error('λείπει ο παίκτης ' + c); const t = p.t.split(';').pop();
+        return { name: surname(p.n), full: grName(p.n), team: nm(t), no: DP[c]?.no ?? '', pos: off[c] || { Guard: 'G', Forward: 'F', Center: 'C' }[p.pos] || 'F', price: p.price, proj: p.pp, opp: short(p.opp), oppFull: tn(p.opp), home: !!p.home, cap: c === opt.captain }; };
+      const co = (fx.coaches || []).find(x => x.t === opt.coach) || { price: 0, opp: '', home: 0 };
+      const o = { round: RT, target: opt.projected.expected, floor: opt.projected.floor, ceil: opt.projected.ceiling, cost: opt.cost, budget: 100,
+        five: opt.start.map(cardOf), sixth: opt.sixth && cardOf(opt.sixth), bench: opt.bench.map(cardOf), coach: { team: nm(opt.coach), price: co.price, opp: short(co.opp), home: !!co.home } };
+      await fs.mkdir(outDir, { recursive: true });
+      const img = path.join(outDir, 'team.png'), vid = path.join(outDir, 'team.mp4'), html = teamHtml(o);
+      if (!DRY) { await renderStill(html, img, TEAM_SECS); await renderVideo(html, vid, TEAM_SECS); }
+      const capP = o.five.find(p => p.cap), line = p => `${p.full} (${p.team[0]}) ${p.price.toFixed(1)} cr · ≈${Math.round(p.proj)} PIR`;
+      const text = `🧠 Η ομάδα του μοντέλου για την ${RT}η αγωνιστική του EuroLeague Fantasy\n\nΠεντάδα:\n${o.five.map(p => `${p.cap ? '©️' : '•'} ${line(p)}`).join('\n')}\n\n6ος: ${o.sixth ? line(o.sixth) : '—'}\nΠάγκος: ${o.bench.map(p => p.full).join(', ')}\nΠροπονητής: ${o.coach.team[0]}\n\nΑρχηγός: ${capP ? capP.full : '—'} · κόστος ${o.cost.toFixed(1)}/100\nΕκτίμηση: ${Math.round(o.target)} πόντοι (εύρος ${Math.round(o.floor)}–${Math.round(o.ceil)})\n\nΜπορεί η δική σου να τη νικήσει; Γράψ' τη στα σχόλια 👇\nΌλη η ανάλυση: basketballstats.eu/fantasy\n\n#EuroLeagueFantasy #EuroLeague #fantasy`;
+      plan.items.push({ key: `team:${RT}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🧠 Η ομάδα του μοντέλου για την ${RT}η αγωνιστική του EuroLeague Fantasy: αρχηγός ${capP ? capP.full : ''}, εκτίμηση ${Math.round(o.target)} πόντοι · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `EuroLeague Fantasy ${RT}η αγωνιστική: η ομάδα του μοντέλου (${Math.round(o.target)} πόντοι;)`, alt: `Ομάδα Fantasy ${RT}ης αγωνιστικής` });
+      console.log(`Ομάδα του μοντέλου ${RT}ης: αρχηγός ${capP?.full}, εκτίμηση ${Math.round(o.target)}`);
+    } catch (e) { console.error('Ομάδα του μοντέλου: παράλειψη —', e.message); }
   }
 }
 

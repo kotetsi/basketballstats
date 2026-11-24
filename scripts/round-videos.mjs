@@ -132,3 +132,68 @@ window.setT=t=>{
 };
 setT(0);</script></body></html>`;
 }
+
+// ---------------------------------------------------------------- 4. Η ομάδα του μοντέλου (Fantasy)
+/** o = { round, target, floor, ceil, cost, budget, five: [card], sixth: card, bench: [card], coach: { team: [όνομα, χρώμα], opp, exp },
+ *        card = { name, team: [όνομα, χρώμα], no, pos: 'G'|'F'|'C', price, proj, opp, home, cap } }
+ *  Η πεντάδα μπαίνει στο παρκέ ένας-ένας (ο αρχηγός τελευταίος), μετά 6ος, πάγκος και προπονητής, σύνοψη και ερώτηση για σχόλια. */
+export const TEAM_SECS = 26;
+export function teamHtml(o) {
+  const S0 = 3.2, D = 2.1, B0 = S0 + 5 * D + .3, SUMT = B0 + 3.2, CTA = SUMT + 3.6;
+  const nf = x => String(x).replace('.', ',');
+  const jersey = (c, no) => `<svg viewBox="0 0 100 100" class="js"><path d="M30 8 L42 8 Q50 18 58 8 L70 8 L88 22 L80 38 L72 33 L72 94 L28 94 L28 33 L20 38 L12 22 Z" fill="${c}" stroke="rgba(255,255,255,.55)" stroke-width="2.5"/><text x="50" y="72" text-anchor="middle" font-size="34" font-weight="800" fill="#fff" stroke="rgba(0,0,0,.35)" stroke-width="1">${esc(no ?? '')}</text></svg>`;
+  const card = (p, id, cls = '') => `<div class="pc f ${cls}${p.cap ? ' cap' : ''}" id="${id}" style="--c:${vis(p.team[1])}">${p.cap ? '<div class="cb">C</div>' : ''}
+${jersey(vis(p.team[1]), p.no)}<div class="pn">${esc(p.name)}</div><div class="pm"><span class="pr">${nf(p.price.toFixed(1))}</span><span class="pj">≈${Math.round(p.proj)} PIR</span></div><div class="po">${p.home ? 'εντός' : 'εκτός'} · ${esc(p.opp)}</div></div>`;
+  // σειρές στο παρκέ: ψηλοί πάνω, forwards στη μέση, guards κάτω (όπως στο παιχνίδι)
+  const rows = ['C', 'F', 'G'].map(k => o.five.map((p, i) => ({ p, i })).filter(x => x.p.pos === k)).filter(r => r.length);
+  const order = o.five.map((p, i) => i).sort((a, b) => (o.five[a].cap ? 1 : 0) - (o.five[b].cap ? 1 : 0));   // ο αρχηγός τελευταίος
+  const say = o.five.map(p => `${p.name}${p.cap ? ': ο αρχηγός (×2)' : ''} · ${p.home ? 'εντός με' : 'εκτός με'} ${p.oppFull || p.opp}`);
+  return `<!doctype html><html lang="el"><head><meta charset="utf-8"><style>${BASE_CSS}
+.wrap{padding:110px 50px 120px}
+.title{font-size:70px}
+.hook{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:26px;background:radial-gradient(circle at 50% 45%,#2b3550,#1d2331 70%)}
+.hook .k1{font-size:44px;font-weight:700;letter-spacing:6px;color:#f2b134}.hook .k2{font-size:128px;font-weight:800;line-height:1}.hook .k3{font-size:58px;font-weight:700;border:4px solid #f2b134;border-radius:22px;padding:14px 34px;color:#f2b134}
+.court{position:relative;flex:none;margin-top:26px;height:960px;border-radius:30px;background:linear-gradient(#3a2a18,#24190f);border:4px solid rgba(242,177,52,.35);overflow:hidden}
+.court:before{content:'';position:absolute;left:50%;top:-4px;width:380px;height:440px;transform:translateX(-50%);border:4px solid rgba(242,177,52,.35);border-top:none}
+.court:after{content:'';position:absolute;left:50%;top:-560px;width:1000px;height:1100px;transform:translateX(-50%);border:4px solid rgba(242,177,52,.3);border-radius:50%}
+.rw{position:absolute;left:0;right:0;display:flex;justify-content:center;gap:40px;z-index:2}
+.pc{position:relative;width:290px;background:rgba(20,24,34,.88);border:3px solid var(--c);border-radius:26px;padding:16px 12px 18px;text-align:center}
+.pc.cap{border-color:#f2b134;box-shadow:0 0 40px rgba(242,177,52,.55)}
+.cb{position:absolute;right:-14px;top:-14px;width:64px;height:64px;border-radius:50%;background:#f2b134;color:#1d2331;font-size:40px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.js{width:92px;height:92px}.pn{font-size:38px;font-weight:800;line-height:1.05;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm{margin-top:10px;display:flex;justify-content:center;gap:12px}.pm span{font-size:28px;font-weight:800;border-radius:30px;padding:5px 14px}.pr{background:#2e7d4f}.pj{background:#e4572e}
+.po{margin-top:10px;font-size:26px;color:#cfd5e2}
+.bn{display:flex;gap:16px;margin-top:26px}.bn .pc{width:auto;flex:1;padding:10px 6px 12px}.bn .js{width:70px;height:70px}.bn .pn{font-size:25px}.bn .pm span{font-size:20px;padding:3px 8px}.bn .po{font-size:19px}
+.lb{position:absolute;left:8px;top:-18px;background:#f2b134;color:#1d2331;font-size:20px;font-weight:800;border-radius:12px;padding:2px 10px}
+.co{border-style:dashed}
+.say{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:3;background:rgba(29,35,49,.92);border:3px solid #f2b134;border-radius:40px;padding:14px 34px;font-size:34px;font-weight:700;color:#f2b134;white-space:nowrap}
+.sm{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px;background:rgba(29,35,49,.94);border-radius:30px}
+.sm .n{font-size:200px;font-weight:800;line-height:.9;color:#f2b134}.sm .u{font-size:46px;font-weight:700}.sm .r{font-size:36px;color:#aeb6c8}.sm .q{margin-top:30px;font-size:62px;font-weight:800;line-height:1.15}
+.foot{padding-top:20px}
+</style></head><body><div class="bar" id="bar"></div><div class="wrap">
+${head(`EUROLEAGUE FANTASY · ${o.round}η ΑΓΩΝΙΣΤΙΚΗ`, 'Η ομάδα του μοντέλου')}
+<div class="court" id="ct">
+${rows.map((r, k) => `<div class="rw" style="top:${rows.length === 3 ? [24, 300, 576][k] : [110, 470][k]}px">${r.map(x => card(x.p, 'p' + x.i)).join('')}</div>`).join('')}
+<div class="say" id="say"></div>
+<div class="sm f" id="sm"><div class="u">Εκτίμηση μοντέλου</div><div class="n" data-v="${Math.round(o.target)}">0</div><div class="u">fantasy πόντοι</div><div class="r">εύρος ${Math.round(o.floor)}–${Math.round(o.ceil)} · κόστος ${nf(o.cost.toFixed(1))}/${o.budget} credits</div>
+<div class="q">Μπορεί η δική σου<br>να τους περάσει;</div></div>
+</div>
+<div class="bn">${[o.sixth && card(o.sixth, 'b0').replace('<div class="pc', '<div class="pc').replace(/(<div class="pc[^>]*>)/, '$1<div class="lb">6ος</div>'), ...o.bench.map((p, i) => card(p, 'b' + (i + 1))),
+  `<div class="pc f co" id="b9" style="--c:${vis(o.coach.team[1])}"><div class="lb">ΠΡΟΠ.</div>${jersey(vis(o.coach.team[1]), '')}<div class="pn">${esc(o.coach.team[0])}</div><div class="pm"><span class="pr">${nf(o.coach.price.toFixed(1))}</span></div><div class="po">${o.coach.home ? 'εντός' : 'εκτός'} · ${esc(o.coach.opp)}</div></div>`].filter(Boolean).join('')}</div>
+${foot('Εκτιμήσεις του μοντέλου μας, όχι εγγύηση · όλη η ανάλυση στο basketballstats.eu/fantasy')}
+</div>
+<div class="hook" id="hk"><div class="k1">${o.round}η ΑΓΩΝΙΣΤΙΚΗ</div><div class="k2">Η ομάδα<br>του μοντέλου</div><div class="k3">${Math.round(o.target)} πόντοι;</div></div>
+<script>${BASE_JS}
+const S0=${S0}, D=${D}, B0=${B0}, SUMT=${SUMT}, CTA=${CTA}, ORD=${JSON.stringify(order)}, SAY=${JSON.stringify(say)}, CT=${JSON.stringify(`${Math.round(o.target)} πόντοι; Γράψε τη δική σου στα σχόλια`)};
+window.setT=t=>{
+  const h=$('hk'), ho=1-ez((t-2.3)/.6); h.style.opacity=ho; h.style.transform='scale('+(1+.08*ez(t/2.3))+')';
+  $('bar').style.width=(100*ez((t-2.4)/.8))+'%'; fade('hd',2.5,t); fade('tt',2.7,t); fade('ct',2.8,t);
+  let cur='';
+  ORD.forEach((i,k)=>{const a=S0+k*D, e=$('p'+i), p=ez((t-a)/.45); e.style.opacity=p; e.style.transform='translateY('+(-80*(1-p))+'px) scale('+(1.25-.25*p)+')'; if(t>=a&&t<a+D) cur=SAY[i];});
+  if(t>=CTA) cur=CT; const s=$('say'); s.textContent=cur; s.style.opacity=cur?1:0; s.style.fontSize=(t>=CTA?40:34)+'px';
+  for(let k=0;k<6;k++) fade('b'+k,B0+k*.35,t,.4); fade('b9',B0+2.2,t,.4);
+  const m=$('sm'); m.style.opacity=ez((t-SUMT)/.5)*(1-ez((t-CTA)/.5)); const n=m.querySelector('.n'); n.textContent=Math.round(n.dataset.v*ez((t-SUMT-.2)/1.2));
+  fade('ft',B0+2.6,t,.6);
+};
+setT(0);</script></body></html>`;
+}
