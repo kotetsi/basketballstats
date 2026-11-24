@@ -117,6 +117,36 @@ def fantasy_target(games, now):
     return open_rounds[0] if open_rounds else None
 
 
+def apply_engine_minutes(pred: pd.DataFrame, target: int, season: str, path: Path | None = None):
+    """Intelligence Engine (Φάση 5): αναμενόμενα λεπτά από το κοινό μοντέλο λεπτών (min-hurdle-x2, data/projections/minutes.json)
+    και PIR = PIR/λεπτό του μοντέλου × αυτά τα λεπτά (docs/MODEL_EVALUATION.md §3.1, §4.1). Τα P10/P50/P90 μετατοπίζονται κατά
+    τη διαφορά, ώστε να μένει ίδιο το εύρος. Αν το αρχείο λείπει ή είναι για άλλη αγωνιστική/σεζόν, τίποτα δεν αλλάζει.
+    Επιστρέφει (pred, info) όπου info = None ή {model, generated_at, n}."""
+    path = path or ROOT / "data" / "projections" / "minutes.json"
+    try:
+        mf = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        log("engine minutes: δεν υπάρχει data/projections/minutes.json, λεπτά από το pir-2stage-v2")
+        return pred, None
+    if mf.get("round") != target or mf.get("season") != season:
+        log(f"engine minutes: το minutes.json είναι για {mf.get('season')} r{mf.get('round')}, όχι {season} r{target}: λεπτά από το pir-2stage-v2")
+        return pred, None
+    M = mf.get("players", {})
+    pred = pred.copy()
+    hit = pred["c"].map(lambda c: c in M)
+    new_min = pred["c"].map(lambda c: M[c]["min_exp"] if c in M else np.nan)
+    new_min = new_min.where(hit, pred["proj_min"]).astype(float)
+    new_pir = pred["proj_pirpm"].astype(float) * new_min
+    delta = new_pir - pred["proj_pir"].astype(float)
+    pred["proj_min_v2"] = pred["proj_min"]
+    pred["proj_min"], pred["proj_pir"] = new_min, new_pir
+    for k in ("p10", "p50", "p90"):
+        pred[k] = pred[k] + delta
+    n = int(hit.sum())
+    log(f"engine minutes: {mf.get('model')} για {n}/{len(pred)} παίκτες (μέση |Δλεπτά| {float((new_min - pred['proj_min_v2']).abs().mean()):.2f})")
+    return pred, {"model": mf.get("model"), "generated_at": mf.get("generated_at"), "n": n}
+
+
 def main():
     t0 = time.time()
     cache = json.loads((ROOT / "data" / "cache.json").read_text(encoding="utf-8"))
@@ -155,6 +185,7 @@ def main():
     tgt = rows[rows["is_target"]].reset_index(drop=True)
     pred = model.predict(tgt)
     facts = model.factors(tgt)
+    pred, engine_minutes = apply_engine_minutes(pred, target, os.environ.get("SEASON") or json.loads((ROOT / "site.config.json").read_text(encoding="utf-8")).get("season", "E2026"))
 
     # team strength for win probabilities, coach scoring and the +10% win bonus
     tt = team_tables(cache)
@@ -390,6 +421,7 @@ def main():
         bt_file.write_text(json.dumps(bt), encoding="utf-8")
     now = datetime.now(timezone.utc)
     latest = {"round": target, "generated": now.isoformat(timespec="seconds"), "model": MODEL_VERSION, "n_train": model.n_train,
+              "minutes_model": engine_minutes,   # Intelligence Engine: None = λεπτά του pir-2stage-v2
               "days": days, "price_base": roll_base, "players": players, "coaches": coaches, "pos_median": pos_median,
               "backtest": {k: bt.get(k) for k in ("mae", "mae_base", "coverage_80", "mae_min", "n", "upto")}}
     OUT.mkdir(parents=True, exist_ok=True)
@@ -397,7 +429,7 @@ def main():
     (OUT / "latest.json").write_text(json.dumps(latest, ensure_ascii=False), encoding="utf-8")
     hist = OUT / "history"
     hist.mkdir(exist_ok=True)
-    slim = {"round": target, "generated": latest["generated"], "model": MODEL_VERSION,
+    slim = {"round": target, "generated": latest["generated"], "model": MODEL_VERSION, "minutes_model": engine_minutes,
             "p": [[x["c"], x["pm"], x["pp"], x["p10"], x["p50"], x["p90"], x["status"]] for x in players],
             "co": coaches,
             # feature snapshot: ό,τι ήξερε το μοντέλο τη στιγμή της πρόβλεψης (για το backtesting/model performance)

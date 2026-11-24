@@ -63,12 +63,14 @@ jobs:
         env:
           ROLLBACK_TO: ${{ github.event.inputs.rollback_to }}
         run: python fantasy/perf_run.py --rollback "$ROLLBACK_TO" --reason "GitHub Actions workflow_dispatch"
+      - name: "Intelligence Engine - λεπτά (min-hurdle-x2) για την επόμενη αγωνιστική, πριν από το Fantasy (αν αποτύχει, το Fantasy κρατά τα δικά του λεπτά)"
+        run: timeout 900 python fantasy/perf/minutes_hurdle.py --next || echo "engine minutes - σφάλμα"
       - name: Προβλέψεις PIR για το Fantasy (αν αποτύχει, το site βγαίνει κανονικά χωρίς αυτές)
         run: python fantasy/run.py || echo "Fantasy - παραλείφθηκε" && (python fantasy/backfill.py || echo "fantasy backfill - σφάλμα")
       - name: Αρχειοθέτηση pregame status παικτών για backtest απουσιών
         run: node scripts/fantasy-status-history.mjs
       - name: "Intelligence Engine - κοινές προβλέψεις παικτών (λεπτά hurdle, στατιστικά, σκάλα ορίων· αν αποτύχει, τίποτα άλλο δεν επηρεάζεται)"
-        run: (timeout 900 python fantasy/perf/minutes_hurdle.py --next && node scripts/engine-projections.mjs) || echo "engine projections - σφάλμα"
+        run: node scripts/engine-projections.mjs || echo "engine projections - σφάλμα"
       - name: "Intelligence Engine - αρχείο pregame προβλέψεων (μόνο προσθήκες, αλυσίδα SHA-256) + settlement"
         run: node scripts/engine-archive.mjs || echo "engine archive - σφάλμα, δες το log (σπασμένη αλυσίδα = δεν γράφτηκε τίποτα)"
       - name: Walk-forward σύγκριση κατανομής Player Props με baseline
