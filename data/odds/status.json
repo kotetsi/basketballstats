@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 247,
+  "calls": 248,
   "fixtures": [
    {
     "id": "id1100013873263198",
@@ -64,7 +64,7 @@
     "start": "2026-11-25T19:45:00.000Z"
    }
   ],
-  "fixturesDay": "2026-11-21",
+  "fixturesDay": "2026-11-24",
   "done": {
    "id1100013873263198": [
     "open",
@@ -182,13 +182,13 @@
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-23T17:08:50.930Z",
- "lastSuccess": "2026-11-23T17:08:50.930Z",
+ "lastCall": "2026-11-24T01:34:41.214Z",
+ "lastSuccess": "2026-11-24T01:34:41.214Z",
  "events": 0,
  "matched": 0,
  "added": 0,
  "quota": {
-  "used": 247,
+  "used": 248,
   "cap": 250,
   "month": "2026-11"
  },
@@ -403,18 +403,18 @@
  "providers": {
   "theoddsapi": {
    "provider": "theoddsapi",
-   "lastCall": "2026-11-23T15:02:30.092Z",
-   "lastSuccess": "2026-11-23T15:02:30.092Z",
+   "lastCall": "2026-11-24T01:34:41.662Z",
+   "lastSuccess": "2026-11-24T01:34:41.662Z",
    "events": 10,
    "matched": 10,
-   "added": 162,
+   "added": 218,
    "propAdded": 0,
    "quota": {
-    "remaining": "452",
-    "used": "48"
+    "remaining": "440",
+    "used": "60"
    },
    "error": null,
-   "lastChange": "2026-11-23T15:02:30.092Z"
+   "lastChange": "2026-11-24T01:34:41.662Z"
   }
  }
 }
