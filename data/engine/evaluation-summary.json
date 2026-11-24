@@ -1,0 +1,124 @@
+{
+ "generated": "2026-11-24",
+ "note": "Walk-forward backtest (μόνο προηγούμενοι αγώνες για κάθε πρόβλεψη). Πηγή: docs/MODEL_EVALUATION.md, scripts/engine-stats-compare.mjs, scripts/engine-minutes-compare.mjs.",
+ "seasons": "E2020–E2026",
+ "minutes": {
+  "n_expected": 45534,
+  "n_if_plays": 37017,
+  "expected": {
+   "hurdle": 5.588,
+   "python_v2": 5.758,
+   "last10": 5.997,
+   "season_mean": 6.016
+  },
+  "if_plays": {
+   "hurdle": 4.599,
+   "ew3_props": 4.614,
+   "last10": 4.699,
+   "season_mean": 4.725
+  }
+ },
+ "stats": {
+  "n": 37391,
+  "pts": {
+   "engine": {
+    "mae": 3.951,
+    "brier": 0.1189
+   },
+   "props_ew": {
+    "mae": 3.993,
+    "brier": 0.1202
+   },
+   "season_mean": {
+    "mae": 4.068,
+    "brier": 0.1247
+   },
+   "last5": {
+    "mae": 4.277,
+    "brier": 0.133
+   },
+   "last10": {
+    "mae": 4.111,
+    "brier": 0.1269
+   }
+  },
+  "reb": {
+   "engine": {
+    "mae": 1.515,
+    "brier": 0.1331
+   },
+   "props_ew": {
+    "mae": 1.538,
+    "brier": 0.1346
+   },
+   "season_mean": {
+    "mae": 1.581,
+    "brier": 0.1399
+   },
+   "last5": {
+    "mae": 1.657,
+    "brier": 0.1487
+   },
+   "last10": {
+    "mae": 1.603,
+    "brier": 0.1425
+   }
+  },
+  "ast": {
+   "engine": {
+    "mae": 1.051,
+    "brier": 0.0996
+   },
+   "props_ew": {
+    "mae": 1.054,
+    "brier": 0.1004
+   },
+   "season_mean": {
+    "mae": 1.075,
+    "brier": 0.1044
+   },
+   "last5": {
+    "mae": 1.13,
+    "brier": 0.1121
+   },
+   "last10": {
+    "mae": 1.091,
+    "brier": 0.1062
+   }
+  },
+  "fg3": {
+   "engine": {
+    "mae": 0.677,
+    "brier": 0.1385
+   },
+   "props_ew": {
+    "mae": 0.682,
+    "brier": 0.1403
+   },
+   "season_mean": {
+    "mae": 0.7,
+    "brier": 0.1441
+   },
+   "last5": {
+    "mae": 0.733,
+    "brier": 0.1536
+   },
+   "last10": {
+    "mae": 0.712,
+    "brier": 0.1471
+   }
+  },
+  "ece": {
+   "pts": 0.01,
+   "reb": 0.0058,
+   "ast": 0.0046,
+   "fg3": 0.0061
+  }
+ },
+ "pir": {
+  "n": 55775,
+  "engine": 4.505,
+  "fantasy_v2": 4.525,
+  "last10": 4.643
+ }
+}
