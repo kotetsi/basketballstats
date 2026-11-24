@@ -13,7 +13,9 @@ export async function renderVideo({ htmlFile, audioFile, out, w, h, fps = 30, du
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error',
     '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
     ...(audioFile ? ['-i', audioFile] : []),
-    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(crf), '-pix_fmt', 'yuv420p', '-r', String(fps),
+    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(crf),
+    // JPEG frames are full-range; convert explicitly so every ffmpeg build writes standard yuv420p (TV range)
+    '-vf', 'scale=in_range=pc:out_range=tv,format=yuv420p', '-pix_fmt', 'yuv420p', '-color_range', 'tv', '-r', String(fps),
     ...(audioFile ? ['-c:a', 'aac', '-b:a', '160k', '-shortest'] : []),
     '-movflags', '+faststart', out], { stdio: ['pipe', 'inherit', 'pipe'] });
   let ffErr = '';

@@ -42,7 +42,7 @@ jobs:
       - name: Tools (Chromium, ffmpeg, espeak-ng)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng
-          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npm i --no-save --no-audit --no-fund --onnxruntime-node-install-cuda=skip playwright@1.48.2
           npx playwright install --with-deps chromium
       - run: node --test video-factory/test/*.test.mjs
       - run: node --test video-formats/test/*.test.mjs
@@ -58,10 +58,10 @@ jobs:
       - name: Tools (Chromium, ffmpeg, espeak-ng)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng
-          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npm i --no-save --no-audit --no-fund --onnxruntime-node-install-cuda=skip playwright@1.48.2
           npx playwright install --with-deps chromium
       - name: Free AI voice (Kokoro, Apache-2.0)
-        run: npm i --no-save --no-audit --no-fund kokoro-js@1.2.1
+        run: npm i --no-save --no-audit --no-fund --onnxruntime-node-install-cuda=skip kokoro-js@1.2.1
       - name: Cache the Kokoro model
         uses: actions/cache@v4
         with:
@@ -105,7 +105,7 @@ jobs:
       - name: Tools (Chromium, ffmpeg, Kokoro)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
-          npm i --no-save --no-audit --no-fund playwright@1.48.2 kokoro-js@1.2.1
+          npm i --no-save --no-audit --no-fund --onnxruntime-node-install-cuda=skip playwright@1.48.2 kokoro-js@1.2.1
           npx playwright install --with-deps chromium
       - uses: actions/cache@v4
         with:
