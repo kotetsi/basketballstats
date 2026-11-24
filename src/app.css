@@ -580,6 +580,10 @@ svg.mom{width:100%;max-width:640px;height:auto}svg.mom .m0{fill:var(--accent)}sv
 /* Οι αγώνες σήμερα */
 .nav a.navtoday{font-weight:700;color:var(--band-ink)}
 .todayhome{margin:14px 0}.todayhome .shsh{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.todayday-nav{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;margin-top:12px;scrollbar-width:thin}
+.todayday-nav button{flex:0 0 auto;border:1px solid var(--line,#ddd);border-radius:999px;padding:8px 13px;background:var(--surface);color:inherit;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.todayday-nav button[aria-pressed="true"]{background:var(--band,#1d2330);border-color:var(--band,#1d2330);color:var(--band-ink,#fff)}
+.todayday-nav button:focus-visible{outline:2px solid var(--accent,#c4501f);outline-offset:2px}
 .tdd{font-weight:700;text-transform:capitalize;margin:6px 0 8px;color:#888}
 .tdg{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line,#ddd);border-radius:10px;margin:6px 0;background:var(--surface)}
 .tdt{font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}.tdt small,.tdr small{display:block;font-size:11px;font-weight:500;color:#888}
