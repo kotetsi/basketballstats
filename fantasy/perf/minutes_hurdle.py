@@ -128,11 +128,71 @@ def run_season(season: str, caches: dict, pool: dict, log=print) -> pd.DataFrame
     return pd.concat(out, ignore_index=True) if out else pd.DataFrame()
 
 
+def predict_next(caches: dict, season: str, target: int) -> pd.DataFrame:
+    """παραγωγή: πρόβλεψη λεπτών για την αγωνιστική-στόχο, με εκπαίδευση σε όλο το ιστορικό πριν από αυτήν
+    (pooled προηγούμενες σεζόν + αγωνιστικές < target της τρέχουσας). Ίδια features/μοντέλα με το walk-forward."""
+    order = sorted(caches)
+    cache = caches[season]
+    prev = caches.get(order[order.index(season) - 1]) if order.index(season) > 0 else None
+    F._team_cache.clear()
+    rows = F2.add_time_index(F2.rows_v2(cache, prev, target), season)
+    rows = add_ew(add_cond(rows), ew_table(cache))
+    hist = F2.pooled_history(caches, season)
+    if len(hist):
+        tabs = {}
+        for s_ in hist["season"].unique():
+            tabs.update({(s_, k[0], k[1]): v for k, v in ew_table(caches[s_]).items()})
+        hist = add_cond(hist)
+        v = [tabs.get((s_, c, r), (np.nan, 0)) for s_, c, r in zip(hist["season"], hist["c"], hist["round"])]
+        hist["m_ew3"] = [x[0] for x in v]
+        hist["n_played_all"] = [x[1] for x in v]
+        hist["m_ew3"] = hist["m_ew3"].fillna(hist["m_cond5"])
+    F._team_cache.clear()
+    cur_tr = rows[(~rows["is_target"]) & (rows["round"] < target)]
+    assert cur_tr.empty or cur_tr["round"].max() < target, "data leakage"
+    tr = pd.concat([hist, cur_tr], ignore_index=True)
+    te = rows[rows["is_target"] & (rows["round"] == target)]
+    played = (tr["y_min"] > 0).to_numpy()
+    p = clf().fit(tr[FEATS], played.astype(int)).predict_proba(te[FEATS])[:, 1] if len(te) else np.array([])
+    trp = tr[played]
+    cm = reg().fit(trp[FEATS], (trp["y_min"] - trp["m_ew3"]).astype(float)).predict(te[FEATS]) if len(te) else np.array([])
+    cond = np.clip(te["m_ew3"].to_numpy(float) + cm, 0, 40)
+    return pd.DataFrame({"c": te["c"].to_numpy(), "team": te["team"].to_numpy(), "opp": te["opp"].to_numpy(), "home": te["home"].to_numpy(),
+                         "n_played": te["n_played"].to_numpy(), "p_play": np.round(p, 4), "min_if_plays": np.round(cond, 2),
+                         "min_exp": np.round(p * cond, 2), "n_train": len(tr)})
+
+
+def main_next(out_path: Path) -> None:
+    from datetime import datetime, timezone
+    sys.path.insert(0, str(HERE.parent))
+    from run import fantasy_target  # noqa: E402
+    cur = json.loads((ROOT / "site.config.json").read_text(encoding="utf-8"))["season"]
+    seasons = sorted([f.stem for f in (ROOT / "data" / "fantasy" / "hist").glob("E*.json") if f.stem < cur] + [cur])
+    caches = {s: load(s, cur) for s in seasons}
+    now = datetime.now(timezone.utc)
+    target = fantasy_target(caches[cur]["league"]["games"], now)
+    if target is None:
+        print("[hurdle] καμία επόμενη αγωνιστική")
+        return
+    df = predict_next(caches, cur, target)
+    out = {"model": VERSION, "generated_at": now.isoformat(timespec="seconds"), "season": cur, "round": int(target),
+           "n_train": int(df["n_train"].iloc[0]) if len(df) else 0,
+           "players": {r.c: {"team": r.team, "opp": r.opp, "home": int(r.home), "n_played": int(r.n_played), "p_play": float(r.p_play),
+                             "min_if_plays": float(r.min_if_plays), "min_exp": float(r.min_exp)} for r in df.itertuples()}}
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+    print(f"[hurdle] αγωνιστική {target}: {len(df)} παίκτες → {out_path}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
+    ap.add_argument("--next", action="store_true", help="παραγωγή: λεπτά για την επόμενη αγωνιστική → data/projections/minutes.json")
     ap.add_argument("--seasons", default="")
     ap.add_argument("--out", default=str(ROOT / "data" / "fantasy" / "perf" / "minutes_hurdle.csv.gz"))
     a = ap.parse_args(argv)
+    if a.next:
+        main_next(ROOT / "data" / "projections" / "minutes.json")
+        return
     cur = json.loads((ROOT / "site.config.json").read_text(encoding="utf-8"))["season"]
     seasons = sorted([f.stem for f in (ROOT / "data" / "fantasy" / "hist").glob("E*.json") if f.stem != cur] + [cur])
     caches = {s: load(s, cur) for s in seasons}
