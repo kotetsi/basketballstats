@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 248,
+  "calls": 249,
   "fixtures": [
    {
     "id": "id1100013873263198",
@@ -86,6 +86,9 @@
    ],
    "id1100013873263208": [
     "mid"
+   ],
+   "id1100013873263210": [
+    "mid"
    ]
   },
   "props": {
@@ -94,7 +97,8 @@
    "id1100013873263202": 1564,
    "id1100013873263204": 4807,
    "id1100013873263206": 3286,
-   "id1100013873263208": 2168
+   "id1100013873263208": 2168,
+   "id1100013873263210": 2832
   },
   "propDone": {
    "id1100013873263198": [
@@ -113,6 +117,9 @@
     "mid"
    ],
    "id1100013873263208": [
+    "mid"
+   ],
+   "id1100013873263210": [
     "mid"
    ]
   },
@@ -176,24 +183,30 @@
      "count": 1,
      "lastAttempt": "2026-11-23T15:02:26.290Z"
     }
+   },
+   "id1100013873263210": {
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-24T10:55:54.319Z"
+    }
    }
   }
  },
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-24T09:53:42.912Z",
- "lastSuccess": "2026-11-24T09:53:42.912Z",
- "events": 0,
- "matched": 0,
- "added": 0,
+ "lastCall": "2026-11-24T10:55:56.234Z",
+ "lastSuccess": "2026-11-24T10:55:56.234Z",
+ "events": 1,
+ "matched": 1,
+ "added": 664,
  "quota": {
-  "used": 248,
+  "used": 249,
   "cap": 250,
   "month": "2026-11"
  },
- "lastChange": "2026-11-23T15:02:29.615Z",
- "propAdded": 0,
+ "lastChange": "2026-11-24T10:55:56.234Z",
+ "propAdded": 538,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -236,6 +249,7 @@
   "994295": "Zizic, Ante",
   "996303": "Baldwin, Wade",
   "996313": "Jones, Damian",
+  "1070994": "Walkup, Thomas",
   "1124125": "Bacon, Dwayne",
   "1126373": "Dozier, PJ",
   "1142572": "Kurucs, Rodions",
@@ -255,6 +269,7 @@
   "1159704": "Ward, Tyson",
   "1160384": "Kabengele, Mfiondu",
   "1160898": "Moneke, Chima",
+  "1161768": "Allman Jr., Kyle",
   "1162230": "Bryant, Elijah",
   "1162350": "Odiase, Tai",
   "1162498": "Thompson, Darius",
@@ -264,6 +279,7 @@
   "1162874": "Jones, Tyrique",
   "1164354": "Key, Braxton",
   "1164554": "Diakite, Mamadi",
+  "1164882": "Hayes, Kevarrius",
   "1164962": "Jones, Carlik",
   "1166260": "Osetkowski, Dylan",
   "1166522": "LeDay, Zach",
@@ -403,18 +419,18 @@
  "providers": {
   "theoddsapi": {
    "provider": "theoddsapi",
-   "lastCall": "2026-11-24T07:25:08.125Z",
-   "lastSuccess": "2026-11-24T07:25:08.125Z",
+   "lastCall": "2026-11-24T10:55:56.917Z",
+   "lastSuccess": "2026-11-24T10:55:56.917Z",
    "events": 10,
    "matched": 10,
-   "added": 85,
+   "added": 96,
    "propAdded": 0,
    "quota": {
-    "remaining": "428",
-    "used": "72"
+    "remaining": "422",
+    "used": "78"
    },
    "error": null,
-   "lastChange": "2026-11-24T07:25:08.125Z"
+   "lastChange": "2026-11-24T10:55:56.917Z"
   }
  }
 }

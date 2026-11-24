@@ -1,32 +1,32 @@
 {
-  "generatedAt": "2026-11-24T09:53:43.495Z",
+  "generatedAt": "2026-11-24T10:55:57.469Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-24T09:53:42.912Z",
+  "collectorUpdated": "2026-11-24T10:55:56.917Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-24T09:53:42.912Z",
-  "lastIngestEvents": 0,
-  "lastIngestMatched": 0,
-  "latestQuoteUpdated": "2026-11-23T14:22:05.211Z",
-  "latestQuoteAgeHours": 19.53,
+  "lastIngestAt": "2026-11-24T10:55:56.234Z",
+  "lastIngestEvents": 1,
+  "lastIngestMatched": 1,
+  "latestQuoteUpdated": "2026-11-24T06:47:04.258Z",
+  "latestQuoteAgeHours": 4.15,
   "upcomingGames": 10,
-  "gamesWithGreekBooks": 6,
-  "greekBookGameQuotes": 10,
-  "gamesWithPlayerProps": 6,
-  "independentGreekPropBookmakers": 2,
-  "totalDistinctPlayerProps": 713,
-  "completeOverUnderPairs": 408,
+  "gamesWithGreekBooks": 7,
+  "greekBookGameQuotes": 12,
+  "gamesWithPlayerProps": 7,
+  "independentGreekPropBookmakers": 3,
+  "totalDistinctPlayerProps": 805,
+  "completeOverUnderPairs": 500,
   "oneSidedProps": 305,
   "bookmakers": [
     {
       "feed": "stoiximan",
       "brand": "Stoiximan",
-      "games": 6,
-      "props": 408,
-      "complete": 408,
+      "games": 7,
+      "props": 474,
+      "complete": 474,
       "oneSided": 0,
-      "newest": "2026-11-23T14:22:05.211Z",
+      "newest": "2026-11-23T17:51:07.912Z",
       "oldest": "2026-11-23T10:14:30.340Z",
-      "newestAgeHours": 19.53
+      "newestAgeHours": 17.08
     },
     {
       "feed": "bet365.gr",
@@ -37,7 +37,18 @@
       "oneSided": 305,
       "newest": "2026-11-23T14:21:07.336Z",
       "oldest": "2026-11-22T11:36:30.705Z",
-      "newestAgeHours": 19.54
+      "newestAgeHours": 20.58
+    },
+    {
+      "feed": "pamestoixima.gr",
+      "brand": "Pamestoixima",
+      "games": 1,
+      "props": 26,
+      "complete": 26,
+      "oneSided": 0,
+      "newest": "2026-11-24T06:47:04.258Z",
+      "oldest": "2026-11-24T06:47:04.258Z",
+      "newestAgeHours": 4.15
     }
   ],
   "events": [
@@ -56,7 +67,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-23T12:28:22.778Z",
-          "ageHours": 21.42
+          "ageHours": 22.46
         },
         {
           "feed": "stoiximan",
@@ -66,7 +77,7 @@
           "complete": 71,
           "oneSided": 0,
           "updated": "2026-11-23T12:56:12.151Z",
-          "ageHours": 20.96
+          "ageHours": 22
         }
       ]
     },
@@ -85,7 +96,7 @@
           "complete": 58,
           "oneSided": 0,
           "updated": "2026-11-23T10:14:30.340Z",
-          "ageHours": 23.65
+          "ageHours": 24.69
         }
       ]
     },
@@ -104,7 +115,7 @@
           "complete": 0,
           "oneSided": 0,
           "updated": "2026-11-22T11:36:30.705Z",
-          "ageHours": 46.29
+          "ageHours": 47.32
         },
         {
           "feed": "stoiximan",
@@ -114,7 +125,7 @@
           "complete": 55,
           "oneSided": 0,
           "updated": "2026-11-23T10:18:50.503Z",
-          "ageHours": 23.58
+          "ageHours": 24.62
         }
       ]
     },
@@ -133,7 +144,7 @@
           "complete": 0,
           "oneSided": 184,
           "updated": "2026-11-23T11:23:42.922Z",
-          "ageHours": 22.5
+          "ageHours": 23.54
         },
         {
           "feed": "stoiximan",
@@ -143,7 +154,7 @@
           "complete": 86,
           "oneSided": 0,
           "updated": "2026-11-23T14:09:04.165Z",
-          "ageHours": 19.74
+          "ageHours": 20.78
         }
       ]
     },
@@ -162,7 +173,7 @@
           "complete": 0,
           "oneSided": 121,
           "updated": "2026-11-23T14:21:07.336Z",
-          "ageHours": 19.54
+          "ageHours": 20.58
         },
         {
           "feed": "stoiximan",
@@ -172,7 +183,7 @@
           "complete": 65,
           "oneSided": 0,
           "updated": "2026-11-23T11:21:37.096Z",
-          "ageHours": 22.54
+          "ageHours": 23.57
         }
       ]
     },
@@ -191,17 +202,38 @@
           "complete": 73,
           "oneSided": 0,
           "updated": "2026-11-23T14:22:05.211Z",
-          "ageHours": 19.53
+          "ageHours": 20.56
         }
       ]
     },
     {
       "event": "E-14-DUB-PAR",
       "commence": "2026-11-25T16:00:00Z",
-      "greekBooks": 0,
-      "booksWithProps": 0,
-      "props": 0,
-      "books": []
+      "greekBooks": 2,
+      "booksWithProps": 2,
+      "props": 92,
+      "books": [
+        {
+          "feed": "pamestoixima.gr",
+          "brand": "Pamestoixima",
+          "games": 1,
+          "props": 26,
+          "complete": 26,
+          "oneSided": 0,
+          "updated": "2026-11-24T06:47:04.258Z",
+          "ageHours": 4.15
+        },
+        {
+          "feed": "stoiximan",
+          "brand": "Stoiximan",
+          "games": 1,
+          "props": 66,
+          "complete": 66,
+          "oneSided": 0,
+          "updated": "2026-11-23T17:51:07.912Z",
+          "ageHours": 17.08
+        }
+      ]
     },
     {
       "event": "E-14-OLY-HTA",
@@ -230,26 +262,24 @@
   ],
   "history": {
     "available": true,
-    "snapshots": 12546,
-    "uniqueSnapshots": 12546,
+    "snapshots": 12730,
+    "uniqueSnapshots": 12730,
     "windows": {
       "open": 132,
-      "mid": 7380,
+      "mid": 7564,
       "close": 5034,
       "unknown": 0
     },
-    "eventBookPairs": 45,
+    "eventBookPairs": 47,
     "capturesPerEventBook": {
       "min": 1,
       "median": 2,
       "max": 3
     },
     "firstSeen": "2026-11-16T12:16:32.881Z",
-    "lastSeen": "2026-11-23T15:02:29.615Z"
+    "lastSeen": "2026-11-24T10:55:56.234Z"
   },
   "warnings": [
-    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.",
-    "Η πιο πρόσφατη πραγματική τιμή bookmaker είναι παλιά ή δεν έχει έγκυρη χρονική σήμανση (>12 ώρες).",
-    "Η τελευταία εκτέλεση ολοκληρώθηκε χωρίς να φέρει/αντιστοιχίσει νέους αγώνες· το timestamp του collector δεν σημαίνει νέα δεδομένα αγοράς."
+    "Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus."
   ]
 }
