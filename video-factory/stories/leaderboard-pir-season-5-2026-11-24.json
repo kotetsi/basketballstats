@@ -1,0 +1,90 @@
+{
+  "id": "leaderboard-pir-season-5-2026-11-24",
+  "type": "leaderboard",
+  "params": {
+    "metric": "pir",
+    "scope": "season",
+    "limit": "5"
+  },
+  "title": "Season 2026-27: top 5 in PIR",
+  "source": "builder",
+  "lang": "en",
+  "status": "approved",
+  "createdAt": "2026-11-24T09:14:11.655Z",
+  "dataAsOf": "2026-11-24T08:29:10.950Z",
+  "lastRound": 13,
+  "data": {
+    "gapTop2": 2.6,
+    "metric": "pir",
+    "metricLabel": "PIR",
+    "metricSpoken": "PIR",
+    "scope": "season",
+    "round": null,
+    "lastRound": 13,
+    "minGames": 7,
+    "items": [
+      {
+        "rank": 1,
+        "code": "003469",
+        "name": "Sasha Vezenkov",
+        "slug": "sasha-vezenkov",
+        "team": "OLY",
+        "teamName": "Olympiacos",
+        "color": "#c8102e",
+        "pos": "Forward",
+        "value": 23.9,
+        "games": 13
+      },
+      {
+        "rank": 2,
+        "code": "007027",
+        "name": "Theo Maledon",
+        "slug": "theo-maledon",
+        "team": "MAD",
+        "teamName": "Real Madrid",
+        "color": "#5b4a9b",
+        "pos": "Guard",
+        "value": 21.3,
+        "games": 11
+      },
+      {
+        "rank": 3,
+        "code": "009846",
+        "name": "Elijah Bryant",
+        "slug": "elijah-bryant",
+        "team": "HTA",
+        "teamName": "Hapoel Tel Aviv",
+        "color": "#d71920",
+        "pos": "Guard",
+        "value": 20.6,
+        "games": 13
+      },
+      {
+        "rank": 4,
+        "code": "012608",
+        "name": "TJ Shorts",
+        "slug": "tj-shorts",
+        "team": "PAM",
+        "teamName": "Valencia Basket",
+        "color": "#e46b11",
+        "pos": "Guard",
+        "value": 20.1,
+        "games": 13
+      },
+      {
+        "rank": 5,
+        "code": "012640",
+        "name": "Nadir Hifi",
+        "slug": "nadir-hifi",
+        "team": "PRS",
+        "teamName": "Paris Basketball",
+        "color": "#2b2b2b",
+        "pos": "Guard",
+        "value": 20,
+        "games": 10
+      }
+    ]
+  },
+  "approvedAt": "2026-11-24T09:14:11.716Z",
+  "approvedBy": "admin"
+}

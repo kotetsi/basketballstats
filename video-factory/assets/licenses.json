@@ -1,0 +1,37 @@
+{
+  "policy": "Every asset used in a video must be listed here with source and licence. No player photographs, broadcast footage, team/competition logos or third-party music without documented rights.",
+  "assets": {
+    "font-inter": {
+      "type": "font",
+      "files": ["assets/fonts/Inter-Regular.woff2", "assets/fonts/Inter-Medium.woff2", "assets/fonts/Inter-Bold.woff2", "assets/fonts/Inter-ExtraBold.woff2"],
+      "source": "https://github.com/rsms/inter",
+      "license": "SIL Open Font License 1.1",
+      "licenseFile": "assets/fonts/LICENSE-Inter.txt",
+      "notes": "Subset to Latin + Greek, converted to WOFF2 (allowed by OFL)."
+    },
+    "music-bed-generated": {
+      "type": "audio",
+      "source": "Generated in code by src/render/audio.mjs (ffmpeg aevalsrc synthesis)",
+      "license": "Original work of the project, no third-party rights",
+      "notes": "No samples or recordings are used."
+    },
+    "graphics-generated": {
+      "type": "graphics",
+      "source": "Drawn in code by src/templates/page.mjs (HTML/CSS/SVG): charts, court lines, typography",
+      "license": "Original work of the project",
+      "notes": "Team colours are used as plain colour swatches; no logos or crests."
+    },
+    "data-euroleague-stats": {
+      "type": "data",
+      "source": "basketballstats.eu data files (data/cache.json, data/fantasy/latest.json, data/projections/latest.json), built from public EuroLeague statistics",
+      "license": "Statistics (facts); attributed on screen as 'Data: official EuroLeague statistics'",
+      "notes": "Same data the site publishes."
+    }
+  },
+  "narration": {
+    "espeak": { "license": "GPL-3.0 software; generated audio is not restricted", "commercialUse": true },
+    "openai": { "license": "OpenAI usage policies; output owned by the user; disclose AI-generated voice", "commercialUse": true },
+    "elevenlabs": { "license": "Commercial use requires a paid plan (Starter or above)", "commercialUse": "paid plans only" },
+    "google": { "license": "Google Cloud terms; output usable commercially", "commercialUse": true }
+  }
+}

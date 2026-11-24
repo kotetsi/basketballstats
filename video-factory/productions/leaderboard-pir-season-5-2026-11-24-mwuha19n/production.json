@@ -1,0 +1,391 @@
+{
+  "id": "leaderboard-pir-season-5-2026-11-24-mwuha19n",
+  "status": "approved",
+  "createdAt": "2026-11-24T09:14:11.819Z",
+  "story": {
+    "id": "leaderboard-pir-season-5-2026-11-24",
+    "type": "leaderboard",
+    "title": "Season 2026-27: top 5 in PIR",
+    "dataAsOf": "2026-11-24T08:29:10.950Z",
+    "lastRound": 13,
+    "approvedAt": "2026-11-24T09:14:11.716Z"
+  },
+  "settings": {
+    "formats": [
+      "9x16",
+      "16x9"
+    ],
+    "preset": "medium",
+    "voiceId": "local-en",
+    "style": "energetic",
+    "music": true
+  },
+  "template": "leaderboard-v1",
+  "script": {
+    "lang": "en",
+    "preset": "medium",
+    "generator": "template",
+    "segments": [
+      {
+        "id": "intro",
+        "scene": "intro",
+        "text": "Who leads the EuroLeague in PIR this season? Here are the top 5."
+      },
+      {
+        "id": "rank-5",
+        "scene": "board",
+        "text": "Number 5: Nadir Hifi of Paris Basketball, with 20 PIR per game.",
+        "focus": 5
+      },
+      {
+        "id": "rank-4",
+        "scene": "board",
+        "text": "Number 4: TJ Shorts of Valencia Basket, with 20.1 PIR per game.",
+        "focus": 4
+      },
+      {
+        "id": "rank-3",
+        "scene": "board",
+        "text": "Number 3: Elijah Bryant of Hapoel Tel Aviv, with 20.6 PIR per game.",
+        "focus": 3
+      },
+      {
+        "id": "rank-2",
+        "scene": "board",
+        "text": "Number 2: Theo Maledon of Real Madrid, with 21.3 PIR per game.",
+        "focus": 2
+      },
+      {
+        "id": "rank-1",
+        "scene": "board",
+        "text": "Number 1: Sasha Vezenkov of Olympiacos, with 23.9 PIR per game.",
+        "focus": 1
+      },
+      {
+        "id": "gap",
+        "scene": "board",
+        "text": "Vezenkov leads Maledon by 2.6.",
+        "focus": 1,
+        "optional": true
+      },
+      {
+        "id": "note",
+        "scene": "board",
+        "text": "Minimum 7 games played, through round 13.",
+        "focus": 0,
+        "optional": true
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "text": "Full rankings at basketballstats.eu.",
+        "say": "Full rankings at basketball stats dot E U."
+      }
+    ],
+    "createdAt": "2026-11-24T09:14:11.836Z",
+    "estSecs": 38.8,
+    "factCheck": {
+      "ok": true,
+      "unsupported": []
+    },
+    "llmNote": "ANTHROPIC_API_KEY not set"
+  },
+  "narration": {
+    "provider": "espeak",
+    "voiceId": "local-en",
+    "voice": "en-us",
+    "model": null,
+    "style": "energetic",
+    "speed": 1.08,
+    "secs": 41.387,
+    "billedChars": 0,
+    "estCostUsd": 0
+  },
+  "renders": [
+    {
+      "mode": "preview",
+      "format": "9x16",
+      "w": 540,
+      "h": 960,
+      "fps": 15,
+      "secs": 41.387,
+      "file": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/preview-9x16.mp4",
+      "thumb": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/preview-9x16.png",
+      "bytes": 1094585,
+      "sha256": "7f19c6f7bb30fb64",
+      "renderSecs": 29,
+      "at": "2026-11-24T09:14:45.008Z"
+    },
+    {
+      "mode": "final",
+      "format": "9x16",
+      "w": 1080,
+      "h": 1920,
+      "fps": 30,
+      "secs": 41.387,
+      "file": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/final-9x16.mp4",
+      "thumb": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/final-9x16.png",
+      "bytes": 1835163,
+      "sha256": "d34b19b412d0fe57",
+      "renderSecs": 99,
+      "at": "2026-11-24T09:16:29.426Z"
+    },
+    {
+      "mode": "final",
+      "format": "16x9",
+      "w": 1920,
+      "h": 1080,
+      "fps": 30,
+      "secs": 41.387,
+      "file": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/final-16x9.mp4",
+      "thumb": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/final-16x9.png",
+      "bytes": 1814028,
+      "sha256": "b28f060c32788b7f",
+      "renderSecs": 99,
+      "at": "2026-11-24T09:18:08.208Z"
+    }
+  ],
+  "platforms": {
+    "tiktok": {
+      "platform": "TikTok",
+      "format": "9x16",
+      "title": null,
+      "description": "EuroLeague PIR leaders.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #Basketball #EuroLeagueFantasy #PIR",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#EuroLeagueFantasy",
+        "#PIR"
+      ],
+      "link": "https://basketballstats.eu/en/leaders/pir/?utm_source=tiktok&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "instagram_reels": {
+      "platform": "Instagram Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "EuroLeague PIR leaders.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #Basketball #EuroLeagueFantasy #PIR",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#EuroLeagueFantasy",
+        "#PIR"
+      ],
+      "link": "https://basketballstats.eu/en/leaders/pir/?utm_source=instagram&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "facebook_reels": {
+      "platform": "Facebook Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "EuroLeague PIR leaders.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/leaders/pir/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n\n\n#EuroLeague #Basketball #EuroLeagueFantasy #PIR",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#EuroLeagueFantasy",
+        "#PIR"
+      ],
+      "link": "https://basketballstats.eu/en/leaders/pir/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube_shorts": {
+      "platform": "YouTube Shorts",
+      "format": "9x16",
+      "title": "EuroLeague PIR leaders #Shorts",
+      "description": "EuroLeague PIR leaders.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/leaders/pir/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n\n\n#EuroLeague #Basketball #EuroLeagueFantasy",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#EuroLeagueFantasy"
+      ],
+      "link": "https://basketballstats.eu/en/leaders/pir/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube": {
+      "platform": "YouTube",
+      "format": "16x9",
+      "title": "EuroLeague PIR leaders",
+      "description": "EuroLeague PIR leaders.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/leaders/pir/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n\n\n#EuroLeague #Basketball #EuroLeagueFantasy",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#EuroLeagueFantasy"
+      ],
+      "link": "https://basketballstats.eu/en/leaders/pir/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=leaderboard-pir-season-5-2026-11-24-mwuha19n",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    }
+  },
+  "assets": [
+    "font-inter",
+    "graphics-generated",
+    "data-euroleague-stats",
+    "music-bed-generated"
+  ],
+  "publication": {
+    "approved": true,
+    "approvedAt": "2026-11-24T09:18:10.507Z",
+    "publishedTo": [],
+    "approvedBy": "admin"
+  },
+  "performance": {},
+  "history": [
+    {
+      "at": "2026-11-24T09:14:11.819Z",
+      "action": "created",
+      "storyId": "leaderboard-pir-season-5-2026-11-24"
+    },
+    {
+      "at": "2026-11-24T09:14:11.837Z",
+      "action": "scripted",
+      "generator": "template",
+      "llmNote": "ANTHROPIC_API_KEY not set"
+    },
+    {
+      "at": "2026-11-24T09:14:45.008Z",
+      "action": "render-preview",
+      "formats": [
+        "9x16"
+      ],
+      "secs": 33
+    },
+    {
+      "at": "2026-11-24T09:18:08.210Z",
+      "action": "render-final",
+      "formats": [
+        "9x16",
+        "16x9"
+      ],
+      "secs": 201
+    },
+    {
+      "at": "2026-11-24T09:18:10.507Z",
+      "action": "approved",
+      "by": "admin"
+    }
+  ],
+  "updatedAt": "2026-11-24T09:18:10.507Z",
+  "timeline": {
+    "total": 41.387,
+    "segments": [
+      {
+        "id": "intro",
+        "scene": "intro",
+        "focus": null,
+        "text": "Who leads the EuroLeague in PIR this season? Here are the top 5.",
+        "start": 0.5,
+        "end": 4.437
+      },
+      {
+        "id": "rank-5",
+        "scene": "board",
+        "focus": 5,
+        "text": "Number 5: Nadir Hifi of Paris Basketball, with 20 PIR per game.",
+        "start": 4.737,
+        "end": 9.369
+      },
+      {
+        "id": "rank-4",
+        "scene": "board",
+        "focus": 4,
+        "text": "Number 4: TJ Shorts of Valencia Basket, with 20.1 PIR per game.",
+        "start": 9.669,
+        "end": 14.914
+      },
+      {
+        "id": "rank-3",
+        "scene": "board",
+        "focus": 3,
+        "text": "Number 3: Elijah Bryant of Hapoel Tel Aviv, with 20.6 PIR per game.",
+        "start": 15.214,
+        "end": 20.503
+      },
+      {
+        "id": "rank-2",
+        "scene": "board",
+        "focus": 2,
+        "text": "Number 2: Theo Maledon of Real Madrid, with 21.3 PIR per game.",
+        "start": 20.803,
+        "end": 25.772
+      },
+      {
+        "id": "rank-1",
+        "scene": "board",
+        "focus": 1,
+        "text": "Number 1: Sasha Vezenkov of Olympiacos, with 23.9 PIR per game.",
+        "start": 26.072,
+        "end": 31.445
+      },
+      {
+        "id": "gap",
+        "scene": "board",
+        "focus": 1,
+        "text": "Vezenkov leads Maledon by 2.6.",
+        "start": 31.745,
+        "end": 34.233
+      },
+      {
+        "id": "note",
+        "scene": "board",
+        "focus": 0,
+        "text": "Minimum 7 games played, through round 13.",
+        "start": 34.533,
+        "end": 37.342
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "focus": null,
+        "text": "Full rankings at basketballstats.eu.",
+        "start": 37.642,
+        "end": 40.187
+      }
+    ],
+    "scenes": [
+      {
+        "scene": "intro",
+        "start": 0,
+        "end": 4.737,
+        "segments": [
+          "intro"
+        ]
+      },
+      {
+        "scene": "board",
+        "start": 4.737,
+        "end": 37.642,
+        "segments": [
+          "rank-5",
+          "rank-4",
+          "rank-3",
+          "rank-2",
+          "rank-1",
+          "gap",
+          "note"
+        ]
+      },
+      {
+        "scene": "outro",
+        "start": 37.642,
+        "end": 41.387,
+        "segments": [
+          "outro"
+        ]
+      }
+    ]
+  },
+  "captions": {
+    "srt": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/captions.srt",
+    "vtt": "out/leaderboard-pir-season-5-2026-11-24-mwuha19n/captions.vtt",
+    "cues": 12
+  }
+}

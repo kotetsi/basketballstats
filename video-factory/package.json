@@ -1,0 +1,13 @@
+{
+  "name": "basketballstats-video-factory",
+  "private": true,
+  "type": "module",
+  "description": "Video production engine for basketballstats.eu: data stories → script → AI narration → animated graphics → MP4",
+  "scripts": {
+    "dashboard": "node dashboard/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "produce": "node src/cli.mjs produce"
+  },
+  "engines": { "node": ">=20" },
+  "notes": "Runtime tools: ffmpeg + ffprobe, Chromium via Playwright (npm i --no-save playwright@1.48.2 at the repo root, as the daily-social workflow does), optional espeak-ng for the local test voice."
+}

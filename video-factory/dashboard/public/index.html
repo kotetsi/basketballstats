@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Factory · basketballstats.eu</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">VIDEO <i>FACTORY</i> <span>basketballstats.eu</span></div>
+  <div id="meta" class="meta"></div>
+</header>
+<main>
+  <aside>
+    <section>
+      <div class="sect"><h3>Stories</h3><button id="newStory" class="ghost sm">+ New story</button></div>
+      <ul id="stories" class="list"></ul>
+    </section>
+    <section>
+      <div class="sect"><h3>Productions</h3></div>
+      <ul id="prods" class="list"></ul>
+    </section>
+  </aside>
+  <section id="detail" class="detail"><div class="empty">Pick an approved story to start a production, or open a previous one.</div></section>
+</main>
+
+<dialog id="storyDlg">
+  <form id="storyForm" method="dialog">
+    <h3>New story from data</h3>
+    <p class="muted">Until the Data Studio exists, stories are built here from the site's data. A story must be approved before production.</p>
+    <label>Type <select name="type"><option value="leaderboard">Leaderboard</option><option value="comparison">Player comparison</option><option value="spotlight">Player spotlight</option></select></label>
+    <div data-for="leaderboard" class="row">
+      <label>Metric <select name="metric"><option value="pir">PIR</option><option value="pts">Points</option><option value="reb">Rebounds</option><option value="ast">Assists</option></select></label>
+      <label>Scope <select name="scope"><option value="season">Season (per game)</option><option value="round">Single round</option></select></label>
+      <label>Round <input name="round" type="number" min="1" placeholder="last"></label>
+      <label>Top <input name="limit" type="number" min="3" max="10" value="5"></label>
+    </div>
+    <div data-for="comparison" class="row" hidden>
+      <label>Player A <input name="a" list="playerList" placeholder="Type a name"></label>
+      <label>Player B <input name="b" list="playerList" placeholder="Type a name"></label>
+    </div>
+    <div data-for="spotlight" class="row" hidden>
+      <label>Player <input name="player" list="playerList" placeholder="Type a name"></label>
+      <label>Games <input name="n" type="number" min="3" max="12" value="8"></label>
+    </div>
+    <datalist id="playerList"></datalist>
+    <div class="row end"><button value="cancel" class="ghost" formnovalidate>Cancel</button><button value="ok">Build story</button></div>
+  </form>
+</dialog>
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

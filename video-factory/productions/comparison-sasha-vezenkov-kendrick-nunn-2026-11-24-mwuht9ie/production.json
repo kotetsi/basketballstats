@@ -1,0 +1,363 @@
+{
+  "id": "comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie",
+  "status": "rendered",
+  "createdAt": "2026-11-24T09:29:08.966Z",
+  "story": {
+    "id": "comparison-sasha-vezenkov-kendrick-nunn-2026-11-24",
+    "type": "comparison",
+    "title": "Sasha Vezenkov vs Kendrick Nunn",
+    "dataAsOf": "2026-11-24T08:29:10.950Z",
+    "lastRound": 13,
+    "approvedAt": "2026-11-24T09:21:56.325Z"
+  },
+  "settings": {
+    "formats": [
+      "9x16",
+      "16x9"
+    ],
+    "preset": "medium",
+    "voiceId": "local-en",
+    "style": "energetic",
+    "music": true
+  },
+  "template": "comparison-v1",
+  "script": {
+    "lang": "en",
+    "preset": "medium",
+    "generator": "template",
+    "segments": [
+      {
+        "id": "intro",
+        "scene": "intro",
+        "text": "Sasha Vezenkov or Kendrick Nunn? Let's put the numbers side by side."
+      },
+      {
+        "id": "row-pir",
+        "scene": "compare",
+        "text": "PIR: Vezenkov 23.9, Nunn 19.",
+        "focus": "pir"
+      },
+      {
+        "id": "row-pts",
+        "scene": "compare",
+        "text": "Points: Vezenkov 20.2, Nunn 19.9.",
+        "focus": "pts"
+      },
+      {
+        "id": "row-reb",
+        "scene": "compare",
+        "text": "Rebounds: Vezenkov 6.2, Nunn 3.4.",
+        "focus": "reb"
+      },
+      {
+        "id": "row-ast",
+        "scene": "compare",
+        "text": "Assists: Vezenkov 1, Nunn 2.9.",
+        "focus": "ast"
+      },
+      {
+        "id": "radar",
+        "scene": "radar",
+        "text": "Compared with the rest of the league, Vezenkov rates higher in blocks and rebounding, Nunn in playmaking."
+      },
+      {
+        "id": "form",
+        "scene": "compare",
+        "text": "Recent form, last 5 games: 26.4 PIR for Vezenkov, 19.8 for Nunn.",
+        "focus": "form",
+        "optional": false
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "text": "Compare any two players at basketballstats.eu.",
+        "say": "Compare any two players at basketball stats dot E U."
+      }
+    ],
+    "createdAt": "2026-11-24T09:29:08.970Z",
+    "estSecs": 30.4,
+    "factCheck": {
+      "ok": true,
+      "unsupported": []
+    },
+    "llmNote": "ANTHROPIC_API_KEY not set"
+  },
+  "narration": {
+    "provider": "espeak",
+    "voiceId": "local-en",
+    "voice": "en-us",
+    "model": null,
+    "style": "energetic",
+    "speed": 1.08,
+    "secs": 37.766,
+    "billedChars": 0,
+    "estCostUsd": 0
+  },
+  "renders": [
+    {
+      "mode": "final",
+      "format": "9x16",
+      "w": 1080,
+      "h": 1920,
+      "fps": 30,
+      "secs": 37.766,
+      "file": "out/comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie/final-9x16.mp4",
+      "thumb": "out/comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie/final-9x16.png",
+      "bytes": 1927582,
+      "sha256": "2b4538603da26ac9",
+      "renderSecs": 85,
+      "at": "2026-11-24T09:30:36.792Z"
+    },
+    {
+      "mode": "final",
+      "format": "16x9",
+      "w": 1920,
+      "h": 1080,
+      "fps": 30,
+      "secs": 37.766,
+      "file": "out/comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie/final-16x9.mp4",
+      "thumb": "out/comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie/final-16x9.png",
+      "bytes": 1997999,
+      "sha256": "2fa0702604e72df7",
+      "renderSecs": 82,
+      "at": "2026-11-24T09:31:59.066Z"
+    }
+  ],
+  "platforms": {
+    "tiktok": {
+      "platform": "TikTok",
+      "format": "9x16",
+      "title": null,
+      "description": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers?.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #Basketball #Vezenkov #Nunn #EuroLeagueFantasy",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#Vezenkov",
+        "#Nunn",
+        "#EuroLeagueFantasy"
+      ],
+      "link": "https://basketballstats.eu/en/fantasy/compare-players/?utm_source=tiktok&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "instagram_reels": {
+      "platform": "Instagram Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers?.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #Basketball #Vezenkov #Nunn #EuroLeagueFantasy",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#Vezenkov",
+        "#Nunn",
+        "#EuroLeagueFantasy"
+      ],
+      "link": "https://basketballstats.eu/en/fantasy/compare-players/?utm_source=instagram&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "facebook_reels": {
+      "platform": "Facebook Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers?.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/fantasy/compare-players/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie\n\n#EuroLeague #Basketball #Vezenkov #Nunn #EuroLeagueFantasy",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#Vezenkov",
+        "#Nunn",
+        "#EuroLeagueFantasy"
+      ],
+      "link": "https://basketballstats.eu/en/fantasy/compare-players/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube_shorts": {
+      "platform": "YouTube Shorts",
+      "format": "9x16",
+      "title": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers? #Shorts",
+      "description": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers?.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/fantasy/compare-players/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie\n\n#EuroLeague #Basketball #Vezenkov",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#Vezenkov"
+      ],
+      "link": "https://basketballstats.eu/en/fantasy/compare-players/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube": {
+      "platform": "YouTube",
+      "format": "16x9",
+      "title": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers?",
+      "description": "Sasha Vezenkov vs Kendrick Nunn: who wins on the numbers?.\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/fantasy/compare-players/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie\n\n#EuroLeague #Basketball #Vezenkov",
+      "hashtags": [
+        "#EuroLeague",
+        "#Basketball",
+        "#Vezenkov"
+      ],
+      "link": "https://basketballstats.eu/en/fantasy/compare-players/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    }
+  },
+  "assets": [
+    "font-inter",
+    "graphics-generated",
+    "data-euroleague-stats",
+    "music-bed-generated"
+  ],
+  "publication": {
+    "approved": false,
+    "approvedAt": null,
+    "publishedTo": []
+  },
+  "performance": {},
+  "history": [
+    {
+      "at": "2026-11-24T09:29:08.966Z",
+      "action": "created",
+      "storyId": "comparison-sasha-vezenkov-kendrick-nunn-2026-11-24"
+    },
+    {
+      "at": "2026-11-24T09:29:08.971Z",
+      "action": "scripted",
+      "generator": "template",
+      "llmNote": "ANTHROPIC_API_KEY not set"
+    },
+    {
+      "at": "2026-11-24T09:31:59.067Z",
+      "action": "render-final",
+      "formats": [
+        "9x16",
+        "16x9"
+      ],
+      "secs": 170
+    }
+  ],
+  "updatedAt": "2026-11-24T09:31:59.068Z",
+  "timeline": {
+    "total": 37.766,
+    "segments": [
+      {
+        "id": "intro",
+        "scene": "intro",
+        "focus": null,
+        "text": "Sasha Vezenkov or Kendrick Nunn? Let's put the numbers side by side.",
+        "start": 0.5,
+        "end": 4.841
+      },
+      {
+        "id": "row-pir",
+        "scene": "compare",
+        "focus": "pir",
+        "text": "PIR: Vezenkov 23.9, Nunn 19.",
+        "start": 5.141,
+        "end": 8.633
+      },
+      {
+        "id": "row-pts",
+        "scene": "compare",
+        "focus": "pts",
+        "text": "Points: Vezenkov 20.2, Nunn 19.9.",
+        "start": 8.933,
+        "end": 12.925
+      },
+      {
+        "id": "row-reb",
+        "scene": "compare",
+        "focus": "reb",
+        "text": "Rebounds: Vezenkov 6.2, Nunn 3.4.",
+        "start": 13.225,
+        "end": 17.026
+      },
+      {
+        "id": "row-ast",
+        "scene": "compare",
+        "focus": "ast",
+        "text": "Assists: Vezenkov 1, Nunn 2.9.",
+        "start": 17.326,
+        "end": 20.412
+      },
+      {
+        "id": "radar",
+        "scene": "radar",
+        "focus": null,
+        "text": "Compared with the rest of the league, Vezenkov rates higher in blocks and rebounding, Nunn in playmaking.",
+        "start": 20.712,
+        "end": 26.312
+      },
+      {
+        "id": "form",
+        "scene": "compare",
+        "focus": "form",
+        "text": "Recent form, last 5 games: 26.4 PIR for Vezenkov, 19.8 for Nunn.",
+        "start": 26.612,
+        "end": 33.253
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "focus": null,
+        "text": "Compare any two players at basketballstats.eu.",
+        "start": 33.553,
+        "end": 36.566
+      }
+    ],
+    "scenes": [
+      {
+        "scene": "intro",
+        "start": 0,
+        "end": 5.141,
+        "segments": [
+          "intro"
+        ]
+      },
+      {
+        "scene": "compare",
+        "start": 5.141,
+        "end": 20.712,
+        "segments": [
+          "row-pir",
+          "row-pts",
+          "row-reb",
+          "row-ast"
+        ]
+      },
+      {
+        "scene": "radar",
+        "start": 20.712,
+        "end": 26.612,
+        "segments": [
+          "radar"
+        ]
+      },
+      {
+        "scene": "compare",
+        "start": 26.612,
+        "end": 33.553,
+        "segments": [
+          "form"
+        ]
+      },
+      {
+        "scene": "outro",
+        "start": 33.553,
+        "end": 37.766,
+        "segments": [
+          "outro"
+        ]
+      }
+    ]
+  },
+  "captions": {
+    "srt": "out/comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie/captions.srt",
+    "vtt": "out/comparison-sasha-vezenkov-kendrick-nunn-2026-11-24-mwuht9ie/captions.vtt",
+    "cues": 11
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "id": "comparison-sasha-vezenkov-kendrick-nunn-2026-11-24",
+  "type": "comparison",
+  "params": {
+    "a": "sasha-vezenkov",
+    "b": "kendrick-nunn"
+  },
+  "title": "Sasha Vezenkov vs Kendrick Nunn",
+  "source": "builder",
+  "lang": "en",
+  "status": "approved",
+  "createdAt": "2026-11-24T09:21:56.278Z",
+  "dataAsOf": "2026-11-24T08:29:10.950Z",
+  "lastRound": 13,
+  "data": {
+    "players": [
+      {
+        "code": "003469",
+        "name": "Sasha Vezenkov",
+        "slug": "sasha-vezenkov",
+        "team": "OLY",
+        "teamName": "Olympiacos",
+        "color": "#c8102e",
+        "pos": "Forward",
+        "games": 13,
+        "pir": 23.9,
+        "pts": 20.2,
+        "reb": 6.2,
+        "ast": 1,
+        "min": 27.7,
+        "ts": 69.7,
+        "last5Pir": 26.4,
+        "last5Count": 5,
+        "price": 20,
+        "projection": {
+          "round": 14,
+          "pir": 21.2,
+          "opp": "HTA",
+          "home": true,
+          "quality": "ok"
+        },
+        "radar": {
+          "pts": 100,
+          "reb": 96,
+          "ast": 42,
+          "stl": 61,
+          "blk": 70,
+          "ts": 91
+        }
+      },
+      {
+        "code": "012774",
+        "name": "Kendrick Nunn",
+        "slug": "kendrick-nunn",
+        "team": "PAN",
+        "teamName": "Panathinaikos",
+        "color": "#007a3d",
+        "pos": "Guard",
+        "games": 7,
+        "pir": 19,
+        "pts": 19.9,
+        "reb": 3.4,
+        "ast": 2.9,
+        "min": 24,
+        "ts": 66.1,
+        "last5Pir": 19.8,
+        "last5Count": 5,
+        "price": 15.2,
+        "projection": {
+          "round": 14,
+          "pir": 15,
+          "opp": "PAM",
+          "home": false,
+          "quality": "ok"
+        },
+        "radar": {
+          "pts": 99,
+          "reb": 70,
+          "ast": 84,
+          "stl": 61,
+          "blk": 29,
+          "ts": 81
+        }
+      }
+    ],
+    "rows": [
+      {
+        "key": "pir",
+        "label": "PIR",
+        "a": 23.9,
+        "b": 19
+      },
+      {
+        "key": "pts",
+        "label": "Points",
+        "a": 20.2,
+        "b": 19.9
+      },
+      {
+        "key": "reb",
+        "label": "Rebounds",
+        "a": 6.2,
+        "b": 3.4
+      },
+      {
+        "key": "ast",
+        "label": "Assists",
+        "a": 1,
+        "b": 2.9
+      },
+      {
+        "key": "ts",
+        "label": "True shooting %",
+        "a": 69.7,
+        "b": 66.1
+      }
+    ],
+    "radarKeys": [
+      "pts",
+      "reb",
+      "ast",
+      "stl",
+      "blk",
+      "ts"
+    ],
+    "radarLabels": {
+      "pts": "Scoring",
+      "reb": "Rebounding",
+      "ast": "Playmaking",
+      "stl": "Steals",
+      "blk": "Blocks",
+      "ts": "Efficiency"
+    },
+    "qualifiedCount": 249,
+    "lastRound": 13
+  },
+  "approvedAt": "2026-11-24T09:21:56.325Z",
+  "approvedBy": "admin"
+}

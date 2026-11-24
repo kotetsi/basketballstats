@@ -1,0 +1,83 @@
+# Video Factory: renders an approved story into MP4s on demand (nothing is published).
+# Inputs pick the story, formats, duration and voice. The MP4s, captions and thumbnails are
+# uploaded as a workflow artifact; production metadata is committed under video-factory/productions/.
+name: Video Factory
+on:
+  workflow_dispatch:
+    inputs:
+      story:
+        description: "Approved story id (file name in video-factory/stories/ without .json)"
+        required: true
+      formats:
+        description: "Formats: 9x16, 16x9, 1x1 (comma separated)"
+        default: "9x16,16x9"
+      preset:
+        description: "Duration: short, medium, long, editorial"
+        default: "medium"
+      voice:
+        description: "Voice id (see video-factory/src/config.mjs): openai-onyx, openai-nova, elevenlabs-adam, google-charon, local-en"
+        default: "openai-onyx"
+      style:
+        description: "energetic, analyst, hype"
+        default: "energetic"
+  push:
+    paths: ['video-factory/**']
+    branches-ignore: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: video-factory
+
+jobs:
+  test:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Tools (Chromium, ffmpeg, espeak-ng)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng
+          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - run: node --test video-factory/test/*.test.mjs
+
+  render:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Tools (Chromium, ffmpeg, espeak-ng)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng
+          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Produce
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+        run: >
+          node video-factory/src/cli.mjs produce "${{ inputs.story }}"
+          formats=${{ inputs.formats }} preset=${{ inputs.preset }} voice=${{ inputs.voice }} style=${{ inputs.style }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ inputs.story }}
+          path: |
+            video-factory/out/**/final-*.mp4
+            video-factory/out/**/final-*.png
+            video-factory/out/**/captions.*
+          retention-days: 30
+      - name: Commit production metadata
+        run: |
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add video-factory/productions
+          git diff --cached --quiet || (git commit -m "Video Factory: ${{ inputs.story }}" && for i in 1 2 3; do git push && break; sleep 5; git pull --rebase -q; done)
