@@ -1,0 +1,237 @@
+{
+ "generated": "2026-11-24T07:32:22.192Z",
+ "season": "E2026",
+ "method": "Μόνο η τελευταία pregame πρόβλεψη (predicted_at < tip) κάθε παίκτη/αγώνα· βάσεις σύγκρισης as-of πριν από την αγωνιστική.",
+ "n_predictions": 0,
+ "n_played": 0,
+ "rounds": [],
+ "minutes": {
+  "expected": {
+   "n": 0
+  },
+  "if_plays": {
+   "n": 0
+  },
+  "p_play_brier": null
+ },
+ "pir": {
+  "expected": {
+   "n": 0
+  },
+  "if_plays": {
+   "n": 0
+  }
+ },
+ "stats": {
+  "pts": {
+   "engine": {
+    "n": 0
+   },
+   "engine_median": {
+    "n": 0
+   },
+   "season_mean": {
+    "n": 0
+   },
+   "last5": {
+    "n": 0
+   },
+   "last10": {
+    "n": 0
+   },
+   "brier": null,
+   "n_thresholds": 0
+  },
+  "reb": {
+   "engine": {
+    "n": 0
+   },
+   "engine_median": {
+    "n": 0
+   },
+   "season_mean": {
+    "n": 0
+   },
+   "last5": {
+    "n": 0
+   },
+   "last10": {
+    "n": 0
+   },
+   "brier": null,
+   "n_thresholds": 0
+  },
+  "ast": {
+   "engine": {
+    "n": 0
+   },
+   "engine_median": {
+    "n": 0
+   },
+   "season_mean": {
+    "n": 0
+   },
+   "last5": {
+    "n": 0
+   },
+   "last10": {
+    "n": 0
+   },
+   "brier": null,
+   "n_thresholds": 0
+  },
+  "fg3": {
+   "engine": {
+    "n": 0
+   },
+   "engine_median": {
+    "n": 0
+   },
+   "season_mean": {
+    "n": 0
+   },
+   "last5": {
+    "n": 0
+   },
+   "last10": {
+    "n": 0
+   },
+   "brier": null,
+   "n_thresholds": 0
+  }
+ },
+ "by_quality": {},
+ "by_model": {},
+ "by_minutes": {},
+ "calibration": {
+  "pts": [
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   }
+  ],
+  "reb": [
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   }
+  ],
+  "ast": [
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   }
+  ],
+  "fg3": [
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   },
+   {
+    "n": 0
+   }
+  ]
+ },
+ "sample_note": "μικρό δείγμα: τα νούμερα δεν είναι ακόμα αξιόπιστα"
+}

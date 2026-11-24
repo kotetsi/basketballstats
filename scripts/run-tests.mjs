@@ -70,6 +70,7 @@ if (FULL) {
     run('Μέγεθος dist/ και αρχικές σελίδες 5 γλωσσών', process.execPath, ['scripts/dist-size.mjs']);
   }
   run('Validation δεδομένων (engine)', process.execPath, ['scripts/engine-validate.mjs']);
+  run('Αλυσίδα αρχείου pregame προβλέψεων', process.execPath, ['scripts/engine-archive.mjs', '--verify']);
   const after = dataHashes();
   if (before && after) {
     const changed = Object.keys({ ...before, ...after }).filter(f => before[f] !== after[f]);
