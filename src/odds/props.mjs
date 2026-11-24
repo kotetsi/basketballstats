@@ -253,7 +253,9 @@ export function hitRate(values, line) {
 /** value στα player props ενός αγώνα.
  *  game: { gid, h, a, books: latest.games[gid].books }, players: data/cache.json players, fx: fantasy players (status, pos),
  *  inj: { [code]: {m:1|0} }, teamGames: { [team]: [rounds που έχει παίξει η ομάδα] }, jur: χώρα αδειοδότησης */
-export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGames = {}, jur, priors, minEv = 0.08, ctx = {}, adj = null }) {
+// engine (προαιρετικό): (c, stat, { minAdj, minBase }) → [mean, var] από το κοινό engine (src/engine/betting.mjs engineDist) ή null.
+// Όταν δίνει κατανομή, η γραμμή χρησιμοποιεί αυτήν (χωρίς το calShift, που βαθμονομήθηκε για το παλιό μοντέλο) και src = 'engine'.
+export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGames = {}, jur, priors, minEv = 0.08, ctx = {}, adj = null, engine = null }) {
   const FX = Object.fromEntries(fx.map(p => [p.c, p]));
   const teams = {}, absences = [];
   for (const t of [h, a]) {
@@ -268,11 +270,12 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
       for (const tt of [h, a]) { p = matchPlayer(x.name, teams[tt].roster); if (p) { t = tt; break; } }
       if (!p || p.isOut || p.pl.length < 3) continue;
       const min = teams[t].M[p.c]; if (!(min > 0)) continue;
-      const pr = project(p.pl, x.stat, { prior: priors[x.stat], minutes: min, teamPts: ctx[t], xrows: p.px }); if (!pr) continue;
-      const po0 = Math.min(Math.max(pOver(pr.mu, pr.var, x.line), 1e-4), 1 - 1e-4), po = 1 / (1 + Math.exp(-(Math.log(po0 / (1 - po0)) + PARAMS.calShift))), nv = noVig(x.over, x.under);
+      const ed = engine ? engine(p.c, x.stat, { minAdj: min, minBase: p.min }) : null;
+      const pr = ed ? { mu: ed[0], var: ed[1], last: p.pl.slice(-5).map(STATS[x.stat]), n: p.pl.length } : project(p.pl, x.stat, { prior: priors[x.stat], minutes: min, teamPts: ctx[t], xrows: p.px }); if (!pr) continue;
+      const po0 = Math.min(Math.max(pOver(pr.mu, pr.var, x.line), 1e-4), 1 - 1e-4), po = ed ? po0 : 1 / (1 + Math.exp(-(Math.log(po0 / (1 - po0)) + PARAMS.calShift))), nv = noVig(x.over, x.under);
       const row = { c: p.c, n: p.n, t, stat: x.stat, line: x.line, book: bk, title: B.title, over: x.over || null, under: x.under || null,
         p: +po.toFixed(4), mkt: nv ? +nv.over.toFixed(4) : null, mu: +pr.mu.toFixed(2), sd: +Math.sqrt(pr.var).toFixed(2), min: +min.toFixed(1), base: +p.min.toFixed(1),
-        avg: +(p.pl.reduce((s, r) => s + STATS[x.stat](r), 0) / p.pl.length).toFixed(1), last: pr.last, gp: pr.n, st: p.st, upd: x.upd || B.upd || null };
+        avg: +(p.pl.reduce((s, r) => s + STATS[x.stat](r), 0) / p.pl.length).toFixed(1), last: pr.last, gp: pr.n, st: p.st, upd: x.upd || B.upd || null, src: ed ? 'engine' : 'props-v1' };
       row.evO = x.over ? +ev(po, x.over).toFixed(4) : null; row.evU = x.under ? +ev(1 - po, x.under).toFixed(4) : null;
       rows.push(row);
     }

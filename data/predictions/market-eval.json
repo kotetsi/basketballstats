@@ -1,0 +1,704 @@
+{
+ "generated": "2026-11-24T08:01:05.497Z",
+ "season": "E2026",
+ "method": "last quote seen before tip-off; engine as-of round; void if not played",
+ "counts": {
+  "lines": 7584,
+  "unmatched": 472,
+  "unplayed": 843,
+  "no_minutes": 0,
+  "insufficient": 50,
+  "void_dnp": 322
+ },
+ "all": {
+  "n": 7584,
+  "games": 20,
+  "players": 164,
+  "engine": {
+   "brier": 0.2424,
+   "logloss": 0.6772
+  },
+  "market": {
+   "brier": 0.2439,
+   "logloss": 0.6804
+  },
+  "blend": {
+   "brier": 0.2407,
+   "logloss": 0.6737
+  },
+  "brier_engine_minus_market_ci95": [
+   -0.0077,
+   0.005
+  ],
+  "brier_blend_minus_market_ci95": [
+   -0.0065,
+   0.0001
+  ],
+  "ece_engine": 0.0424,
+  "ece_blend": 0.023,
+  "ece_market": 0.0313,
+  "picks": {
+   "ev3": {
+    "engine": {
+     "n": 4268,
+     "roi": 0.049,
+     "roi_ci95": [
+      -0.061,
+      0.139
+     ]
+    },
+    "blend": {
+     "n": 1937,
+     "roi": 0.08,
+     "roi_ci95": [
+      -0.045,
+      0.184
+     ]
+    }
+   },
+   "ev5": {
+    "engine": {
+     "n": 3708,
+     "roi": 0.052,
+     "roi_ci95": [
+      -0.068,
+      0.144
+     ]
+    },
+    "blend": {
+     "n": 1400,
+     "roi": 0.111,
+     "roi_ci95": [
+      -0.006,
+      0.207
+     ]
+    }
+   },
+   "ev8": {
+    "engine": {
+     "n": 3036,
+     "roi": 0.062,
+     "roi_ci95": [
+      -0.06,
+      0.161
+     ]
+    },
+    "blend": {
+     "n": 813,
+     "roi": 0.115,
+     "roi_ci95": [
+      0.004,
+      0.22
+     ]
+    }
+   }
+  }
+ },
+ "greece_licensed": {
+  "n": 3926,
+  "games": 20,
+  "players": 164,
+  "engine": {
+   "brier": 0.2402,
+   "logloss": 0.6726
+  },
+  "market": {
+   "brier": 0.2412,
+   "logloss": 0.6745
+  },
+  "blend": {
+   "brier": 0.2383,
+   "logloss": 0.6685
+  },
+  "brier_engine_minus_market_ci95": [
+   -0.007,
+   0.0058
+  ],
+  "brier_blend_minus_market_ci95": [
+   -0.0062,
+   0.0005
+  ],
+  "ece_engine": 0.0396,
+  "ece_blend": 0.023,
+  "ece_market": 0.0339,
+  "picks": {
+   "ev3": {
+    "engine": {
+     "n": 2149,
+     "roi": 0.032,
+     "roi_ci95": [
+      -0.082,
+      0.118
+     ]
+    },
+    "blend": {
+     "n": 909,
+     "roi": 0.095,
+     "roi_ci95": [
+      -0.026,
+      0.19
+     ]
+    }
+   },
+   "ev5": {
+    "engine": {
+     "n": 1851,
+     "roi": 0.041,
+     "roi_ci95": [
+      -0.079,
+      0.132
+     ]
+    },
+    "blend": {
+     "n": 651,
+     "roi": 0.131,
+     "roi_ci95": [
+      0.006,
+      0.23
+     ]
+    }
+   },
+   "ev8": {
+    "engine": {
+     "n": 1502,
+     "roi": 0.06,
+     "roi_ci95": [
+      -0.065,
+      0.158
+     ]
+    },
+    "blend": {
+     "n": 375,
+     "roi": 0.129,
+     "roi_ci95": [
+      0.007,
+      0.224
+     ]
+    }
+   }
+  }
+ },
+ "by_stat": {
+  "pts": {
+   "n": 2610,
+   "games": 20,
+   "players": 146,
+   "engine": {
+    "brier": 0.2448,
+    "logloss": 0.6828
+   },
+   "market": {
+    "brier": 0.2489,
+    "logloss": 0.6909
+   },
+   "blend": {
+    "brier": 0.2444,
+    "logloss": 0.6819
+   },
+   "brier_engine_minus_market_ci95": [
+    -0.015,
+    0.0086
+   ],
+   "brier_blend_minus_market_ci95": [
+    -0.0099,
+    0.002
+   ],
+   "ece_engine": 0.0467,
+   "ece_blend": 0.035,
+   "ece_market": 0.0644,
+   "picks": {
+    "ev3": {
+     "engine": {
+      "n": 1508,
+      "roi": 0.071,
+      "roi_ci95": [
+       -0.094,
+       0.207
+      ]
+     },
+     "blend": {
+      "n": 650,
+      "roi": 0.121,
+      "roi_ci95": [
+       -0.053,
+       0.295
+      ]
+     }
+    },
+    "ev5": {
+     "engine": {
+      "n": 1286,
+      "roi": 0.091,
+      "roi_ci95": [
+       -0.087,
+       0.225
+      ]
+     },
+     "blend": {
+      "n": 464,
+      "roi": 0.149,
+      "roi_ci95": [
+       -0.126,
+       0.376
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 1053,
+      "roi": 0.101,
+      "roi_ci95": [
+       -0.07,
+       0.229
+      ]
+     },
+     "blend": {
+      "n": 230,
+      "roi": 0.169,
+      "roi_ci95": [
+       -0.152,
+       0.459
+      ]
+     }
+    }
+   }
+  },
+  "reb": {
+   "n": 1884,
+   "games": 20,
+   "players": 122,
+   "engine": {
+    "brier": 0.2422,
+    "logloss": 0.6763
+   },
+   "market": {
+    "brier": 0.2415,
+    "logloss": 0.6751
+   },
+   "blend": {
+    "brier": 0.239,
+    "logloss": 0.6697
+   },
+   "brier_engine_minus_market_ci95": [
+    -0.0099,
+    0.0112
+   ],
+   "brier_blend_minus_market_ci95": [
+    -0.0076,
+    0.0025
+   ],
+   "ece_engine": 0.0839,
+   "ece_blend": 0.0531,
+   "ece_market": 0.0192,
+   "picks": {
+    "ev3": {
+     "engine": {
+      "n": 1035,
+      "roi": -0.01,
+      "roi_ci95": [
+       -0.111,
+       0.102
+      ]
+     },
+     "blend": {
+      "n": 553,
+      "roi": 0.082,
+      "roi_ci95": [
+       -0.032,
+       0.219
+      ]
+     }
+    },
+    "ev5": {
+     "engine": {
+      "n": 939,
+      "roi": 0,
+      "roi_ci95": [
+       -0.104,
+       0.124
+      ]
+     },
+     "blend": {
+      "n": 409,
+      "roi": 0.144,
+      "roi_ci95": [
+       -0.006,
+       0.302
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 802,
+      "roi": 0.038,
+      "roi_ci95": [
+       -0.088,
+       0.173
+      ]
+     },
+     "blend": {
+      "n": 246,
+      "roi": 0.066,
+      "roi_ci95": [
+       -0.157,
+       0.257
+      ]
+     }
+    }
+   }
+  },
+  "ast": {
+   "n": 1458,
+   "games": 20,
+   "players": 111,
+   "engine": {
+    "brier": 0.2471,
+    "logloss": 0.6867
+   },
+   "market": {
+    "brier": 0.2435,
+    "logloss": 0.6795
+   },
+   "blend": {
+    "brier": 0.2429,
+    "logloss": 0.6782
+   },
+   "brier_engine_minus_market_ci95": [
+    -0.0107,
+    0.016
+   ],
+   "brier_blend_minus_market_ci95": [
+    -0.0079,
+    0.0059
+   ],
+   "ece_engine": 0.0822,
+   "ece_blend": 0.074,
+   "ece_market": 0.0216,
+   "picks": {
+    "ev3": {
+     "engine": {
+      "n": 787,
+      "roi": 0.036,
+      "roi_ci95": [
+       -0.167,
+       0.228
+      ]
+     },
+     "blend": {
+      "n": 370,
+      "roi": -0.014,
+      "roi_ci95": [
+       -0.245,
+       0.221
+      ]
+     }
+    },
+    "ev5": {
+     "engine": {
+      "n": 701,
+      "roi": 0.022,
+      "roi_ci95": [
+       -0.188,
+       0.23
+      ]
+     },
+     "blend": {
+      "n": 275,
+      "roi": -0.068,
+      "roi_ci95": [
+       -0.298,
+       0.21
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 550,
+      "roi": 0,
+      "roi_ci95": [
+       -0.216,
+       0.213
+      ]
+     },
+     "blend": {
+      "n": 175,
+      "roi": -0.026,
+      "roi_ci95": [
+       -0.296,
+       0.266
+      ]
+     }
+    }
+   }
+  },
+  "fg3": {
+   "n": 1632,
+   "games": 20,
+   "players": 112,
+   "engine": {
+    "brier": 0.2344,
+    "logloss": 0.6607
+   },
+   "market": {
+    "brier": 0.2391,
+    "logloss": 0.6706
+   },
+   "blend": {
+    "brier": 0.2345,
+    "logloss": 0.661
+   },
+   "brier_engine_minus_market_ci95": [
+    -0.0161,
+    0.0067
+   ],
+   "brier_blend_minus_market_ci95": [
+    -0.0104,
+    0.0013
+   ],
+   "ece_engine": 0.062,
+   "ece_blend": 0.0345,
+   "ece_market": 0.0421,
+   "picks": {
+    "ev3": {
+     "engine": {
+      "n": 938,
+      "roi": 0.09,
+      "roi_ci95": [
+       -0.108,
+       0.273
+      ]
+     },
+     "blend": {
+      "n": 364,
+      "roi": 0.101,
+      "roi_ci95": [
+       -0.176,
+       0.416
+      ]
+     }
+    },
+    "ev5": {
+     "engine": {
+      "n": 782,
+      "roi": 0.079,
+      "roi_ci95": [
+       -0.159,
+       0.301
+      ]
+     },
+     "blend": {
+      "n": 252,
+      "roi": 0.183,
+      "roi_ci95": [
+       -0.112,
+       0.5
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 631,
+      "roi": 0.081,
+      "roi_ci95": [
+       -0.167,
+       0.323
+      ]
+     },
+     "blend": {
+      "n": 162,
+      "roi": 0.267,
+      "roi_ci95": [
+       -0.109,
+       0.711
+      ]
+     }
+    }
+   }
+  }
+ },
+ "by_round": {
+  "12": {
+   "n": 4285,
+   "games": 10,
+   "players": 150,
+   "engine": {
+    "brier": 0.2491,
+    "logloss": 0.6912
+   },
+   "market": {
+    "brier": 0.2465,
+    "logloss": 0.6859
+   },
+   "blend": {
+    "brier": 0.2452,
+    "logloss": 0.6832
+   },
+   "brier_engine_minus_market_ci95": [
+    -0.005,
+    0.0116
+   ],
+   "brier_blend_minus_market_ci95": [
+    -0.0059,
+    0.0037
+   ],
+   "ece_engine": 0.0809,
+   "ece_blend": 0.0573,
+   "ece_market": 0.0262,
+   "picks": {
+    "ev3": {
+     "engine": {
+      "n": 2440,
+      "roi": 0.011,
+      "roi_ci95": [
+       -0.132,
+       0.144
+      ]
+     },
+     "blend": {
+      "n": 1139,
+      "roi": 0.026,
+      "roi_ci95": [
+       -0.125,
+       0.148
+      ]
+     }
+    },
+    "ev5": {
+     "engine": {
+      "n": 2117,
+      "roi": 0.013,
+      "roi_ci95": [
+       -0.137,
+       0.149
+      ]
+     },
+     "blend": {
+      "n": 815,
+      "roi": 0.058,
+      "roi_ci95": [
+       -0.106,
+       0.164
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 1746,
+      "roi": 0.021,
+      "roi_ci95": [
+       -0.127,
+       0.157
+      ]
+     },
+     "blend": {
+      "n": 465,
+      "roi": 0.053,
+      "roi_ci95": [
+       -0.146,
+       0.177
+      ]
+     }
+    }
+   }
+  },
+  "13": {
+   "n": 3299,
+   "games": 10,
+   "players": 141,
+   "engine": {
+    "brier": 0.2337,
+    "logloss": 0.659
+   },
+   "market": {
+    "brier": 0.2406,
+    "logloss": 0.6732
+   },
+   "blend": {
+    "brier": 0.2348,
+    "logloss": 0.6613
+   },
+   "brier_engine_minus_market_ci95": [
+    -0.0149,
+    0.0023
+   ],
+   "brier_blend_minus_market_ci95": [
+    -0.0098,
+    -0.0014
+   ],
+   "ece_engine": 0.0391,
+   "ece_blend": 0.046,
+   "ece_market": 0.0714,
+   "picks": {
+    "ev3": {
+     "engine": {
+      "n": 1828,
+      "roi": 0.1,
+      "roi_ci95": [
+       0.005,
+       0.192
+      ]
+     },
+     "blend": {
+      "n": 798,
+      "roi": 0.157,
+      "roi_ci95": [
+       0.008,
+       0.311
+      ]
+     }
+    },
+    "ev5": {
+     "engine": {
+      "n": 1591,
+      "roi": 0.104,
+      "roi_ci95": [
+       -0.011,
+       0.209
+      ]
+     },
+     "blend": {
+      "n": 585,
+      "roi": 0.185,
+      "roi_ci95": [
+       0.022,
+       0.355
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 1290,
+      "roi": 0.117,
+      "roi_ci95": [
+       -0.014,
+       0.245
+      ]
+     },
+     "blend": {
+      "n": 348,
+      "roi": 0.198,
+      "roi_ci95": [
+       0.057,
+       0.363
+      ]
+     }
+    }
+   }
+  }
+ },
+ "vs_props_model": {
+  "n": 1019,
+  "games": 20,
+  "brier": {
+   "engine": 0.2395,
+   "props_today": 0.2418,
+   "market": 0.2387,
+   "engine_blend": 0.2367,
+   "props_blend": 0.2378
+  },
+  "ci_engine_minus_props": [
+   -0.0047,
+   0
+  ]
+ }
+}
