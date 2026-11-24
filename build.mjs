@@ -74,6 +74,10 @@ const AD_SLOT = (process.env.ADSENSE_SLOT || CONF.adsenseSlot || '').trim();
 const GA_ID = (process.env.GA_ID || CONF.gaId || '').trim();
 const SEASON_LABEL = `${+SEASON.slice(1)}-${String(+SEASON.slice(1) + 1).slice(2)}`;
 const OFFLINE = process.argv.includes('--offline');
+// --readonly (ή BS_DATA_READONLY=1): το build δεν γράφει τίποτα στο data/ (τοπικοί έλεγχοι, tests, PR checks).
+// Χωρίς αυτό η συμπεριφορά μένει ίδια: το CI ενημερώνει cache, props-track, daytips, fixtures, title-odds, sitemap-lastmod.
+const DATA_RO = process.argv.includes('--readonly') || process.env.BS_DATA_READONLY === '1';
+const writeData = (f, s) => (DATA_RO ? Promise.resolve() : fs.writeFile(f, s));
 // γραμμή αγώνα → [λεπτά, πόντοι, ριμπ., ασίστ, κλεψ., κοψ., λάθη, 2π εύστ., 2π προσπ., 3π εύστ., 3π προσπ., βολές εύστ., βολές προσπ., φάουλ, PIR] (σειρά SK στο ask.mjs)
 const ASK_SK = r => [Math.round(r[7] / 6) / 10, r[8], r[15] + r[16], r[17], r[18], r[20], r[19], r[9], r[10], r[11], r[12], r[13], r[14], r[22], r[25]];
 const OUT = path.join(ROOT, 'dist');
@@ -897,7 +901,7 @@ async function main() {
   data.hist = OFFLINE ? (data.hist || oldHist || {}) : await fetchHistory(data.hist || oldHist);
   await updateVideos(data.videos, data.league.games, !OFFLINE);
   await fs.mkdir(path.dirname(CACHE), { recursive: true });
-  await fs.writeFile(CACHE, JSON.stringify(data));
+  await writeData(CACHE, JSON.stringify(data));
   const VIDS = data.videos;
   const { players, league } = data;
   const VENUE = data.venue || {};
@@ -1102,7 +1106,7 @@ async function main() {
     for (const [gid, g] of Object.entries(PROPSJ.gr || {})) if (new Date(g.t) > now) PROPM.trackUpdate(TR, gid, g.r, g.best, ts);
     const rounds = {}; for (const g of league.games) (rounds[g[0]] ||= []).push(!!g[6]);
     PROPM.trackSettle(TR, solo, new Set(Object.entries(rounds).filter(([, v]) => v.every(Boolean)).map(([r]) => +r)));
-    if (Object.keys(TR.lines).length) await fs.writeFile(TF, JSON.stringify(TR));
+    if (Object.keys(TR.lines).length) await writeData(TF, JSON.stringify(TR));
     PROPSJ._track = PROPM.trackSummary(TR);
     const n = Object.values(PROPSJ.gr || {}).reduce((s, g) => s + g.value.length, 0);
     if (Object.keys(PROPSJ.gr || {}).length) console.log('Player props (gr):', Object.keys(PROPSJ.gr).length, 'αγώνες,', n, 'με value');
@@ -1208,7 +1212,7 @@ async function main() {
       if (!row) { x.ok = won ? 'void' : false; continue; }   // δεν έπαιξε: άκυρο το σκέλος του παίκτη
       x.ok = won && PROPM.STATS.pts(row) > x.line; x.v = PROPM.STATS.pts(row);
     }
-    if (Object.keys(DAYT.hist).length) await fs.writeFile(TF, JSON.stringify(DAYT.hist));
+    if (Object.keys(DAYT.hist).length) await writeData(TF, JSON.stringify(DAYT.hist));
     if (DAYT.day) console.log('Στοίχημα της ημέρας:', DAYT.day, DAYT.picks.map(x => `${x.k}:${x.team}${x.pl ? '+' + x.pl + '>' + x.line : ''} ${x.p}`).join(' · '));
   }
   // για τον Game Predictor (Python): απουσίες και επερχόμενοι αγώνες με ISO ημερομηνία
@@ -1217,7 +1221,7 @@ async function main() {
     const fx = league.games.filter(g => !g[6]).map(g => ({ comp: 'E', r: g[0], h: g[2], a: g[3], t: iso(g[1]) }));
     for (const g of (data.ec?.games || []).filter(g => !g[6])) fx.push({ comp: 'U', r: g[0], h: g[2], a: g[3], t: g[1] });
     await fs.mkdir(path.join(ROOT, 'data', 'matchups'), { recursive: true });
-    await fs.writeFile(path.join(ROOT, 'data', 'matchups', 'fixtures.json'), JSON.stringify({ season: SEASON, avail: Object.fromEntries(Object.entries(INJ.el).map(([c, v]) => [c, v.m])), fixtures: fx }));
+    await writeData(path.join(ROOT, 'data', 'matchups', 'fixtures.json'), JSON.stringify({ season: SEASON, avail: Object.fromEntries(Object.entries(INJ.el).map(([c, v]) => [c, v.m])), fixtures: fx }));
   }
   // Πιθανότητες τίτλου: η ίδια προσομοίωση με τη σελίδα της βαθμολογίας (src/sim/season.mjs, ίδιο seed και ίδιες προβλέψεις),
   // κρατιέται μία εγγραφή ανά ολοκληρωμένη αγωνιστική στο data/title-odds.json για τη γραφική εξέλιξης.
@@ -1253,7 +1257,7 @@ async function main() {
         const S = simSeason({ teams, bW: teams.map(c => SR[c][2]), bD: teams.map(c => SR[c][4] - SR[c][5]), rem, mg, hca: HCA, N: 5000, seed: 20262027 + league.games.filter(g => g[6]).length });
         const r3 = v => Math.round(v * 1000) / 1000;
         H.rounds[R] = { d: new Date().toISOString().slice(0, 10), t: Object.fromEntries(teams.map(c => [c, [r3(S.by[c].top6), r3(S.by[c].po), r3(S.by[c].f4), r3(S.by[c].champ)]])) };
-        await fs.writeFile(F, JSON.stringify(H));
+        await writeData(F, JSON.stringify(H));
         const top = teams.slice().sort((a, b) => S.by[b].champ - S.by[a].champ).slice(0, 4).map(c => `${c} ${Math.round(100 * S.by[c].champ)}%`).join(', ');
         console.log(`Πιθανότητες τίτλου μετά την ${R}η αγωνιστική: ${top}`);
       }
@@ -5292,7 +5296,7 @@ ${wBlock('widget:rd', 1230, T('Προγνωστικά EuroLeague', 'EuroLeague p
   let lmOld = {}; try { lmOld = JSON.parse(await fs.readFile(LM_FILE, 'utf8')); } catch { }
   const lmNew = {};
   for (const u of urls) { const h = PAGE_HASH.get(u) || ''; const o = lmOld[u]; lmNew[u] = o && o[0] === h ? o : [h, today]; }
-  await fs.writeFile(LM_FILE, JSON.stringify(lmNew));
+  await writeData(LM_FILE, JSON.stringify(lmNew));
   // sitemap index (sitemap.xml) + ένα sitemap ανά γλώσσα: μικρότερα αρχεία που η Google διαβάζει
   // πιο εύκολα, και ξεχωριστή αναφορά ευρετηρίασης ανά γλώσσα στο Search Console.
   const smGroups = {};

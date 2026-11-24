@@ -18,7 +18,14 @@ function minutesAt(p, R, P) {
   const out = new Set(team.filter(q => !q.now).map(q => q.c)), fresh = new Set(team.filter(q => !q.now && q.pl[q.pl.length - 1][0] === prevR).map(q => q.c));
   const M = teamMinutes(team, out, fresh, P).M; minCache.set(k, M); return M[p.c];
 }
-const allRounds = [...new Set(players.flatMap(p => (p.g || []).filter(r => r[7] > 0).map(r => +r[0])))].sort((a,b)=>a-b);\nconst priorAtRound = new Map();\nconst cumulative = Object.fromEntries(Object.keys(STATS).map(s => [s, 0]));\nlet cumulativeMinutes = 0;\nfor (const round of allRounds) {\n  priorAtRound.set(round, Object.fromEntries(Object.keys(STATS).map(s => [s, cumulativeMinutes ? cumulative[s] / cumulativeMinutes : 0])));\n  for (const p of players) for (const row of p.g || []) if (+row[0] === round && row[7] > 0) { for (const s of Object.keys(STATS)) cumulative[s] += STATS[s](row); cumulativeMinutes += row[7] / 60; }\n}
+const allRounds = [...new Set(players.flatMap(p => (p.g || []).filter(r => r[7] > 0).map(r => +r[0])))].sort((a,b)=>a-b);
+const priorAtRound = new Map();
+const cumulative = Object.fromEntries(Object.keys(STATS).map(s => [s, 0]));
+let cumulativeMinutes = 0;
+for (const round of allRounds) {
+  priorAtRound.set(round, Object.fromEntries(Object.keys(STATS).map(s => [s, cumulativeMinutes ? cumulative[s] / cumulativeMinutes : 0])));
+  for (const p of players) for (const row of p.g || []) if (+row[0] === round && row[7] > 0) { for (const s of Object.keys(STATS)) cumulative[s] += STATS[s](row); cumulativeMinutes += row[7] / 60; }
+}
 function run(P, stats = Object.keys(STATS)) {
   const res = {};
   for (const s of stats) {
