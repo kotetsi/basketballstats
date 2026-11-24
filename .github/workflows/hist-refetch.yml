@@ -38,7 +38,8 @@ jobs:
       - name: Νέα λήψη E2020–E2025 (όλοι οι παίκτες)
         run: timeout 5400 node fantasy/hist_fetch.mjs E2020 E2021 E2022 E2023 E2024 E2025 --force
       - name: Validation δεδομένων
-        run: node scripts/engine-validate.mjs --out data/fantasy/hist/validation.json || echo "validation: βρέθηκαν σφάλματα (δες validation.json)"
+        run: |
+          node scripts/engine-validate.mjs --out data/fantasy/hist/validation.json || echo "validation - βρέθηκαν σφάλματα, δες validation.json"
       - name: Walk-forward backtest από την αρχή στα νέα δεδομένα
         run: timeout 5400 python fantasy/perf_run.py --full
       - name: Commit στο branch (όχι στο main)
