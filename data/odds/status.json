@@ -98,7 +98,7 @@
    "id1100013873263204": 4807,
    "id1100013873263206": 3286,
    "id1100013873263208": 2168,
-   "id1100013873263210": 2832
+   "id1100013873263210": 2904
   },
   "propDone": {
    "id1100013873263198": [
@@ -187,7 +187,7 @@
    "id1100013873263210": {
     "mid": {
      "count": 1,
-     "lastAttempt": "2026-11-24T10:55:54.319Z"
+     "lastAttempt": "2026-11-24T11:02:49.707Z"
     }
    }
   }
@@ -195,8 +195,8 @@
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-24T10:55:56.234Z",
- "lastSuccess": "2026-11-24T10:55:56.234Z",
+ "lastCall": "2026-11-24T11:02:55.571Z",
+ "lastSuccess": "2026-11-24T11:02:55.571Z",
  "events": 1,
  "matched": 1,
  "added": 664,
@@ -205,7 +205,7 @@
   "cap": 250,
   "month": "2026-11"
  },
- "lastChange": "2026-11-24T10:55:56.234Z",
+ "lastChange": "2026-11-24T11:02:55.571Z",
  "propAdded": 538,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
@@ -419,18 +419,18 @@
  "providers": {
   "theoddsapi": {
    "provider": "theoddsapi",
-   "lastCall": "2026-11-24T10:55:56.917Z",
-   "lastSuccess": "2026-11-24T10:55:56.917Z",
+   "lastCall": "2026-11-24T11:02:56.163Z",
+   "lastSuccess": "2026-11-24T11:02:56.163Z",
    "events": 10,
    "matched": 10,
-   "added": 96,
+   "added": 104,
    "propAdded": 0,
    "quota": {
-    "remaining": "422",
-    "used": "78"
+    "remaining": "416",
+    "used": "84"
    },
    "error": null,
-   "lastChange": "2026-11-24T10:55:56.917Z"
+   "lastChange": "2026-11-24T11:02:56.163Z"
   }
  }
 }
