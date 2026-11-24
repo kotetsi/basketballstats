@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T01:31:50.891Z",
+ "generated": "2026-11-24T01:49:51.822Z",
  "season": "E2026",
  "seasons": {
   "E2026": {
@@ -17,19 +17,18 @@
    "games": 306,
    "final": 306,
    "player_games": 6585,
-   "fetched_at": "2026-11-24T01:30:06.210Z",
+   "fetched_at": "2026-11-24T01:48:29.689Z",
    "errors": 0,
-   "warnings": 16,
+   "warnings": 4,
    "by": {
     "team_points_mismatch": {
      "severity": "warn",
-     "n": 16,
+     "n": 4,
      "refs": [
       "E2020-8-BAR-ULK|BAR (106 ≠ 97)",
       "E2020-8-BAR-ULK|ULK (46 ≠ 55)",
-      "E2020-12-DYR-ULK|DYR (70 ≠ 65)",
-      "E2020-12-DYR-ULK|ULK (68 ≠ 73)",
-      "E2020-13-BER-ULK|BER (95 ≠ 89)"
+      "E2020-33-ULK-BAR|ULK (82 ≠ 73)",
+      "E2020-33-ULK-BAR|BAR (73 ≠ 82)"
      ]
     }
    }
@@ -39,41 +38,26 @@
    "games": 278,
    "final": 278,
    "player_games": 5949,
-   "fetched_at": "2026-11-24T01:30:24.979Z",
+   "fetched_at": "2026-11-24T01:48:49.316Z",
    "errors": 0,
-   "warnings": 24,
-   "by": {
-    "team_points_mismatch": {
-     "severity": "warn",
-     "n": 24,
-     "refs": [
-      "E2021-1-MCO-PAN|MCO (83 ≠ 75)",
-      "E2021-1-MCO-PAN|PAN (55 ≠ 63)",
-      "E2021-3-BAS-PAN|BAS (83 ≠ 81)",
-      "E2021-3-BAS-PAN|PAN (77 ≠ 79)",
-      "E2021-4-MAD-PAN|MAD (90 ≠ 88)"
-     ]
-    }
-   }
+   "warnings": 0,
+   "by": {}
   },
   "E2022": {
    "players": 295,
    "games": 306,
    "final": 306,
    "player_games": 6589,
-   "fetched_at": "2026-11-24T01:30:43.830Z",
+   "fetched_at": "2026-11-24T01:48:59.170Z",
    "errors": 0,
-   "warnings": 28,
+   "warnings": 2,
    "by": {
     "team_points_mismatch": {
      "severity": "warn",
-     "n": 28,
+     "n": 2,
      "refs": [
-      "E2022-2-MCO-IST|MCO (97 ≠ 95)",
-      "E2022-2-MCO-IST|IST (90 ≠ 92)",
-      "E2022-6-MUN-IST|MUN (83 ≠ 81)",
-      "E2022-6-MUN-IST|IST (76 ≠ 78)",
-      "E2022-7-MAD-IST|MAD (107 ≠ 94)"
+      "E2022-22-IST-ZAL|IST (82 ≠ 80)",
+      "E2022-22-IST-ZAL|ZAL (68 ≠ 70)"
      ]
     }
    }
@@ -83,19 +67,19 @@
    "games": 306,
    "final": 306,
    "player_games": 6634,
-   "fetched_at": "2026-11-24T01:31:02.221Z",
+   "fetched_at": "2026-11-24T01:49:08.805Z",
    "errors": 0,
-   "warnings": 130,
+   "warnings": 8,
    "by": {
     "team_points_mismatch": {
      "severity": "warn",
-     "n": 130,
+     "n": 8,
      "refs": [
-      "E2023-1-VIR-ZAL|VIR (85 ≠ 79)",
-      "E2023-1-VIR-ZAL|ZAL (76 ≠ 82)",
-      "E2023-1-BAR-IST|BAR (100 ≠ 91)",
-      "E2023-1-BAR-IST|IST (65 ≠ 74)",
-      "E2023-1-ULK-MIL|ULK (87 ≠ 85)"
+      "E2023-6-VIR-IST|VIR (108 ≠ 93)",
+      "E2023-6-VIR-IST|IST (66 ≠ 81)",
+      "E2023-21-IST-VIR|IST (101 ≠ 99)",
+      "E2023-21-IST-VIR|VIR (73 ≠ 75)",
+      "E2023-25-VIR-PAR|VIR (94 ≠ 88)"
      ]
     }
    }
@@ -105,19 +89,19 @@
    "games": 306,
    "final": 306,
    "player_games": 6565,
-   "fetched_at": "2026-11-24T01:31:33.116Z",
+   "fetched_at": "2026-11-24T01:49:33.839Z",
    "errors": 0,
-   "warnings": 163,
+   "warnings": 42,
    "by": {
     "team_points_mismatch": {
      "severity": "warn",
-     "n": 163,
+     "n": 42,
      "refs": [
-      "E2024-1-MCO-MIL|MCO (95 ≠ 93)",
-      "E2024-1-MCO-MIL|MIL (78 ≠ 80)",
-      "E2024-1-ULK-OLY|ULK (91 ≠ 82)",
-      "E2024-1-ULK-OLY|OLY (57 ≠ 71)",
-      "E2024-2-MCO-TEL|MCO (101 ≠ 85)"
+      "E2024-1-ULK-OLY|OLY (66 ≠ 71)",
+      "E2024-2-MCO-TEL|MCO (101 ≠ 85)",
+      "E2024-2-MCO-TEL|TEL (63 ≠ 79)",
+      "E2024-2-OLY-ZAL|OLY (59 ≠ 74)",
+      "E2024-3-OLY-MIL|OLY (84 ≠ 89)"
      ]
     }
    }
@@ -127,19 +111,19 @@
    "games": 380,
    "final": 380,
    "player_games": 8245,
-   "fetched_at": "2026-11-24T01:31:50.820Z",
+   "fetched_at": "2026-11-24T01:49:51.766Z",
    "errors": 0,
-   "warnings": 135,
+   "warnings": 15,
    "by": {
     "team_points_mismatch": {
      "severity": "warn",
-     "n": 135,
+     "n": 15,
      "refs": [
-      "E2025-1-DUB-PAR|DUB (102 ≠ 89)",
-      "E2025-1-DUB-PAR|PAR (63 ≠ 76)",
-      "E2025-1-BAS-OLY|BAS (100 ≠ 96)",
-      "E2025-1-BAS-OLY|OLY (98 ≠ 102)",
-      "E2025-1-VIR-MAD|VIR (78 ≠ 74)"
+      "E2025-3-MAD-ASV|ASV (69 ≠ 72)",
+      "E2025-7-RED-ASV|ASV (62 ≠ 65)",
+      "E2025-8-ZAL-ASV|ASV (57 ≠ 59)",
+      "E2025-9-ULK-ASV|ASV (62 ≠ 67)",
+      "E2025-9-OLY-PAR|OLY (97 ≠ 80)"
      ]
     }
    }
