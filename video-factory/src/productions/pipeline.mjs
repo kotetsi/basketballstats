@@ -53,9 +53,10 @@ export class Productions {
     const id = `${story.id}-${Date.now().toString(36)}`.slice(0, 150);
     const p = {
       id, status: 'draft', createdAt: now(),
-      story: { id: story.id, type: story.type, title: story.title, dataAsOf: story.dataAsOf, lastRound: story.lastRound, approvedAt: story.approvedAt },
+      story: { id: story.id, type: story.type, format: story.format || null, title: story.title, dataAsOf: story.dataAsOf, lastRound: story.lastRound, approvedAt: story.approvedAt },
       settings: { formats, preset, voiceId, style, music },
-      template: TEMPLATE_IDS[story.type],
+      template: story.format ? `format:${story.format}@${story.formatVersion || 1}` : TEMPLATE_IDS[story.type],
+      format: story.format || null,
       script: null, narration: null, renders: [], platforms: null,
       assets: ['font-inter', 'graphics-generated', 'data-euroleague-stats', ...(music ? ['music-bed-generated'] : [])],
       publication: { approved: false, approvedAt: null, publishedTo: [] },
@@ -171,7 +172,7 @@ export class Productions {
   /** Performance feedback (manual entry now; platform APIs later). */
   recordMetrics(id, platform, m) {
     const p = this.must(id);
-    const keys = ['views', 'avgWatchSecs', 'completionRate', 'likes', 'comments', 'shares', 'saves', 'clicks', 'siteSessions'];
+    const keys = ['views', 'avgWatchSecs', 'completionRate', 'likes', 'comments', 'shares', 'saves', 'clicks', 'siteSessions', 'registrations'];
     const clean = Object.fromEntries(keys.filter(k => m[k] !== undefined && m[k] !== '').map(k => [k, Number(m[k])]).filter(([, v]) => Number.isFinite(v)));
     p.performance[platform] = { ...(p.performance[platform] || {}), ...clean, updatedAt: now() };
     return this.save(this.event(p, 'metrics', { platform }));

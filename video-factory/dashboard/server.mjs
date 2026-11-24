@@ -65,7 +65,7 @@ export function createServer(cfg, deps = {}) {
       voices: Object.fromEntries(Object.entries(cfg.voices).map(([k, v]) => [k, { label: v.label, provider: v.provider, lang: v.lang, available: providerStatus(v, env) }])),
       llm: { model: cfg.llm.model, available: !!env.ANTHROPIC_API_KEY && cfg.llm.enabled },
       players: model().players.filter(p => p.season).map(p => ({ slug: p.slug, name: p.name, team: p.teamName })).sort((a, b) => a.name.localeCompare(b.name)),
-      lastRound: model().lastRound, dataAsOf: model().dataAsOf,
+      lastRound: model().lastRound, dataAsOf: model().dataAsOf, plugins: Object.keys(pages),
     })],
     ['GET', /^\/api\/stories$/, (req, res) => json(res, 200, { items: stories.list() })],
     ['POST', /^\/api\/stories$/, async (req, res) => {
@@ -100,6 +100,14 @@ export function createServer(cfg, deps = {}) {
     }],
   ];
 
+  // plugins (e.g. the Video Format Library) add routes and pages without changing this file
+  const pages = {};
+  for (const make of deps.plugins || []) {
+    const pl = make({ cfg, deps, stories, P, runJob, json, body, model });
+    R.unshift(...(pl.routes || []));
+    Object.assign(pages, pl.pages || {});
+  }
+
   return http.createServer(async (req, res) => {
     try {
       if (password) {
@@ -113,6 +121,7 @@ export function createServer(cfg, deps = {}) {
         if (req.headers.origin && new URL(req.headers.origin).host !== req.headers.host) return json(res, 403, { error: 'cross-origin request refused' });
       }
       for (const [method, re, fn] of R) { const m = url.pathname.match(re); if (m && req.method === method) return await fn(req, res, m, url); }
+      if (req.method === 'GET' && pages[url.pathname]) { const pg = pages[url.pathname]; res.writeHead(200, { 'Content-Type': pg.type || 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(pg.body()); }
       if (req.method === 'GET') {
         const f = path.join(PUBLIC, path.normalize(url.pathname === '/' ? 'index.html' : url.pathname.slice(1)));
         if (f.startsWith(PUBLIC) && fs.existsSync(f) && fs.statSync(f).isFile()) { res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'text/plain' }); return fs.createReadStream(f).pipe(res); }
@@ -125,5 +134,8 @@ export function createServer(cfg, deps = {}) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const cfg = loadConfig();
   const port = +process.env.PORT || 4318;
-  createServer(cfg).listen(port, '127.0.0.1', () => console.log(`Video Factory dashboard: http://127.0.0.1:${port}/`));
+  const plugins = [];
+  const vl = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../video-formats/dashboard/plugin.mjs');
+  if (fs.existsSync(vl)) plugins.push((await import(vl)).default);
+  createServer(cfg, { plugins }).listen(port, '127.0.0.1', () => console.log(`Video Factory dashboard: http://127.0.0.1:${port}/`));
 }

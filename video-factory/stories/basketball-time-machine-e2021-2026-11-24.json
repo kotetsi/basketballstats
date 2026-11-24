@@ -1,0 +1,361 @@
+{
+  "id": "basketball-time-machine-e2021-2026-11-24",
+  "type": "format",
+  "format": "basketball-time-machine",
+  "formatVersion": 1,
+  "family": "historical",
+  "params": {
+    "save": 1,
+    "key": "e2021"
+  },
+  "title": "Back to 2021-22",
+  "source": "format-library",
+  "lang": "en",
+  "theme": "classic",
+  "status": "approved",
+  "createdAt": "2026-11-24T10:05:45.509Z",
+  "dataAsOf": "2026-11-24T08:29:10.950Z",
+  "lastRound": 13,
+  "data": {
+    "season": "2021-22",
+    "yearsBack": 5,
+    "champion": {
+      "code": "IST",
+      "name": "Anadolu Efes"
+    },
+    "runnerUp": {
+      "code": "MAD",
+      "name": "Real Madrid"
+    },
+    "finalScore": [
+      58,
+      57
+    ],
+    "standings": [
+      {
+        "pos": 1,
+        "team": "BAR",
+        "name": "Barcelona",
+        "w": 21,
+        "l": 7
+      },
+      {
+        "pos": 2,
+        "team": "OLY",
+        "name": "Olympiacos",
+        "w": 19,
+        "l": 9
+      },
+      {
+        "pos": 3,
+        "team": "MIL",
+        "name": "Olimpia Milano",
+        "w": 19,
+        "l": 9
+      },
+      {
+        "pos": 4,
+        "team": "MAD",
+        "name": "Real Madrid",
+        "w": 18,
+        "l": 10
+      },
+      {
+        "pos": 5,
+        "team": "TEL",
+        "name": "Maccabi Tel Aviv",
+        "w": 17,
+        "l": 11
+      }
+    ],
+    "seasonYears": [
+      2021,
+      22
+    ],
+    "mvp": {
+      "name": "MIROTIC, NIKOLA",
+      "team": "Barcelona",
+      "pir": 20.1,
+      "games": 38
+    },
+    "now": {
+      "code": "003469",
+      "name": "Sasha Vezenkov",
+      "slug": "sasha-vezenkov",
+      "team": "OLY",
+      "teamName": "Olympiacos",
+      "color": "#c8102e",
+      "pos": "Forward",
+      "pir": 23.9
+    },
+    "minGames": 17
+  },
+  "plan": [
+    {
+      "id": "intro",
+      "kind": "title",
+      "kicker": "TIME MACHINE",
+      "title": "Back to 2021-22",
+      "sub": "5 years ago"
+    },
+    {
+      "id": "stand",
+      "kind": "board",
+      "head": "2021-22 regular season",
+      "sub": "Top 5",
+      "rows": [
+        {
+          "key": "1",
+          "rank": 1,
+          "label": "Barcelona",
+          "sub": "21-7",
+          "value": 21,
+          "unit": "wins"
+        },
+        {
+          "key": "2",
+          "rank": 2,
+          "label": "Olympiacos",
+          "sub": "19-9",
+          "value": 19,
+          "unit": "wins"
+        },
+        {
+          "key": "3",
+          "rank": 3,
+          "label": "Olimpia Milano",
+          "sub": "19-9",
+          "value": 19,
+          "unit": "wins"
+        },
+        {
+          "key": "4",
+          "rank": 4,
+          "label": "Real Madrid",
+          "sub": "18-10",
+          "value": 18,
+          "unit": "wins"
+        },
+        {
+          "key": "5",
+          "rank": 5,
+          "label": "Maccabi Tel Aviv",
+          "sub": "17-11",
+          "value": 17,
+          "unit": "wins"
+        }
+      ]
+    },
+    {
+      "id": "mvp",
+      "kind": "big",
+      "head": "Nikola Mirotic",
+      "sub": "Barcelona · 38 games",
+      "value": 20.1,
+      "label": "Best PIR per game, 2021-22",
+      "chip": {
+        "label": "Now: Sasha Vezenkov",
+        "value": 23.9
+      },
+      "cards": []
+    },
+    {
+      "id": "final",
+      "kind": "statement",
+      "kicker": "CHAMPIONS",
+      "text": "**Anadolu Efes** beat Real Madrid 58-57 in the final."
+    },
+    {
+      "id": "outro",
+      "kind": "outro",
+      "question": "Which team from 2021-22 would win today?",
+      "source": "Data: official EuroLeague statistics"
+    }
+  ],
+  "scripts": {
+    "short": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Time machine: the 2021-22 season."
+      },
+      {
+        "id": "stand",
+        "scene": "stand",
+        "role": "narrative",
+        "text": "Barcelona topped the regular season at 21 and 7.",
+        "focus": "1"
+      },
+      {
+        "id": "mvp",
+        "scene": "mvp",
+        "role": "evidence",
+        "text": "The best PIR in the league: Nikola Mirotic, 20.1 a game."
+      },
+      {
+        "id": "final",
+        "scene": "final",
+        "role": "conclusion",
+        "text": "And the title went to Anadolu Efes, 58 to 57 against Real Madrid."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Which team from 2021-22 would win today? More at basketballstats.eu.",
+        "say": "Which team from 2021-22 would win today? More at basketball stats dot E U."
+      }
+    ],
+    "medium": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Time machine: the 2021-22 season."
+      },
+      {
+        "id": "stand",
+        "scene": "stand",
+        "role": "narrative",
+        "text": "Barcelona topped the regular season at 21 and 7.",
+        "focus": "1"
+      },
+      {
+        "id": "mvp",
+        "scene": "mvp",
+        "role": "evidence",
+        "text": "The best PIR in the league: Nikola Mirotic, 20.1 a game."
+      },
+      {
+        "id": "now",
+        "scene": "mvp",
+        "role": "narrative",
+        "text": "This season's leader, Sasha Vezenkov, is at 23.9."
+      },
+      {
+        "id": "final",
+        "scene": "final",
+        "role": "conclusion",
+        "text": "And the title went to Anadolu Efes, 58 to 57 against Real Madrid."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Which team from 2021-22 would win today? More at basketballstats.eu.",
+        "say": "Which team from 2021-22 would win today? More at basketball stats dot E U."
+      }
+    ],
+    "long": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Time machine: the 2021-22 season."
+      },
+      {
+        "id": "stand",
+        "scene": "stand",
+        "role": "narrative",
+        "text": "Barcelona topped the regular season at 21 and 7.",
+        "focus": "1"
+      },
+      {
+        "id": "mvp",
+        "scene": "mvp",
+        "role": "evidence",
+        "text": "The best PIR in the league: Nikola Mirotic, 20.1 a game."
+      },
+      {
+        "id": "now",
+        "scene": "mvp",
+        "role": "narrative",
+        "text": "This season's leader, Sasha Vezenkov, is at 23.9."
+      },
+      {
+        "id": "final",
+        "scene": "final",
+        "role": "conclusion",
+        "text": "And the title went to Anadolu Efes, 58 to 57 against Real Madrid."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Which team from 2021-22 would win today? More at basketballstats.eu.",
+        "say": "Which team from 2021-22 would win today? More at basketball stats dot E U."
+      }
+    ],
+    "editorial": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Time machine: the 2021-22 season."
+      },
+      {
+        "id": "stand",
+        "scene": "stand",
+        "role": "narrative",
+        "text": "Barcelona topped the regular season at 21 and 7.",
+        "focus": "1"
+      },
+      {
+        "id": "mvp",
+        "scene": "mvp",
+        "role": "evidence",
+        "text": "The best PIR in the league: Nikola Mirotic, 20.1 a game."
+      },
+      {
+        "id": "now",
+        "scene": "mvp",
+        "role": "narrative",
+        "text": "This season's leader, Sasha Vezenkov, is at 23.9."
+      },
+      {
+        "id": "final",
+        "scene": "final",
+        "role": "conclusion",
+        "text": "And the title went to Anadolu Efes, 58 to 57 against Real Madrid."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Which team from 2021-22 would win today? More at basketballstats.eu.",
+        "say": "Which team from 2021-22 would win today? More at basketball stats dot E U."
+      }
+    ]
+  },
+  "meta": {
+    "hook": "Back to the 2021-22 EuroLeague season",
+    "hashtags": [
+      "EuroLeague",
+      "Throwback"
+    ],
+    "linkPath": "/en/history/",
+    "question": "Which team from 2021-22 would win today?",
+    "narration": "Storyteller, warm.",
+    "narrationStyle": "analyst",
+    "kicker": "Basketball Time Machine"
+  },
+  "entities": {
+    "players": [],
+    "teams": [
+      "IST"
+    ]
+  },
+  "signals": {
+    "significance": 0.5,
+    "dataQuality": 0.9
+  },
+  "estSecs": {
+    "short": 24,
+    "medium": 27.5,
+    "long": 27.5,
+    "editorial": 27.5
+  },
+  "approvedAt": "2026-11-24T10:05:54.755Z",
+  "approvedBy": "admin"
+}

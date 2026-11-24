@@ -21,7 +21,7 @@ on:
         description: "energetic, analyst, hype"
         default: "energetic"
   push:
-    paths: ['video-factory/**']
+    paths: ['video-factory/**', 'video-formats/**']
     branches-ignore: [main]
 
 permissions:
@@ -45,6 +45,7 @@ jobs:
           npm i --no-save --no-audit --no-fund playwright@1.48.2
           npx playwright install --with-deps chromium
       - run: node --test video-factory/test/*.test.mjs
+      - run: node --test video-formats/test/*.test.mjs
 
   render:
     if: github.event_name == 'workflow_dispatch'

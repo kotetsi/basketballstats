@@ -1,0 +1,503 @@
+{
+  "id": "statistical-twin-kevin-punter-carsen-edwards-2026-11-24",
+  "type": "format",
+  "format": "statistical-twin",
+  "formatVersion": 1,
+  "family": "statistical",
+  "params": {
+    "save": 1,
+    "key": "kevin-punter-carsen-edwards"
+  },
+  "title": "Kevin Punter and Carsen Edwards",
+  "source": "format-library",
+  "lang": "en",
+  "theme": "classic",
+  "status": "approved",
+  "createdAt": "2026-11-24T10:05:45.320Z",
+  "dataAsOf": "2026-11-24T08:29:10.950Z",
+  "lastRound": 13,
+  "data": {
+    "similarity": 94,
+    "a": {
+      "code": "009862",
+      "name": "Kevin Punter",
+      "slug": "kevin-punter",
+      "team": "BAR",
+      "teamName": "Barcelona",
+      "color": "#a50044",
+      "pos": "Guard",
+      "games": 10,
+      "min": 24,
+      "pts": 15.9,
+      "reb": 2,
+      "ast": 2.4,
+      "stl": 0.9,
+      "blk": 0,
+      "pir": 14.8,
+      "ts": 58.5,
+      "fga": 12.1,
+      "fg3a": 5,
+      "fta": 3.4,
+      "fg3Rate": 41.3,
+      "pirPerMin": 0.616,
+      "price": 13.4
+    },
+    "b": {
+      "code": "011987",
+      "name": "Carsen Edwards",
+      "slug": "carsen-edwards",
+      "team": "ZAL",
+      "teamName": "Zalgiris",
+      "color": "#00703c",
+      "pos": "Guard",
+      "games": 13,
+      "min": 23.1,
+      "pts": 16.5,
+      "reb": 1.3,
+      "ast": 2.8,
+      "stl": 1,
+      "blk": 0,
+      "pir": 12.3,
+      "ts": 56.5,
+      "fga": 13.3,
+      "fg3a": 6.6,
+      "fta": 2.8,
+      "fg3Rate": 49.7,
+      "pirPerMin": 0.534,
+      "price": 11.7
+    },
+    "rows": [
+      {
+        "key": "pts",
+        "label": "Points",
+        "a": 15.9,
+        "b": 16.5
+      },
+      {
+        "key": "reb",
+        "label": "Rebounds",
+        "a": 2,
+        "b": 1.3
+      },
+      {
+        "key": "ast",
+        "label": "Assists",
+        "a": 2.4,
+        "b": 2.8
+      },
+      {
+        "key": "ts",
+        "label": "True shooting %",
+        "a": 58.5,
+        "b": 56.5
+      },
+      {
+        "key": "fg3Rate",
+        "label": "3PA share %",
+        "a": 41.3,
+        "b": 49.7
+      },
+      {
+        "key": "min",
+        "label": "Minutes",
+        "a": 24,
+        "b": 23.1
+      }
+    ],
+    "radar": {
+      "a": {
+        "pts": 90,
+        "reb": 18,
+        "ast": 59,
+        "stl": 80,
+        "blk": 14,
+        "ts": 46
+      },
+      "b": {
+        "pts": 92,
+        "reb": 3,
+        "ast": 65,
+        "stl": 88,
+        "blk": 14,
+        "ts": 32
+      }
+    },
+    "priceGap": 1.7
+  },
+  "plan": [
+    {
+      "id": "intro",
+      "kind": "title",
+      "kicker": "STATISTICAL TWIN",
+      "title": "Kevin Punter and Carsen Edwards",
+      "sub": "94% profile match"
+    },
+    {
+      "id": "cmp",
+      "kind": "compare",
+      "a": {
+        "name": "Kevin Punter",
+        "sub": "Barcelona",
+        "color": "#a50044"
+      },
+      "b": {
+        "name": "Carsen Edwards",
+        "sub": "Zalgiris",
+        "color": "#00703c"
+      },
+      "rows": [
+        {
+          "key": "pts",
+          "label": "Points",
+          "a": 15.9,
+          "b": 16.5
+        },
+        {
+          "key": "reb",
+          "label": "Rebounds",
+          "a": 2,
+          "b": 1.3
+        },
+        {
+          "key": "ast",
+          "label": "Assists",
+          "a": 2.4,
+          "b": 2.8
+        },
+        {
+          "key": "ts",
+          "label": "True shooting %",
+          "a": 58.5,
+          "b": 56.5
+        },
+        {
+          "key": "fg3Rate",
+          "label": "3PA share %",
+          "a": 41.3,
+          "b": 49.7
+        },
+        {
+          "key": "min",
+          "label": "Minutes",
+          "a": 24,
+          "b": 23.1
+        }
+      ]
+    },
+    {
+      "id": "radar",
+      "kind": "radar",
+      "head": "League percentile profile",
+      "sub": "vs 82 qualified players",
+      "keys": [
+        "pts",
+        "reb",
+        "ast",
+        "stl",
+        "blk",
+        "ts"
+      ],
+      "labels": {
+        "pts": "Scoring",
+        "reb": "Rebounding",
+        "ast": "Playmaking",
+        "stl": "Steals",
+        "blk": "Blocks",
+        "ts": "Efficiency"
+      },
+      "series": [
+        {
+          "name": "Kevin Punter",
+          "values": {
+            "pts": 90,
+            "reb": 18,
+            "ast": 59,
+            "stl": 80,
+            "blk": 14,
+            "ts": 46
+          }
+        },
+        {
+          "name": "Carsen Edwards",
+          "values": {
+            "pts": 92,
+            "reb": 3,
+            "ast": 65,
+            "stl": 88,
+            "blk": 14,
+            "ts": 32
+          }
+        }
+      ]
+    },
+    {
+      "id": "score",
+      "kind": "big",
+      "head": "Profile similarity",
+      "value": 94,
+      "display": "94%",
+      "label": "based on 8 per-game stats",
+      "cards": [
+        {
+          "key": "pa",
+          "label": "Punter price",
+          "value": 13.4
+        },
+        {
+          "key": "pb",
+          "label": "Edwards price",
+          "value": 11.7
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "kind": "outro",
+      "question": "Who would you rather have: Punter or Edwards?",
+      "source": "Data: official EuroLeague statistics"
+    }
+  ],
+  "scripts": {
+    "short": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Different teams, different roles on paper. Almost the same numbers."
+      },
+      {
+        "id": "row-pts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Points: 15.9 for Punter, 16.5 for Edwards.",
+        "focus": "pts"
+      },
+      {
+        "id": "row-reb",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Rebounds: 2 for Punter, 1.3 for Edwards.",
+        "focus": "reb"
+      },
+      {
+        "id": "row-ast",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Assists: 2.4 for Punter, 2.8 for Edwards.",
+        "focus": "ast"
+      },
+      {
+        "id": "concl",
+        "scene": "score",
+        "role": "conclusion",
+        "text": "Profile similarity: 94 percent. And Edwards costs 1.7 less in Fantasy."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Who would you rather have: Punter or Edwards? More at basketballstats.eu.",
+        "say": "Who would you rather have: Punter or Edwards? More at basketball stats dot E U."
+      }
+    ],
+    "medium": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Different teams, different roles on paper. Almost the same numbers."
+      },
+      {
+        "id": "row-pts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Points: 15.9 for Punter, 16.5 for Edwards.",
+        "focus": "pts"
+      },
+      {
+        "id": "row-reb",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Rebounds: 2 for Punter, 1.3 for Edwards.",
+        "focus": "reb"
+      },
+      {
+        "id": "row-ast",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Assists: 2.4 for Punter, 2.8 for Edwards.",
+        "focus": "ast"
+      },
+      {
+        "id": "row-ts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "True shooting: 58.5 and 56.5 percent.",
+        "focus": "ts"
+      },
+      {
+        "id": "radar",
+        "scene": "radar",
+        "role": "sequence",
+        "text": "Against the rest of the league, their shapes almost overlap."
+      },
+      {
+        "id": "concl",
+        "scene": "score",
+        "role": "conclusion",
+        "text": "Profile similarity: 94 percent. And Edwards costs 1.7 less in Fantasy."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Who would you rather have: Punter or Edwards? More at basketballstats.eu.",
+        "say": "Who would you rather have: Punter or Edwards? More at basketball stats dot E U."
+      }
+    ],
+    "long": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Different teams, different roles on paper. Almost the same numbers."
+      },
+      {
+        "id": "row-pts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Points: 15.9 for Punter, 16.5 for Edwards.",
+        "focus": "pts"
+      },
+      {
+        "id": "row-reb",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Rebounds: 2 for Punter, 1.3 for Edwards.",
+        "focus": "reb"
+      },
+      {
+        "id": "row-ast",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Assists: 2.4 for Punter, 2.8 for Edwards.",
+        "focus": "ast"
+      },
+      {
+        "id": "row-ts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "True shooting: 58.5 and 56.5 percent.",
+        "focus": "ts"
+      },
+      {
+        "id": "radar",
+        "scene": "radar",
+        "role": "sequence",
+        "text": "Against the rest of the league, their shapes almost overlap."
+      },
+      {
+        "id": "concl",
+        "scene": "score",
+        "role": "conclusion",
+        "text": "Profile similarity: 94 percent. And Edwards costs 1.7 less in Fantasy."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Who would you rather have: Punter or Edwards? More at basketballstats.eu.",
+        "say": "Who would you rather have: Punter or Edwards? More at basketball stats dot E U."
+      }
+    ],
+    "editorial": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Different teams, different roles on paper. Almost the same numbers."
+      },
+      {
+        "id": "row-pts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Points: 15.9 for Punter, 16.5 for Edwards.",
+        "focus": "pts"
+      },
+      {
+        "id": "row-reb",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Rebounds: 2 for Punter, 1.3 for Edwards.",
+        "focus": "reb"
+      },
+      {
+        "id": "row-ast",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "Assists: 2.4 for Punter, 2.8 for Edwards.",
+        "focus": "ast"
+      },
+      {
+        "id": "row-ts",
+        "scene": "cmp",
+        "role": "evidence",
+        "text": "True shooting: 58.5 and 56.5 percent.",
+        "focus": "ts"
+      },
+      {
+        "id": "radar",
+        "scene": "radar",
+        "role": "sequence",
+        "text": "Against the rest of the league, their shapes almost overlap."
+      },
+      {
+        "id": "concl",
+        "scene": "score",
+        "role": "conclusion",
+        "text": "Profile similarity: 94 percent. And Edwards costs 1.7 less in Fantasy."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Who would you rather have: Punter or Edwards? More at basketballstats.eu.",
+        "say": "Who would you rather have: Punter or Edwards? More at basketball stats dot E U."
+      }
+    ]
+  },
+  "meta": {
+    "hook": "Kevin Punter and Carsen Edwards are statistical twins",
+    "hashtags": [
+      "EuroLeague",
+      "EuroLeagueFantasy"
+    ],
+    "linkPath": "/en/fantasy/compare-players/",
+    "question": "Who would you rather have: Punter or Edwards?",
+    "narration": "Curious, a little playful: \"same player, different jersey\".",
+    "narrationStyle": "analyst",
+    "kicker": "Statistical Twin"
+  },
+  "entities": {
+    "players": [
+      "009862",
+      "011987"
+    ],
+    "teams": [
+      "BAR",
+      "ZAL"
+    ]
+  },
+  "signals": {
+    "significance": 0.3794356473572935,
+    "dataQuality": 1
+  },
+  "estSecs": {
+    "short": 26.3,
+    "medium": 33.3,
+    "long": 33.3,
+    "editorial": 33.3
+  },
+  "approvedAt": "2026-11-24T10:05:54.673Z",
+  "approvedBy": "admin"
+}

@@ -1,18 +1,19 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { VF_ROOT } from '../config.mjs';
+import { buildPlanPage } from './kit.mjs';
 
 // Builds one self-contained HTML page per production. window.setT(t) draws the frame at time t
 // (seconds), deterministically, so the renderer can capture frame by frame. All sizes are in
 // units of --u (1% of the shorter side), so the same page works at 9:16, 16:9, 1:1 and preview size.
 // All graphics are drawn here (HTML/CSS/SVG). No photos, logos or third-party artwork.
 
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fontUrl = f => pathToFileURL(path.join(VF_ROOT, 'assets', 'fonts', f)).href;
 export const TEMPLATE_IDS = { leaderboard: 'leaderboard-v1', comparison: 'comparison-v1', spotlight: 'spotlight-v1' };
 const KICKER = { leaderboard: 'LEADERBOARD', comparison: 'HEAD TO HEAD', spotlight: 'PLAYER SPOTLIGHT' };
 
-const CSS = () => `
+export const CSS = () => `
 @font-face{font-family:Inter;font-weight:400;src:url('${fontUrl('Inter-Regular.woff2')}') format('woff2')}
 @font-face{font-family:Inter;font-weight:500;src:url('${fontUrl('Inter-Medium.woff2')}') format('woff2')}
 @font-face{font-family:Inter;font-weight:700;src:url('${fontUrl('Inter-Bold.woff2')}') format('woff2')}
@@ -132,7 +133,7 @@ body{font-size:calc(var(--u)*3.2)}
 #cap div:empty{display:none}
 `;
 
-function court() {
+export function court() {
   // simple original court-line pattern, drawn in SVG
   return `<svg id="court" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="rgba(255,255,255,.05)" stroke-width=".3">
 <circle cx="50" cy="50" r="12"/><line x1="0" y1="50" x2="100" y2="50"/><path d="M20 0 v18 a30 30 0 0 0 60 0 V0"/><path d="M20 100 v-18 a30 30 0 0 1 60 0 V100"/><rect x="38" y="0" width="24" height="19"/><rect x="38" y="81" width="24" height="19"/></g></svg>`;
@@ -192,7 +193,7 @@ function spotlightScenes(story) {
 <div class="chart">${cols}<div class="avgline" style="bottom:${(100 * (s.pir - min) / span).toFixed(1)}%"><span>avg ${fmt(s.pir)}</span></div></div></section>`;
 }
 
-const RUNTIME = `
+export const RUNTIME = `
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const cl=x=>Math.max(0,Math.min(1,x)), ez=x=>1-Math.pow(1-cl(x),3), ezb=x=>{x=cl(x);const c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
 const fmt=(v,p)=>{const d=Number.isInteger(v)?0:1;return (v*p).toFixed(d)};
@@ -240,6 +241,7 @@ window.ready=document.fonts.ready.then(()=>{setT(0);return true});
 `;
 
 export function buildPage({ story, timeline, cues, captions = true }) {
+  if (story.plan) return buildPlanPage({ story, timeline, cues, captions }); // format-library requests use the generic scene kit
   const scenes = story.type === 'leaderboard' ? leaderboardScenes(story) : story.type === 'comparison' ? comparisonScenes(story) : spotlightScenes(story);
   return `<!doctype html><html lang="${esc(story.lang || 'en')}"><head><meta charset="utf-8"><style>${CSS()}</style></head><body>
 <div id="bg"></div>${court()}<div id="prog"></div><div class="brand">BASKETBALL<i>STATS</i></div>

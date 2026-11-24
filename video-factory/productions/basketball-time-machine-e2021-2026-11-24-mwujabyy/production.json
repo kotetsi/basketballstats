@@ -1,0 +1,313 @@
+{
+  "id": "basketball-time-machine-e2021-2026-11-24-mwujabyy",
+  "status": "rendered",
+  "createdAt": "2026-11-24T10:10:24.922Z",
+  "story": {
+    "id": "basketball-time-machine-e2021-2026-11-24",
+    "type": "format",
+    "format": "basketball-time-machine",
+    "title": "Back to 2021-22",
+    "dataAsOf": "2026-11-24T08:29:10.950Z",
+    "lastRound": 13,
+    "approvedAt": "2026-11-24T10:05:54.755Z"
+  },
+  "settings": {
+    "formats": [
+      "9x16"
+    ],
+    "preset": "medium",
+    "voiceId": "local-en",
+    "style": "energetic",
+    "music": true
+  },
+  "template": "format:basketball-time-machine@1",
+  "format": "basketball-time-machine",
+  "script": {
+    "lang": "en",
+    "preset": "medium",
+    "generator": "format:basketball-time-machine",
+    "segments": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Time machine: the 2021-22 season."
+      },
+      {
+        "id": "stand",
+        "scene": "stand",
+        "role": "narrative",
+        "text": "Barcelona topped the regular season at 21 and 7.",
+        "focus": "1"
+      },
+      {
+        "id": "mvp",
+        "scene": "mvp",
+        "role": "evidence",
+        "text": "The best PIR in the league: Nikola Mirotic, 20.1 a game."
+      },
+      {
+        "id": "now",
+        "scene": "mvp",
+        "role": "narrative",
+        "text": "This season's leader, Sasha Vezenkov, is at 23.9."
+      },
+      {
+        "id": "final",
+        "scene": "final",
+        "role": "conclusion",
+        "text": "And the title went to Anadolu Efes, 58 to 57 against Real Madrid."
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Which team from 2021-22 would win today? More at basketballstats.eu.",
+        "say": "Which team from 2021-22 would win today? More at basketball stats dot E U."
+      }
+    ],
+    "createdAt": "2026-11-24T10:10:24.925Z",
+    "estSecs": 25.7,
+    "factCheck": {
+      "ok": true,
+      "unsupported": []
+    },
+    "llmNote": "ANTHROPIC_API_KEY not set"
+  },
+  "narration": {
+    "provider": "espeak",
+    "voiceId": "local-en",
+    "voice": "en-us",
+    "model": null,
+    "style": "energetic",
+    "speed": 1.08,
+    "secs": 29.575,
+    "billedChars": 325,
+    "estCostUsd": 0
+  },
+  "renders": [
+    {
+      "mode": "final",
+      "format": "9x16",
+      "w": 1080,
+      "h": 1920,
+      "fps": 30,
+      "secs": 29.575,
+      "file": "out/basketball-time-machine-e2021-2026-11-24-mwujabyy/final-9x16.mp4",
+      "thumb": "out/basketball-time-machine-e2021-2026-11-24-mwujabyy/final-9x16.png",
+      "bytes": 1637577,
+      "sha256": "53b8bbdd0955c917",
+      "renderSecs": 73,
+      "at": "2026-11-24T10:11:41.002Z"
+    }
+  ],
+  "platforms": {
+    "tiktok": {
+      "platform": "TikTok",
+      "format": "9x16",
+      "title": null,
+      "description": "Back to the 2021-22 EuroLeague season.\n\nWhich team from 2021-22 would win today?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #Throwback",
+      "hashtags": [
+        "#EuroLeague",
+        "#Throwback"
+      ],
+      "link": "https://basketballstats.eu/en/history/?utm_source=tiktok&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "instagram_reels": {
+      "platform": "Instagram Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "Back to the 2021-22 EuroLeague season.\n\nWhich team from 2021-22 would win today?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #Throwback",
+      "hashtags": [
+        "#EuroLeague",
+        "#Throwback"
+      ],
+      "link": "https://basketballstats.eu/en/history/?utm_source=instagram&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "facebook_reels": {
+      "platform": "Facebook Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "Back to the 2021-22 EuroLeague season.\n\nWhich team from 2021-22 would win today?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/history/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy\n\n#EuroLeague #Throwback",
+      "hashtags": [
+        "#EuroLeague",
+        "#Throwback"
+      ],
+      "link": "https://basketballstats.eu/en/history/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube_shorts": {
+      "platform": "YouTube Shorts",
+      "format": "9x16",
+      "title": "Back to the 2021-22 EuroLeague season #Shorts",
+      "description": "Back to the 2021-22 EuroLeague season.\n\nWhich team from 2021-22 would win today?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/history/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy\n\n#EuroLeague #Throwback",
+      "hashtags": [
+        "#EuroLeague",
+        "#Throwback"
+      ],
+      "link": "https://basketballstats.eu/en/history/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube": {
+      "platform": "YouTube",
+      "format": "16x9",
+      "title": "Back to the 2021-22 EuroLeague season",
+      "description": "Back to the 2021-22 EuroLeague season.\n\nWhich team from 2021-22 would win today?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/history/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy\n\n#EuroLeague #Throwback",
+      "hashtags": [
+        "#EuroLeague",
+        "#Throwback"
+      ],
+      "link": "https://basketballstats.eu/en/history/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=basketball-time-machine-e2021-2026-11-24-mwujabyy",
+      "captionsFile": "captions.srt",
+      "ready": false,
+      "issues": [
+        "no final 16x9 render yet"
+      ]
+    }
+  },
+  "assets": [
+    "font-inter",
+    "graphics-generated",
+    "data-euroleague-stats",
+    "music-bed-generated"
+  ],
+  "publication": {
+    "approved": false,
+    "approvedAt": null,
+    "publishedTo": []
+  },
+  "performance": {},
+  "history": [
+    {
+      "at": "2026-11-24T10:10:24.922Z",
+      "action": "created",
+      "storyId": "basketball-time-machine-e2021-2026-11-24"
+    },
+    {
+      "at": "2026-11-24T10:10:24.926Z",
+      "action": "scripted",
+      "generator": "format:basketball-time-machine",
+      "llmNote": "ANTHROPIC_API_KEY not set"
+    },
+    {
+      "at": "2026-11-24T10:11:41.003Z",
+      "action": "render-final",
+      "formats": [
+        "9x16"
+      ],
+      "secs": 76
+    }
+  ],
+  "updatedAt": "2026-11-24T10:11:41.003Z",
+  "timeline": {
+    "total": 29.575,
+    "segments": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "focus": null,
+        "text": "Time machine: the 2021-22 season.",
+        "start": 0.5,
+        "end": 4.346
+      },
+      {
+        "id": "stand",
+        "scene": "stand",
+        "focus": "1",
+        "text": "Barcelona topped the regular season at 21 and 7.",
+        "start": 4.646,
+        "end": 8.136
+      },
+      {
+        "id": "mvp",
+        "scene": "mvp",
+        "focus": null,
+        "text": "The best PIR in the league: Nikola Mirotic, 20.1 a game.",
+        "start": 8.436,
+        "end": 12.614
+      },
+      {
+        "id": "now",
+        "scene": "mvp",
+        "focus": null,
+        "text": "This season's leader, Sasha Vezenkov, is at 23.9.",
+        "start": 12.914,
+        "end": 17.005
+      },
+      {
+        "id": "final",
+        "scene": "final",
+        "focus": null,
+        "text": "And the title went to Anadolu Efes, 58 to 57 against Real Madrid.",
+        "start": 17.305,
+        "end": 21.844
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "focus": null,
+        "text": "Which team from 2021-22 would win today? More at basketballstats.eu.",
+        "start": 22.144,
+        "end": 28.375
+      }
+    ],
+    "scenes": [
+      {
+        "scene": "intro",
+        "start": 0,
+        "end": 4.646,
+        "segments": [
+          "hook"
+        ]
+      },
+      {
+        "scene": "stand",
+        "start": 4.646,
+        "end": 8.436,
+        "segments": [
+          "stand"
+        ]
+      },
+      {
+        "scene": "mvp",
+        "start": 8.436,
+        "end": 17.305,
+        "segments": [
+          "mvp",
+          "now"
+        ]
+      },
+      {
+        "scene": "final",
+        "start": 17.305,
+        "end": 22.144,
+        "segments": [
+          "final"
+        ]
+      },
+      {
+        "scene": "outro",
+        "start": 22.144,
+        "end": 29.575,
+        "segments": [
+          "outro"
+        ]
+      }
+    ]
+  },
+  "captions": {
+    "srt": "out/basketball-time-machine-e2021-2026-11-24-mwujabyy/captions.srt",
+    "vtt": "out/basketball-time-machine-e2021-2026-11-24-mwujabyy/captions.vtt",
+    "cues": 8
+  }
+}

@@ -1,0 +1,318 @@
+{
+  "id": "guess-the-player-tj-shorts-2026-11-24-mwuj8ooz",
+  "status": "rendered",
+  "createdAt": "2026-11-24T10:09:08.099Z",
+  "story": {
+    "id": "guess-the-player-tj-shorts-2026-11-24",
+    "type": "format",
+    "format": "guess-the-player",
+    "title": "Guess the player",
+    "dataAsOf": "2026-11-24T08:29:10.950Z",
+    "lastRound": 13,
+    "approvedAt": "2026-11-24T10:05:54.714Z"
+  },
+  "settings": {
+    "formats": [
+      "9x16"
+    ],
+    "preset": "short",
+    "voiceId": "local-en",
+    "style": "energetic",
+    "music": true
+  },
+  "template": "format:guess-the-player@1",
+  "format": "guess-the-player",
+  "script": {
+    "lang": "en",
+    "preset": "short",
+    "generator": "format:guess-the-player",
+    "segments": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "role": "hook",
+        "text": "Four clues. One EuroLeague player. Lock in your answer."
+      },
+      {
+        "id": "c1",
+        "scene": "clues",
+        "role": "sequence",
+        "text": "Clue one: guard, 1.75 metres tall.",
+        "focus": "c1"
+      },
+      {
+        "id": "c2",
+        "scene": "clues",
+        "role": "sequence",
+        "text": "Clue two: nationality North Macedonia, 29 years old.",
+        "focus": "c2"
+      },
+      {
+        "id": "c3",
+        "scene": "clues",
+        "role": "evidence",
+        "text": "Clue three: 16.5 points, 2.1 rebounds and 5.8 assists a game.",
+        "focus": "c3"
+      },
+      {
+        "id": "c4",
+        "scene": "clues",
+        "role": "evidence",
+        "text": "Clue four: 20.1 PIR this season.",
+        "focus": "c4"
+      },
+      {
+        "id": "reveal",
+        "scene": "clues",
+        "role": "conclusion",
+        "text": "It's TJ Shorts of Valencia Basket.",
+        "focus": "reveal"
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "role": "question",
+        "text": "Did you get it before the last clue? More at basketballstats.eu.",
+        "say": "Did you get it before the last clue? More at basketball stats dot E U."
+      }
+    ],
+    "createdAt": "2026-11-24T10:09:08.102Z",
+    "estSecs": 26.4,
+    "factCheck": {
+      "ok": true,
+      "unsupported": []
+    },
+    "llmNote": "ANTHROPIC_API_KEY not set"
+  },
+  "narration": {
+    "provider": "espeak",
+    "voiceId": "local-en",
+    "voice": "en-us",
+    "model": null,
+    "style": "energetic",
+    "speed": 1.08,
+    "secs": 29.608,
+    "billedChars": 338,
+    "estCostUsd": 0
+  },
+  "renders": [
+    {
+      "mode": "final",
+      "format": "9x16",
+      "w": 1080,
+      "h": 1920,
+      "fps": 30,
+      "secs": 29.608,
+      "file": "out/guess-the-player-tj-shorts-2026-11-24-mwuj8ooz/final-9x16.mp4",
+      "thumb": "out/guess-the-player-tj-shorts-2026-11-24-mwuj8ooz/final-9x16.png",
+      "bytes": 1304607,
+      "sha256": "f7937192b1f749b8",
+      "renderSecs": 74,
+      "at": "2026-11-24T10:10:24.872Z"
+    }
+  ],
+  "platforms": {
+    "tiktok": {
+      "platform": "TikTok",
+      "format": "9x16",
+      "title": null,
+      "description": "Four clues. One EuroLeague player. Can you guess him?\n\nDid you get it before the last clue?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #GuessThePlayer",
+      "hashtags": [
+        "#EuroLeague",
+        "#GuessThePlayer"
+      ],
+      "link": "https://basketballstats.eu/en/player/tj-shorts/?utm_source=tiktok&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "instagram_reels": {
+      "platform": "Instagram Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "Four clues. One EuroLeague player. Can you guess him?\n\nDid you get it before the last clue?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: link in bio\n\n#EuroLeague #GuessThePlayer",
+      "hashtags": [
+        "#EuroLeague",
+        "#GuessThePlayer"
+      ],
+      "link": "https://basketballstats.eu/en/player/tj-shorts/?utm_source=instagram&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "facebook_reels": {
+      "platform": "Facebook Reels",
+      "format": "9x16",
+      "title": null,
+      "description": "Four clues. One EuroLeague player. Can you guess him?\n\nDid you get it before the last clue?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/player/tj-shorts/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz\n\n#EuroLeague #GuessThePlayer",
+      "hashtags": [
+        "#EuroLeague",
+        "#GuessThePlayer"
+      ],
+      "link": "https://basketballstats.eu/en/player/tj-shorts/?utm_source=facebook&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube_shorts": {
+      "platform": "YouTube Shorts",
+      "format": "9x16",
+      "title": "Four clues. One EuroLeague player. Can you guess him? #Shorts",
+      "description": "Four clues. One EuroLeague player. Can you guess him?\n\nDid you get it before the last clue?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/player/tj-shorts/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz\n\n#EuroLeague #GuessThePlayer",
+      "hashtags": [
+        "#EuroLeague",
+        "#GuessThePlayer"
+      ],
+      "link": "https://basketballstats.eu/en/player/tj-shorts/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz",
+      "captionsFile": "captions.srt",
+      "ready": true,
+      "issues": []
+    },
+    "youtube": {
+      "platform": "YouTube",
+      "format": "16x9",
+      "title": "Four clues. One EuroLeague player. Can you guess him?",
+      "description": "Four clues. One EuroLeague player. Can you guess him?\n\nDid you get it before the last clue?\n\nData: official EuroLeague statistics, through round 13.\n\nMore stats: https://basketballstats.eu/en/player/tj-shorts/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz\n\n#EuroLeague #GuessThePlayer",
+      "hashtags": [
+        "#EuroLeague",
+        "#GuessThePlayer"
+      ],
+      "link": "https://basketballstats.eu/en/player/tj-shorts/?utm_source=youtube&utm_medium=video&utm_campaign=video_factory&utm_content=guess-the-player-tj-shorts-2026-11-24-mwuj8ooz",
+      "captionsFile": "captions.srt",
+      "ready": false,
+      "issues": [
+        "no final 16x9 render yet"
+      ]
+    }
+  },
+  "assets": [
+    "font-inter",
+    "graphics-generated",
+    "data-euroleague-stats",
+    "music-bed-generated"
+  ],
+  "publication": {
+    "approved": false,
+    "approvedAt": null,
+    "publishedTo": []
+  },
+  "performance": {},
+  "history": [
+    {
+      "at": "2026-11-24T10:09:08.100Z",
+      "action": "created",
+      "storyId": "guess-the-player-tj-shorts-2026-11-24"
+    },
+    {
+      "at": "2026-11-24T10:09:08.104Z",
+      "action": "scripted",
+      "generator": "format:guess-the-player",
+      "llmNote": "ANTHROPIC_API_KEY not set"
+    },
+    {
+      "at": "2026-11-24T10:10:24.873Z",
+      "action": "render-final",
+      "formats": [
+        "9x16"
+      ],
+      "secs": 77
+    }
+  ],
+  "updatedAt": "2026-11-24T10:10:24.873Z",
+  "timeline": {
+    "total": 29.608,
+    "segments": [
+      {
+        "id": "hook",
+        "scene": "intro",
+        "focus": null,
+        "text": "Four clues. One EuroLeague player. Lock in your answer.",
+        "start": 0.5,
+        "end": 4.03
+      },
+      {
+        "id": "c1",
+        "scene": "clues",
+        "focus": "c1",
+        "text": "Clue one: guard, 1.75 metres tall.",
+        "start": 4.33,
+        "end": 7.692
+      },
+      {
+        "id": "c2",
+        "scene": "clues",
+        "focus": "c2",
+        "text": "Clue two: nationality North Macedonia, 29 years old.",
+        "start": 7.992,
+        "end": 11.892
+      },
+      {
+        "id": "c3",
+        "scene": "clues",
+        "focus": "c3",
+        "text": "Clue three: 16.5 points, 2.1 rebounds and 5.8 assists a game.",
+        "start": 12.192,
+        "end": 18.174
+      },
+      {
+        "id": "c4",
+        "scene": "clues",
+        "focus": "c4",
+        "text": "Clue four: 20.1 PIR this season.",
+        "start": 18.474,
+        "end": 21.456
+      },
+      {
+        "id": "reveal",
+        "scene": "clues",
+        "focus": "reveal",
+        "text": "It's TJ Shorts of Valencia Basket.",
+        "start": 21.756,
+        "end": 24.01
+      },
+      {
+        "id": "outro",
+        "scene": "outro",
+        "focus": null,
+        "text": "Did you get it before the last clue? More at basketballstats.eu.",
+        "start": 24.31,
+        "end": 28.408
+      }
+    ],
+    "scenes": [
+      {
+        "scene": "intro",
+        "start": 0,
+        "end": 4.33,
+        "segments": [
+          "hook"
+        ]
+      },
+      {
+        "scene": "clues",
+        "start": 4.33,
+        "end": 24.31,
+        "segments": [
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "reveal"
+        ]
+      },
+      {
+        "scene": "outro",
+        "start": 24.31,
+        "end": 29.608,
+        "segments": [
+          "outro"
+        ]
+      }
+    ]
+  },
+  "captions": {
+    "srt": "out/guess-the-player-tj-shorts-2026-11-24-mwuj8ooz/captions.srt",
+    "vtt": "out/guess-the-player-tj-shorts-2026-11-24-mwuj8ooz/captions.vtt",
+    "cues": 9
+  }
+}

@@ -16,6 +16,7 @@ async function loadMeta() {
   META = await api('/api/meta');
   const v = Object.values(META.voices);
   $('#meta').innerHTML = `<span>Data through round <b>${META.lastRound}</b></span><span>Voices ready: <b>${v.filter(x => x.available.ok).length}/${v.length}</b></span><span>AI script: <b>${META.llm.available ? META.llm.model : 'off (no ANTHROPIC_API_KEY)'}</b></span>`;
+  if ((META.plugins || []).includes('/formats')) $('#fmtLink').hidden = false;
   $('#playerList').innerHTML = META.players.map(p => `<option value="${esc(p.slug)}">${esc(p.name)} · ${esc(p.team)}</option>`).join('');
 }
 

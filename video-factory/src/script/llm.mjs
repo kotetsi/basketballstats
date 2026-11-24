@@ -24,7 +24,8 @@ export async function llmScript(story, draft, cfg, { fetchImpl = globalThis.fetc
   const user = [
     `STORY: ${story.title} (type ${story.type}, data as of ${story.dataAsOf})`,
     `STORY DATA:\n${JSON.stringify(story.data)}`,
-    `TARGET SECONDS: ${D.target} (max ${D.max}). STYLE: ${style}`,
+    `TARGET SECONDS: ${D.target} (max ${D.max}). STYLE: ${style}${story.meta?.narration ? `. FORMAT VOICE: ${story.meta.narration}` : ''}`,
+    ...(story.meta?.question ? [`Keep the audience question in the outro: ${story.meta.question}`] : []),
     `SEGMENTS (id → scene → current text):\n${draft.segments.map(s => `${s.id} → ${s.scene} → ${s.text}`).join('\n')}`,
   ].join('\n\n');
   const res = await fetchImpl('https://api.anthropic.com/v1/messages', {

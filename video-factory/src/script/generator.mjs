@@ -98,12 +98,23 @@ export function fitToDuration(segments, preset, opts) {
   return out;
 }
 
+// Production requests from the Video Format Library carry ready scripts per duration
+// (story.scripts[preset]); the engine only fits and checks them. Nearest preset is used if missing.
+const PRESET_ORDER = ['short', 'medium', 'long', 'editorial'];
+function requestScript(story, preset) {
+  const i = PRESET_ORDER.indexOf(preset);
+  const order = [...PRESET_ORDER.slice(0, i + 1).reverse(), ...PRESET_ORDER.slice(i + 1)];
+  const key = order.find(k => story.scripts[k]?.length);
+  if (!key) throw new Error(`request ${story.id} has no script`);
+  return structuredClone(story.scripts[key]);
+}
+
 export function templateScript(story, { preset = 'medium', speed = 1 } = {}) {
-  const fn = BY_TYPE[story.type];
-  if (!fn) throw new Error(`no script template for ${story.type}`);
   if (!DURATIONS[preset]) throw new Error(`unknown duration ${preset}`);
-  const segments = fitToDuration(fn(story, preset), preset, { speed });
-  const script = { lang: story.lang || 'en', preset, generator: 'template', segments, createdAt: new Date().toISOString() };
+  const fn = story.scripts ? s => requestScript(s, preset) : BY_TYPE[story.type] && (s => BY_TYPE[story.type](s, preset));
+  if (!fn) throw new Error(`no script template for ${story.type}`);
+  const segments = fitToDuration(fn(story), preset, { speed });
+  const script = { lang: story.lang || 'en', preset, generator: story.scripts ? `format:${story.format}` : 'template', segments, createdAt: new Date().toISOString() };
   script.estSecs = estimateSecs(segments, { speed });
   script.factCheck = checkScript(script, story);
   return script;

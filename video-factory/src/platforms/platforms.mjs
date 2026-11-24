@@ -13,6 +13,7 @@ export const PLATFORMS = {
 const tag = s => '#' + s.replace(/[^\p{L}\p{N}]+/gu, '');
 
 function baseTags(story) {
+  if (story.meta?.hashtags) return [...new Set(['EuroLeague', ...story.meta.hashtags].map(tag))];
   const t = ['EuroLeague', 'Basketball'];
   if (story.type === 'leaderboard') t.push('EuroLeagueFantasy', story.data.metricLabel === 'PIR' ? 'PIR' : 'Stats');
   if (story.type === 'comparison') t.push(...story.data.players.map(p => p.name.split(' ').slice(-1)[0]), 'EuroLeagueFantasy');
@@ -21,12 +22,14 @@ function baseTags(story) {
 }
 
 function hook(story) {
+  if (story.meta?.hook) return story.meta.hook;
   if (story.type === 'leaderboard') return story.data.scope === 'round' ? `Round ${story.data.round}'s best ${story.data.metricLabel} games` : `EuroLeague ${story.data.metricLabel} leaders`;
   if (story.type === 'comparison') return `${story.data.players[0].name} vs ${story.data.players[1].name}: who wins on the numbers?`;
   return `${story.data.player.name}: last ${story.data.n} games`;
 }
 
 export function storyPath(story) {
+  if (story.meta?.linkPath) return story.meta.linkPath;
   if (story.type === 'leaderboard') return `/en/leaders/${{ pir: 'pir', pts: 'points', reb: 'rebounds', ast: 'assists' }[story.data.metric]}/`;
   if (story.type === 'comparison') return '/en/fantasy/compare-players/';
   return `/en/player/${story.data.player.slug}/`;
@@ -39,7 +42,7 @@ export function platformPackages(production, story, { site = 'https://basketball
     const link = `${site}${storyPath(story)}?utm_source=${P.utm}&utm_medium=video&utm_campaign=video_factory&utm_content=${encodeURIComponent(production.id)}`;
     const tags = baseTags(story).slice(0, P.hashtags);
     const title = P.titleMax ? hook(story).slice(0, P.titleMax - (id === 'youtube_shorts' ? 8 : 0)) + (id === 'youtube_shorts' ? ' #Shorts' : '') : null;
-    const lines = [hook(story) + '.', `Data: official EuroLeague statistics, through round ${story.lastRound}.`, `More stats: ${id === 'tiktok' || id.startsWith('instagram') ? 'link in bio' : link}`, tags.join(' ')];
+    const lines = [hook(story).replace(/[.?!]?$/, m => m || '.'), ...(story.meta?.question ? [story.meta.question] : []), `Data: official EuroLeague statistics, through round ${story.lastRound}.`, `More stats: ${id === 'tiktok' || id.startsWith('instagram') ? 'link in bio' : link}`, tags.join(' ')];
     const description = lines.join('\n\n').slice(0, P.descMax);
     const secs = durations[P.format];
     const issues = [];
