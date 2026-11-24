@@ -90,3 +90,41 @@ jobs:
           git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
           git add video-factory/productions
           git diff --cached --quiet || (git commit -m "Video Factory: ${{ inputs.story }}" && for i in 1 2 3; do git push && break; sleep 5; git pull --rebase -q; done)
+
+  # Sample renders on a feature branch: push a commit whose message contains [vf-render].
+  # Renders the story ids listed in video-factory/samples/request.txt with the free Kokoro voice
+  # and commits the MP4s to video-factory/samples/ on the same branch (never on main).
+  render-samples:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[vf-render]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Tools (Chromium, ffmpeg, Kokoro)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
+          npm i --no-save --no-audit --no-fund playwright@1.48.2 kokoro-js@1.2.1
+          npx playwright install --with-deps chromium
+      - uses: actions/cache@v4
+        with:
+          path: .cache/hf
+          key: kokoro-82m-v1-q8
+      - name: Render samples
+        env:
+          VF_HF_CACHE: ${{ github.workspace }}/.cache/hf
+        run: |
+          mkdir -p video-factory/samples
+          while read -r id preset formats; do
+            [ -z "$id" ] && continue
+            node video-factory/src/cli.mjs produce "$id" formats=${formats:-9x16} preset=${preset:-medium} voice=kokoro-michael style=energetic llm=0
+            for f in video-factory/out/$id-*/final-*.mp4; do cp "$f" "video-factory/samples/$id-kokoro-$(basename "$f" .mp4 | sed 's/final-//').mp4"; done
+          done < video-factory/samples/request.txt
+          ls -la video-factory/samples
+      - name: Commit samples to this branch
+        run: |
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add video-factory/samples video-factory/productions
+          git diff --cached --quiet || (git commit -m "Video Factory: sample renders (Kokoro voice)" && git push origin HEAD:${GITHUB_REF_NAME})
+
