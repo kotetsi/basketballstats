@@ -27,7 +27,11 @@ function readCsvGz(f) {
 const ew = (xs, half) => { let s = 0, w = 0; xs.forEach((x, i) => { const k = Math.pow(0.5, (xs.length - 1 - i) / half); s += k * x; w += k; }); return w ? s / w : null; };
 const mean = xs => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 
-const METHODS = ['python_v2', 'python_roll10', 'ew3_props', 'season_mean', 'last5', 'last10'];
+// πειραματικό hurdle (fantasy/perf/minutes_hurdle.py): αν υπάρχει το αρχείο, μπαίνει στη σύγκριση στο ίδιο δείγμα
+const HZ = new Map();
+const HZF = path.join(ROOT, 'data/fantasy/perf/minutes_hurdle.csv.gz');
+if (fs.existsSync(HZF)) for (const r of readCsvGz(HZF)) HZ.set(`${r.season}|${r.round}|${r.c}`, r);
+const METHODS = ['python_v2', 'python_roll10', 'ew3_props', 'season_mean', 'last5', 'last10', ...(HZ.size ? ['hurdle'] : [])];
 // για τον στόχο «αναμενόμενα»: οι μέθοδοι «αν παίξει» πολλαπλασιάζονται με το ποσοστό συμμετοχής (play_rate5 του backtest)
 function forecasts(row, played) {
   const m = played.map(r => r[7] / 60);
@@ -66,6 +70,7 @@ for (const S of seasons) {
     const played = p.g.filter(r => r[0] < R && r[7] > 0).sort((a, b) => a[0] - b[0]);
     if (played.length < MIN_PLAYED) continue;
     const F = forecasts(row, played);
+    if (HZ.size) { const h = HZ.get(`${S}|${R}|${row.c}`); F.expected.hurdle = h ? +h.hz_exp : null; F.ifplays.hurdle = h ? +h.hz_cond : null; }
     if (METHODS.some(m => F.expected[m] == null || F.ifplays[m] == null)) continue;   // ίδιο δείγμα για όλες τις μεθόδους
     used++;
     for (const m of METHODS) {
