@@ -1,7 +1,7 @@
 {
  "oddspapi": {
   "month": "2026-11",
-  "calls": 249,
+  "calls": 250,
   "fixtures": [
    {
     "id": "id1100013873263198",
@@ -89,7 +89,12 @@
    ],
    "id1100013873263210": [
     "mid"
-   ]
+   ],
+   "id1100013873263212": [
+    "mid"
+   ],
+   "id1100013873263214": [],
+   "id1100013873263216": []
   },
   "props": {
    "id1100013873263198": 2080,
@@ -98,7 +103,8 @@
    "id1100013873263204": 4807,
    "id1100013873263206": 3286,
    "id1100013873263208": 2168,
-   "id1100013873263210": 2904
+   "id1100013873263210": 2904,
+   "id1100013873263212": 7134
   },
   "propDone": {
    "id1100013873263198": [
@@ -121,7 +127,12 @@
    ],
    "id1100013873263210": [
     "mid"
-   ]
+   ],
+   "id1100013873263212": [
+    "mid"
+   ],
+   "id1100013873263214": [],
+   "id1100013873263216": []
   },
   "propAttempts": {
    "id1100013873263198": {
@@ -189,24 +200,42 @@
      "count": 1,
      "lastAttempt": "2026-11-24T11:02:49.707Z"
     }
+   },
+   "id1100013873263212": {
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-24T23:45:00.784Z"
+    }
+   },
+   "id1100013873263214": {
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-24T23:45:00.784Z"
+    }
+   },
+   "id1100013873263216": {
+    "mid": {
+     "count": 1,
+     "lastAttempt": "2026-11-24T23:45:00.784Z"
+    }
    }
   }
  },
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-24T11:02:55.571Z",
- "lastSuccess": "2026-11-24T11:02:55.571Z",
+ "lastCall": "2026-11-24T23:45:02.561Z",
+ "lastSuccess": "2026-11-24T23:45:02.561Z",
  "events": 1,
  "matched": 1,
- "added": 664,
+ "added": 1905,
  "quota": {
-  "used": 249,
+  "used": 250,
   "cap": 250,
   "month": "2026-11"
  },
- "lastChange": "2026-11-24T11:02:55.571Z",
- "propAdded": 538,
+ "lastChange": "2026-11-24T23:45:02.561Z",
+ "propAdded": 1749,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -381,6 +410,7 @@
   "1874848": "Bacot, Armando",
   "1875264": "Jones, Kai",
   "1876204": "Etienne, Tyson",
+  "1876290": "Toppin, Jacob",
   "1880140": "Juzang, Johnny",
   "1882756": "Duarte, Chris",
   "1886952": "Taylor, Kameron",
@@ -419,18 +449,18 @@
  "providers": {
   "theoddsapi": {
    "provider": "theoddsapi",
-   "lastCall": "2026-11-24T11:02:56.163Z",
-   "lastSuccess": "2026-11-24T11:02:56.163Z",
-   "events": 10,
-   "matched": 10,
-   "added": 104,
+   "lastCall": "2026-11-24T23:45:03.236Z",
+   "lastSuccess": "2026-11-24T23:45:03.236Z",
+   "events": 4,
+   "matched": 4,
+   "added": 139,
    "propAdded": 0,
    "quota": {
-    "remaining": "416",
-    "used": "84"
+    "remaining": "410",
+    "used": "90"
    },
    "error": null,
-   "lastChange": "2026-11-24T11:02:56.163Z"
+   "lastChange": "2026-11-24T23:45:03.236Z"
   }
  }
 }
