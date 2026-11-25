@@ -1193,6 +1193,9 @@ async function main() {
   // ---- στοίχημα της ημέρας: το πιο σίγουρο σημείο, το αουτσάιντερ και ένα combo (νίκη + πόντοι παίκτη), μόνο από το μοντέλο.
   // Οι επιλογές κάθε μέρας «κλειδώνουν» με το πρώτο τζάμπολ και μετά βαθμολογούνται από τα αποτελέσματα (data/odds/daytips.json).
   const DAYT = { day: null, picks: [], hist: {} };
+  // Ιστορικό των καρτών «Στοιχήματα παικτών»: κλειδώνουν με το πρώτο τζάμπολ της μέρας και βαθμολογούνται (data/odds/playertips.json)
+  const PTIPS = { file: path.join(ROOT, 'data', 'odds', 'playertips.json'), hist: {} };
+  try { PTIPS.hist = JSON.parse(await fs.readFile(PTIPS.file, 'utf8')); } catch { }
   {
     const TF = path.join(ROOT, 'data', 'odds', 'daytips.json');
     try { DAYT.hist = JSON.parse(await fs.readFile(TF, 'utf8')); } catch { }
@@ -3678,6 +3681,28 @@ ${settled.length ? `<h2 class="btsec">${T('Τα τελευταία: αποτέλ
       const seenP = new Set();
       const cards = cand.sort((x, y) => (y.hit / y.n) - (x.hit / x.n) || y.streak - x.streak || y.price - x.price).filter(c => !seenP.has(c.pl.c) && seenP.add(c.pl.c)).slice(0, 3);
       const sideTxt = c => c.line === 0.5 && c.side === 'over' ? `1+ ${SL[c.stat]}` : `${c.side === 'over' ? 'Over' : 'Under'} ${fmt(c.line, 1)} ${SL[c.stat]}`;
+      if (LG === LANGS[0]) {
+        if (day && dayG.length) {
+          const firstT = Math.min(...dayG.map(g => encDate(g[1]).getTime()));
+          if (!PTIPS.hist[day] || now < firstT) PTIPS.hist[day] = { made: new Date(now).toISOString(), picks: cards.map(c => ({ gid: `${c.g[0]}|${c.g[2]}|${c.g[3]}`, pl: c.pl.c, name: c.pl.n, team: c.pl.t.split(';').pop(), stat: c.stat, line: c.line, side: c.side, price: c.price, hit: c.hit, of: c.n })) };
+        }
+        const playedG = new Map(league.games.map(g => [`${g[0]}|${g[2]}|${g[3]}`, g]));
+        for (const H of Object.values(PTIPS.hist)) for (const x of H.picks) {
+          if (x.ok != null) continue;
+          if (!playedG.get(x.gid)?.[6]) continue;
+          const row = players.find(q => q.c === x.pl)?.g.find(r => r[0] === +x.gid.split('|')[0] && r[7] > 0);
+          if (!row) { x.ok = 'void'; continue; }
+          x.v = propValue(STATK[x.stat], row); x.ok = x.side === 'under' ? x.v < x.line : x.v > x.line;
+        }
+        if (Object.keys(PTIPS.hist).length) await writeData(PTIPS.file, JSON.stringify(PTIPS.hist));
+      }
+      const ptDone = Object.entries(PTIPS.hist).flatMap(([d, H]) => H.picks.filter(x => x.ok === true || x.ok === false).map(x => ({ ...x, day: d }))).sort((x, y) => y.day.localeCompare(x.day));
+      const ptW = ptDone.filter(x => x.ok).length, ptU = ptDone.reduce((a, x) => a + (x.ok ? x.price - 1 : -1), 0);
+      const ptSide = x => x.line === 0.5 && x.side === 'over' ? `1+ ${SL[x.stat]}` : `${x.side === 'over' ? 'Over' : 'Under'} ${fmt(x.line, 1)} ${SL[x.stat]}`;
+      const ptDay = d => new Date(d + 'T12:00:00Z').toLocaleDateString(LOCP, { day: 'numeric', month: 'numeric' });
+      const ptHist = ptDone.length ? `<section class="btbox"><h2>${T('Πώς έχουν πάει οι κάρτες', 'How the cards have done', 'Cómo han ido las tarjetas', 'Kako su prošle kartice', 'Kartların geçmişi')}</h2><div class="btstats"><div><b>${ptW}-${ptDone.length - ptW}</b><span>${T('Νίκες-Ήττες', 'Won-Lost', 'Ganadas-Perdidas', 'Dobitni-Gubitni', 'Kazanç-Kayıp')}</span></div><div><b class="${ptU > 0 ? 'up' : ptU < 0 ? 'down' : ''}">${(ptU > 0 ? '+' : '') + fmt(ptU)}</b><span>${T('Μονάδες (1 ανά κάρτα)', 'Units (1 per card)', 'Unidades (1 por tarjeta)', 'Jedinice (1 po kartici)', 'Birim (kart başına 1)')}</span></div><div><b>${Math.round(ptW / ptDone.length * 100)}%</b><span>${T('Ποσοστό', 'Hit rate', 'Acierto', 'Pogođeno', 'İsabet')}</span></div></div>
+<div class="tbl"><table><thead><tr><th class="l">${T('Ημέρα', 'Day', 'Día', 'Dan', 'Gün')}</th><th class="l">${T('Στοίχημα', 'Bet', 'Apuesta', 'Opklada', 'Bahis')}</th><th>${T('Απόδοση', 'Odds', 'Cuota', 'Kvota', 'Oran')}</th><th>${T('Έκανε', 'Result', 'Hizo', 'Učinak', 'Sonuç')}</th><th></th></tr></thead><tbody>${ptDone.slice(0, 30).map(x => `<tr><td class="l">${esc(ptDay(x.day))}</td><td class="l">${esc(niceName(x.name))} · ${esc(ptSide(x))}</td><td>${fmt(x.price)}</td><td>${x.v}</td><td><span class="btres ${x.ok ? 'W' : 'L'}">${x.ok ? T('Κέρδος', 'Won', 'Ganada', 'Dobitan', 'Kazandı') : T('Χάθηκε', 'Lost', 'Perdida', 'Gubitan', 'Kaybetti')}</span></td></tr>`).join('')}</tbody></table></div>
+<p class="btnote">${T('Οι κάρτες κλειδώνουν με το πρώτο τζάμπολ της μέρας. Αν ο παίκτης δεν αγωνιστεί, η κάρτα μετράει άκυρη. Αποδόσεις: Stoiximan.', 'Cards lock at the first tip-off of the day. If the player does not play, the card is void. Odds: Stoiximan.', 'Las tarjetas se fijan con el primer salto del día. Si el jugador no juega, la tarjeta es nula. Cuotas: Stoiximan.', 'Kartice se zaključavaju sa prvim početkom dana. Ako igrač ne igra, kartica je poništena. Kvote: Stoiximan.', 'Kartlar günün ilk maçıyla kilitlenir. Oyuncu oynamazsa kart iptal sayılır. Oranlar: Stoiximan.')}</p></section>` : '';
       const barSvg = c => { const W = 100, H = 40, max = Math.max(...c.v, c.line + 1), bw = W / c.v.length;
         const bars = c.v.map((x, i) => { const h = Math.max(1.5, x / max * H), hit = c.side === 'under' ? x < c.line : x > c.line; return `<rect x="${(i * bw + bw * 0.12).toFixed(2)}" y="${(H - h).toFixed(2)}" width="${(bw * 0.76).toFixed(2)}" height="${h.toFixed(2)}" rx="1" class="${hit ? 'hit' : 'miss'}"/>`; }).join('');
         const ly = (H - c.line / max * H).toFixed(2);
@@ -3692,7 +3717,8 @@ ${settled.length ? `<h2 class="btsec">${T('Τα τελευταία: αποτέλ
 <script>(()=>{const f=document.querySelector('.btsearch'),m=JSON.parse(document.getElementById('btqs').textContent);f.addEventListener('submit',e=>{e.preventDefault();const v=f.q.value.trim(),k=Object.keys(m).find(n=>n.toLowerCase()===v.toLowerCase())||Object.keys(m).find(n=>n.toLowerCase().includes(v.toLowerCase()));location.href=f.dataset.base+(k?'#p='+encodeURIComponent(m[k]):'');});})();</script>
 <h2 class="btsec">${T('Στοιχήματα παικτών για', 'Player bets for', 'Apuestas de jugadores para el', 'Opklade na igrače za', 'Oyuncu bahisleri:')} ${esc(dayLbl || '')}</h2>
 ${cards.length ? `<div class="btlist">${cards.map(pCard).join('')}</div>` : `<p class="sub">${T('Δεν βρήκαμε σήμερα παίκτη με καθαρό ιστορικό απέναντι στη γραμμή.', 'No player with a clear record against today’s line.', 'Hoy no hay ningún jugador con un historial claro frente a la línea.', 'Danas nema igrača sa jasnom istorijom u odnosu na liniju.', 'Bugün çizgiye karşı net geçmişi olan oyuncu yok.')}</p>`}
-<p class="btnote">${T('Οι κάρτες δείχνουν τι έκανε ο παίκτης στα τελευταία ματς, όχι υπόσχεση για το σημερινό. Οι εκτιμήσεις μας για παίκτες μέχρι τώρα δεν έχουν ξεπεράσει τις εταιρείες. Αποδόσεις: Stoiximan.', 'The cards show what the player did in recent games, not a promise for today. Our player estimates have not beaten the bookmakers so far. Odds: Stoiximan.', 'Las tarjetas muestran lo que hizo el jugador en los últimos partidos, no una promesa para hoy. Nuestras estimaciones de jugadores aún no han superado a las casas. Cuotas: Stoiximan.', 'Kartice pokazuju šta je igrač uradio u poslednjim utakmicama, ne obećanje za danas. Naše procene za igrače do sada nisu nadmašile kladionice. Kvote: Stoiximan.', 'Kartlar oyuncunun son maçlarda ne yaptığını gösterir, bugün için söz değildir. Oyuncu tahminlerimiz şu ana kadar şirketleri geçemedi. Oranlar: Stoiximan.')}</p>${rgNote}</article>`;
+<p class="btnote">${T('Οι κάρτες δείχνουν τι έκανε ο παίκτης στα τελευταία ματς, όχι υπόσχεση για το σημερινό. Οι εκτιμήσεις μας για παίκτες μέχρι τώρα δεν έχουν ξεπεράσει τις εταιρείες. Αποδόσεις: Stoiximan.', 'The cards show what the player did in recent games, not a promise for today. Our player estimates have not beaten the bookmakers so far. Odds: Stoiximan.', 'Las tarjetas muestran lo que hizo el jugador en los últimos partidos, no una promesa para hoy. Nuestras estimaciones de jugadores aún no han superado a las casas. Cuotas: Stoiximan.', 'Kartice pokazuju šta je igrač uradio u poslednjim utakmicama, ne obećanje za danas. Naše procene za igrače do sada nisu nadmašile kladionice. Kvote: Stoiximan.', 'Kartlar oyuncunun son maçlarda ne yaptığını gösterir, bugün için söz değildir. Oyuncu tahminlerimiz şu ana kadar şirketleri geçemedi. Oranlar: Stoiximan.')}</p>
+${ptHist}${rgNote}</article>`;
       // ---- Η νέα αρχική «Σήμερα»: κομμάτι HTML που βάζει το scripts/portal-home.mjs στη θέση της παλιάς πύλης
       {
         const SVG = {
