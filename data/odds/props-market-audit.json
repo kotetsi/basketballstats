@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-25T10:55:32.684Z",
+  "generatedAt": "2026-11-25T11:02:19.358Z",
   "provider": "oddspapi",
-  "collectorUpdated": "2026-11-25T10:55:32.074Z",
+  "collectorUpdated": "2026-11-25T11:02:18.876Z",
   "collectorUpdatedAgeHours": 0,
-  "lastIngestAt": "2026-11-25T10:55:32.074Z",
+  "lastIngestAt": "2026-11-25T11:02:18.876Z",
   "lastIngestEvents": 0,
   "lastIngestMatched": 0,
   "latestQuoteUpdated": "2026-11-24T17:39:41.873Z",
-  "latestQuoteAgeHours": 17.26,
+  "latestQuoteAgeHours": 17.38,
   "upcomingGames": 4,
   "gamesWithGreekBooks": 2,
   "greekBookGameQuotes": 5,
@@ -26,7 +26,7 @@
       "oneSided": 195,
       "newest": "2026-11-24T17:39:41.873Z",
       "oldest": "2026-11-24T17:39:41.873Z",
-      "newestAgeHours": 17.26
+      "newestAgeHours": 17.38
     },
     {
       "feed": "stoiximan",
@@ -37,7 +37,7 @@
       "oneSided": 0,
       "newest": "2026-11-24T11:20:17.540Z",
       "oldest": "2026-11-23T17:51:07.912Z",
-      "newestAgeHours": 23.59
+      "newestAgeHours": 23.7
     },
     {
       "feed": "pamestoixima.gr",
@@ -48,7 +48,7 @@
       "oneSided": 0,
       "newest": "2026-11-24T11:17:38.748Z",
       "oldest": "2026-11-24T06:47:04.258Z",
-      "newestAgeHours": 23.63
+      "newestAgeHours": 23.74
     }
   ],
   "events": [
@@ -67,7 +67,7 @@
           "complete": 26,
           "oneSided": 0,
           "updated": "2026-11-24T06:47:04.258Z",
-          "ageHours": 28.14
+          "ageHours": 28.25
         },
         {
           "feed": "stoiximan",
@@ -77,7 +77,7 @@
           "complete": 66,
           "oneSided": 0,
           "updated": "2026-11-23T17:51:07.912Z",
-          "ageHours": 41.07
+          "ageHours": 41.19
         }
       ]
     },
@@ -96,7 +96,7 @@
           "complete": 0,
           "oneSided": 195,
           "updated": "2026-11-24T17:39:41.873Z",
-          "ageHours": 17.26
+          "ageHours": 17.38
         },
         {
           "feed": "pamestoixima.gr",
@@ -106,7 +106,7 @@
           "complete": 38,
           "oneSided": 0,
           "updated": "2026-11-24T11:17:38.748Z",
-          "ageHours": 23.63
+          "ageHours": 23.74
         },
         {
           "feed": "stoiximan",
@@ -116,7 +116,7 @@
           "complete": 93,
           "oneSided": 0,
           "updated": "2026-11-24T11:20:17.540Z",
-          "ageHours": 23.59
+          "ageHours": 23.7
         }
       ]
     },
