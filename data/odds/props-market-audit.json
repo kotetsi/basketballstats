@@ -1,142 +1,23 @@
 {
-  "generatedAt": "2026-11-25T12:29:19.001Z",
+  "generatedAt": "2026-11-25T23:28:43.092Z",
   "provider": "oddspapi",
   "collectorUpdated": "2026-11-25T12:29:18.618Z",
-  "collectorUpdatedAgeHours": 0,
+  "collectorUpdatedAgeHours": 10.99,
   "lastIngestAt": "2026-11-25T12:29:18.258Z",
   "lastIngestEvents": 0,
   "lastIngestMatched": 0,
-  "latestQuoteUpdated": "2026-11-24T17:39:41.873Z",
-  "latestQuoteAgeHours": 18.83,
-  "upcomingGames": 4,
-  "gamesWithGreekBooks": 2,
-  "greekBookGameQuotes": 5,
-  "gamesWithPlayerProps": 2,
-  "independentGreekPropBookmakers": 3,
-  "totalDistinctPlayerProps": 418,
-  "completeOverUnderPairs": 223,
-  "oneSidedProps": 195,
-  "bookmakers": [
-    {
-      "feed": "bet365.gr",
-      "brand": "bet365",
-      "games": 1,
-      "props": 195,
-      "complete": 0,
-      "oneSided": 195,
-      "newest": "2026-11-24T17:39:41.873Z",
-      "oldest": "2026-11-24T17:39:41.873Z",
-      "newestAgeHours": 18.83
-    },
-    {
-      "feed": "stoiximan",
-      "brand": "Stoiximan",
-      "games": 2,
-      "props": 159,
-      "complete": 159,
-      "oneSided": 0,
-      "newest": "2026-11-24T11:20:17.540Z",
-      "oldest": "2026-11-23T17:51:07.912Z",
-      "newestAgeHours": 25.15
-    },
-    {
-      "feed": "pamestoixima.gr",
-      "brand": "Pamestoixima",
-      "games": 2,
-      "props": 64,
-      "complete": 64,
-      "oneSided": 0,
-      "newest": "2026-11-24T11:17:38.748Z",
-      "oldest": "2026-11-24T06:47:04.258Z",
-      "newestAgeHours": 25.19
-    }
-  ],
-  "events": [
-    {
-      "event": "E-14-DUB-PAR",
-      "commence": "2026-11-25T16:00:00Z",
-      "greekBooks": 2,
-      "booksWithProps": 2,
-      "props": 92,
-      "books": [
-        {
-          "feed": "pamestoixima.gr",
-          "brand": "Pamestoixima",
-          "games": 1,
-          "props": 26,
-          "complete": 26,
-          "oneSided": 0,
-          "updated": "2026-11-24T06:47:04.258Z",
-          "ageHours": 29.7
-        },
-        {
-          "feed": "stoiximan",
-          "brand": "Stoiximan",
-          "games": 1,
-          "props": 66,
-          "complete": 66,
-          "oneSided": 0,
-          "updated": "2026-11-23T17:51:07.912Z",
-          "ageHours": 42.64
-        }
-      ]
-    },
-    {
-      "event": "E-14-OLY-HTA",
-      "commence": "2026-11-25T19:15:00Z",
-      "greekBooks": 3,
-      "booksWithProps": 3,
-      "props": 326,
-      "books": [
-        {
-          "feed": "bet365.gr",
-          "brand": "bet365",
-          "games": 1,
-          "props": 195,
-          "complete": 0,
-          "oneSided": 195,
-          "updated": "2026-11-24T17:39:41.873Z",
-          "ageHours": 18.83
-        },
-        {
-          "feed": "pamestoixima.gr",
-          "brand": "Pamestoixima",
-          "games": 1,
-          "props": 38,
-          "complete": 38,
-          "oneSided": 0,
-          "updated": "2026-11-24T11:17:38.748Z",
-          "ageHours": 25.19
-        },
-        {
-          "feed": "stoiximan",
-          "brand": "Stoiximan",
-          "games": 1,
-          "props": 93,
-          "complete": 93,
-          "oneSided": 0,
-          "updated": "2026-11-24T11:20:17.540Z",
-          "ageHours": 25.15
-        }
-      ]
-    },
-    {
-      "event": "E-14-BAS-IST",
-      "commence": "2026-11-25T19:30:00Z",
-      "greekBooks": 0,
-      "booksWithProps": 0,
-      "props": 0,
-      "books": []
-    },
-    {
-      "event": "E-14-MAD-ZAL",
-      "commence": "2026-11-25T19:45:00Z",
-      "greekBooks": 0,
-      "booksWithProps": 0,
-      "props": 0,
-      "books": []
-    }
-  ],
+  "latestQuoteUpdated": null,
+  "latestQuoteAgeHours": null,
+  "upcomingGames": 0,
+  "gamesWithGreekBooks": 0,
+  "greekBookGameQuotes": 0,
+  "gamesWithPlayerProps": 0,
+  "independentGreekPropBookmakers": 0,
+  "totalDistinctPlayerProps": 0,
+  "completeOverUnderPairs": 0,
+  "oneSidedProps": 0,
+  "bookmakers": [],
+  "events": [],
   "history": {
     "available": true,
     "snapshots": 13187,
