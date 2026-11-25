@@ -209,14 +209,14 @@
    },
    "id1100013873263214": {
     "mid": {
-     "count": 1,
-     "lastAttempt": "2026-11-24T23:45:00.784Z"
+     "count": 2,
+     "lastAttempt": "2026-11-25T08:30:30.533Z"
     }
    },
    "id1100013873263216": {
     "mid": {
-     "count": 1,
-     "lastAttempt": "2026-11-24T23:45:00.784Z"
+     "count": 2,
+     "lastAttempt": "2026-11-25T08:30:30.533Z"
     }
    }
   }
@@ -224,18 +224,18 @@
  "lastError": "2026-11-21T23:36:48.165Z",
  "error": null,
  "provider": "oddspapi",
- "lastCall": "2026-11-24T23:45:02.561Z",
- "lastSuccess": "2026-11-24T23:45:02.561Z",
- "events": 1,
- "matched": 1,
- "added": 1905,
+ "lastCall": "2026-11-25T08:30:30.538Z",
+ "lastSuccess": "2026-11-25T08:30:30.538Z",
+ "events": 0,
+ "matched": 0,
+ "added": 0,
  "quota": {
   "used": 250,
   "cap": 250,
   "month": "2026-11"
  },
  "lastChange": "2026-11-24T23:45:02.561Z",
- "propAdded": 1749,
+ "propAdded": 0,
  "playerNames": {
   "607378": "Papanikolaou, Kostas",
   "607568": "Larkin, Shane",
@@ -449,18 +449,18 @@
  "providers": {
   "theoddsapi": {
    "provider": "theoddsapi",
-   "lastCall": "2026-11-24T23:45:03.236Z",
-   "lastSuccess": "2026-11-24T23:45:03.236Z",
+   "lastCall": "2026-11-25T08:30:31.098Z",
+   "lastSuccess": "2026-11-25T08:30:31.098Z",
    "events": 4,
    "matched": 4,
-   "added": 139,
+   "added": 94,
    "propAdded": 0,
    "quota": {
-    "remaining": "410",
-    "used": "90"
+    "remaining": "404",
+    "used": "96"
    },
    "error": null,
-   "lastChange": "2026-11-24T23:45:03.236Z"
+   "lastChange": "2026-11-25T08:30:31.098Z"
   }
  }
 }
