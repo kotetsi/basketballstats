@@ -21,6 +21,7 @@ on:
   pull_request:
     paths:
       - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-holdout-validation.mjs'
       - 'scripts/props-market-audit.mjs'
       - 'test/props-market-audit.test.mjs'
       - '.github/workflows/update.yml'
@@ -53,6 +54,8 @@ jobs:
         run: node scripts/props-residual-diagnostics.mjs | tee props-residual-diagnostics.json
       - name: Run walk-forward minutes diagnostics
         run: node scripts/props-minutes-diagnostics.mjs | tee props-minutes-diagnostics.json
+      - name: Run chronological player-prop holdout
+        run: node scripts/props-holdout-validation.mjs | tee props-holdout-validation.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
@@ -62,4 +65,5 @@ jobs:
             props-residual-diagnostics.json
             props-minutes-diagnostics.json
             props-market-audit.json
+            props-holdout-validation.json
           if-no-files-found: error
