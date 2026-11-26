@@ -65,3 +65,20 @@ test('multi-book market consensus: de-vig probabilities, median, and minimum cov
   assert.equal(consensusProbability([{ book: 'A', probability: 0.55 }]), null);
   assert.equal(consensusProbability([{ book: 'A', probability: 0.55 }, { book: 'A', probability: 0.57 }]), null);
 });
+
+
+test('quota exhaustion is fatal and distinguishable from ordinary provider errors', async () => {
+  const { isQuotaLimitError } = await import('../scripts/odds.mjs');
+  assert.equal(isQuotaLimitError(new Error('μηνιαίο όριο 250 κλήσεων')), true);
+  assert.equal(isQuotaLimitError(new Error('OddsPapi /odds 503: unavailable')), false);
+  assert.equal(isQuotaLimitError('μηνιαίο όριο 240 κλήσεων'), true);
+});
+
+
+test('market audit exposes OddsPapi monthly quota exhaustion', async () => {
+  const { auditPropsMarket } = await import('../scripts/props-market-audit.mjs');
+  const r = auditPropsMarket({ status: { quotaExhausted: true, quota: { used: 250, cap: 250 } }, now: Date.parse('2026-11-27T00:00:00Z') });
+  assert.equal(r.quotaExhausted, true);
+  assert.deepEqual(r.providerQuota, { used: 250, cap: 250 });
+  assert.ok(r.warnings.some(w => /quota.*OddsPapi|OddsPapi.*quota/i.test(w)));
+});

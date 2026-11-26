@@ -31,6 +31,9 @@ const MIN_INT = +(process.env.ODDS_MIN_INTERVAL_MIN || 180);
 const FORCE = process.argv.includes('--force');
 const STALE_H = 30;
 
+// Quota exhaustion is fatal for this run: do not swallow it as an ordinary per-fixture miss.
+export const isQuotaLimitError = error => /μηνιαίο όριο \d+ κλήσεων/i.test(String(error?.message || error));
+
 // ονόματα παρόχων → κωδικοί ομάδων (EuroLeague)
 const ALIAS = {
   OLY: ['olympiacos', 'olympiakos'], PAN: ['panathinaikos'], MAD: ['real madrid'], BAR: ['barcelona', 'barca'], ULK: ['fenerbahce'], IST: ['anadolu efes', 'efes'],
@@ -94,7 +97,7 @@ const ADAPTERS = {
     if (!meta.at || Date.now() - new Date(meta.at) > META_DAYS * 864e5) {
       const parts = await call('participants', { sportId: SPORT, tournamentId: TOUR });
       const markets = await call('markets', { sportId: SPORT });
-      const books = await call('bookmakers', {}).catch(() => []);
+      const books = await call('bookmakers', {}).catch(e => { if (isQuotaLimitError(e)) throw e; return []; });
       meta = {
         at: new Date().toISOString(),
         parts: Object.fromEntries(arr(parts).map(p => [String(pick(p, ['participantId', 'id', '_k'])), pick(p, ['participantName', 'name', 'shortName'])])),
@@ -140,7 +143,7 @@ const ADAPTERS = {
       if (!FORCE && (propDone.includes(win) || attempt.count >= MAX_PROP_ATTEMPTS ||
           (Number.isFinite(lastAttemptAt) && now - lastAttemptAt < PROP_RETRY_MS))) continue;
       attempts[win] = { count: attempt.count + 1, lastAttempt: new Date(now).toISOString() };
-      const res = await call('odds', { fixtureId: f.id, oddsFormat: 'decimal' }).catch(e => { console.log('Odds:', e.message); return null; });
+      const res = await call('odds', { fixtureId: f.id, oddsFormat: 'decimal' }).catch(e => { console.log('Odds:', e.message); if (isQuotaLimitError(e)) throw e; return null; });
       if (!res) continue;
       if (!done.includes(win)) done.push(win);
       const price = o => { const p = o && (o.players?.['0'] || Object.values(o.players || {})[0]); return p && p.active !== false ? p.price : null; };
@@ -238,7 +241,7 @@ async function main() {
   if (!FORCE && !PRIMARY && pst.lastCall && now - new Date(pst.lastCall) < MIN_INT * 60000) { console.log('Odds: rate limit, επόμενη κλήση αργότερα'); return stale(pst); }
   if (!FORCE && !soon.length) { console.log('Odds: κανένας αγώνας τις επόμενες 4 μέρες'); return 0; }
   let res;
-  try { res = await ADAPTERS[PROVIDER]({ status, fx }); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); pst.lastError = new Date().toISOString(); pst.error = e.message; await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(pst, true); }
+  try { res = await ADAPTERS[PROVIDER]({ status, fx }); } catch (e) { console.log('Odds: σφάλμα παρόχου —', e.message); pst.lastError = new Date().toISOString(); pst.error = e.message; pst.quotaExhausted = isQuotaLimitError(e); await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1)); return stale(pst, true); }
   const ts = new Date().toISOString();
   // αντιστοίχιση με τους δικούς μας αγώνες
   const snaps = [], propSnaps = [], latest = await readJSON(path.join(DIR, 'latest.json'), { games: {} });
@@ -298,7 +301,7 @@ async function main() {
   if (PRIMARY || !latest.provider) latest.provider = PROVIDER;
   latest.updated = ts;
   await fs.writeFile(path.join(DIR, 'latest.json'), JSON.stringify(latest));
-  Object.assign(pst, { provider: PROVIDER, lastCall: ts, lastSuccess: ts, events: res.events.length, matched, added: totalAdded, propAdded: propAdded.length, quota: res.quota, error: null });
+  Object.assign(pst, { provider: PROVIDER, lastCall: ts, lastSuccess: ts, events: res.events.length, matched, added: totalAdded, propAdded: propAdded.length, quota: res.quota, quotaExhausted: false, error: null });
   if (totalAdded) pst.lastChange = ts;
   await fs.writeFile(path.join(DIR, 'status.json'), JSON.stringify(status, null, 1));
   console.log(`Odds (${PROVIDER}): ${res.events.length} αγώνες από τον πάροχο, ${matched} αντιστοιχίστηκαν, ${totalAdded} νέες τιμές (${propAdded.length} player props) · quota: ${res.quota.remaining ?? '?'}`);

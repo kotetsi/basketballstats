@@ -81,6 +81,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   const latestQuoteUpdated = sourceQuoteTimes.sort().at(-1) || null;
   const latestQuoteAge = ageHours(latestQuoteUpdated, now);
   const warnings = [];
+  if (status.quotaExhausted || /μηνιαίο όριο/i.test(String(status.error || ''))) warnings.push('Το μηνιαίο quota του OddsPapi εξαντλήθηκε. Δεν υπάρχουν νέες τιμές Player Props μέχρι την ανανέωση του quota ή την ενεργοποίηση άλλου αδειοδοτημένου παρόχου.');
   if (!snapshots.length) warnings.push('Δεν υπάρχει ακόμη αρχείο ιστορικών Player Props snapshots στο branch/data.');
   if (games.length && gamesWithProps === 0) warnings.push('Δεν βρέθηκαν ελληνικά feeds με Player Props στους προσεχείς αγώνες.');
   if (gameRows.some(g => g.booksWithProps > 0 && g.books.filter(b => b.props > 0).length < 2)) warnings.push('Υπάρχουν αγώνες με props από μία μόνο ελληνική εταιρεία· δεν υπάρχει ανεξάρτητο market consensus.');
@@ -91,6 +92,7 @@ export function auditPropsMarket({ latest = {}, registry = {}, history = [], sta
   return {
     generatedAt: new Date(now).toISOString(), provider: latest.provider || null,
     collectorUpdated: latest.updated || null, collectorUpdatedAgeHours: round(collectorUpdatedAge),
+    providerQuota: status.quota || null, quotaExhausted: Boolean(status.quotaExhausted),
     lastIngestAt: status.lastSuccess || status.lastCall || null, lastIngestEvents: status.events ?? null, lastIngestMatched: status.matched ?? null,
     latestQuoteUpdated, latestQuoteAgeHours: round(latestQuoteAge),
     upcomingGames: games.length, gamesWithGreekBooks: gameRows.filter(g => g.greekBooks > 0).length,
