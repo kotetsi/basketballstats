@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { statCardHtml, statStoryHtml, STAT_VIDEO_SECS } from './stat-card.mjs';
 import { upcomingPicks, cardHtml, when, DISC, settledPicks, resultCardHtml, resultLine, recordLine } from './pick-cards.mjs';
 import { shotReelHtml, shotOrder, SHOT_REEL_SECS } from './shot-reel.mjs';
+import { streakNote, activeStreak } from './stat-claims.mjs';
 import { previewHtml, previewSecs, top5Html, TOP5_SECS, raceHtml, raceSecs, teamHtml, TEAM_SECS } from './round-videos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -67,11 +68,11 @@ if (D && (!ONLY || ONLY === 'stat') && !state.posted.some(k => k.startsWith(`sta
     const c = teamOf(p), who = `${tn(c)} · EuroLeague ${SEAS}`.replace(/\s·\s$/, ''), name = grName(p.n);
     const base = { team: team(c), who, player: name };
     // 1. σερί αγώνων με 20+ πόντους
-    let s = 0; for (const x of [...G].reverse()) { if (x[8] >= 20) s++; else break; }
+    const s = activeStreak(G, x => x[8] >= 20);
     if (s >= 3) {
-      const others = all.filter(o => o.p !== p).map(o => { let k = 0; for (const x of [...o.G].reverse()) { if (x[8] >= 20) k++; else break; } return k; });
+      const others = all.filter(o => o.p !== p).map(o => activeStreak(o.G, x => x[8] >= 20));
       const alone = others.every(k => k < s), best = Math.max(...all.map(o => { let b = 0, k = 0; for (const x of o.G) { k = x[8] >= 20 ? k + 1 : 0; b = Math.max(b, k); } return b; }));
-      const extra = others.every(k => k < s - 1) ? `Κανείς άλλος στην EuroLeague δεν έχει αυτή τη στιγμή σερί ούτε ${s - 1} αγώνων.` : alone ? `Κανείς άλλος στην EuroLeague δεν έχει αυτή τη στιγμή σερί ${s} αγώνων.` : `Από τα μεγαλύτερα ενεργά σερί της σεζόν.`;
+      const extra = streakNote(s, others);
       C.push({ score: s * 12 + (alone ? 10 : 0) + (s >= best ? 15 : 0), card: { ...base, big: String(s), bigLabel: 'σερί αγώνες<br>με 20+ πόντους', line: `${extra}${later(c, `κυνηγά τον ${s + 1}ο.`)}`, bars: barsOf(G, 8, Math.min(s, 6)) },
         caption: `Ο ${name} έχει ${s} σερί αγώνες με 20+ πόντους: ${G.slice(-s).map(x => x[8]).join(' – ')}.\n${extra}${later(c, `κυνηγά τον ${s + 1}ο στη σειρά. Θα τα καταφέρει; 👇`)}` });
     }
