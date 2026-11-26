@@ -14,7 +14,9 @@ It reports, separately for each stat key:
 - **Log loss:** quality of the full predictive distribution.
 - **Brier score:** probability accuracy at three half-point lines around the projection.
 
-The player-specific model is compared with a league-rate-only baseline using the same projected minutes and dispersion assumptions. Lower scores are better for all four metrics.
+The player-specific model is compared with a league-rate-only baseline using the same projected minutes and dispersion assumptions. League priors include all players in the cache, including players who changed teams; individual projections follow the repository's existing convention of excluding multi-team season rows. Lower scores are better for all four metrics.
+
+This first pass validates the core player-history projection only. It does not supply optional game-context (`teamPts`) or shot-quality (`xrows` / xPTS) adjustments to `project()`, so it must not be presented as a full validation of every live projection adjustment.
 
 ## Interpretation
 
