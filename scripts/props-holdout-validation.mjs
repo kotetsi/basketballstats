@@ -99,7 +99,7 @@ console.log(JSON.stringify({
   validation: 'chronological-holdout',
   season: C.season || null,
   rounds: { first: rounds[0], last: rounds.at(-1), count: rounds.length, holdoutStart, holdoutCount: rounds.filter(r => r >= holdoutStart).length },
-  parameters: { minHalf: PARAMS.minHalf, rateHalf: PARAMS.rateHalf, prior: PARAMS.prior, minSd: PARAMS.minSd, calShift: PARAMS.calShift, xLam: PARAMS.xLam },
+  parameters: { minHalf: PARAMS.minHalf, rateHalf: PARAMS.rateHalf, prior: PARAMS.prior, minSd: PARAMS.minSd, disp: PARAMS.disp },
   note: 'No tuning on holdout. League baseline uses only the league per-minute rate available before each target round.',
   stats: summary,
 }, null, 2));
