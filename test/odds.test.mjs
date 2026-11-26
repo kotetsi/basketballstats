@@ -73,3 +73,12 @@ test('quota exhaustion is fatal and distinguishable from ordinary provider error
   assert.equal(isQuotaLimitError(new Error('OddsPapi /odds 503: unavailable')), false);
   assert.equal(isQuotaLimitError('μηνιαίο όριο 240 κλήσεων'), true);
 });
+
+
+test('market audit exposes OddsPapi monthly quota exhaustion', async () => {
+  const { auditPropsMarket } = await import('../scripts/props-market-audit.mjs');
+  const r = auditPropsMarket({ status: { quotaExhausted: true, quota: { used: 250, cap: 250 } }, now: Date.parse('2026-11-27T00:00:00Z') });
+  assert.equal(r.quotaExhausted, true);
+  assert.deepEqual(r.providerQuota, { used: 250, cap: 250 });
+  assert.ok(r.warnings.some(w => /quota.*OddsPapi|OddsPapi.*quota/i.test(w)));
+});
