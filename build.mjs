@@ -1035,6 +1035,7 @@ async function main() {
     used.add(s); p.s = s;
   }
   const PSLUG = Object.fromEntries(players.map(p => [p.c, p.s]));
+  const PBYSLUG = Object.fromEntries(players.map(p => [p.s, p]));
   // ζευγάρια παικτών με μόνιμη σελίδα σύγκρισης: οι «δημοφιλείς» + για τους 50 κορυφαίους σε PIR οι 2 πιο παρόμοιοι (μόνο παίκτες με επαρκές δείγμα)
   const QP = new Map(CMP.seasons[SEASON].players.filter(p => p.q && PSLUG[p.id]).map(p => [p.id, p]));
   const PPAIRS = (() => {
@@ -1833,9 +1834,53 @@ ${low ? `<p><b>${esc(low)}</b></p>` : ''}
     //   cmptu: ζευγάρια EuroCup, εκτός από όσα έχουν Άρη ή ΠΑΟΚ
     const lowValue = key => /^(shp|shg):/.test(key) || key.startsWith('fx:player/')
       || (key.startsWith('cmptu:') && !key.slice(6).split('|').some(c => c === 'ARI' || c === 'PAO'));
+    // ---- banner του Sport Arena: «ένα προϊόν» (Fantasy και άρθρα) και «λεπτή λωρίδα» (παίκτες, ομάδες, βαθμολογία κ.ά.)
+    // Το προϊόν ταιριάζει με τη σελίδα: Ολυμπιακός → προϊόντα Ολυμπιακού BC, Έλληνας παίκτης → Εθνική, αλλιώς σταθερή επιλογή ανά σελίδα.
+    const PROMO_B = /^(fantasy|fpick|article|recap|deep|fx|fxcap|fxprice|fxcoach|fxtotr|fxleague|fxrounds|fxcal|fxrules|fxcmp)(:|$)/;
+    const PROMO_C = /^(stand|form|team|player|game|lead|nat|sched|transfers|inj|mvp|awards|hist|ref|five|guess|compare|cmpp|cmpt)(:|$)/;
+    const promoHash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+    const promoNum = p => parseFloat(String(p.price).replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+    const PROMO_CAT = {
+      olybc: { h: T('Φόρεσε τα χρώματα του Ολυμπιακού', 'Wear the Olympiacos colours', 'Viste los colores de Olympiacos', 'Nosi boje Olimpijakosa', 'Olympiakos renklerini giy'), s: T('Προϊόντα Ολυμπιακού από {p}', 'Olympiacos gear from {p}', 'Productos de Olympiacos desde {p}', 'Oprema Olimpijakosa od {p}', '{p}’dan başlayan Olympiakos ürünleri') },
+      greece: { h: T('Με τα χρώματα της Εθνικής', 'In Greece national team colours', 'Con los colores de Grecia', 'U bojama Grčke', 'Yunanistan renkleriyle'), s: T('Προϊόντα της Εθνικής Ελλάδας από {p}', 'Greece national team gear from {p}', 'Productos de la selección de Grecia desde {p}', 'Oprema reprezentacije Grčke od {p}', '{p}’dan başlayan Yunanistan Milli Takımı ürünleri') },
+      nba: { h: T('Οι σταρ του NBA στο ράφι σου', 'NBA stars on your shelf', 'Las estrellas de la NBA en tu estantería', 'NBA zvezde na tvojoj polici', 'NBA yıldızları rafında'), s: T('Φιγούρες Funko Pop! του NBA από {p}', 'NBA Funko Pop! figures from {p}', 'Figuras Funko Pop! de la NBA desde {p}', 'NBA Funko Pop! figure od {p}', '{p}’dan başlayan NBA Funko Pop! figürleri') },
+      balls: { h: T('Η μπάλα σου για το γήπεδο', 'Your ball for the court', 'Tu balón para la cancha', 'Tvoja lopta za teren', 'Saha için topun'), s: T('Μπάλες μπάσκετ Spalding από {p}', 'Spalding basketballs from {p}', 'Balones Spalding desde {p}', 'Spalding lopte od {p}', '{p}’dan başlayan Spalding basketbol topları') },
+      hoops: { h: T('Μπασκέτα για την αυλή σου', 'A hoop for your driveway', 'Una canasta para tu casa', 'Koš za tvoje dvorište', 'Bahçen için bir pota'), s: T('Μπασκέτες από {p}', 'Basketball hoops from {p}', 'Canastas desde {p}', 'Koševi od {p}', '{p}’dan başlayan potalar') },
+    };
+    const promoCatFor = key => {
+      const [k, v = ''] = key.split(':');
+      let team = null, cat = null;
+      if (k === 'team') team = v;
+      if (k === 'player') { const p = PBYSLUG[v]; if (p) { team = String(p.t || '').split(';').pop(); if (p.ct === 'Greece') cat = 'greece'; } }
+      if (k === 'game') { const [, h, a] = v.split('|'); if (h === 'OLY' || a === 'OLY') team = 'OLY'; }
+      if (team === 'OLY') cat = 'olybc';
+      return cat;
+    };
+    function promo(key, kind) {
+      if (!SHOP || key === 'shop') return '';
+      const cat0 = promoCatFor(key), hs = promoHash(key + LG);
+      const pool = kind === 'b' ? ['nba', 'balls', 'nba', 'hoops', 'greece'] : ['balls', 'nba', 'hoops'];
+      let cat = cat0 || pool[hs % pool.length];
+      let L = SHOP.products.filter(p => p.cat === cat);
+      if (cat === 'nba') L = L.filter(p => /funko/i.test(p.name));
+      if (cat === 'balls') L = L.filter(p => /spalding/i.test(p.name));
+      if (!L.length) return '';
+      const C = PROMO_CAT[cat], isEl = LG === 'el', from = Math.min(...L.map(promoNum));
+      const fromTxt = from.toLocaleString(isEl ? 'el-GR' : 'en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',') + '€';
+      const lbl = `<p class="sa-ad">${T('Από το κατάστημά μας', 'From our store', 'De nuestra tienda', 'Iz naše prodavnice', 'Mağazamızdan')}</p>`;
+      const utm = (u, c) => u + (u.includes('?') ? '&' : '?') + `utm_source=basketballstats.eu&utm_medium=referral&utm_campaign=banner-${c}`;
+      if (kind === 'c') {
+        const p = L.find(x => promoNum(x) === from) || L[0];   // η εικόνα είναι του φθηνότερου, που αναφέρει το κείμενο
+        return `<aside class="sa-wrap">${lbl}<a class="sa-strip" href="${urlFor(LG, 'shop')}#shop-${cat}"><img src="${esc(p.img)}" alt="" width="56" height="56" loading="lazy" decoding="async"><span class="t"><b>${esc(C.s.replace('{p}', fromTxt))}</b><small>${T('Από το κατάστημά μας, το Sport Arena', 'From our store, Sport Arena', 'De nuestra tienda, Sport Arena', 'Iz naše prodavnice Sport Arena', 'Mağazamız Sport Arena’dan')}</small></span><span class="go"><span>${T('Δες τα', 'See them', 'Verlos', 'Pogledaj', 'Gör')} </span>→</span></a></aside>`;
+      }
+      const p = L[(hs >>> 3) % L.length], name = isEl ? p.name : (p.name_en || p.name), [eu, ce] = String(p.price).replace('€', '').split(',');
+      const tag = cat === 'nba' ? 'Funko Pop!' : cat === 'balls' ? 'Spalding' : cat === 'olybc' ? 'Olympiacos BC' : cat === 'greece' ? T('Εθνική Ελλάδας', 'Greece', 'Grecia', 'Grčka', 'Yunanistan') : 'Sport Arena';
+      return `<aside class="sa-wrap">${lbl}<a class="sa-hero" href="${esc(utm(isEl ? p.url : (p.url_en || p.url), cat))}" target="_blank" rel="noopener"><span class="pic"><span class="tag">${esc(tag)}</span><img src="${esc(p.img)}" alt="${esc(name)}" width="250" height="250" loading="lazy" decoding="async"></span><span class="mid"><span class="sa-brand"><i></i>Sport Arena · e-shop</span><span class="sa-h">${esc(C.h)}</span><span class="sa-s">${esc(name)}</span></span><span class="side"><span class="price">${esc(eu)}<small>${ce ? ',' + esc(ce) : ''}€</small></span><span class="sa-cta">${T('Στο Sport Arena', 'On Sport Arena', 'En Sport Arena', 'U Sport Areni', 'Sport Arena’da')} <span>→</span></span></span></a></aside>`;
+    }
     async function simplePage(key, { title, desc, view, main, id = '', ld = null, noindex = false }) {
       noindex = noindex || lowValue(key);
       main = withTg(key, main);
+      if (PROMO_B.test(key)) main += promo(key, 'b'); else if (PROMO_C.test(key)) main += promo(key, 'c');
       if (CATS[ck(key)]) { main = main + catFaq(key).replace('<section class="wrap catfaq">', '<section class="catfaq">'); ld = withLd(ld, key); }
       const url = urlFor(LG, key), alt = Object.fromEntries(OTHERS.map(o => [o, urlFor(o, key)])); if (!noindex) urls.push(SITE_URL + url);
       let hd = head(title, desc, url, alt); if (noindex) hd = hd.replace('</head>', '<meta name="robots" content="noindex,follow"></head>');
@@ -1886,6 +1931,7 @@ ${ldTag(ld)}${script}
       // SEO: οι κρυφές ενότητες (άλλες προβολές) δεν χρειάζονται στη σελίδα· το app.js δείχνει μόνο τη δική της.
       // Έτσι κάθε σελίδα έχει ένα <h1> και μόνο το δικό της κείμενο (όχι επαναλαμβανόμενο σε 7.000 σελίδες).
       body = stripHiddenViews(body, Object.values(map));
+      { const pk = view === 'fantasy' ? promo(key, 'b') : PROMO_C.test(view) || PROMO_C.test(key) ? promo(key, 'c') : ''; if (pk) { const vp = body.indexOf(`<div id="${map[view]}"`), me = vp > -1 ? body.indexOf('</main>', vp) : -1; if (me > -1) body = body.slice(0, me) + pk + body.slice(me); } }
       // μία διαφήμιση στην ορατή ενότητα + μία πριν από το υποσέλιδο
       const at = body.indexOf(`<div id="${map[view]}"`);
       const k = body.indexOf('{{AD}}', at);

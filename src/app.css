@@ -1027,3 +1027,37 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 .shopprice{font-size:15px}.shopprice s{color:var(--muted);font-size:13px}.shopprice b{color:var(--accent)}
 .shopbtn{margin-top:auto;display:inline-block;white-space:nowrap;font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--accent);color:#fff;text-align:center;text-decoration:none}
 .shopall{text-align:center;margin:10px 0}.shopall .shopbtn{font-size:14px;padding:9px 18px}
+/* Banner Sport Arena: «ένα προϊόν» και «λεπτή λωρίδα» */
+.sa-wrap{margin:22px 0 6px;grid-column:1/-1}
+.sa-ad{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 2px}
+.sa-brand{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.sa-brand i{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block}
+.sa-cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:600;font-size:14px;padding:10px 18px;border-radius:999px;box-shadow:0 6px 16px rgba(242,140,40,.32);white-space:nowrap}
+.sa-cta span{transition:transform .15s}
+.sa-hero{display:grid;grid-template-columns:190px 1fr auto;gap:24px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 26px 16px 16px;text-decoration:none;color:var(--ink);min-height:186px;transition:border-color .15s,box-shadow .15s}
+.sa-hero:hover{border-color:var(--accent);box-shadow:0 10px 28px rgba(20,42,67,.12)}.sa-hero:hover .sa-cta span{transform:translateX(3px)}
+.sa-hero .pic{position:relative;height:160px;border-radius:12px;background:radial-gradient(circle at 50% 45%,#fff3e6 0%,#ffe2c2 55%,#ffd09e 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.sa-hero .pic img{height:142px;width:auto;max-width:92%;object-fit:contain;mix-blend-mode:multiply}
+.sa-hero .tag{position:absolute;top:10px;left:10px;background:#142A43;color:#fff;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:999px}
+.sa-hero .mid{display:flex;flex-direction:column;min-width:0}
+.sa-hero .sa-h{font-family:var(--display);font-weight:800;font-size:31px;line-height:1.04;margin:8px 0 6px}
+.sa-hero .sa-s{color:var(--muted);font-size:14px;line-height:1.4}
+.sa-hero .side{display:flex;flex-direction:column;align-items:center;padding-left:24px;border-left:1px dashed var(--line)}
+.sa-hero .price{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;color:var(--ink)}
+.sa-hero .price small{font-size:20px}
+.sa-hero .sa-cta{margin-top:12px}
+.sa-strip{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;padding:10px 18px 10px 12px;text-decoration:none;color:var(--ink);min-height:76px;transition:border-color .15s}
+.sa-strip:hover{border-color:var(--accent)}
+.sa-strip img{width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;flex:none}
+.sa-strip .t{flex:1;font-size:15px;line-height:1.35;min-width:0}
+.sa-strip .t b{font-weight:600;display:block}
+.sa-strip .t small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.sa-strip .go{font-weight:600;color:var(--accent);white-space:nowrap}
+@media (max-width:640px){
+  .sa-hero{grid-template-columns:110px 1fr;gap:14px;padding:12px 14px 12px 12px}
+  .sa-hero .pic{height:120px}.sa-hero .pic img{height:100px}
+  .sa-hero .sa-h{font-size:23px}.sa-hero .sa-s{font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .sa-hero .side{grid-column:1/-1;flex-direction:row;justify-content:space-between;border-left:0;border-top:1px dashed var(--line);padding:12px 0 0}
+  .sa-hero .price{font-size:30px}.sa-hero .sa-cta{margin:0}
+  .sa-strip .t{font-size:14px}.sa-strip .go>span{display:none}
+}
