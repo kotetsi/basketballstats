@@ -71,7 +71,7 @@ if (D && (!ONLY || ONLY === 'stat') && !state.posted.some(k => k.startsWith(`sta
     if (s >= 3) {
       const others = all.filter(o => o.p !== p).map(o => { let k = 0; for (const x of [...o.G].reverse()) { if (x[8] >= 20) k++; else break; } return k; });
       const alone = others.every(k => k < s), best = Math.max(...all.map(o => { let b = 0, k = 0; for (const x of o.G) { k = x[8] >= 20 ? k + 1 : 0; b = Math.max(b, k); } return b; }));
-      const extra = alone ? `Κανείς άλλος στην EuroLeague δεν έχει αυτή τη στιγμή σερί ούτε ${s - 1} αγώνων.` : `Από τα μεγαλύτερα ενεργά σερί της σεζόν.`;
+      const extra = others.every(k => k < s - 1) ? `Κανείς άλλος στην EuroLeague δεν έχει αυτή τη στιγμή σερί ούτε ${s - 1} αγώνων.` : alone ? `Κανείς άλλος στην EuroLeague δεν έχει αυτή τη στιγμή σερί ${s} αγώνων.` : `Από τα μεγαλύτερα ενεργά σερί της σεζόν.`;
       C.push({ score: s * 12 + (alone ? 10 : 0) + (s >= best ? 15 : 0), card: { ...base, big: String(s), bigLabel: 'σερί αγώνες<br>με 20+ πόντους', line: `${extra}${later(c, `κυνηγά τον ${s + 1}ο.`)}`, bars: barsOf(G, 8, Math.min(s, 6)) },
         caption: `Ο ${name} έχει ${s} σερί αγώνες με 20+ πόντους: ${G.slice(-s).map(x => x[8]).join(' – ')}.\n${extra}${later(c, `κυνηγά τον ${s + 1}ο στη σειρά. Θα τα καταφέρει; 👇`)}` });
     }
