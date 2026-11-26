@@ -26,10 +26,13 @@ on:
     paths:
       - 'scripts/props-distribution-compare.mjs'
       - 'scripts/props-holdout-validation.mjs'
+      - 'scripts/props-xpts-walkforward-validation.mjs'
       - 'scripts/props-market-audit.mjs'
       - 'test/props-market-audit.test.mjs'
       - '.github/workflows/update.yml'
       - 'src/odds/props.mjs'
+      - 'src/odds/xpts.mjs'
+      - 'data/shots/**'
       - 'data/cache.json'
       - '.github/workflows/props-calibration.yml'
   workflow_dispatch:
