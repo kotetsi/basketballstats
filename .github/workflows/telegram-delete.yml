@@ -1,0 +1,27 @@
+# Χειροκίνητη διαγραφή μηνύματος από το κανάλι Telegram (t.me/eubasketballstats_eu) από την καρτέλα Actions.
+# message_id = ο αριθμός στο τέλος του link (π.χ. t.me/eubasketballstats_eu/38 → 38). Το bot σβήνει μηνύματα έως 48 ωρών.
+name: Telegram (διαγραφή μηνύματος)
+on:
+  workflow_dispatch:
+    inputs:
+      message_id:
+        description: "Αριθμός μηνύματος (από το link t.me/eubasketballstats_eu/N)"
+        required: true
+permissions:
+  contents: read
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Διαγραφή
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: "@eubasketballstats_eu"
+          MID: ${{ github.event.inputs.message_id }}
+        run: |
+          if [ -z "$TOKEN" ]; then echo "Λείπει το secret TELEGRAM_BOT_TOKEN"; exit 1; fi
+          if ! printf '%s' "$MID" | grep -Eq '^[0-9]+$'; then echo "Το message_id πρέπει να είναι αριθμός"; exit 1; fi
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '[:space:]')
+          R=$(curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/deleteMessage" \
+            --data-urlencode "chat_id=${CHAT}" -d "message_id=${MID}")
+          echo "$R" | python3 -c 'import json,sys; r=json.load(sys.stdin); print("ok" if r.get("ok") else "σφάλμα: "+str(r.get("description"))); sys.exit(0 if r.get("ok") else 1)'
