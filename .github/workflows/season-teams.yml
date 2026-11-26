@@ -1,0 +1,37 @@
+# «Η καλύτερη ομάδα της σεζόν» (E2000–E2025) για βίντεο. Τρέχει ΜΟΝΟ στο branch feature/season-teams,
+# χωρίς secrets και χωρίς deploy· τα δεδομένα γίνονται commit στο ίδιο branch για έλεγχο.
+name: Season teams
+
+on:
+  push:
+    branches: ["feature/season-teams"]
+    paths:
+      - "scripts/season-teams.mjs"
+      - ".github/workflows/season-teams.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: season-teams-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Λήψη E2000–E2025
+        run: node scripts/season-teams.mjs
+      - name: Commit στο branch (όχι στο main)
+        run: |
+          git config user.name "basketballstats-bot"
+          git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add data/season-teams
+          git diff --cached --quiet && echo "καμία αλλαγή" && exit 0
+          git commit -qm "Season teams: καλύτερη ομάδα ανά σεζόν (E2000–E2025)"
+          git push origin HEAD:${{ github.ref_name }}
