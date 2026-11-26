@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/props-distribution-compare.mjs'
       - 'scripts/props-holdout-validation.mjs'
+      - 'scripts/props-xpts-walkforward-validation.mjs'
       - 'scripts/props-residual-diagnostics.mjs'
       - 'scripts/props-minutes-diagnostics.mjs'
       - 'scripts/props-market-audit.mjs'
@@ -14,6 +15,8 @@ on:
       - 'scripts/odds.mjs'
       - 'src/odds/core.mjs'
       - 'src/odds/props.mjs'
+      - 'src/odds/xpts.mjs'
+      - 'data/shots/**'
       - 'test/odds.test.mjs'
       - 'test/props.test.mjs'
       - 'data/cache.json'
@@ -57,6 +60,8 @@ jobs:
         run: node scripts/props-minutes-diagnostics.mjs | tee props-minutes-diagnostics.json
       - name: Run chronological player-prop holdout
         run: node scripts/props-holdout-validation.mjs | tee props-holdout-validation.json
+      - name: Run leakage-safe xPTS walk-forward holdout
+        run: node scripts/props-xpts-walkforward-validation.mjs | tee props-xpts-walkforward-validation.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
@@ -67,4 +72,5 @@ jobs:
             props-minutes-diagnostics.json
             props-market-audit.json
             props-holdout-validation.json
+            props-xpts-walkforward-validation.json
           if-no-files-found: error
