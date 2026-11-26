@@ -22,7 +22,7 @@ if (rounds.length < 8) throw new Error('Need at least 8 observed rounds for xPTS
 
 const holdoutStart = rounds[Math.floor(rounds.length * 0.75)];
 const IDX = loadShotIndex(path.join(SHOTS, SEASON), C.league.games || []);
-const roundOfGame = new Map((C.league.games || []).map(g => [\`\${g[2]}|\${g[3]}\`, Number(g[0])]));
+const roundOfGame = new Map((C.league.games || []).map(g => [`${g[2]}|${g[3]}`, Number(g[0])]));
 
 const emptyCounts = () => ({});
 function addShots(counts, game) {
@@ -68,7 +68,7 @@ const currentDir = path.join(SHOTS, SEASON);
 for (const file of fs.existsSync(currentDir) ? fs.readdirSync(currentDir).filter(f => f.endsWith('.json')) : []) {
   try {
     const game = JSON.parse(fs.readFileSync(path.join(currentDir, file), 'utf8'));
-    const round = roundOfGame.get(\`\${game.h}|\${game.a}\`);
+    const round = roundOfGame.get(`${game.h}|${game.a}`);
     if (!Number.isFinite(round)) continue;
     const bucket = currentCountsByRound.get(round) || emptyCounts();
     addShots(bucket, game);
@@ -135,7 +135,7 @@ for (const p of players) {
       lam: PARAMS.xLam,
       k: PARAMS.xK,
     });
-    const hasShots = history.some(r => IDX.has(\`\${p.c}|\${r[0]}\`));
+    const hasShots = history.some(r => IDX.has(`${p.c}|${r[0]}`));
     if (hasShots) withHistoricalShots++;
     const changedRows = xpHistory.reduce((n, row, j) =>
       n + ((row[8] !== history[j][8] || row[11] !== history[j][11]) ? 1 : 0), 0);
