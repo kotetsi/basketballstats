@@ -12,3 +12,7 @@ export function streakNote(s, others) {
 
 // ενεργό σερί (από τον τελευταίο αγώνα προς τα πίσω) με βάση ένα κριτήριο
 export function activeStreak(games, ok) { let k = 0; for (const x of [...games].reverse()) { if (ok(x)) k++; else break; } return k; }
+
+// «ρεκόρ σεζόν, κανείς δεν είχε φέτος περισσότερα»: ισχύει μόνο αν η τιμή ξεπερνά ΟΛΕΣ τις άλλες τιμές της σεζόν,
+// και αυτές της ίδιας βραδιάς από άλλους παίκτες (αλλιώς δύο παίκτες θα έπαιρναν την ίδια φράση την ίδια μέρα)
+export function isSeasonRecord(v, others) { return others.every(x => v > x); }

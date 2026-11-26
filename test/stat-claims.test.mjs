@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { streakNote, activeStreak } from '../scripts/stat-claims.mjs';
+import { streakNote, activeStreak, isSeasonRecord } from '../scripts/stat-claims.mjs';
 
 test('streakNote: «ούτε s-1» μόνο όταν κανείς δεν έχει s-1 ή περισσότερα', () => {
   // η περίπτωση της 26/11: Τζόουνς 3, Walker IV και Ράιτ 2
@@ -28,4 +28,10 @@ test('activeStreak', () => {
   const g = [[0, 25], [0, 10], [0, 21], [0, 22], [0, 20]].map(([a, p]) => ({ p }));
   assert.equal(activeStreak(g, x => x.p >= 20), 3);
   assert.equal(activeStreak([], x => x.p >= 20), 0);
+});
+
+test('isSeasonRecord: μόνο αν ξεπερνά όλες τις άλλες τιμές, και της ίδιας βραδιάς', () => {
+  assert.equal(isSeasonRecord(34, [30, 31, 29]), true);
+  assert.equal(isSeasonRecord(32, [30, 34]), false, 'άλλος παίκτης την ίδια βραδιά με 34');
+  assert.equal(isSeasonRecord(31, [31]), false, 'ισοφάριση δεν είναι «κανείς δεν είχε περισσότερα»');
 });

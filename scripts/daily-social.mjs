@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { statCardHtml, statStoryHtml, STAT_VIDEO_SECS } from './stat-card.mjs';
 import { upcomingPicks, cardHtml, when, DISC, settledPicks, resultCardHtml, resultLine, recordLine } from './pick-cards.mjs';
 import { shotReelHtml, shotOrder, SHOT_REEL_SECS } from './shot-reel.mjs';
-import { streakNote, activeStreak } from './stat-claims.mjs';
+import { isSeasonRecord, streakNote, activeStreak } from './stat-claims.mjs';
 import { previewHtml, previewSecs, top5Html, TOP5_SECS, raceHtml, raceSecs, teamHtml, TEAM_SECS } from './round-videos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -62,7 +62,8 @@ if (D && (!ONLY || ONLY === 'stat') && !state.posted.some(k => k.startsWith(`sta
   const nextToday = c => data.league.games.find(g => !g[6] && (g[2] === c || g[3] === c) && athensDay(gDate(g[1])) === today);
   const later = (c, what) => { const g = nextToday(c); if (!g) return ''; const opp = g[2] === c ? g[3] : g[2]; return ` Απόψε (${hhmm(gDate(g[1]))}) με ${withT(opp)} ${what}`; };
   const barsOf = (G, k, n, f = x => x[k]) => G.slice(-n).map(x => [`${x[0]}η · ${short(x[2])}`, f(x)]);
-  const maxOf = (k, f = x => x[k]) => Math.max(...all.flatMap(o => o.G.filter(x => x[1] !== D).map(f)), 0);
+  // όλες οι άλλες τιμές της σεζόν: όλοι οι αγώνες όλων, εκτός από τον συγκεκριμένο αγώνα του παίκτη (και της ίδιας βραδιάς οι άλλοι μετράνε)
+  const othersOf = (row, f) => all.flatMap(o => o.G.filter(x => x !== row).map(f));
   for (const { p, G } of all) {
     const last = G[G.length - 1]; if (last[1] !== D) continue;
     const c = teamOf(p), who = `${tn(c)} · EuroLeague ${SEAS}`.replace(/\s·\s$/, ''), name = grName(p.n);
@@ -79,7 +80,7 @@ if (D && (!ONLY || ONLY === 'stat') && !state.posted.some(k => k.startsWith(`sta
     // 2. ρεκόρ σεζόν σε πόντους / PIR / ασίστ / ριμπάουντ / τρίποντα (σε έναν αγώνα)
     for (const [k, min, lab, f, w] of [[8, 25, 'πόντοι', null, 1.1], [25, 32, 'PIR', null, 1], [17, 11, 'ασίστ', null, 3], ['reb', 14, 'ριμπάουντ', x => x[15] + x[16], 2.5], [11, 7, 'τρίποντα', null, 5]]) {
       const v = f ? f(last) : last[k];
-      if (v >= min && v > maxOf(k, f || (x => x[k]))) C.push({ score: 30 + v * w, card: { ...base, big: String(v), bigLabel: `${lab}<br>— ρεκόρ σεζόν`, line: `Κανείς δεν είχε φέτος περισσότερα ${lab === 'PIR' ? 'PIR' : lab} σε αγώνα EuroLeague. Έγινε κόντρα ${vs(last[2])}.`, bars: barsOf(G, k, 5, f || undefined) },
+      if (v >= min && isSeasonRecord(v, othersOf(last, f || (x => x[k])))) C.push({ score: 30 + v * w, card: { ...base, big: String(v), bigLabel: `${lab}<br>— ρεκόρ σεζόν`, line: `Κανείς δεν είχε φέτος περισσότερα ${lab === 'PIR' ? 'PIR' : lab} σε αγώνα EuroLeague. Έγινε κόντρα ${vs(last[2])}.`, bars: barsOf(G, k, 5, f || undefined) },
         caption: `${v} ${lab} για τον ${name} κόντρα ${vs(last[2])}: ρεκόρ σεζόν στην EuroLeague. Κανείς δεν είχε φέτος περισσότερα σε έναν αγώνα.` });
     }
     // 3. τέλειο σουτ (8+ προσπάθειες εντός πεδιάς, όλες εύστοχες)
