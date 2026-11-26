@@ -15,7 +15,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { statCardHtml, statStoryHtml, STAT_VIDEO_SECS } from './stat-card.mjs';
-import { upcomingPicks, cardHtml, when, DISC } from './pick-cards.mjs';
+import { upcomingPicks, cardHtml, when, DISC, settledPicks, resultCardHtml, resultLine, recordLine } from './pick-cards.mjs';
 import { shotReelHtml, shotOrder, SHOT_REEL_SECS } from './shot-reel.mjs';
 import { previewHtml, previewSecs, top5Html, TOP5_SECS, raceHtml, raceSecs, teamHtml, TEAM_SECS } from './round-videos.mjs';
 
@@ -253,6 +253,23 @@ if (D && (!ONLY || ONLY === 'shots') && !state.posted.some(k => k.startsWith(`sh
       plan.items.push({ key: `team:${RT}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, short: `🧠 Η ομάδα του μοντέλου για την ${RT}η αγωνιστική του EuroLeague Fantasy: αρχηγός ${capP ? capP.full : ''}, εκτίμηση ${Math.round(o.target)} πόντοι · basketballstats.eu`, kinds: ['reel'], nets: ['fb', 'ig', 'yt'], ytTitle: `EuroLeague Fantasy ${RT}η αγωνιστική: η ομάδα του μοντέλου (${Math.round(o.target)} πόντοι;)`, alt: `Ομάδα Fantasy ${RT}ης αγωνιστικής` });
       console.log(`Ομάδα του μοντέλου ${RT}ης: αρχηγός ${capP?.full}, εκτίμηση ${Math.round(o.target)}`);
     } catch (e) { console.error('Ομάδα του μοντέλου: παράλειψη —', e.message); }
+  }
+}
+
+// «Το είπαμε»: κάρτα αποτελέσματος για κάθε pick του High Fidelity που κρίθηκε χθες (ή σήμερα, για αγώνες που τελείωσαν),
+// και όταν βγήκε και όταν δεν βγήκε. Το ιστορικό είναι δημόσιο, άρα δείχνουμε και τα χαμένα. Έως 3 την ημέρα.
+if (!ONLY || ONLY === 'result') {
+  const R = [yesterday, today].flatMap(d => settledPicks(data, ['high-fidelity'], d))
+    .filter(t => !state.posted.some(k => k.startsWith(`result:${t.u}:`))).slice(0, 3);
+  for (const [i, t] of R.entries()) {
+    const won = t.res === 'W', [hs, as] = String(t.sc || '').split('-'), got = resultLine(t), link = SITE + '/tipsters/';
+    await fs.mkdir(outDir, { recursive: true });
+    const img = path.join(outDir, `result-${i + 1}.png`), vid = path.join(outDir, `result-${i + 1}.mp4`);
+    if (!DRY) { await render(resultCardHtml(t, data), img, 1080, 1350); stillVideo(img, vid); }
+    const text = `${won ? '✅ Το είπαμε' : '❌ Δεν βγήκε'} · ${t.n}\n\n🏀 ${tn(t.h)} ${hs}-${as} ${tn(t.a)}\n👉 ${t.l}${t.o ? ` @${Number(t.o).toFixed(2)}` : ''}${got ? `\n📈 ${got}` : ''}\n\n📊 ${recordLine(t)}\nΚάθε επιλογή καταγράφεται πριν από τον αγώνα, μαζί και όσες χάνουν: ${link}\n\n${DISC}\n\n#EuroLeague #μπάσκετ`;
+    plan.items.push({ key: `result:${t.u}`, image: path.relative(ROOT, img), video: path.relative(ROOT, vid), text, textIg: text.replace(`: ${link}`, ' στο basketballstats.eu (link στο προφίλ)'),
+      short: `${won ? '✅ Το είπαμε' : '❌ Δεν βγήκε'}: ${tn(t.h)} ${hs}-${as} ${tn(t.a)} · ${t.l}${t.o ? ` @${Number(t.o).toFixed(2)}` : ''} · ${recordLine(t)} · basketballstats.eu · 21+`, link, kinds: ['post', 'story'], alt: `${won ? 'Πέτυχε' : 'Δεν βγήκε'}: ${t.l}` });
+    console.log(`Αποτέλεσμα pick: ${t.l} → ${won ? 'ΠΕΤΥΧΕ' : 'ΔΕΝ ΒΓΗΚΕ'}`);
   }
 }
 
