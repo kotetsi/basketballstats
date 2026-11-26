@@ -32,7 +32,7 @@ const FORCE = process.argv.includes('--force');
 const STALE_H = 30;
 
 // Quota exhaustion is fatal for this run: do not swallow it as an ordinary per-fixture miss.
-export const isQuotaLimitError = error => /μηνιαίο όριο \\d+ κλήσεων/i.test(String(error?.message || error));
+export const isQuotaLimitError = error => /μηνιαίο όριο \d+ κλήσεων/i.test(String(error?.message || error));
 
 // ονόματα παρόχων → κωδικοί ομάδων (EuroLeague)
 const ALIAS = {
