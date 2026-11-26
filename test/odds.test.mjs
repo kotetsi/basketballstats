@@ -65,3 +65,11 @@ test('multi-book market consensus: de-vig probabilities, median, and minimum cov
   assert.equal(consensusProbability([{ book: 'A', probability: 0.55 }]), null);
   assert.equal(consensusProbability([{ book: 'A', probability: 0.55 }, { book: 'A', probability: 0.57 }]), null);
 });
+
+
+test('quota exhaustion is fatal and distinguishable from ordinary provider errors', async () => {
+  const { isQuotaLimitError } = await import('../scripts/odds.mjs');
+  assert.equal(isQuotaLimitError(new Error('μηνιαίο όριο 250 κλήσεων')), true);
+  assert.equal(isQuotaLimitError(new Error('OddsPapi /odds 503: unavailable')), false);
+  assert.equal(isQuotaLimitError('μηνιαίο όριο 240 κλήσεων'), true);
+});
