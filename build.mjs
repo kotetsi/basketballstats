@@ -43,6 +43,7 @@ import * as SOLV from './src/fantasy/solver.mjs';
 import * as TURNS from './src/fantasy/turns.mjs';
 import * as EXPL from './src/fantasy/explain.mjs';
 import * as INS from './src/fantasy/insight.mjs';
+import { pickSplits } from './src/tipsters/splits.mjs';
 import { describe as shDescribe } from './src/shots/zones.mjs';
 import { miniHeat } from './src/shots/court.mjs';
 import * as CB from './src/compare/build-compare.mjs';
@@ -566,7 +567,7 @@ async function loadTipsters(games, players) {
       }
       else if (g[6] && p.kind === 'h2') { const sh = await secondHalf(h, a); if (sh) { res = gradePick({ kind: 'ml', side: p.side }, sh[0], sh[1]); p.h2 = sh; } }
       else if (g[6]) res = gradePick(p, g[4], g[5]);
-      cur = { round, h, a, text: { el: [], en: [], es: [], sr: [], tr: [] }, lang: 'el', label: Object.fromEntries(LANGS.map(lg => [lg, pickLabel(p, h, a, lg)])), odds: odds && odds > 1 ? odds : null, res,
+      cur = { round, h, a, text: { el: [], en: [], es: [], sr: [], tr: [] }, lang: 'el', label: Object.fromEntries(LANGS.map(lg => [lg, pickLabel(p, h, a, lg)])), odds: odds && odds > 1 ? odds : null, res, kind: p.kind, ov: p.kind === 'prop' ? (p.min != null || !!p.over) : !!p.over,
         score: g && g[6] ? `${g[4]}-${g[5]}` : '', val: p.kind === 'prop' && p.val != null ? p.val : null, stat: p.stat, date: g ? g[1] : '',
         close: g ? await closingFor(round, h, a, p, odds && odds > 1 ? odds : null, g[1]) : null };
       picks.push(cur);
@@ -3580,12 +3581,27 @@ ${Object.keys(byGame).length ? `<div class="tipgames">${Object.values(byGame).so
 ${disclaimer}</section>` });
     for (const t of tipsters) {
       const bio = T(t.bio, t.bioEn, t.bioEs, t.bioSr, t.bioTr);
+      // ρεκόρ ανά είδος επιλογής και ανά ζώνη απόδοσης (src/tipsters/splits.mjs): πού πιάνει και πού χάνει ο tipster
+      const SP = pickSplits(t.picks);
+      const TYL = { 'tot-o': T('Σύνολο πόντων – over', 'Game total – over', 'Total de puntos – over', 'Ukupno poena – over', 'Toplam sayı – üst'), 'tot-u': T('Σύνολο πόντων – under', 'Game total – under', 'Total de puntos – under', 'Ukupno poena – under', 'Toplam sayı – alt'),
+        hc: T('Handicap', 'Handicap', 'Hándicap', 'Hendikep', 'Handikap'), ml: T('Νίκη ομάδας', 'Team to win', 'Victoria del equipo', 'Pobeda tima', 'Takım kazanır'), h2: T('2ο ημίχρονο', '2nd half', '2.ª parte', 'Drugo poluvreme', 'İkinci yarı'),
+        'prop-o': T('Παίκτες – over', 'Player props – over', 'Jugadores – over', 'Igrači – over', 'Oyuncular – üst'), 'prop-u': T('Παίκτες – under', 'Player props – under', 'Jugadores – under', 'Igrači – under', 'Oyuncular – alt') };
+      const cell = a => a.n ? `${a.W}-${a.L} <small>${pctTxt(a.pct)}</small>` : '–';
+      const ucell = a => a.n ? `<b class="${a.units > 0 ? 'up' : a.units < 0 ? 'down' : ''}">${unitsTxt(a.units)}</b>` : '–';
+      const band = r => r.hi === Infinity ? `≥ ${r.lo.toFixed(2)}` : r.lo === 0 ? `< ${r.hi.toFixed(2)}` : `${r.lo.toFixed(2)}–${r.hi.toFixed(2)}`;
+      const splitsHtml = SP.n < 5 ? '' : `<h2>${T('Πού πιάνει', 'Where the picks land', 'Dónde acierta', 'Gde pogađa', 'Nerede tutuyor')}</h2>
+<div class="tbl"><table class="tiptbl"><thead><tr><th class="l">${T('Είδος επιλογής', 'Pick type', 'Tipo de apuesta', 'Vrsta tipa', 'Seçim türü')}</th><th>${T('Ν-Η', 'W-L', 'V-D', 'P-I', 'G-M')}</th><th>${T('Μονάδες', 'Units', 'Unidades', 'Jedinice', 'Birim')}</th></tr></thead><tbody>
+${SP.types.map(r => `<tr><td class="l">${esc(TYL[r.key])}</td><td>${cell(r)}</td><td>${ucell(r)}</td></tr>`).join('')}</tbody></table></div>
+<div class="tbl" style="margin-top:16px"><table class="tiptbl"><thead><tr><th class="l">${T('Απόδοση', 'Odds', 'Cuota', 'Kvota', 'Oran')}</th><th>${T('Όλες', 'All', 'Todas', 'Svi', 'Tümü')}</th><th>${T('Μονάδες', 'Units', 'Unidades', 'Jedinice', 'Birim')}</th><th>${T('Ομάδες & σύνολα', 'Teams & totals', 'Equipos y totales', 'Timovi i ukupno', 'Takımlar ve toplamlar')}</th><th>${T('Παίκτες', 'Players', 'Jugadores', 'Igrači', 'Oyuncular')}</th></tr></thead><tbody>
+${SP.bands.map(r => `<tr><td class="l">${band(r)}</td><td>${cell(r.all)}</td><td>${ucell(r.all)}</td><td>${cell(r.team)}</td><td>${cell(r.prop)}</td></tr>`).join('')}</tbody></table></div>
+<p class="sub">${T(`Από ${SP.n} επιλογές που κρίθηκαν. Με λίγες επιλογές ανά γραμμή, οι διαφορές μπορεί να είναι και τύχη.`, `From ${SP.n} settled picks. With few picks per row, differences can be luck.`, `De ${SP.n} apuestas resueltas. Con pocas apuestas por fila, las diferencias pueden ser suerte.`, `Od ${SP.n} rešenih tipova. Sa malo tipova po redu, razlike mogu biti i sreća.`, `Sonuçlanan ${SP.n} seçimden. Satır başına az seçimle farklar şans olabilir.`)}</p>`;
       await simplePage('tipster:' + t.slug, { view: 'tipsters',
         title: T(`${t.name}: επιλογές και βαθμολογία tipster EuroLeague | ${SITE_NAME}`, `${t.name}: EuroLeague tipster picks and record | ${SITE_NAME}`, `${t.name}: apuestas y balance del tipster en la EuroLeague | ${SITE_NAME}`, `${t.name}: tipovi i učinak tipstera u Evroligi | ${SITE_NAME}`, `${t.name}: EuroLeague tipster seçimleri ve performansı | ${SITE_NAME}`),
         desc: T(`${t.name}: ${t.W}-${t.L} στις επιλογές EuroLeague, ποσοστό επιτυχίας ${pctTxt(t.pct)}, ${unitsTxt(t.units)} μονάδες.`,
           `${t.name}: ${t.W}-${t.L} on EuroLeague picks, ${pctTxt(t.pct)} hit rate, ${unitsTxt(t.units)} units.`, `${t.name}: ${t.W}-${t.L} en sus apuestas de la EuroLeague, ${pctTxt(t.pct)} de acierto, ${unitsTxt(t.units)} unidades.`, `${t.name}: ${t.W}-${t.L} na tipovima za Evroligu, uspešnost ${pctTxt(t.pct)}, ${unitsTxt(t.units)} jedinica.`, `${t.name}: EuroLeague seçimlerinde ${t.W}-${t.L}, isabet oranı ${pctTxt(t.pct)}, ${unitsTxt(t.units)} birim.`),
         main: `<section class="article wide"><p class="sub"><a href="${urlFor(LG, 'tipsters')}">Tipsters</a></p><h1>${esc(t.name)}</h1>${bio ? `<p class="lede2">${esc(bio)}</p>` : ''}
 <div class="adv tipstats"><div><span>${T('Επιλογές', 'Picks', 'Apuestas', 'Tipovi', 'Seçimler')}</span><b>${t.W + t.L + t.P}</b></div><div><span>${T('Ν-Η', 'W-L', 'V-D', 'P-I', 'G-M')}</span><b>${t.W}-${t.L}</b></div><div><span>${T('Επιτυχία', 'Hit rate', 'Acierto', 'Uspešnost', 'İsabet oranı')}</span><b>${pctTxt(t.pct)}</b></div><div><span>${T('Μονάδες', 'Units', 'Unidades', 'Jedinice', 'Birim')}</span><b>${unitsTxt(t.units)}</b></div></div>
+${splitsHtml}
 <div class="tbl"><table class="tiptbl"><thead><tr><th>${T('Ημερομηνία', 'Date', 'Fecha', 'Datum', 'Tarih')}</th><th>${T('Αγώνας', 'Game', 'Partido', 'Utakmica', 'Maç')}</th><th>${T('Επιλογή', 'Pick', 'Apuesta', 'Tip', 'Seçim')}</th><th>${T('Απόδοση', 'Odds', 'Cuota', 'Kvota', 'Oran')}</th><th>${T('Σκορ', 'Score', 'Marcador', 'Rezultat', 'Skor')}</th><th>${T('Αποτέλεσμα', 'Result', 'Resultado', 'Ishod', 'Sonuç')}</th></tr></thead><tbody>
 ${t.picks.map(p => `<tr><td class="tdate">${p.date ? esc(whenShort(p)) : ''}<small>${esc(roundTxt(p.round))}</small></td><td class="l">${gameTxt(p)}</td><td class="l"><a class="pklink" href="${p.url[LG]}">${esc(p.label[LG])}</a>${p.html[LG] ? ` <span class="rk">· ${T('ανάλυση', 'analysis', 'análisis', 'analiza', 'analiz')}</span>` : ''}</td><td>${p.odds ? p.odds.toFixed(2) : '–'}</td><td>${scoreTxt(p) || '–'}</td><td>${p.res === 'unknown' ? `<span class="res q" title="${T('Δεν βρέθηκε ο αγώνας', 'Game not found', 'Partido no encontrado', 'Utakmica nije pronađena', 'Maç bulunamadı')}">?</span>` : resChip(p.res === 'pending' ? 'Q' : p.res)}</td></tr>`).join('')}
 </tbody></table></div>${disclaimer}</section>` });
