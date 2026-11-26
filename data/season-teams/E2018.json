@@ -1,0 +1,256 @@
+{
+ "season": "E2018",
+ "label": "2018-19",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "CSK",
+  "name": "CSKA Moscow",
+  "date": "2019-05-19"
+ },
+ "coach": {
+  "name": "Itoudis",
+  "full": "ITOUDIS, DIMITRIS",
+  "team": "CSK"
+ },
+ "players": [
+  {
+   "name": "Milutinov",
+   "full": "MILUTINOV, NIKOLA",
+   "pos": "C",
+   "team": "OLY",
+   "num": 11,
+   "pir": 20,
+   "gp": 28,
+   "code": "003941"
+  },
+  {
+   "name": "Gudaitis",
+   "full": "GUDAITIS, ARTURAS",
+   "pos": "C",
+   "team": "MIL",
+   "num": 7,
+   "pir": 18.7,
+   "gp": 21,
+   "code": "003120"
+  },
+  {
+   "name": "Clyburn",
+   "full": "CLYBURN, WILL",
+   "pos": "F",
+   "team": "CSK",
+   "num": 21,
+   "pir": 17.5,
+   "gp": 35,
+   "code": "004888"
+  },
+  {
+   "name": "Moerman",
+   "full": "MOERMAN, ADRIEN",
+   "pos": "F",
+   "team": "IST",
+   "num": 18,
+   "pir": 15.2,
+   "gp": 37,
+   "code": "001833"
+  },
+  {
+   "name": "Williams",
+   "full": "WILLIAMS, DERRICK",
+   "pos": "F",
+   "team": "MUN",
+   "num": 23,
+   "pir": 14.2,
+   "gp": 29,
+   "code": "009006"
+  },
+  {
+   "name": "Randolph",
+   "full": "RANDOLPH, ANTHONY",
+   "pos": "F",
+   "team": "MAD",
+   "num": 3,
+   "pir": 13.8,
+   "gp": 33,
+   "code": "005757"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "MIL",
+   "num": 2,
+   "pir": 20.2,
+   "gp": 30,
+   "code": "005985"
+  },
+  {
+   "name": "De Colo",
+   "full": "DE COLO, NANDO",
+   "pos": "G",
+   "team": "CSK",
+   "num": 1,
+   "pir": 16.4,
+   "gp": 34,
+   "code": "002100"
+  },
+  {
+   "name": "Calathes",
+   "full": "CALATHES, NICK",
+   "pos": "G",
+   "team": "PAN",
+   "num": 33,
+   "pir": 15.8,
+   "gp": 33,
+   "code": "001932"
+  },
+  {
+   "name": "Sloukas",
+   "full": "SLOUKAS, KOSTAS",
+   "pos": "G",
+   "team": "ULK",
+   "num": 16,
+   "pir": 15.2,
+   "gp": 33,
+   "code": "001926"
+  }
+ ],
+ "checked": [
+  {
+   "name": "JAMES, MIKE",
+   "team": "MIL",
+   "pir": 20.2,
+   "gp": 30,
+   "pos": "G"
+  },
+  {
+   "name": "MILUTINOV, NIKOLA",
+   "team": "OLY",
+   "pir": 20,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "GUDAITIS, ARTURAS",
+   "team": "MIL",
+   "pir": 18.7,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "POIRIER, VINCENT",
+   "team": "BAS",
+   "pir": 17.7,
+   "gp": 34,
+   "pos": "C"
+  },
+  {
+   "name": "VESELY, JAN",
+   "team": "ULK",
+   "pir": 17.6,
+   "gp": 31,
+   "pos": "C"
+  },
+  {
+   "name": "CLYBURN, WILL",
+   "team": "CSK",
+   "pir": 17.5,
+   "gp": 35,
+   "pos": "F"
+  },
+  {
+   "name": "DAVIES, BRANDON",
+   "team": "ZAL",
+   "pir": 16.9,
+   "gp": 34,
+   "pos": "C"
+  },
+  {
+   "name": "DE COLO, NANDO",
+   "team": "CSK",
+   "pir": 16.4,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "CALATHES, NICK",
+   "team": "PAN",
+   "pir": 15.8,
+   "gp": 33,
+   "pos": "G"
+  },
+  {
+   "name": "MICKEY, JORDAN",
+   "team": "KHI",
+   "pir": 15.4,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "MOERMAN, ADRIEN",
+   "team": "IST",
+   "pir": 15.2,
+   "gp": 37,
+   "pos": "F"
+  },
+  {
+   "name": "SLOUKAS, KOSTAS",
+   "team": "ULK",
+   "pir": 15.2,
+   "gp": 33,
+   "pos": "G"
+  },
+  {
+   "name": "AYON, GUSTAVO",
+   "team": "MAD",
+   "pir": 14.5,
+   "gp": 31,
+   "pos": "C"
+  },
+  {
+   "name": "HIGGINS, CORY",
+   "team": "CSK",
+   "pir": 14.4,
+   "gp": 32,
+   "pos": "G"
+  },
+  {
+   "name": "WILLIAMS, DERRICK",
+   "team": "MUN",
+   "pir": 14.2,
+   "gp": 29,
+   "pos": "F"
+  },
+  {
+   "name": "LARKIN, SHANE",
+   "team": "IST",
+   "pir": 14,
+   "gp": 35,
+   "pos": "G"
+  },
+  {
+   "name": "MICIC, VASILIJE",
+   "team": "IST",
+   "pir": 13.9,
+   "gp": 37,
+   "pos": "G"
+  },
+  {
+   "name": "RANDOLPH, ANTHONY",
+   "team": "MAD",
+   "pir": 13.8,
+   "gp": 33,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2018"
+}

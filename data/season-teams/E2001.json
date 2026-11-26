@@ -1,0 +1,276 @@
+{
+ "season": "E2001",
+ "label": "2001-02",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "PAN",
+  "name": "Panathinaikos Athens",
+  "date": "2002-05-05"
+ },
+ "coach": {
+  "name": "Obradovic",
+  "full": "OBRADOVIC, ZELJKO",
+  "team": "PAN"
+ },
+ "players": [
+  {
+   "name": "Tomasevic",
+   "full": "TOMASEVIC, DEJAN",
+   "pos": "C",
+   "team": "BAS",
+   "num": 12,
+   "pir": 19.7,
+   "gp": 20,
+   "code": "AFC"
+  },
+  {
+   "name": "Kambala",
+   "full": "KAMBALA, KASPARS",
+   "pos": "C",
+   "team": "IST",
+   "num": 15,
+   "pir": 17.2,
+   "gp": 20,
+   "code": "ARW"
+  },
+  {
+   "name": "Turkcan",
+   "full": "TURKCAN, MIRSAD",
+   "pos": "F",
+   "team": "CSK",
+   "num": 6,
+   "pir": 25.8,
+   "gp": 17,
+   "code": "AYR"
+  },
+  {
+   "name": "Bodiroga",
+   "full": "BODIROGA, DEJAN",
+   "pos": "F",
+   "team": "PAN",
+   "num": 10,
+   "pir": 23.1,
+   "gp": 22,
+   "code": "APN"
+  },
+  {
+   "name": "Avleev",
+   "full": "AVLEEV, RUSLAN",
+   "pos": "F",
+   "team": "PEM",
+   "num": 14,
+   "pir": 22.6,
+   "gp": 20,
+   "code": "AXN"
+  },
+  {
+   "name": "Fucka",
+   "full": "FUCKA, GREGOR",
+   "pos": "F",
+   "team": "FOR",
+   "num": 7,
+   "pir": 21.4,
+   "gp": 20,
+   "code": "ADP"
+  },
+  {
+   "name": "Ford",
+   "full": "FORD, ALPHONSO",
+   "pos": "G",
+   "team": "OLY",
+   "num": 10,
+   "pir": 23.4,
+   "gp": 20,
+   "code": "ACF"
+  },
+  {
+   "name": "Edney",
+   "full": "EDNEY, TYUS",
+   "pos": "G",
+   "team": "TRE",
+   "num": 5,
+   "pir": 20.3,
+   "gp": 19,
+   "code": "ARH"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, MARCUS",
+   "pos": "G",
+   "team": "IST",
+   "num": 5,
+   "pir": 18,
+   "gp": 19,
+   "code": "AHT"
+  },
+  {
+   "name": "Parker",
+   "full": "PARKER, ANTHONY",
+   "pos": "G",
+   "team": "TEL",
+   "num": 8,
+   "pir": 17.5,
+   "gp": 20,
+   "code": "AOW"
+  }
+ ],
+ "checked": [
+  {
+   "name": "TURKCAN, MIRSAD",
+   "team": "CSK",
+   "pir": 25.8,
+   "gp": 17,
+   "pos": "F"
+  },
+  {
+   "name": "FORD, ALPHONSO",
+   "team": "OLY",
+   "pir": 23.4,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "BODIROGA, DEJAN",
+   "team": "PAN",
+   "pir": 23.1,
+   "gp": 22,
+   "pos": "F"
+  },
+  {
+   "name": "AVLEEV, RUSLAN",
+   "team": "PEM",
+   "pir": 22.6,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "FUCKA, GREGOR",
+   "team": "FOR",
+   "pir": 21.4,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "GIRICEK, GORDAN",
+   "team": "CSK",
+   "pir": 20.6,
+   "gp": 18,
+   "pos": "F"
+  },
+  {
+   "name": "EDNEY, TYUS",
+   "team": "TRE",
+   "pir": 20.3,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "TOMASEVIC, DEJAN",
+   "team": "BAS",
+   "pir": 19.7,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "DIKOUDIS, DIMOS",
+   "team": "AEK",
+   "pir": 19,
+   "gp": 19,
+   "pos": "F"
+  },
+  {
+   "name": "KAKIOUZIS, MICHAILIS",
+   "team": "AEK",
+   "pir": 18.2,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "BROWN, MARCUS",
+   "team": "IST",
+   "pir": 18,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "PARKER, ANTHONY",
+   "team": "TEL",
+   "pir": 17.5,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "KAMBALA, KASPARS",
+   "team": "IST",
+   "pir": 17.2,
+   "gp": 20,
+   "pos": "C"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "BLAIR, JOSEPH",
+   "team": "PES",
+   "gp": 14,
+   "pir": 25.1
+  },
+  {
+   "name": "SKELIN, MATE",
+   "team": "MES",
+   "gp": 14,
+   "pir": 25.1
+  },
+  {
+   "name": "LAKOVIC, JAKA",
+   "team": "MES",
+   "gp": 14,
+   "pir": 22.4
+  },
+  {
+   "name": "BIGGS, RALPH",
+   "team": "OOS",
+   "gp": 14,
+   "pir": 21.6
+  },
+  {
+   "name": "KHIZHNIAK, GRYGORII",
+   "team": "ZAL",
+   "gp": 14,
+   "pir": 21.6
+  },
+  {
+   "name": "GOREE, MARCUS",
+   "team": "FRA",
+   "gp": 14,
+   "pir": 21.1
+  },
+  {
+   "name": "VUJCIC, NIKOLA",
+   "team": "ASV;TEL",
+   "gp": 14,
+   "pir": 19.3
+  },
+  {
+   "name": "STANOJEVIC, JOVO",
+   "team": "PAR",
+   "gp": 14,
+   "pir": 19.1
+  },
+  {
+   "name": "WOJCIK, ADAM",
+   "team": "PER",
+   "gp": 14,
+   "pir": 18.7
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2001"
+}

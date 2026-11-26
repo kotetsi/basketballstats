@@ -1,0 +1,249 @@
+{
+ "season": "E2020",
+ "label": "2020-21",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "IST",
+  "name": "Anadolu Efes Istanbul",
+  "date": "2021-05-30"
+ },
+ "coach": {
+  "name": "Ataman",
+  "full": "ATAMAN, ERGIN",
+  "team": "IST"
+ },
+ "players": [
+  {
+   "name": "Tavares",
+   "full": "TAVARES, WALTER",
+   "pos": "C",
+   "team": "MAD",
+   "num": 22,
+   "pir": 18.1,
+   "gp": 36,
+   "code": "005791"
+  },
+  {
+   "name": "Vesely",
+   "full": "VESELY, JAN",
+   "pos": "C",
+   "team": "ULK",
+   "num": 24,
+   "pir": 18,
+   "gp": 31,
+   "code": "000925"
+  },
+  {
+   "name": "Mirotic",
+   "full": "MIROTIC, NIKOLA",
+   "pos": "F",
+   "team": "BAR",
+   "num": 33,
+   "pir": 19.5,
+   "gp": 33,
+   "code": "000796"
+  },
+  {
+   "name": "Lucic",
+   "full": "LUCIC, VLADIMIR",
+   "pos": "F",
+   "team": "MUN",
+   "num": 11,
+   "pir": 17.8,
+   "gp": 31,
+   "code": "001288"
+  },
+  {
+   "name": "Shields",
+   "full": "SHIELDS, SHAVON",
+   "pos": "F",
+   "team": "MIL",
+   "num": 31,
+   "pir": 15,
+   "gp": 36,
+   "code": "007831"
+  },
+  {
+   "name": "Vezenkov",
+   "full": "VEZENKOV, SASHA",
+   "pos": "F",
+   "team": "OLY",
+   "num": 14,
+   "pir": 14.8,
+   "gp": 31,
+   "code": "003469"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "CSK",
+   "num": 5,
+   "pir": 19.7,
+   "gp": 27,
+   "code": "005985"
+  },
+  {
+   "name": "Shved",
+   "full": "SHVED, ALEXEY",
+   "pos": "G",
+   "team": "KHI",
+   "num": 1,
+   "pir": 19.6,
+   "gp": 23,
+   "code": "KVZ"
+  },
+  {
+   "name": "De Colo",
+   "full": "DE COLO, NANDO",
+   "pos": "G",
+   "team": "ULK",
+   "num": 19,
+   "pir": 18.8,
+   "gp": 32,
+   "code": "002100"
+  },
+  {
+   "name": "Micic",
+   "full": "MICIC, VASILIJE",
+   "pos": "G",
+   "team": "IST",
+   "num": 22,
+   "pir": 17.5,
+   "gp": 40,
+   "code": "002580"
+  }
+ ],
+ "checked": [
+  {
+   "name": "JAMES, MIKE",
+   "team": "CSK",
+   "pir": 19.7,
+   "gp": 27,
+   "pos": "G"
+  },
+  {
+   "name": "SHVED, ALEXEY",
+   "team": "KHI",
+   "pir": 19.6,
+   "gp": 23,
+   "pos": "G"
+  },
+  {
+   "name": "MIROTIC, NIKOLA",
+   "team": "BAR",
+   "pir": 19.5,
+   "gp": 33,
+   "pos": "F"
+  },
+  {
+   "name": "DE COLO, NANDO",
+   "team": "ULK",
+   "pir": 18.8,
+   "gp": 32,
+   "pos": "G"
+  },
+  {
+   "name": "TAVARES, WALTER",
+   "team": "MAD",
+   "pir": 18.1,
+   "gp": 36,
+   "pos": "C"
+  },
+  {
+   "name": "VESELY, JAN",
+   "team": "ULK",
+   "pir": 18,
+   "gp": 31,
+   "pos": "C"
+  },
+  {
+   "name": "LUCIC, VLADIMIR",
+   "team": "MUN",
+   "pir": 17.8,
+   "gp": 31,
+   "pos": "F"
+  },
+  {
+   "name": "MICIC, VASILIJE",
+   "team": "IST",
+   "pir": 17.5,
+   "gp": 40,
+   "pos": "G"
+  },
+  {
+   "name": "LARKIN, SHANE",
+   "team": "IST",
+   "pir": 17,
+   "gp": 35,
+   "pos": "G"
+  },
+  {
+   "name": "LOYD, JORDAN",
+   "team": "RED",
+   "pir": 16.5,
+   "gp": 29,
+   "pos": "G"
+  },
+  {
+   "name": "POLONARA, ACHILLE",
+   "team": "BAS",
+   "pir": 16.5,
+   "gp": 33,
+   "pos": "C"
+  },
+  {
+   "name": "MICKEY, JORDAN",
+   "team": "KHI",
+   "pir": 16.5,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "HENRY, PIERRIA",
+   "team": "BAS",
+   "pir": 16,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "REYNOLDS, JALEN",
+   "team": "MUN",
+   "pir": 15.5,
+   "gp": 39,
+   "pos": "C"
+  },
+  {
+   "name": "SHIELDS, SHAVON",
+   "team": "MIL",
+   "pir": 15,
+   "gp": 36,
+   "pos": "F"
+  },
+  {
+   "name": "NEDOVIC, NEMANJA",
+   "team": "PAN",
+   "pir": 14.9,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "VEZENKOV, SASHA",
+   "team": "OLY",
+   "pir": 14.8,
+   "gp": 31,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2020"
+}

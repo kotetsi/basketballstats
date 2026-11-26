@@ -1,0 +1,214 @@
+{
+ "season": "E2005",
+ "label": "2005-06",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "CSK",
+  "name": "CSKA Moscow",
+  "date": "2006-04-30"
+ },
+ "coach": {
+  "name": "Messina",
+  "full": "MESSINA, ETTORE",
+  "team": "CSK"
+ },
+ "players": [
+  {
+   "name": "Lavrinovic",
+   "full": "LAVRINOVIC, DARJUS",
+   "pos": "C",
+   "team": "ZAL",
+   "num": 7,
+   "pir": 18.7,
+   "gp": 20,
+   "code": "BWK"
+  },
+  {
+   "name": "Santiago",
+   "full": "SANTIAGO, DANIEL",
+   "pos": "C",
+   "team": "MAL",
+   "num": 25,
+   "pir": 15.4,
+   "gp": 19,
+   "code": "KML"
+  },
+  {
+   "name": "Garbajosa",
+   "full": "GARBAJOSA, JORGE",
+   "pos": "F",
+   "team": "MAL",
+   "num": 15,
+   "pir": 19.3,
+   "gp": 18,
+   "code": "AHV"
+  },
+  {
+   "name": "Scola",
+   "full": "SCOLA, LUIS",
+   "pos": "F",
+   "team": "BAS",
+   "num": 4,
+   "pir": 18.8,
+   "gp": 25,
+   "code": "AJG"
+  },
+  {
+   "name": "Turkcan",
+   "full": "TURKCAN, MIRSAD",
+   "pos": "F",
+   "team": "ULK",
+   "num": 6,
+   "pir": 17.2,
+   "gp": 16,
+   "code": "AYR"
+  },
+  {
+   "name": "Batiste",
+   "full": "BATISTE, MIKE",
+   "pos": "F",
+   "team": "PAN",
+   "num": 8,
+   "pir": 17.1,
+   "gp": 23,
+   "code": "AJV"
+  },
+  {
+   "name": "Parker",
+   "full": "PARKER, ANTHONY",
+   "pos": "G",
+   "team": "TEL",
+   "num": 8,
+   "pir": 20.5,
+   "gp": 25,
+   "code": "AOW"
+  },
+  {
+   "name": "Penn",
+   "full": "PENN, SCOONIE",
+   "pos": "G",
+   "team": "CIB",
+   "num": 4,
+   "pir": 17,
+   "gp": 20,
+   "code": "BXD"
+  },
+  {
+   "name": "Nicholas",
+   "full": "NICHOLAS, DREW",
+   "pos": "G",
+   "team": "TRE",
+   "num": 12,
+   "pir": 16.6,
+   "gp": 20,
+   "code": "KNG"
+  },
+  {
+   "name": "Spanoulis",
+   "full": "SPANOULIS, VASSILIS",
+   "pos": "G",
+   "team": "PAN",
+   "num": 11,
+   "pir": 15.5,
+   "gp": 23,
+   "code": "JUO"
+  }
+ ],
+ "checked": [
+  {
+   "name": "PARKER, ANTHONY",
+   "team": "TEL",
+   "pir": 20.5,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "GARBAJOSA, JORGE",
+   "team": "MAL",
+   "pir": 19.3,
+   "gp": 18,
+   "pos": "F"
+  },
+  {
+   "name": "SCOLA, LUIS",
+   "team": "BAS",
+   "pir": 18.8,
+   "gp": 25,
+   "pos": "F"
+  },
+  {
+   "name": "LAVRINOVIC, DARJUS",
+   "team": "ZAL",
+   "pir": 18.7,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "TURKCAN, MIRSAD",
+   "team": "ULK",
+   "pir": 17.2,
+   "gp": 16,
+   "pos": "F"
+  },
+  {
+   "name": "BATISTE, MIKE",
+   "team": "PAN",
+   "pir": 17.1,
+   "gp": 23,
+   "pos": "F"
+  },
+  {
+   "name": "PENN, SCOONIE",
+   "team": "CIB",
+   "pir": 17,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "NICHOLAS, DREW",
+   "team": "TRE",
+   "pir": 16.6,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "BASTON, MACEO",
+   "team": "TEL",
+   "pir": 15.6,
+   "gp": 25,
+   "pos": "F"
+  },
+  {
+   "name": "SPANOULIS, VASSILIS",
+   "team": "PAN",
+   "pir": 15.5,
+   "gp": 23,
+   "pos": "G"
+  },
+  {
+   "name": "SANTIAGO, DANIEL",
+   "team": "MAL",
+   "pir": 15.4,
+   "gp": 19,
+   "pos": "C"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "GREER, RICARDO",
+   "team": "STR",
+   "gp": 14,
+   "pir": 16.4
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2005"
+}

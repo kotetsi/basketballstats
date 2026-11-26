@@ -1,0 +1,235 @@
+{
+ "season": "E2016",
+ "label": "2016-17",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "ULK",
+  "name": "Fenerbahce Istanbul",
+  "date": "2017-05-21"
+ },
+ "coach": {
+  "name": "Obradovic",
+  "full": "OBRADOVIC, ZELJKO",
+  "team": "ULK"
+ },
+ "players": [
+  {
+   "name": "Udoh",
+   "full": "UDOH, EKPE",
+   "pos": "C",
+   "team": "ULK",
+   "num": 8,
+   "pir": 20.7,
+   "gp": 31,
+   "code": "006503"
+  },
+  {
+   "name": "Singleton",
+   "full": "SINGLETON, CHRIS",
+   "pos": "C",
+   "team": "PAN",
+   "num": 0,
+   "pir": 15.6,
+   "gp": 33,
+   "code": "006614"
+  },
+  {
+   "name": "Melli",
+   "full": "MELLI, NICOLO",
+   "pos": "F",
+   "team": "BAM",
+   "num": 4,
+   "pir": 16.9,
+   "gp": 30,
+   "code": "002849"
+  },
+  {
+   "name": "Jankunas",
+   "full": "JANKUNAS, PAULIUS",
+   "pos": "F",
+   "team": "ZAL",
+   "num": 13,
+   "pir": 16.8,
+   "gp": 30,
+   "code": "BWI"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, DERRICK",
+   "pos": "F",
+   "team": "IST",
+   "num": 5,
+   "pir": 15.3,
+   "gp": 35,
+   "code": "004425"
+  },
+  {
+   "name": "Printezis",
+   "full": "PRINTEZIS, GEORGIOS",
+   "pos": "F",
+   "team": "OLY",
+   "num": 15,
+   "pir": 14.9,
+   "gp": 32,
+   "code": "AMM"
+  },
+  {
+   "name": "Langford",
+   "full": "LANGFORD, KEITH",
+   "pos": "G",
+   "team": "UNK",
+   "num": 5,
+   "pir": 21.8,
+   "gp": 28,
+   "code": "001887"
+  },
+  {
+   "name": "De Colo",
+   "full": "DE COLO, NANDO",
+   "pos": "G",
+   "team": "CSK",
+   "num": 1,
+   "pir": 20.8,
+   "gp": 28,
+   "code": "002100"
+  },
+  {
+   "name": "Wanamaker",
+   "full": "WANAMAKER, BRAD",
+   "pos": "G",
+   "team": "DAR",
+   "num": 11,
+   "pir": 17.6,
+   "gp": 34,
+   "code": "005838"
+  },
+  {
+   "name": "Teodosic",
+   "full": "TEODOSIC, MILOS",
+   "pos": "G",
+   "team": "CSK",
+   "num": 4,
+   "pir": 17.1,
+   "gp": 29,
+   "code": "JDR"
+  }
+ ],
+ "checked": [
+  {
+   "name": "LANGFORD, KEITH",
+   "team": "UNK",
+   "pir": 21.8,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "DE COLO, NANDO",
+   "team": "CSK",
+   "pir": 20.8,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "UDOH, EKPE",
+   "team": "ULK",
+   "pir": 20.7,
+   "gp": 31,
+   "pos": "C"
+  },
+  {
+   "name": "WANAMAKER, BRAD",
+   "team": "DAR",
+   "pir": 17.6,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "TEODOSIC, MILOS",
+   "team": "CSK",
+   "pir": 17.1,
+   "gp": 29,
+   "pos": "G"
+  },
+  {
+   "name": "MELLI, NICOLO",
+   "team": "BAM",
+   "pir": 16.9,
+   "gp": 30,
+   "pos": "F"
+  },
+  {
+   "name": "LLULL, SERGIO",
+   "team": "MAD",
+   "pir": 16.8,
+   "gp": 33,
+   "pos": "G"
+  },
+  {
+   "name": "JANKUNAS, PAULIUS",
+   "team": "ZAL",
+   "pir": 16.8,
+   "gp": 30,
+   "pos": "F"
+  },
+  {
+   "name": "BOGDANOVIC, BOGDAN",
+   "team": "ULK",
+   "pir": 16.7,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "GOUDELOCK, ANDREW",
+   "team": "TEL",
+   "pir": 16.1,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "SINGLETON, CHRIS",
+   "team": "PAN",
+   "pir": 15.6,
+   "gp": 33,
+   "pos": "C"
+  },
+  {
+   "name": "BROWN, DERRICK",
+   "team": "IST",
+   "pir": 15.3,
+   "gp": 35,
+   "pos": "F"
+  },
+  {
+   "name": "COLOM, QUINO",
+   "team": "UNK",
+   "pir": 15.1,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "VOIGTMANN, JOHANNES",
+   "team": "BAS",
+   "pir": 15,
+   "gp": 33,
+   "pos": "C"
+  },
+  {
+   "name": "PRINTEZIS, GEORGIOS",
+   "team": "OLY",
+   "pir": 14.9,
+   "gp": 32,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2016"
+}

@@ -1,0 +1,220 @@
+{
+ "season": "E2009",
+ "label": "2009-10",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "BAR",
+  "name": "Regal FC Barcelona",
+  "date": "2010-05-09"
+ },
+ "coach": {
+  "name": "Pascual",
+  "full": "PASCUAL, XAVI",
+  "team": "BAR"
+ },
+ "players": [
+  {
+   "name": "Maric",
+   "full": "MARIC, ALEKS",
+   "pos": "C",
+   "team": "PAR",
+   "num": 21,
+   "pir": 21.1,
+   "gp": 18,
+   "code": "001922"
+  },
+  {
+   "name": "Splitter",
+   "full": "SPLITTER, TIAGO",
+   "pos": "C",
+   "team": "BAS",
+   "num": 21,
+   "pir": 15.8,
+   "gp": 16,
+   "code": "CBY"
+  },
+  {
+   "name": "Kleiza",
+   "full": "KLEIZA, LINAS",
+   "pos": "F",
+   "team": "OLY",
+   "num": 11,
+   "pir": 17.9,
+   "gp": 22,
+   "code": "001925"
+  },
+  {
+   "name": "Siskauskas",
+   "full": "SISKAUSKAS, RAMUNAS",
+   "pos": "F",
+   "team": "CSK",
+   "num": 9,
+   "pir": 17,
+   "gp": 21,
+   "code": "JMM"
+  },
+  {
+   "name": "Sato",
+   "full": "SATO, ROMAIN",
+   "pos": "F",
+   "team": "SIE",
+   "num": 10,
+   "pir": 16.3,
+   "gp": 16,
+   "code": "LMO"
+  },
+  {
+   "name": "Khryapa",
+   "full": "KHRYAPA, VICTOR",
+   "pos": "F",
+   "team": "CSK",
+   "num": 31,
+   "pir": 15.3,
+   "gp": 22,
+   "code": "BCQ"
+  },
+  {
+   "name": "Teodosic",
+   "full": "TEODOSIC, MILOS",
+   "pos": "G",
+   "team": "OLY",
+   "num": 18,
+   "pir": 16.8,
+   "gp": 22,
+   "code": "JDR"
+  },
+  {
+   "name": "Langford",
+   "full": "LANGFORD, KEITH",
+   "pos": "G",
+   "team": "KHI",
+   "num": 5,
+   "pir": 16.4,
+   "gp": 15,
+   "code": "001887"
+  },
+  {
+   "name": "Gordon",
+   "full": "GORDON, JAMONT",
+   "pos": "G",
+   "team": "CIB",
+   "num": 5,
+   "pir": 16.1,
+   "gp": 15,
+   "code": "001310"
+  },
+  {
+   "name": "Woods",
+   "full": "WOODS, QYNTEL",
+   "pos": "G",
+   "team": "SOP",
+   "num": 24,
+   "pir": 16,
+   "gp": 20,
+   "code": "TFV"
+  }
+ ],
+ "checked": [
+  {
+   "name": "MARIC, ALEKS",
+   "team": "PAR",
+   "pir": 21.1,
+   "gp": 18,
+   "pos": "C"
+  },
+  {
+   "name": "KLEIZA, LINAS",
+   "team": "OLY",
+   "pir": 17.9,
+   "gp": 22,
+   "pos": "F"
+  },
+  {
+   "name": "SISKAUSKAS, RAMUNAS",
+   "team": "CSK",
+   "pir": 17,
+   "gp": 21,
+   "pos": "F"
+  },
+  {
+   "name": "TEODOSIC, MILOS",
+   "team": "OLY",
+   "pir": 16.8,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "LANGFORD, KEITH",
+   "team": "KHI",
+   "pir": 16.4,
+   "gp": 15,
+   "pos": "G"
+  },
+  {
+   "name": "SATO, ROMAIN",
+   "team": "SIE",
+   "pir": 16.3,
+   "gp": 16,
+   "pos": "F"
+  },
+  {
+   "name": "GORDON, JAMONT",
+   "team": "CIB",
+   "pir": 16.1,
+   "gp": 15,
+   "pos": "G"
+  },
+  {
+   "name": "WOODS, QYNTEL",
+   "team": "SOP",
+   "pir": 16,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "SPLITTER, TIAGO",
+   "team": "BAS",
+   "pir": 15.8,
+   "gp": 16,
+   "pos": "C"
+  },
+  {
+   "name": "LANGDON, TRAJAN",
+   "team": "CSK",
+   "pir": 15.6,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "KHRYAPA, VICTOR",
+   "team": "CSK",
+   "pir": 15.3,
+   "gp": 22,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "LAVRINOVIC, KSISTOF",
+   "team": "SIE",
+   "gp": 12,
+   "pir": 16.2
+  },
+  {
+   "name": "WATSON, TRAVIS",
+   "team": "ZAL",
+   "gp": 13,
+   "pir": 16.2
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2009"
+}

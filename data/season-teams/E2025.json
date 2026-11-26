@@ -1,0 +1,228 @@
+{
+ "season": "E2025",
+ "label": "2025-26",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "OLY",
+  "name": "Olympiacos Piraeus",
+  "date": "2026-05-24"
+ },
+ "coach": {
+  "name": "Bartzokas",
+  "full": "BARTZOKAS, GEORGIOS",
+  "team": "OLY"
+ },
+ "players": [
+  {
+   "name": "Milutinov",
+   "full": "MILUTINOV, NIKOLA",
+   "pos": "C",
+   "team": "OLY",
+   "num": 33,
+   "pir": 19.4,
+   "gp": 40,
+   "code": "003941"
+  },
+  {
+   "name": "Kabengele",
+   "full": "KABENGELE, MFIONDU",
+   "pos": "C",
+   "team": "DUB",
+   "num": 17,
+   "pir": 17.4,
+   "gp": 36,
+   "code": "012796"
+  },
+  {
+   "name": "Vezenkov",
+   "full": "VEZENKOV, SASHA",
+   "pos": "F",
+   "team": "OLY",
+   "num": 14,
+   "pir": 22.1,
+   "gp": 39,
+   "code": "003469"
+  },
+  {
+   "name": "Moneke",
+   "full": "MONEKE, CHIMA",
+   "pos": "F",
+   "team": "RED",
+   "num": 95,
+   "pir": 18.5,
+   "gp": 35,
+   "code": "012201"
+  },
+  {
+   "name": "Luwawu-Cabarrot",
+   "full": "LUWAWU-CABARROT, TIMOTHE",
+   "pos": "F",
+   "team": "BAS",
+   "num": 9,
+   "pir": 16.4,
+   "gp": 36,
+   "code": "012080"
+  },
+  {
+   "name": "Hoard",
+   "full": "HOARD, JAYLEN",
+   "pos": "F",
+   "team": "TEL",
+   "num": 1,
+   "pir": 16.1,
+   "gp": 35,
+   "code": "006835"
+  },
+  {
+   "name": "Bryant",
+   "full": "BRYANT, ELIJAH",
+   "pos": "G",
+   "team": "HTA",
+   "num": 3,
+   "pir": 19.6,
+   "gp": 38,
+   "code": "009846"
+  },
+  {
+   "name": "Francisco",
+   "full": "FRANCISCO, SYLVAIN",
+   "pos": "G",
+   "team": "ZAL",
+   "num": 3,
+   "pir": 19.2,
+   "gp": 42,
+   "code": "007975"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "MCO",
+   "num": 55,
+   "pir": 19.1,
+   "gp": 39,
+   "code": "005985"
+  },
+  {
+   "name": "Montero",
+   "full": "MONTERO, JEAN",
+   "pos": "G",
+   "team": "PAM",
+   "num": 8,
+   "pir": 17.9,
+   "gp": 38,
+   "code": "010042"
+  }
+ ],
+ "checked": [
+  {
+   "name": "VEZENKOV, SASHA",
+   "team": "OLY",
+   "pir": 22.1,
+   "gp": 39,
+   "pos": "F"
+  },
+  {
+   "name": "BRYANT, ELIJAH",
+   "team": "HTA",
+   "pir": 19.6,
+   "gp": 38,
+   "pos": "G"
+  },
+  {
+   "name": "MILUTINOV, NIKOLA",
+   "team": "OLY",
+   "pir": 19.4,
+   "gp": 40,
+   "pos": "C"
+  },
+  {
+   "name": "FRANCISCO, SYLVAIN",
+   "team": "ZAL",
+   "pir": 19.2,
+   "gp": 42,
+   "pos": "G"
+  },
+  {
+   "name": "JAMES, MIKE",
+   "team": "MCO",
+   "pir": 19.1,
+   "gp": 39,
+   "pos": "G"
+  },
+  {
+   "name": "MONEKE, CHIMA",
+   "team": "RED",
+   "pir": 18.5,
+   "gp": 35,
+   "pos": "F"
+  },
+  {
+   "name": "MONTERO, JEAN",
+   "team": "PAM",
+   "pir": 17.9,
+   "gp": 38,
+   "pos": "G"
+  },
+  {
+   "name": "HIFI, NADIR",
+   "team": "PRS",
+   "pir": 17.6,
+   "gp": 37,
+   "pos": "G"
+  },
+  {
+   "name": "KABENGELE, MFIONDU",
+   "team": "DUB",
+   "pir": 17.4,
+   "gp": 36,
+   "pos": "C"
+  },
+  {
+   "name": "WRIGHT, MOSES",
+   "team": "ZAL",
+   "pir": 17.1,
+   "gp": 42,
+   "pos": "C"
+  },
+  {
+   "name": "OTURU, DAN",
+   "team": "HTA",
+   "pir": 16.8,
+   "gp": 42,
+   "pos": "C"
+  },
+  {
+   "name": "BALDWIN IV, WADE",
+   "team": "ULK",
+   "pir": 16.4,
+   "gp": 42,
+   "pos": "G"
+  },
+  {
+   "name": "LUWAWU-CABARROT, TIMOTHE",
+   "team": "BAS",
+   "pir": 16.4,
+   "gp": 36,
+   "pos": "F"
+  },
+  {
+   "name": "HOARD, JAYLEN",
+   "team": "TEL",
+   "pir": 16.1,
+   "gp": 35,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2025"
+}

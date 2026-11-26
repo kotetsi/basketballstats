@@ -1,0 +1,246 @@
+{
+ "season": "E2003",
+ "label": "2003-04",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "TEL",
+  "name": "Maccabi Elite Tel Aviv",
+  "date": "2004-05-01"
+ },
+ "coach": {
+  "name": "Gershon",
+  "full": "GERSHON, PINI",
+  "team": "TEL"
+ },
+ "players": [
+  {
+   "name": "Sabonis",
+   "full": "SABONIS, ARVYDAS",
+   "pos": "C",
+   "team": "ZAL",
+   "num": 11,
+   "pir": 26.3,
+   "gp": 18,
+   "code": "AYO"
+  },
+  {
+   "name": "Vujcic",
+   "full": "VUJCIC, NIKOLA",
+   "pos": "C",
+   "team": "TEL",
+   "num": 7,
+   "pir": 20,
+   "gp": 21,
+   "code": "APB"
+  },
+  {
+   "name": "Garbajosa",
+   "full": "GARBAJOSA, JORGE",
+   "pos": "F",
+   "team": "TRE",
+   "num": 15,
+   "pir": 18.1,
+   "gp": 18,
+   "code": "AHV"
+  },
+  {
+   "name": "Bodiroga",
+   "full": "BODIROGA, DEJAN",
+   "pos": "F",
+   "team": "BAR",
+   "num": 10,
+   "pir": 17.5,
+   "gp": 17,
+   "code": "APN"
+  },
+  {
+   "name": "Turkcan",
+   "full": "TURKCAN, MIRSAD",
+   "pos": "F",
+   "team": "CSK",
+   "num": 16,
+   "pir": 17.4,
+   "gp": 20,
+   "code": "AYR"
+  },
+  {
+   "name": "Baston",
+   "full": "BASTON, MACEO",
+   "pos": "F",
+   "team": "TEL",
+   "num": 5,
+   "pir": 17.1,
+   "gp": 21,
+   "code": "BMP"
+  },
+  {
+   "name": "Parker",
+   "full": "PARKER, ANTHONY",
+   "pos": "G",
+   "team": "TEL",
+   "num": 8,
+   "pir": 22.2,
+   "gp": 21,
+   "code": "AOW"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, MARCUS",
+   "pos": "G",
+   "team": "CSK",
+   "num": 5,
+   "pir": 21.6,
+   "gp": 21,
+   "code": "AHT"
+  },
+  {
+   "name": "Macijauskas",
+   "full": "MACIJAUSKAS, ARVYDAS",
+   "pos": "G",
+   "team": "BAS",
+   "num": 7,
+   "pir": 20.4,
+   "gp": 20,
+   "code": "CBV"
+  },
+  {
+   "name": "Liadelis",
+   "full": "LIADELIS, PANAGIOTIS",
+   "pos": "G",
+   "team": "OLY",
+   "num": 10,
+   "pir": 17.4,
+   "gp": 20,
+   "code": "ALF"
+  }
+ ],
+ "checked": [
+  {
+   "name": "SABONIS, ARVYDAS",
+   "team": "ZAL",
+   "pir": 26.3,
+   "gp": 18,
+   "pos": "C"
+  },
+  {
+   "name": "PARKER, ANTHONY",
+   "team": "TEL",
+   "pir": 22.2,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "BROWN, MARCUS",
+   "team": "CSK",
+   "pir": 21.6,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "MACIJAUSKAS, ARVYDAS",
+   "team": "BAS",
+   "pir": 20.4,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "VUJCIC, NIKOLA",
+   "team": "TEL",
+   "pir": 20,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "BLAIR, JOSEPH",
+   "team": "ULK",
+   "pir": 19.5,
+   "gp": 17,
+   "pos": "C"
+  },
+  {
+   "name": "TOMASEVIC, DEJAN",
+   "team": "PAM",
+   "pir": 18.9,
+   "gp": 17,
+   "pos": "C"
+  },
+  {
+   "name": "GARBAJOSA, JORGE",
+   "team": "TRE",
+   "pir": 18.1,
+   "gp": 18,
+   "pos": "F"
+  },
+  {
+   "name": "BODIROGA, DEJAN",
+   "team": "BAR",
+   "pir": 17.5,
+   "gp": 17,
+   "pos": "F"
+  },
+  {
+   "name": "LIADELIS, PANAGIOTIS",
+   "team": "OLY",
+   "pir": 17.4,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "TURKCAN, MIRSAD",
+   "team": "CSK",
+   "pir": 17.4,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "BEARD, TANOKA",
+   "team": "ZAL",
+   "pir": 17.4,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "BASTON, MACEO",
+   "team": "TEL",
+   "pir": 17.1,
+   "gp": 21,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "GREER, LYNN",
+   "team": "WRO",
+   "gp": 14,
+   "pir": 24.3
+  },
+  {
+   "name": "JENKINS, HORACE",
+   "team": "AEK",
+   "gp": 12,
+   "pir": 19.3
+  },
+  {
+   "name": "LOLLIS, QUADRE-MICHAEL",
+   "team": "AEK",
+   "gp": 12,
+   "pir": 18
+  },
+  {
+   "name": "OSTOJIC, DJURO",
+   "team": "PAR",
+   "gp": 14,
+   "pir": 17.9
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2003"
+}

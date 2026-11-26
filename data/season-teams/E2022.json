@@ -1,0 +1,214 @@
+{
+ "season": "E2022",
+ "label": "2022-23",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "MAD",
+  "name": "Real Madrid",
+  "date": "2023-05-21"
+ },
+ "coach": {
+  "name": "Mateo",
+  "full": "MATEO, CHUS",
+  "team": "MAD"
+ },
+ "players": [
+  {
+   "name": "Lessort",
+   "full": "LESSORT, MATHIAS",
+   "pos": "C",
+   "team": "PAR",
+   "num": 26,
+   "pir": 19.1,
+   "gp": 38,
+   "code": "003842"
+  },
+  {
+   "name": "Tavares",
+   "full": "TAVARES, WALTER",
+   "pos": "C",
+   "team": "MAD",
+   "num": 22,
+   "pir": 18,
+   "gp": 40,
+   "code": "005791"
+  },
+  {
+   "name": "Vezenkov",
+   "full": "VEZENKOV, SASHA",
+   "pos": "F",
+   "team": "OLY",
+   "num": 14,
+   "pir": 21.5,
+   "gp": 40,
+   "code": "003469"
+  },
+  {
+   "name": "Clyburn",
+   "full": "CLYBURN, WILL",
+   "pos": "F",
+   "team": "IST",
+   "num": 12,
+   "pir": 18.6,
+   "gp": 34,
+   "code": "004888"
+  },
+  {
+   "name": "Mirotic",
+   "full": "MIROTIC, NIKOLA",
+   "pos": "F",
+   "team": "BAR",
+   "num": 33,
+   "pir": 16.4,
+   "gp": 29,
+   "code": "000796"
+  },
+  {
+   "name": "Musa",
+   "full": "MUSA, DZANAN",
+   "pos": "F",
+   "team": "MAD",
+   "num": 31,
+   "pir": 15.9,
+   "gp": 41,
+   "code": "006540"
+  },
+  {
+   "name": "Baldwin Iv",
+   "full": "BALDWIN IV, WADE",
+   "pos": "G",
+   "team": "TEL",
+   "num": 5,
+   "pir": 17.6,
+   "gp": 34,
+   "code": "009863"
+  },
+  {
+   "name": "Micic",
+   "full": "MICIC, VASILIJE",
+   "pos": "G",
+   "team": "IST",
+   "num": 22,
+   "pir": 17.4,
+   "gp": 31,
+   "code": "002580"
+  },
+  {
+   "name": "Thompson",
+   "full": "THOMPSON, DARIUS",
+   "pos": "G",
+   "team": "BAS",
+   "num": 13,
+   "pir": 17.1,
+   "gp": 34,
+   "code": "011078"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "MCO",
+   "num": 55,
+   "pir": 16.3,
+   "gp": 38,
+   "code": "005985"
+  }
+ ],
+ "checked": [
+  {
+   "name": "VEZENKOV, SASHA",
+   "team": "OLY",
+   "pir": 21.5,
+   "gp": 40,
+   "pos": "F"
+  },
+  {
+   "name": "LESSORT, MATHIAS",
+   "team": "PAR",
+   "pir": 19.1,
+   "gp": 38,
+   "pos": "C"
+  },
+  {
+   "name": "CLYBURN, WILL",
+   "team": "IST",
+   "pir": 18.6,
+   "gp": 34,
+   "pos": "F"
+  },
+  {
+   "name": "TAVARES, WALTER",
+   "team": "MAD",
+   "pir": 18,
+   "gp": 40,
+   "pos": "C"
+  },
+  {
+   "name": "BALDWIN IV, WADE",
+   "team": "TEL",
+   "pir": 17.6,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "MICIC, VASILIJE",
+   "team": "IST",
+   "pir": 17.4,
+   "gp": 31,
+   "pos": "G"
+  },
+  {
+   "name": "THOMPSON, DARIUS",
+   "team": "BAS",
+   "pir": 17.1,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "MIROTIC, NIKOLA",
+   "team": "BAR",
+   "pir": 16.4,
+   "gp": 29,
+   "pos": "F"
+  },
+  {
+   "name": "JAMES, MIKE",
+   "team": "MCO",
+   "pir": 16.3,
+   "gp": 38,
+   "pos": "G"
+  },
+  {
+   "name": "BROWN, LORENZO",
+   "team": "TEL",
+   "pir": 16.1,
+   "gp": 35,
+   "pos": "G"
+  },
+  {
+   "name": "MOTLEY, JOHNATHAN",
+   "team": "ULK",
+   "pir": 16,
+   "gp": 36,
+   "pos": "C"
+  },
+  {
+   "name": "MUSA, DZANAN",
+   "team": "MAD",
+   "pir": 15.9,
+   "gp": 41,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2022"
+}

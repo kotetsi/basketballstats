@@ -1,0 +1,184 @@
+[
+ {
+  "season": "E2000",
+  "label": "2000-01",
+  "complete": true,
+  "champion": "VIR",
+  "coach": "Messina"
+ },
+ {
+  "season": "E2001",
+  "label": "2001-02",
+  "complete": true,
+  "champion": "PAN",
+  "coach": "Obradovic"
+ },
+ {
+  "season": "E2002",
+  "label": "2002-03",
+  "complete": true,
+  "champion": "BAR",
+  "coach": "Pesic"
+ },
+ {
+  "season": "E2003",
+  "label": "2003-04",
+  "complete": true,
+  "champion": "TEL",
+  "coach": "Gershon"
+ },
+ {
+  "season": "E2004",
+  "label": "2004-05",
+  "complete": true,
+  "champion": "TEL",
+  "coach": "Gershon"
+ },
+ {
+  "season": "E2005",
+  "label": "2005-06",
+  "complete": true,
+  "champion": "CSK",
+  "coach": "Messina"
+ },
+ {
+  "season": "E2006",
+  "label": "2006-07",
+  "complete": true,
+  "champion": "PAN",
+  "coach": "Obradovic"
+ },
+ {
+  "season": "E2007",
+  "label": "2007-08",
+  "complete": true,
+  "champion": "CSK",
+  "coach": "Messina"
+ },
+ {
+  "season": "E2008",
+  "label": "2008-09",
+  "complete": true,
+  "champion": "PAN",
+  "coach": "Obradovic"
+ },
+ {
+  "season": "E2009",
+  "label": "2009-10",
+  "complete": true,
+  "champion": "BAR",
+  "coach": "Pascual"
+ },
+ {
+  "season": "E2010",
+  "label": "2010-11",
+  "complete": true,
+  "champion": "PAN",
+  "coach": "Obradovic"
+ },
+ {
+  "season": "E2011",
+  "label": "2011-12",
+  "complete": true,
+  "champion": "OLY",
+  "coach": "Ivkovic"
+ },
+ {
+  "season": "E2012",
+  "label": "2012-13",
+  "complete": true,
+  "champion": "OLY",
+  "coach": "Bartzokas"
+ },
+ {
+  "season": "E2013",
+  "label": "2013-14",
+  "complete": true,
+  "champion": "TEL",
+  "coach": "Blatt"
+ },
+ {
+  "season": "E2014",
+  "label": "2014-15",
+  "complete": true,
+  "champion": "MAD",
+  "coach": "Laso"
+ },
+ {
+  "season": "E2015",
+  "label": "2015-16",
+  "complete": true,
+  "champion": "CSK",
+  "coach": "Itoudis"
+ },
+ {
+  "season": "E2016",
+  "label": "2016-17",
+  "complete": true,
+  "champion": "ULK",
+  "coach": "Obradovic"
+ },
+ {
+  "season": "E2017",
+  "label": "2017-18",
+  "complete": true,
+  "champion": "MAD",
+  "coach": "Laso"
+ },
+ {
+  "season": "E2018",
+  "label": "2018-19",
+  "complete": true,
+  "champion": "CSK",
+  "coach": "Itoudis"
+ },
+ {
+  "season": "E2019",
+  "label": "2019-20",
+  "complete": true,
+  "champion": null,
+  "coach": null
+ },
+ {
+  "season": "E2020",
+  "label": "2020-21",
+  "complete": true,
+  "champion": "IST",
+  "coach": "Ataman"
+ },
+ {
+  "season": "E2021",
+  "label": "2021-22",
+  "complete": true,
+  "champion": "IST",
+  "coach": "Ataman"
+ },
+ {
+  "season": "E2022",
+  "label": "2022-23",
+  "complete": true,
+  "champion": "MAD",
+  "coach": "Mateo"
+ },
+ {
+  "season": "E2023",
+  "label": "2023-24",
+  "complete": true,
+  "champion": "PAN",
+  "coach": "Ataman"
+ },
+ {
+  "season": "E2024",
+  "label": "2024-25",
+  "complete": true,
+  "champion": "ULK",
+  "coach": "Jasikevicius"
+ },
+ {
+  "season": "E2025",
+  "label": "2025-26",
+  "complete": true,
+  "champion": "OLY",
+  "coach": "Bartzokas"
+ }
+]

@@ -1,0 +1,214 @@
+{
+ "season": "E2015",
+ "label": "2015-16",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "CSK",
+  "name": "CSKA Moscow",
+  "date": "2016-05-15"
+ },
+ "coach": {
+  "name": "Itoudis",
+  "full": "ITOUDIS, DIMITRIS",
+  "team": "CSK"
+ },
+ "players": [
+  {
+   "name": "Bourousis",
+   "full": "BOUROUSIS, IOANNIS",
+   "pos": "C",
+   "team": "BAS",
+   "num": 9,
+   "pir": 21.1,
+   "gp": 29,
+   "code": "AQU"
+  },
+  {
+   "name": "Ayon",
+   "full": "AYON, GUSTAVO",
+   "pos": "C",
+   "team": "MAD",
+   "num": 14,
+   "pir": 18.4,
+   "gp": 27,
+   "code": "005927"
+  },
+  {
+   "name": "Augustine",
+   "full": "AUGUSTINE, JAMES",
+   "pos": "F",
+   "team": "KHI",
+   "num": 5,
+   "pir": 16.8,
+   "gp": 23,
+   "code": "001438"
+  },
+  {
+   "name": "Jankunas",
+   "full": "JANKUNAS, PAULIUS",
+   "pos": "F",
+   "team": "ZAL",
+   "num": 13,
+   "pir": 15.5,
+   "gp": 24,
+   "code": "BWI"
+  },
+  {
+   "name": "Printezis",
+   "full": "PRINTEZIS, GEORGIOS",
+   "pos": "F",
+   "team": "OLY",
+   "num": 15,
+   "pir": 15.4,
+   "gp": 21,
+   "code": "AMM"
+  },
+  {
+   "name": "Vesely",
+   "full": "VESELY, JAN",
+   "pos": "F",
+   "team": "ULK",
+   "num": 24,
+   "pir": 15,
+   "gp": 23,
+   "code": "000925"
+  },
+  {
+   "name": "De Colo",
+   "full": "DE COLO, NANDO",
+   "pos": "G",
+   "team": "CSK",
+   "num": 1,
+   "pir": 24.3,
+   "gp": 27,
+   "code": "002100"
+  },
+  {
+   "name": "Delaney",
+   "full": "DELANEY, MALCOLM",
+   "pos": "G",
+   "team": "TIV",
+   "num": 0,
+   "pir": 19.7,
+   "gp": 31,
+   "code": "004331"
+  },
+  {
+   "name": "Teodosic",
+   "full": "TEODOSIC, MILOS",
+   "pos": "G",
+   "team": "CSK",
+   "num": 4,
+   "pir": 17.8,
+   "gp": 29,
+   "code": "JDR"
+  },
+  {
+   "name": "Heurtel",
+   "full": "HEURTEL, THOMAS",
+   "pos": "G",
+   "team": "IST",
+   "num": 31,
+   "pir": 17.2,
+   "gp": 24,
+   "code": "KLT"
+  }
+ ],
+ "checked": [
+  {
+   "name": "DE COLO, NANDO",
+   "team": "CSK",
+   "pir": 24.3,
+   "gp": 27,
+   "pos": "G"
+  },
+  {
+   "name": "BOUROUSIS, IOANNIS",
+   "team": "BAS",
+   "pir": 21.1,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "DELANEY, MALCOLM",
+   "team": "TIV",
+   "pir": 19.7,
+   "gp": 31,
+   "pos": "G"
+  },
+  {
+   "name": "AYON, GUSTAVO",
+   "team": "MAD",
+   "pir": 18.4,
+   "gp": 27,
+   "pos": "C"
+  },
+  {
+   "name": "TEODOSIC, MILOS",
+   "team": "CSK",
+   "pir": 17.8,
+   "gp": 29,
+   "pos": "G"
+  },
+  {
+   "name": "HEURTEL, THOMAS",
+   "team": "IST",
+   "pir": 17.2,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "AUGUSTINE, JAMES",
+   "team": "KHI",
+   "pir": 16.8,
+   "gp": 23,
+   "pos": "F"
+  },
+  {
+   "name": "UDOH, EKPE",
+   "team": "ULK",
+   "pir": 16,
+   "gp": 27,
+   "pos": "C"
+  },
+  {
+   "name": "BILAN, MIRO",
+   "team": "CED",
+   "pir": 15.5,
+   "gp": 24,
+   "pos": "C"
+  },
+  {
+   "name": "JANKUNAS, PAULIUS",
+   "team": "ZAL",
+   "pir": 15.5,
+   "gp": 24,
+   "pos": "F"
+  },
+  {
+   "name": "PRINTEZIS, GEORGIOS",
+   "team": "OLY",
+   "pir": 15.4,
+   "gp": 21,
+   "pos": "F"
+  },
+  {
+   "name": "VESELY, JAN",
+   "team": "ULK",
+   "pir": 15,
+   "gp": 23,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2015"
+}

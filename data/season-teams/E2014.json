@@ -1,0 +1,228 @@
+{
+ "season": "E2014",
+ "label": "2014-15",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "MAD",
+  "name": "Real Madrid",
+  "date": "2015-05-17"
+ },
+ "coach": {
+  "name": "Laso",
+  "full": "LASO, PABLO",
+  "team": "MAD"
+ },
+ "players": [
+  {
+   "name": "Marjanovic",
+   "full": "MARJANOVIC, BOBAN",
+   "pos": "C",
+   "team": "RED",
+   "num": 13,
+   "pir": 25.7,
+   "gp": 24,
+   "code": "LMG"
+  },
+  {
+   "name": "Parakhouski",
+   "full": "PARAKHOUSKI, ARTSIOM",
+   "pos": "C",
+   "team": "NOV",
+   "num": 9,
+   "pir": 18.3,
+   "gp": 23,
+   "code": "003034"
+  },
+  {
+   "name": "Bjelica",
+   "full": "BJELICA, NEMANJA",
+   "pos": "F",
+   "team": "ULK",
+   "num": 8,
+   "pir": 18.3,
+   "gp": 29,
+   "code": "001413"
+  },
+  {
+   "name": "Mclean",
+   "full": "MCLEAN, JAMEL",
+   "pos": "F",
+   "team": "BER",
+   "num": 33,
+   "pir": 16.9,
+   "gp": 21,
+   "code": "004418"
+  },
+  {
+   "name": "Thompkins",
+   "full": "THOMPKINS, TREY",
+   "pos": "F",
+   "team": "NOV",
+   "num": 33,
+   "pir": 15.8,
+   "gp": 23,
+   "code": "005836"
+  },
+  {
+   "name": "Randle",
+   "full": "RANDLE, BRIAN",
+   "pos": "F",
+   "team": "TEL",
+   "num": 7,
+   "pir": 15.4,
+   "gp": 25,
+   "code": "002911"
+  },
+  {
+   "name": "Rochestie",
+   "full": "ROCHESTIE, TAYLOR",
+   "pos": "G",
+   "team": "NOV",
+   "num": 22,
+   "pir": 21,
+   "gp": 21,
+   "code": "002972"
+  },
+  {
+   "name": "De Colo",
+   "full": "DE COLO, NANDO",
+   "pos": "G",
+   "team": "CSK",
+   "num": 1,
+   "pir": 16.5,
+   "gp": 28,
+   "code": "002100"
+  },
+  {
+   "name": "Smith",
+   "full": "SMITH, DEVIN",
+   "pos": "G",
+   "team": "TEL",
+   "num": 6,
+   "pir": 16.1,
+   "gp": 25,
+   "code": "001274"
+  },
+  {
+   "name": "Teodosic",
+   "full": "TEODOSIC, MILOS",
+   "pos": "G",
+   "team": "CSK",
+   "num": 4,
+   "pir": 15.9,
+   "gp": 24,
+   "code": "JDR"
+  }
+ ],
+ "checked": [
+  {
+   "name": "MARJANOVIC, BOBAN",
+   "team": "RED",
+   "pir": 25.7,
+   "gp": 24,
+   "pos": "C"
+  },
+  {
+   "name": "ROCHESTIE, TAYLOR",
+   "team": "NOV",
+   "pir": 21,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "PARAKHOUSKI, ARTSIOM",
+   "team": "NOV",
+   "pir": 18.3,
+   "gp": 23,
+   "pos": "C"
+  },
+  {
+   "name": "BJELICA, NEMANJA",
+   "team": "ULK",
+   "pir": 18.3,
+   "gp": 29,
+   "pos": "F"
+  },
+  {
+   "name": "TOMIC, ANTE",
+   "team": "BAR",
+   "pir": 18,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "KRSTIC, NENAD",
+   "team": "IST",
+   "pir": 17.2,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "MCLEAN, JAMEL",
+   "team": "BER",
+   "pir": 16.9,
+   "gp": 21,
+   "pos": "F"
+  },
+  {
+   "name": "DE COLO, NANDO",
+   "team": "CSK",
+   "pir": 16.5,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "SMITH, DEVIN",
+   "team": "TEL",
+   "pir": 16.1,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "TEODOSIC, MILOS",
+   "team": "CSK",
+   "pir": 15.9,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "FERNANDEZ, RUDY",
+   "team": "MAD",
+   "pir": 15.8,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "THOMPKINS, TREY",
+   "team": "NOV",
+   "pir": 15.8,
+   "gp": 23,
+   "pos": "F"
+  },
+  {
+   "name": "ERCEG, ZORAN",
+   "team": "GAL",
+   "pir": 15.4,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "RANDLE, BRIAN",
+   "team": "TEL",
+   "pir": 15.4,
+   "gp": 25,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2014"
+}

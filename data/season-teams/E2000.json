@@ -1,0 +1,383 @@
+{
+ "season": "E2000",
+ "label": "2000-01",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "VIR",
+  "name": "Kinder Virtus Bologna",
+  "date": "2001-05-10"
+ },
+ "coach": {
+  "name": "Messina",
+  "full": "MESSINA, ETTORE",
+  "team": "VIR"
+ },
+ "players": [
+  {
+   "name": "Griffith",
+   "full": "GRIFFITH, RASHARD",
+   "pos": "C",
+   "team": "VIR",
+   "num": 15,
+   "pir": 19.8,
+   "gp": 21,
+   "code": "AKY"
+  },
+  {
+   "name": "Oberto",
+   "full": "OBERTO, FABRICIO",
+   "pos": "C",
+   "team": "BAS",
+   "num": 14,
+   "pir": 16,
+   "gp": 22,
+   "code": "AJE"
+  },
+  {
+   "name": "Fucka",
+   "full": "FUCKA, GREGOR",
+   "pos": "F",
+   "team": "FOR",
+   "num": 7,
+   "pir": 25.2,
+   "gp": 17,
+   "code": "ADP"
+  },
+  {
+   "name": "Ginobili",
+   "full": "GINOBILI, EMANUEL",
+   "pos": "F",
+   "team": "VIR",
+   "num": 6,
+   "pir": 15.9,
+   "gp": 22,
+   "code": "AKX"
+  },
+  {
+   "name": "Garbajosa",
+   "full": "GARBAJOSA, JORGE",
+   "pos": "F",
+   "team": "TRE",
+   "num": 15,
+   "pir": 15.8,
+   "gp": 15,
+   "code": "AHV"
+  },
+  {
+   "name": "Nicola",
+   "full": "NICOLA, MARCELO",
+   "pos": "F",
+   "team": "TRE",
+   "num": 4,
+   "pir": 14.7,
+   "gp": 15,
+   "code": "AHZ"
+  },
+  {
+   "name": "Becirovic",
+   "full": "BECIROVIC, SANI",
+   "pos": "G",
+   "team": "LJU",
+   "num": 7,
+   "pir": 20.1,
+   "gp": 15,
+   "code": "AGG"
+  },
+  {
+   "name": "Naumoski",
+   "full": "NAUMOSKI, PETAR",
+   "pos": "G",
+   "team": "TRE",
+   "num": 10,
+   "pir": 15.9,
+   "gp": 15,
+   "code": "AHY"
+  },
+  {
+   "name": "Bennett",
+   "full": "BENNETT, ELMER",
+   "pos": "G",
+   "team": "BAS",
+   "num": 6,
+   "pir": 15.6,
+   "gp": 22,
+   "code": "AJA"
+  },
+  {
+   "name": "Rigaudeau",
+   "full": "RIGAUDEAU, ANTOINE",
+   "pos": "G",
+   "team": "VIR",
+   "num": 14,
+   "pir": 13.2,
+   "gp": 20,
+   "code": "ALH"
+  }
+ ],
+ "checked": [
+  {
+   "name": "FUCKA, GREGOR",
+   "team": "FOR",
+   "pir": 25.2,
+   "gp": 17,
+   "pos": "F"
+  },
+  {
+   "name": "BECIROVIC, SANI",
+   "team": "LJU",
+   "pir": 20.1,
+   "gp": 15,
+   "pos": "G"
+  },
+  {
+   "name": "GRIFFITH, RASHARD",
+   "team": "VIR",
+   "pir": 19.8,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "OBERTO, FABRICIO",
+   "team": "BAS",
+   "pir": 16,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "NAUMOSKI, PETAR",
+   "team": "TRE",
+   "pir": 15.9,
+   "gp": 15,
+   "pos": "G"
+  },
+  {
+   "name": "GINOBILI, EMANUEL",
+   "team": "VIR",
+   "pir": 15.9,
+   "gp": 22,
+   "pos": "F"
+  },
+  {
+   "name": "GARBAJOSA, JORGE",
+   "team": "TRE",
+   "pir": 15.8,
+   "gp": 15,
+   "pos": "F"
+  },
+  {
+   "name": "BENNETT, ELMER",
+   "team": "BAS",
+   "pir": 15.6,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "NICOLA, MARCELO",
+   "team": "TRE",
+   "pir": 14.7,
+   "gp": 15,
+   "pos": "F"
+  },
+  {
+   "name": "ALEXANDER, VICTOR",
+   "team": "BAS",
+   "pir": 14.5,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "BETTS, ANDY",
+   "team": "AEK",
+   "pir": 13.4,
+   "gp": 18,
+   "pos": "C"
+  },
+  {
+   "name": "RIGAUDEAU, ANTOINE",
+   "team": "VIR",
+   "pir": 13.2,
+   "gp": 20,
+   "pos": "G"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "TOMASEVIC, DEJAN",
+   "team": "BUD",
+   "gp": 12,
+   "pir": 30.9
+  },
+  {
+   "name": "HAMILTON, DERECK",
+   "team": "PET",
+   "gp": 10,
+   "pir": 28.3
+  },
+  {
+   "name": "FORD, ALPHONSO",
+   "team": "PER",
+   "gp": 12,
+   "pir": 25.4
+  },
+  {
+   "name": "BULLOCK, LOUIS",
+   "team": "VER",
+   "gp": 11,
+   "pir": 22.9
+  },
+  {
+   "name": "LIADELIS, PANAGIOTIS",
+   "team": "PAO",
+   "gp": 13,
+   "pir": 21.4
+  },
+  {
+   "name": "BROWN, MARCUS",
+   "team": "TRE",
+   "gp": 10,
+   "pir": 21.2
+  },
+  {
+   "name": "RADJA, DINO",
+   "team": "OLY",
+   "gp": 14,
+   "pir": 20.3
+  },
+  {
+   "name": "HILL, KRIS",
+   "team": "OVA",
+   "gp": 10,
+   "pir": 19.2
+  },
+  {
+   "name": "KHIZHNIAK, GRYGORII",
+   "team": "ZAL",
+   "gp": 12,
+   "pir": 18.8
+  },
+  {
+   "name": "RICH, JAMEIL",
+   "team": "LUG",
+   "gp": 10,
+   "pir": 18.3
+  },
+  {
+   "name": "MATTHEWS, LEE",
+   "team": "LUG",
+   "gp": 10,
+   "pir": 17.5
+  },
+  {
+   "name": "REYES, ALFONSO",
+   "team": "EST",
+   "gp": 12,
+   "pir": 16.8
+  },
+  {
+   "name": "KOVACIC, EMILIJO",
+   "team": "LJU",
+   "gp": 14,
+   "pir": 16.7
+  },
+  {
+   "name": "BATISTE, MIKE",
+   "team": "CHA",
+   "gp": 10,
+   "pir": 16
+  },
+  {
+   "name": "KARNISOVAS, ARTURAS",
+   "team": "BAR",
+   "gp": 10,
+   "pir": 15.3
+  },
+  {
+   "name": "PEJCINOVIC, DAVOR ",
+   "team": "ZAD",
+   "gp": 10,
+   "pir": 15.1
+  },
+  {
+   "name": "MARIC, IVICA",
+   "team": "ZAD",
+   "gp": 10,
+   "pir": 15
+  },
+  {
+   "name": "CONLON, MARTY",
+   "team": "VER",
+   "gp": 12,
+   "pir": 14.7
+  },
+  {
+   "name": "KRUNIC, DARKO",
+   "team": "ZAD",
+   "gp": 10,
+   "pir": 14.5
+  },
+  {
+   "name": "RISACHER, STEPHANE",
+   "team": "OLY",
+   "gp": 14,
+   "pir": 14.2
+  },
+  {
+   "name": "MCCOY, TYRON",
+   "team": "FRA",
+   "gp": 10,
+   "pir": 14
+  },
+  {
+   "name": "WOODBERRY, STEVE",
+   "team": "ZAL",
+   "gp": 12,
+   "pir": 13.8
+  },
+  {
+   "name": "ELLIS, RONALD",
+   "team": "CHA",
+   "gp": 10,
+   "pir": 13.7
+  },
+  {
+   "name": "SLANINA, DONATAS",
+   "team": "ZAL",
+   "gp": 12,
+   "pir": 13.7
+  },
+  {
+   "name": "MEEK, ERIK",
+   "team": "MAD",
+   "gp": 14,
+   "pir": 13.6
+  },
+  {
+   "name": "TSARTSARIS, KOSTAS",
+   "team": "PER",
+   "gp": 11,
+   "pir": 13.5
+  },
+  {
+   "name": "PITTIS, RICCARDO",
+   "team": "TRE",
+   "gp": 14,
+   "pir": 13.4
+  },
+  {
+   "name": "MYERS, CARLTON",
+   "team": "FOR",
+   "gp": 10,
+   "pir": 13.3
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2000"
+}

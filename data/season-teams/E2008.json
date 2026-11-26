@@ -1,0 +1,233 @@
+{
+ "season": "E2008",
+ "label": "2008-09",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "PAN",
+  "name": "Panathinaikos Athens",
+  "date": "2009-05-03"
+ },
+ "coach": {
+  "name": "Obradovic",
+  "full": "OBRADOVIC, ZELJKO",
+  "team": "PAN"
+ },
+ "players": [
+  {
+   "name": "Splitter",
+   "full": "SPLITTER, TIAGO",
+   "pos": "C",
+   "team": "BAS",
+   "num": 21,
+   "pir": 17.8,
+   "gp": 17,
+   "code": "CBY"
+  },
+  {
+   "name": "Bourousis",
+   "full": "BOUROUSIS, IOANNIS",
+   "pos": "C",
+   "team": "OLY",
+   "num": 9,
+   "pir": 16.1,
+   "gp": 22,
+   "code": "AQU"
+  },
+  {
+   "name": "Eliyahu",
+   "full": "ELIYAHU, LIOR",
+   "pos": "F",
+   "team": "TEL",
+   "num": 8,
+   "pir": 17.6,
+   "gp": 16,
+   "code": "LGD"
+  },
+  {
+   "name": "Lavrinovic",
+   "full": "LAVRINOVIC, KSISTOF",
+   "pos": "F",
+   "team": "SIE",
+   "num": 12,
+   "pir": 14.9,
+   "gp": 17,
+   "code": "BLH"
+  },
+  {
+   "name": "Batiste",
+   "full": "BATISTE, MIKE",
+   "pos": "F",
+   "team": "PAN",
+   "num": 8,
+   "pir": 14.8,
+   "gp": 22,
+   "code": "AJV"
+  },
+  {
+   "name": "Hawkins",
+   "full": "HAWKINS, DAVID",
+   "pos": "F",
+   "team": "MIL",
+   "num": 34,
+   "pir": 14.3,
+   "gp": 16,
+   "code": "KZA"
+  },
+  {
+   "name": "Mcintyre",
+   "full": "MCINTYRE, TERRELL",
+   "pos": "G",
+   "team": "SIE",
+   "num": 5,
+   "pir": 19.8,
+   "gp": 19,
+   "code": "KWI"
+  },
+  {
+   "name": "Rakocevic",
+   "full": "RAKOCEVIC, IGOR",
+   "pos": "G",
+   "team": "BAS",
+   "num": 8,
+   "pir": 16.8,
+   "gp": 21,
+   "code": "ANB"
+  },
+  {
+   "name": "Mcelroy",
+   "full": "McELROY, IMMANUEL",
+   "pos": "G",
+   "team": "BER",
+   "num": 23,
+   "pir": 15.6,
+   "gp": 16,
+   "code": "JNP"
+  },
+  {
+   "name": "Navarro",
+   "full": "NAVARRO, JUAN CARLOS",
+   "pos": "G",
+   "team": "BAR",
+   "num": 11,
+   "pir": 15.1,
+   "gp": 21,
+   "code": "ADI"
+  }
+ ],
+ "checked": [
+  {
+   "name": "MCINTYRE, TERRELL",
+   "team": "SIE",
+   "pir": 19.8,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "SPLITTER, TIAGO",
+   "team": "BAS",
+   "pir": 17.8,
+   "gp": 17,
+   "pos": "C"
+  },
+  {
+   "name": "ELIYAHU, LIOR",
+   "team": "TEL",
+   "pir": 17.6,
+   "gp": 16,
+   "pos": "F"
+  },
+  {
+   "name": "RAKOCEVIC, IGOR",
+   "team": "BAS",
+   "pir": 16.8,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "BOUROUSIS, IOANNIS",
+   "team": "OLY",
+   "pir": 16.1,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "REYES, FELIPE",
+   "team": "MAD",
+   "pir": 15.8,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "McELROY, IMMANUEL",
+   "team": "BER",
+   "pir": 15.6,
+   "gp": 16,
+   "pos": "G"
+  },
+  {
+   "name": "NAVARRO, JUAN CARLOS",
+   "team": "BAR",
+   "pir": 15.1,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "LAVRINOVIC, KSISTOF",
+   "team": "SIE",
+   "pir": 14.9,
+   "gp": 17,
+   "pos": "F"
+  },
+  {
+   "name": "BATISTE, MIKE",
+   "team": "PAN",
+   "pir": 14.8,
+   "gp": 22,
+   "pos": "F"
+  },
+  {
+   "name": "LORBEK, ERAZEM",
+   "team": "CSK",
+   "pir": 14.6,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "HAWKINS, DAVID",
+   "team": "MIL",
+   "pir": 14.3,
+   "gp": 16,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "FISCHER, DOR",
+   "team": "TEL",
+   "gp": 13,
+   "pir": 21.5
+  },
+  {
+   "name": "TURKCAN, MIRSAD",
+   "team": "ULK",
+   "gp": 14,
+   "pir": 19.4
+  },
+  {
+   "name": "BECIROVIC, SANI",
+   "team": "ROM",
+   "gp": 13,
+   "pir": 17.8
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2008"
+}

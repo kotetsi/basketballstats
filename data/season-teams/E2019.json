@@ -1,0 +1,241 @@
+{
+ "season": "E2019",
+ "label": "2019-20",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": null,
+ "coach": null,
+ "players": [
+  {
+   "name": "Milutinov",
+   "full": "MILUTINOV, NIKOLA",
+   "pos": "C",
+   "team": "OLY",
+   "num": 11,
+   "pir": 19.2,
+   "gp": 24,
+   "code": "003941"
+  },
+  {
+   "name": "Shengelia",
+   "full": "SHENGELIA, TORNIKE",
+   "pos": "C",
+   "team": "BAS",
+   "num": 23,
+   "pir": 18.5,
+   "gp": 28,
+   "code": "001133"
+  },
+  {
+   "name": "Mirotic",
+   "full": "MIROTIC, NIKOLA",
+   "pos": "F",
+   "team": "BAR",
+   "num": 33,
+   "pir": 22.5,
+   "gp": 28,
+   "code": "000796"
+  },
+  {
+   "name": "Sikma",
+   "full": "SIKMA, LUKE",
+   "pos": "F",
+   "team": "BER",
+   "num": 43,
+   "pir": 16.6,
+   "gp": 28,
+   "code": "006589"
+  },
+  {
+   "name": "Randolph",
+   "full": "RANDOLPH, ANTHONY",
+   "pos": "F",
+   "team": "MAD",
+   "num": 3,
+   "pir": 15.1,
+   "gp": 19,
+   "code": "005757"
+  },
+  {
+   "name": "Giedraitis",
+   "full": "GIEDRAITIS, ROKAS",
+   "pos": "F",
+   "team": "BER",
+   "num": 31,
+   "pir": 14.7,
+   "gp": 25,
+   "code": "006436"
+  },
+  {
+   "name": "Larkin",
+   "full": "LARKIN, SHANE",
+   "pos": "G",
+   "team": "IST",
+   "num": 0,
+   "pir": 25.8,
+   "gp": 25,
+   "code": "007200"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "CSK",
+   "num": 5,
+   "pir": 20.9,
+   "gp": 28,
+   "code": "005985"
+  },
+  {
+   "name": "Shved",
+   "full": "SHVED, ALEXEY",
+   "pos": "G",
+   "team": "KHI",
+   "num": 1,
+   "pir": 19.4,
+   "gp": 26,
+   "code": "KVZ"
+  },
+  {
+   "name": "Calathes",
+   "full": "CALATHES, NICK",
+   "pos": "G",
+   "team": "PAN",
+   "num": 33,
+   "pir": 17.8,
+   "gp": 28,
+   "code": "001932"
+  }
+ ],
+ "checked": [
+  {
+   "name": "LARKIN, SHANE",
+   "team": "IST",
+   "pir": 25.8,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "MIROTIC, NIKOLA",
+   "team": "BAR",
+   "pir": 22.5,
+   "gp": 28,
+   "pos": "F"
+  },
+  {
+   "name": "JAMES, MIKE",
+   "team": "CSK",
+   "pir": 20.9,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "SHVED, ALEXEY",
+   "team": "KHI",
+   "pir": 19.4,
+   "gp": 26,
+   "pos": "G"
+  },
+  {
+   "name": "MILUTINOV, NIKOLA",
+   "team": "OLY",
+   "pir": 19.2,
+   "gp": 24,
+   "pos": "C"
+  },
+  {
+   "name": "SHENGELIA, TORNIKE",
+   "team": "BAS",
+   "pir": 18.5,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "DUBLJEVIC, BOJAN",
+   "team": "PAM",
+   "pir": 18,
+   "gp": 26,
+   "pos": "C"
+  },
+  {
+   "name": "CALATHES, NICK",
+   "team": "PAN",
+   "pir": 17.8,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "MONROE, GREG",
+   "team": "MUN",
+   "pir": 16.8,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "SIKMA, LUKE",
+   "team": "BER",
+   "pir": 16.6,
+   "gp": 28,
+   "pos": "F"
+  },
+  {
+   "name": "DE COLO, NANDO",
+   "team": "ULK",
+   "pir": 16.5,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "MICIC, VASILIJE",
+   "team": "IST",
+   "pir": 16,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "WILBEKIN, SCOTTIE",
+   "team": "TEL",
+   "pir": 15.8,
+   "gp": 26,
+   "pos": "G"
+  },
+  {
+   "name": "SLOUKAS, KOSTAS",
+   "team": "ULK",
+   "pir": 15.5,
+   "gp": 25,
+   "pos": "G"
+  },
+  {
+   "name": "CAMPAZZO, FACUNDO",
+   "team": "MAD",
+   "pir": 15.4,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "RANDOLPH, ANTHONY",
+   "team": "MAD",
+   "pir": 15.1,
+   "gp": 19,
+   "pos": "F"
+  },
+  {
+   "name": "GIEDRAITIS, ROKAS",
+   "team": "BER",
+   "pir": 14.7,
+   "gp": 25,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2019"
+}

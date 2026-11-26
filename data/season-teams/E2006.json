@@ -1,0 +1,266 @@
+{
+ "season": "E2006",
+ "label": "2006-07",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "PAN",
+  "name": "Panathinaikos Athens",
+  "date": "2007-05-06"
+ },
+ "coach": {
+  "name": "Obradovic",
+  "full": "OBRADOVIC, ZELJKO",
+  "team": "PAN"
+ },
+ "players": [
+  {
+   "name": "Vujcic",
+   "full": "VUJCIC, NIKOLA",
+   "pos": "C",
+   "team": "TEL",
+   "num": 7,
+   "pir": 21.7,
+   "gp": 22,
+   "code": "APB"
+  },
+  {
+   "name": "Papadopoulos",
+   "full": "PAPADOPOULOS, LAZAROS",
+   "pos": "C",
+   "team": "DYN",
+   "num": 12,
+   "pir": 20.3,
+   "gp": 17,
+   "code": "APP"
+  },
+  {
+   "name": "Massey",
+   "full": "MASSEY, JEREMIAH",
+   "pos": "F",
+   "team": "ARI",
+   "num": 14,
+   "pir": 18.3,
+   "gp": 20,
+   "code": "LGV"
+  },
+  {
+   "name": "Scola",
+   "full": "SCOLA, LUIS",
+   "pos": "F",
+   "team": "BAS",
+   "num": 4,
+   "pir": 17.9,
+   "gp": 23,
+   "code": "AJG"
+  },
+  {
+   "name": "Wright",
+   "full": "WRIGHT, MICHAEL",
+   "pos": "F",
+   "team": "PAU",
+   "num": 18,
+   "pir": 17,
+   "gp": 20,
+   "code": "BAT"
+  },
+  {
+   "name": "Haislip",
+   "full": "HAISLIP, MARCUS",
+   "pos": "F",
+   "team": "IST",
+   "num": 13,
+   "pir": 16,
+   "gp": 20,
+   "code": "KMV"
+  },
+  {
+   "name": "Navarro",
+   "full": "NAVARRO, JUAN CARLOS",
+   "pos": "G",
+   "team": "BAR",
+   "num": 11,
+   "pir": 16.9,
+   "gp": 22,
+   "code": "ADI"
+  },
+  {
+   "name": "Fernandez",
+   "full": "FERNANDEZ, RUDY",
+   "pos": "G",
+   "team": "JOV",
+   "num": 5,
+   "pir": 16.8,
+   "gp": 19,
+   "code": "BMT"
+  },
+  {
+   "name": "Acker",
+   "full": "ACKER, ALEX",
+   "pos": "G",
+   "team": "OLY",
+   "num": 6,
+   "pir": 15.7,
+   "gp": 22,
+   "code": "LGC"
+  },
+  {
+   "name": "Papaloukas",
+   "full": "PAPALOUKAS, THEODOROS",
+   "pos": "G",
+   "team": "CSK",
+   "num": 4,
+   "pir": 15.3,
+   "gp": 25,
+   "code": "ATW"
+  }
+ ],
+ "checked": [
+  {
+   "name": "VUJCIC, NIKOLA",
+   "team": "TEL",
+   "pir": 21.7,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "PAPADOPOULOS, LAZAROS",
+   "team": "DYN",
+   "pir": 20.3,
+   "gp": 17,
+   "pos": "C"
+  },
+  {
+   "name": "MASSEY, JEREMIAH",
+   "team": "ARI",
+   "pir": 18.3,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "SCOLA, LUIS",
+   "team": "BAS",
+   "pir": 17.9,
+   "gp": 23,
+   "pos": "F"
+  },
+  {
+   "name": "DROBNJAK, PREDRAG",
+   "team": "PAR",
+   "pir": 17.7,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "FOTSIS, ANTONIS",
+   "team": "DYN",
+   "pir": 17.2,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "WRIGHT, MICHAEL",
+   "team": "PAU",
+   "pir": 17,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "NAVARRO, JUAN CARLOS",
+   "team": "BAR",
+   "pir": 16.9,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "FERNANDEZ, RUDY",
+   "team": "JOV",
+   "pir": 16.8,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "HAISLIP, MARCUS",
+   "team": "IST",
+   "pir": 16,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "GOREE, MARCUS",
+   "team": "TRE",
+   "pir": 15.8,
+   "gp": 18,
+   "pos": "F"
+  },
+  {
+   "name": "WILKINSON, MIKE",
+   "team": "ARI",
+   "pir": 15.7,
+   "gp": 19,
+   "pos": "F"
+  },
+  {
+   "name": "ACKER, ALEX",
+   "team": "OLY",
+   "pir": 15.7,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "BATISTE, MIKE",
+   "team": "PAN",
+   "pir": 15.5,
+   "gp": 19,
+   "pos": "F"
+  },
+  {
+   "name": "PAPALOUKAS, THEODOROS",
+   "team": "CSK",
+   "pir": 15.3,
+   "gp": 25,
+   "pos": "G"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "CAMPBELL, ERIC",
+   "team": "LEM",
+   "gp": 14,
+   "pir": 19
+  },
+  {
+   "name": "BEARD, TANOKA",
+   "team": "ZAL",
+   "gp": 14,
+   "pir": 18.3
+  },
+  {
+   "name": "WRIGHT, BRENT",
+   "team": "CIB",
+   "gp": 14,
+   "pir": 16.9
+  },
+  {
+   "name": "KAMBALA, KASPARS",
+   "team": "ULK",
+   "gp": 13,
+   "pir": 16.8
+  },
+  {
+   "name": "THOMAS, JAMES",
+   "team": "FOR",
+   "gp": 13,
+   "pir": 16.2
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2006"
+}

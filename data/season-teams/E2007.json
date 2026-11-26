@@ -1,0 +1,300 @@
+{
+ "season": "E2007",
+ "label": "2007-08",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "CSK",
+  "name": "CSKA Moscow",
+  "date": "2008-05-04"
+ },
+ "coach": {
+  "name": "Messina",
+  "full": "MESSINA, ETTORE",
+  "team": "CSK"
+ },
+ "players": [
+  {
+   "name": "Pekovic",
+   "full": "PEKOVIC, NIKOLA",
+   "pos": "C",
+   "team": "PAR",
+   "num": 14,
+   "pir": 19.6,
+   "gp": 23,
+   "code": "KNN"
+  },
+  {
+   "name": "Jackson",
+   "full": "JACKSON, MARC",
+   "pos": "C",
+   "team": "OLY",
+   "num": 25,
+   "pir": 16.8,
+   "gp": 20,
+   "code": "000126"
+  },
+  {
+   "name": "Massey",
+   "full": "MASSEY, JEREMIAH",
+   "pos": "F",
+   "team": "ARI",
+   "num": 14,
+   "pir": 21,
+   "gp": 20,
+   "code": "LGV"
+  },
+  {
+   "name": "Morris",
+   "full": "MORRIS, TERENCE",
+   "pos": "F",
+   "team": "TEL",
+   "num": 9,
+   "pir": 17.8,
+   "gp": 25,
+   "code": "LTS"
+  },
+  {
+   "name": "Siskauskas",
+   "full": "SISKAUSKAS, RAMUNAS",
+   "pos": "F",
+   "team": "CSK",
+   "num": 9,
+   "pir": 16,
+   "gp": 24,
+   "code": "JMM"
+  },
+  {
+   "name": "Batiste",
+   "full": "BATISTE, MIKE",
+   "pos": "F",
+   "team": "PAN",
+   "num": 8,
+   "pir": 13.7,
+   "gp": 19,
+   "code": "AJV"
+  },
+  {
+   "name": "Greer",
+   "full": "GREER, LYNN",
+   "pos": "G",
+   "team": "OLY",
+   "num": 11,
+   "pir": 18.1,
+   "gp": 19,
+   "code": "CRR"
+  },
+  {
+   "name": "Solomon",
+   "full": "SOLOMON, WILLIE",
+   "pos": "G",
+   "team": "ULK",
+   "num": 5,
+   "pir": 18,
+   "gp": 21,
+   "code": "COS"
+  },
+  {
+   "name": "Diamantidis",
+   "full": "DIAMANTIDIS, DIMITRIS",
+   "pos": "G",
+   "team": "PAN",
+   "num": 13,
+   "pir": 15.1,
+   "gp": 19,
+   "code": "JKO"
+  },
+  {
+   "name": "Collins",
+   "full": "COLLINS, DeJUAN",
+   "pos": "G",
+   "team": "ZAL",
+   "num": 41,
+   "pir": 14.8,
+   "gp": 20,
+   "code": "BDB"
+  }
+ ],
+ "checked": [
+  {
+   "name": "MASSEY, JEREMIAH",
+   "team": "ARI",
+   "pir": 21,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "PEKOVIC, NIKOLA",
+   "team": "PAR",
+   "pir": 19.6,
+   "gp": 23,
+   "pos": "C"
+  },
+  {
+   "name": "GREER, LYNN",
+   "team": "OLY",
+   "pir": 18.1,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "SOLOMON, WILLIE",
+   "team": "ULK",
+   "pir": 18,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "MORRIS, TERENCE",
+   "team": "TEL",
+   "pir": 17.8,
+   "gp": 25,
+   "pos": "F"
+  },
+  {
+   "name": "JACKSON, MARC",
+   "team": "OLY",
+   "pir": 16.8,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "SPLITTER, TIAGO",
+   "team": "BAS",
+   "pir": 16.1,
+   "gp": 25,
+   "pos": "C"
+  },
+  {
+   "name": "SISKAUSKAS, RAMUNAS",
+   "team": "CSK",
+   "pir": 16,
+   "gp": 24,
+   "pos": "F"
+  },
+  {
+   "name": "REYES, FELIPE",
+   "team": "MAD",
+   "pir": 15.8,
+   "gp": 19,
+   "pos": "C"
+  },
+  {
+   "name": "PETRAVICIUS, MARIUS",
+   "team": "LIE",
+   "pir": 15.7,
+   "gp": 17,
+   "pos": "C"
+  },
+  {
+   "name": "LAVRINOVIC, KSISTOF",
+   "team": "SIE",
+   "pir": 15.5,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "LORBEK, ERAZEM",
+   "team": "ROM",
+   "pir": 15.4,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "DIAMANTIDIS, DIMITRIS",
+   "team": "PAN",
+   "pir": 15.1,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "COLLINS, DeJUAN",
+   "team": "ZAL",
+   "pir": 14.8,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "ANDERSEN, DAVID",
+   "team": "CSK",
+   "pir": 14.7,
+   "gp": 25,
+   "pos": "C"
+  },
+  {
+   "name": "MCINTYRE, TERRELL",
+   "team": "SIE",
+   "pir": 14.3,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "PRICE, HOLLIS",
+   "team": "LIE",
+   "pir": 14.1,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "WOODS, LOREN",
+   "team": "IST",
+   "pir": 13.8,
+   "gp": 16,
+   "pos": "C"
+  },
+  {
+   "name": "BATISTE, MIKE",
+   "team": "PAN",
+   "pir": 13.7,
+   "gp": 19,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "SALYERS, MARC",
+   "team": "ROA",
+   "gp": 14,
+   "pir": 22.5
+  },
+  {
+   "name": "WATSON, TRAVIS",
+   "team": "MIL",
+   "gp": 14,
+   "pir": 18
+  },
+  {
+   "name": "CLANCY, SAM",
+   "team": "LEM",
+   "gp": 13,
+   "pir": 16.5
+  },
+  {
+   "name": "WARREN, CHRIS",
+   "team": "CIB",
+   "gp": 14,
+   "pir": 16.3
+  },
+  {
+   "name": "MILIC, MARKO",
+   "team": "LJU",
+   "gp": 14,
+   "pir": 15.8
+  },
+  {
+   "name": "HOSKIN, SAM",
+   "team": "CIB",
+   "gp": 13,
+   "pir": 14.9
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2007"
+}

@@ -1,0 +1,256 @@
+{
+ "season": "E2021",
+ "label": "2021-22",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "IST",
+  "name": "Anadolu Efes Istanbul",
+  "date": "2022-05-21"
+ },
+ "coach": {
+  "name": "Ataman",
+  "full": "ATAMAN, ERGIN",
+  "team": "IST"
+ },
+ "players": [
+  {
+   "name": "Tavares",
+   "full": "TAVARES, WALTER",
+   "pos": "C",
+   "team": "MAD",
+   "num": 22,
+   "pir": 18.4,
+   "gp": 35,
+   "code": "005791"
+  },
+  {
+   "name": "Vesely",
+   "full": "VESELY, JAN",
+   "pos": "C",
+   "team": "ULK",
+   "num": 24,
+   "pir": 18.2,
+   "gp": 22,
+   "code": "000925"
+  },
+  {
+   "name": "Mirotic",
+   "full": "MIROTIC, NIKOLA",
+   "pos": "F",
+   "team": "BAR",
+   "num": 33,
+   "pir": 20.1,
+   "gp": 38,
+   "code": "000796"
+  },
+  {
+   "name": "Vezenkov",
+   "full": "VEZENKOV, SASHA",
+   "pos": "F",
+   "team": "OLY",
+   "num": 14,
+   "pir": 17.8,
+   "gp": 38,
+   "code": "003469"
+  },
+  {
+   "name": "Nunnally",
+   "full": "NUNNALLY, JAMES",
+   "pos": "F",
+   "team": "TEL",
+   "num": 21,
+   "pir": 15.1,
+   "gp": 32,
+   "code": "007400"
+  },
+  {
+   "name": "Hezonja",
+   "full": "HEZONJA, MARIO",
+   "pos": "F",
+   "team": "UNK",
+   "num": 11,
+   "pir": 14.3,
+   "gp": 25,
+   "code": "003108"
+  },
+  {
+   "name": "Larkin",
+   "full": "LARKIN, SHANE",
+   "pos": "G",
+   "team": "IST",
+   "num": 0,
+   "pir": 18.7,
+   "gp": 39,
+   "code": "007200"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "MCO",
+   "num": 55,
+   "pir": 18.1,
+   "gp": 38,
+   "code": "005985"
+  },
+  {
+   "name": "Micic",
+   "full": "MICIC, VASILIJE",
+   "pos": "G",
+   "team": "IST",
+   "num": 22,
+   "pir": 17.5,
+   "gp": 34,
+   "code": "002580"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, LORENZO",
+   "pos": "G",
+   "team": "UNK",
+   "num": 4,
+   "pir": 17.3,
+   "gp": 24,
+   "code": "009622"
+  }
+ ],
+ "checked": [
+  {
+   "name": "MIROTIC, NIKOLA",
+   "team": "BAR",
+   "pir": 20.1,
+   "gp": 38,
+   "pos": "F"
+  },
+  {
+   "name": "LARKIN, SHANE",
+   "team": "IST",
+   "pir": 18.7,
+   "gp": 39,
+   "pos": "G"
+  },
+  {
+   "name": "TAVARES, WALTER",
+   "team": "MAD",
+   "pir": 18.4,
+   "gp": 35,
+   "pos": "C"
+  },
+  {
+   "name": "VESELY, JAN",
+   "team": "ULK",
+   "pir": 18.2,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "JAMES, MIKE",
+   "team": "MCO",
+   "pir": 18.1,
+   "gp": 38,
+   "pos": "G"
+  },
+  {
+   "name": "VEZENKOV, SASHA",
+   "team": "OLY",
+   "pir": 17.8,
+   "gp": 38,
+   "pos": "F"
+  },
+  {
+   "name": "MICIC, VASILIJE",
+   "team": "IST",
+   "pir": 17.5,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "PAPAGIANNIS, GEORGIOS",
+   "team": "PAN",
+   "pir": 17.4,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "BROWN, LORENZO",
+   "team": "UNK",
+   "pir": 17.3,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "ZIZIC, ANTE",
+   "team": "TEL",
+   "pir": 15.5,
+   "gp": 31,
+   "pos": "C"
+  },
+  {
+   "name": "BALDWIN IV, WADE",
+   "team": "BAS",
+   "pir": 15.5,
+   "gp": 30,
+   "pos": "G"
+  },
+  {
+   "name": "WILBEKIN, SCOTTIE",
+   "team": "TEL",
+   "pir": 15.1,
+   "gp": 35,
+   "pos": "G"
+  },
+  {
+   "name": "NUNNALLY, JAMES",
+   "team": "TEL",
+   "pir": 15.1,
+   "gp": 32,
+   "pos": "F"
+  },
+  {
+   "name": "LO, MAODO",
+   "team": "BER",
+   "pir": 14.8,
+   "gp": 33,
+   "pos": "G"
+  },
+  {
+   "name": "SLOUKAS, KOSTAS",
+   "team": "OLY",
+   "pir": 14.8,
+   "gp": 37,
+   "pos": "G"
+  },
+  {
+   "name": "JONES, CHRIS",
+   "team": "ASV",
+   "pir": 14.7,
+   "gp": 31,
+   "pos": "G"
+  },
+  {
+   "name": "LOYD, JORDAN",
+   "team": "DYR",
+   "pir": 14.4,
+   "gp": 23,
+   "pos": "G"
+  },
+  {
+   "name": "HEZONJA, MARIO",
+   "team": "UNK",
+   "pir": 14.3,
+   "gp": 25,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2021"
+}

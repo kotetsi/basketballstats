@@ -1,0 +1,256 @@
+{
+ "season": "E2023",
+ "label": "2023-24",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "PAN",
+  "name": "Panathinaikos AKTOR Athens",
+  "date": "2024-05-26"
+ },
+ "coach": {
+  "name": "Ataman",
+  "full": "ATAMAN, ERGIN",
+  "team": "PAN"
+ },
+ "players": [
+  {
+   "name": "Lessort",
+   "full": "LESSORT, MATHIAS",
+   "pos": "C",
+   "team": "PAN",
+   "num": 26,
+   "pir": 19.6,
+   "gp": 41,
+   "code": "003842"
+  },
+  {
+   "name": "Moneke",
+   "full": "MONEKE, CHIMA",
+   "pos": "C",
+   "team": "BAS",
+   "num": 95,
+   "pir": 18.3,
+   "gp": 34,
+   "code": "012201"
+  },
+  {
+   "name": "Shengelia",
+   "full": "SHENGELIA, TORNIKE",
+   "pos": "F",
+   "team": "VIR",
+   "num": 21,
+   "pir": 17.4,
+   "gp": 33,
+   "code": "001133"
+  },
+  {
+   "name": "Shields",
+   "full": "SHIELDS, SHAVON",
+   "pos": "F",
+   "team": "MIL",
+   "num": 31,
+   "pir": 16.8,
+   "gp": 29,
+   "code": "007831"
+  },
+  {
+   "name": "Hayes-Davis",
+   "full": "HAYES-DAVIS, NIGEL",
+   "pos": "F",
+   "team": "ULK",
+   "num": 11,
+   "pir": 15.6,
+   "gp": 37,
+   "code": "008962"
+  },
+  {
+   "name": "Clyburn",
+   "full": "CLYBURN, WILL",
+   "pos": "F",
+   "team": "IST",
+   "num": 12,
+   "pir": 14.7,
+   "gp": 25,
+   "code": "004888"
+  },
+  {
+   "name": "Larkin",
+   "full": "LARKIN, SHANE",
+   "pos": "G",
+   "team": "IST",
+   "num": 0,
+   "pir": 19.9,
+   "gp": 35,
+   "code": "007200"
+  },
+  {
+   "name": "James",
+   "full": "JAMES, MIKE",
+   "pos": "G",
+   "team": "MCO",
+   "num": 55,
+   "pir": 19.4,
+   "gp": 39,
+   "code": "005985"
+  },
+  {
+   "name": "Baldwin Iv",
+   "full": "BALDWIN IV, WADE",
+   "pos": "G",
+   "team": "TEL",
+   "num": 5,
+   "pir": 19.1,
+   "gp": 30,
+   "code": "009863"
+  },
+  {
+   "name": "Evans",
+   "full": "EVANS, KEENAN",
+   "pos": "G",
+   "team": "ZAL",
+   "num": 2,
+   "pir": 18.3,
+   "gp": 34,
+   "code": "011218"
+  }
+ ],
+ "checked": [
+  {
+   "name": "LARKIN, SHANE",
+   "team": "IST",
+   "pir": 19.9,
+   "gp": 35,
+   "pos": "G"
+  },
+  {
+   "name": "LESSORT, MATHIAS",
+   "team": "PAN",
+   "pir": 19.6,
+   "gp": 41,
+   "pos": "C"
+  },
+  {
+   "name": "JAMES, MIKE",
+   "team": "MCO",
+   "pir": 19.4,
+   "gp": 39,
+   "pos": "G"
+  },
+  {
+   "name": "BALDWIN IV, WADE",
+   "team": "TEL",
+   "pir": 19.1,
+   "gp": 30,
+   "pos": "G"
+  },
+  {
+   "name": "MONEKE, CHIMA",
+   "team": "BAS",
+   "pir": 18.3,
+   "gp": 34,
+   "pos": "C"
+  },
+  {
+   "name": "EVANS, KEENAN",
+   "team": "ZAL",
+   "pir": 18.3,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "SHENGELIA, TORNIKE",
+   "team": "VIR",
+   "pir": 17.4,
+   "gp": 33,
+   "pos": "F"
+  },
+  {
+   "name": "SHIELDS, SHAVON",
+   "team": "MIL",
+   "pir": 16.8,
+   "gp": 29,
+   "pos": "F"
+  },
+  {
+   "name": "CAMPAZZO, FACUNDO",
+   "team": "MAD",
+   "pir": 16.7,
+   "gp": 37,
+   "pos": "G"
+  },
+  {
+   "name": "NEBO, JOSH",
+   "team": "TEL",
+   "pir": 16.7,
+   "gp": 39,
+   "pos": "C"
+  },
+  {
+   "name": "THIEMANN, JOHANNES",
+   "team": "BER",
+   "pir": 16.4,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "SLOUKAS, KOSTAS",
+   "team": "PAN",
+   "pir": 16.1,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "IBAKA, SERGE",
+   "team": "MUN",
+   "pir": 15.8,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "HAYES-DAVIS, NIGEL",
+   "team": "ULK",
+   "pir": 15.6,
+   "gp": 37,
+   "pos": "F"
+  },
+  {
+   "name": "TAVARES, WALTER",
+   "team": "MAD",
+   "pir": 14.9,
+   "gp": 34,
+   "pos": "C"
+  },
+  {
+   "name": "MILLER-MCINTYRE, CODI",
+   "team": "BAS",
+   "pir": 14.9,
+   "gp": 39,
+   "pos": "G"
+  },
+  {
+   "name": "VESELY, JAN",
+   "team": "BAR",
+   "pir": 14.9,
+   "gp": 38,
+   "pos": "C"
+  },
+  {
+   "name": "CLYBURN, WILL",
+   "team": "IST",
+   "pir": 14.7,
+   "gp": 25,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2023"
+}

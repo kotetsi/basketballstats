@@ -1,0 +1,242 @@
+{
+ "season": "E2024",
+ "label": "2024-25",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "ULK",
+  "name": "Fenerbahce Beko Istanbul",
+  "date": "2025-05-25"
+ },
+ "coach": {
+  "name": "Jasikevicius",
+  "full": "JASIKEVICIUS, SARAS",
+  "team": "ULK"
+ },
+ "players": [
+  {
+   "name": "Moneke",
+   "full": "MONEKE, CHIMA",
+   "pos": "C",
+   "team": "BAS",
+   "num": 95,
+   "pir": 18.6,
+   "gp": 33,
+   "code": "012201"
+  },
+  {
+   "name": "Booker",
+   "full": "BOOKER, DEVIN",
+   "pos": "C",
+   "team": "MUN",
+   "num": 31,
+   "pir": 16.2,
+   "gp": 28,
+   "code": "007056"
+  },
+  {
+   "name": "Vezenkov",
+   "full": "VEZENKOV, SASHA",
+   "pos": "F",
+   "team": "OLY",
+   "num": 14,
+   "pir": 23.7,
+   "gp": 38,
+   "code": "003469"
+  },
+  {
+   "name": "Mirotic",
+   "full": "MIROTIC, NIKOLA",
+   "pos": "F",
+   "team": "MIL",
+   "num": 33,
+   "pir": 22,
+   "gp": 30,
+   "code": "000796"
+  },
+  {
+   "name": "Leday",
+   "full": "LEDAY, ZACH",
+   "pos": "F",
+   "team": "MIL",
+   "num": 16,
+   "pir": 19.4,
+   "gp": 34,
+   "code": "008987"
+  },
+  {
+   "name": "Hayes-Davis",
+   "full": "HAYES-DAVIS, NIGEL",
+   "pos": "F",
+   "team": "ULK",
+   "num": 11,
+   "pir": 18.3,
+   "gp": 39,
+   "code": "008962"
+  },
+  {
+   "name": "Shorts",
+   "full": "SHORTS, TJ",
+   "pos": "G",
+   "team": "PRS",
+   "num": 0,
+   "pir": 22.8,
+   "gp": 37,
+   "code": "012608"
+  },
+  {
+   "name": "Maledon",
+   "full": "MALEDON, THEO",
+   "pos": "G",
+   "team": "ASV",
+   "num": 6,
+   "pir": 20.6,
+   "gp": 33,
+   "code": "007027"
+  },
+  {
+   "name": "Nunn",
+   "full": "NUNN, KENDRICK",
+   "pos": "G",
+   "team": "PAN",
+   "num": 25,
+   "pir": 18.7,
+   "gp": 40,
+   "code": "012774"
+  },
+  {
+   "name": "Campazzo",
+   "full": "CAMPAZZO, FACUNDO",
+   "pos": "G",
+   "team": "MAD",
+   "num": 7,
+   "pir": 17.5,
+   "gp": 39,
+   "code": "005928"
+  }
+ ],
+ "checked": [
+  {
+   "name": "VEZENKOV, SASHA",
+   "team": "OLY",
+   "pir": 23.7,
+   "gp": 38,
+   "pos": "F"
+  },
+  {
+   "name": "SHORTS, TJ",
+   "team": "PRS",
+   "pir": 22.8,
+   "gp": 37,
+   "pos": "G"
+  },
+  {
+   "name": "MIROTIC, NIKOLA",
+   "team": "MIL",
+   "pir": 22,
+   "gp": 30,
+   "pos": "F"
+  },
+  {
+   "name": "MALEDON, THEO",
+   "team": "ASV",
+   "pir": 20.6,
+   "gp": 33,
+   "pos": "G"
+  },
+  {
+   "name": "LEDAY, ZACH",
+   "team": "MIL",
+   "pir": 19.4,
+   "gp": 34,
+   "pos": "F"
+  },
+  {
+   "name": "NUNN, KENDRICK",
+   "team": "PAN",
+   "pir": 18.7,
+   "gp": 40,
+   "pos": "G"
+  },
+  {
+   "name": "MONEKE, CHIMA",
+   "team": "BAS",
+   "pir": 18.6,
+   "gp": 33,
+   "pos": "C"
+  },
+  {
+   "name": "HAYES-DAVIS, NIGEL",
+   "team": "ULK",
+   "pir": 18.3,
+   "gp": 39,
+   "pos": "F"
+  },
+  {
+   "name": "HOARD, JAYLEN",
+   "team": "TEL",
+   "pir": 17.5,
+   "gp": 24,
+   "pos": "F"
+  },
+  {
+   "name": "CAMPAZZO, FACUNDO",
+   "team": "MAD",
+   "pir": 17.5,
+   "gp": 39,
+   "pos": "G"
+  },
+  {
+   "name": "SHENGELIA, TORNIKE",
+   "team": "VIR",
+   "pir": 17.5,
+   "gp": 28,
+   "pos": "F"
+  },
+  {
+   "name": "JAMES, MIKE",
+   "team": "MCO",
+   "pir": 17.4,
+   "gp": 41,
+   "pos": "G"
+  },
+  {
+   "name": "JONES, CARLIK",
+   "team": "PAR",
+   "pir": 17.3,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "EDWARDS, CARSEN",
+   "team": "MUN",
+   "pir": 16.7,
+   "gp": 35,
+   "pos": "G"
+  },
+  {
+   "name": "PUNTER, KEVIN",
+   "team": "BAR",
+   "pir": 16.5,
+   "gp": 37,
+   "pos": "G"
+  },
+  {
+   "name": "BOOKER, DEVIN",
+   "team": "MUN",
+   "pir": 16.2,
+   "gp": 28,
+   "pos": "C"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2024"
+}

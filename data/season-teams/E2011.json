@@ -1,0 +1,221 @@
+{
+ "season": "E2011",
+ "label": "2011-12",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "OLY",
+  "name": "Olympiacos Piraeus",
+  "date": "2012-05-13"
+ },
+ "coach": {
+  "name": "Ivkovic",
+  "full": "IVKOVIC, DUSAN",
+  "team": "OLY"
+ },
+ "players": [
+  {
+   "name": "Krstic",
+   "full": "KRSTIC, NENAD",
+   "pos": "C",
+   "team": "CSK",
+   "num": 12,
+   "pir": 18.4,
+   "gp": 22,
+   "code": "AUO"
+  },
+  {
+   "name": "Shermadini",
+   "full": "SHERMADINI, GIORGI",
+   "pos": "C",
+   "team": "CTU",
+   "num": 19,
+   "pir": 15.3,
+   "gp": 16,
+   "code": "001386"
+  },
+  {
+   "name": "Kirilenko",
+   "full": "KIRILENKO, ANDREI",
+   "pos": "F",
+   "team": "CSK",
+   "num": 15,
+   "pir": 24.2,
+   "gp": 17,
+   "code": "003530"
+  },
+  {
+   "name": "Mirotic",
+   "full": "MIROTIC, NIKOLA",
+   "pos": "F",
+   "team": "MAD",
+   "num": 12,
+   "pir": 14.6,
+   "gp": 16,
+   "code": "000796"
+  },
+  {
+   "name": "Banic",
+   "full": "BANIC, MARKO",
+   "pos": "F",
+   "team": "BIL",
+   "num": 13,
+   "pir": 13.4,
+   "gp": 20,
+   "code": "ATS"
+  },
+  {
+   "name": "Weems",
+   "full": "WEEMS, SONNY",
+   "pos": "F",
+   "team": "ZAL",
+   "num": 24,
+   "pir": 12.7,
+   "gp": 15,
+   "code": "003443"
+  },
+  {
+   "name": "Mccalebb",
+   "full": "MCCALEBB, BO",
+   "pos": "G",
+   "team": "SIE",
+   "num": 4,
+   "pir": 17.3,
+   "gp": 17,
+   "code": "002014"
+  },
+  {
+   "name": "Diamantidis",
+   "full": "DIAMANTIDIS, DIMITRIS",
+   "pos": "G",
+   "team": "PAN",
+   "num": 13,
+   "pir": 16.4,
+   "gp": 23,
+   "code": "JKO"
+  },
+  {
+   "name": "Domercant",
+   "full": "DOMERCANT, HENRY",
+   "pos": "G",
+   "team": "UNK",
+   "num": 44,
+   "pir": 16.3,
+   "gp": 19,
+   "code": "JIS"
+  },
+  {
+   "name": "Spanoulis",
+   "full": "SPANOULIS, VASSILIS",
+   "pos": "G",
+   "team": "OLY",
+   "num": 7,
+   "pir": 16,
+   "gp": 21,
+   "code": "JUO"
+  }
+ ],
+ "checked": [
+  {
+   "name": "KIRILENKO, ANDREI",
+   "team": "CSK",
+   "pir": 24.2,
+   "gp": 17,
+   "pos": "F"
+  },
+  {
+   "name": "KRSTIC, NENAD",
+   "team": "CSK",
+   "pir": 18.4,
+   "gp": 22,
+   "pos": "C"
+  },
+  {
+   "name": "MCCALEBB, BO",
+   "team": "SIE",
+   "pir": 17.3,
+   "gp": 17,
+   "pos": "G"
+  },
+  {
+   "name": "DIAMANTIDIS, DIMITRIS",
+   "team": "PAN",
+   "pir": 16.4,
+   "gp": 23,
+   "pos": "G"
+  },
+  {
+   "name": "DOMERCANT, HENRY",
+   "team": "UNK",
+   "pir": 16.3,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "SPANOULIS, VASSILIS",
+   "team": "OLY",
+   "pir": 16,
+   "gp": 21,
+   "pos": "G"
+  },
+  {
+   "name": "SHERMADINI, GIORGI",
+   "team": "CTU",
+   "pir": 15.3,
+   "gp": 16,
+   "pos": "C"
+  },
+  {
+   "name": "LORBEK, ERAZEM",
+   "team": "BAR",
+   "pir": 15.1,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "MIROTIC, NIKOLA",
+   "team": "MAD",
+   "pir": 14.6,
+   "gp": 16,
+   "pos": "F"
+  },
+  {
+   "name": "ZORIC, LUKA",
+   "team": "MAL",
+   "pir": 13.7,
+   "gp": 16,
+   "pos": "C"
+  },
+  {
+   "name": "BANIC, MARKO",
+   "team": "BIL",
+   "pir": 13.4,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "NAVARRO, JUAN CARLOS",
+   "team": "BAR",
+   "pir": 12.9,
+   "gp": 16,
+   "pos": "G"
+  },
+  {
+   "name": "WEEMS, SONNY",
+   "team": "ZAL",
+   "pir": 12.7,
+   "gp": 15,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2011"
+}

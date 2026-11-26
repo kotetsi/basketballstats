@@ -1,0 +1,235 @@
+{
+ "season": "E2010",
+ "label": "2010-11",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "PAN",
+  "name": "Panathinaikos Athens",
+  "date": "2011-05-08"
+ },
+ "coach": {
+  "name": "Obradovic",
+  "full": "OBRADOVIC, ZELJKO",
+  "team": "PAN"
+ },
+ "players": [
+  {
+   "name": "Bourousis",
+   "full": "BOUROUSIS, IOANNIS",
+   "pos": "C",
+   "team": "OLY",
+   "num": 9,
+   "pir": 14.2,
+   "gp": 18,
+   "code": "AQU"
+  },
+  {
+   "name": "Nesterovic",
+   "full": "NESTEROVIC, RASHO",
+   "pos": "C",
+   "team": "OLY",
+   "num": 5,
+   "pir": 13.4,
+   "gp": 20,
+   "code": "002815"
+  },
+  {
+   "name": "Freeland",
+   "full": "FREELAND, JOEL",
+   "pos": "F",
+   "team": "MAL",
+   "num": 19,
+   "pir": 17.5,
+   "gp": 15,
+   "code": "LOO"
+  },
+  {
+   "name": "Batiste",
+   "full": "BATISTE, MIKE",
+   "pos": "F",
+   "team": "PAN",
+   "num": 8,
+   "pir": 14.6,
+   "gp": 20,
+   "code": "AJV"
+  },
+  {
+   "name": "Gregory",
+   "full": "GREGORY, KENNY",
+   "pos": "F",
+   "team": "LJU",
+   "num": 9,
+   "pir": 13.3,
+   "gp": 16,
+   "code": "KOJ"
+  },
+  {
+   "name": "Teletovic",
+   "full": "TELETOVIC, MIRZA",
+   "pos": "F",
+   "team": "BAS",
+   "num": 12,
+   "pir": 13,
+   "gp": 20,
+   "code": "JZJ"
+  },
+  {
+   "name": "San Emeterio",
+   "full": "SAN EMETERIO, FERNANDO",
+   "pos": "G",
+   "team": "BAS",
+   "num": 19,
+   "pir": 19,
+   "gp": 20,
+   "code": "000518"
+  },
+  {
+   "name": "Diamantidis",
+   "full": "DIAMANTIDIS, DIMITRIS",
+   "pos": "G",
+   "team": "PAN",
+   "num": 13,
+   "pir": 18.5,
+   "gp": 22,
+   "code": "JKO"
+  },
+  {
+   "name": "Eidson",
+   "full": "EIDSON, CHUCK",
+   "pos": "G",
+   "team": "TEL",
+   "num": 13,
+   "pir": 14.3,
+   "gp": 22,
+   "code": "LOC"
+  },
+  {
+   "name": "Spanoulis",
+   "full": "SPANOULIS, VASSILIS",
+   "pos": "G",
+   "team": "OLY",
+   "num": 7,
+   "pir": 14.3,
+   "gp": 20,
+   "code": "JUO"
+  }
+ ],
+ "checked": [
+  {
+   "name": "SAN EMETERIO, FERNANDO",
+   "team": "BAS",
+   "pir": 19,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "DIAMANTIDIS, DIMITRIS",
+   "team": "PAN",
+   "pir": 18.5,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "FREELAND, JOEL",
+   "team": "MAL",
+   "pir": 17.5,
+   "gp": 15,
+   "pos": "F"
+  },
+  {
+   "name": "BATISTE, MIKE",
+   "team": "PAN",
+   "pir": 14.6,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "EIDSON, CHUCK",
+   "team": "TEL",
+   "pir": 14.3,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "SPANOULIS, VASSILIS",
+   "team": "OLY",
+   "pir": 14.3,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "BOUROUSIS, IOANNIS",
+   "team": "OLY",
+   "pir": 14.2,
+   "gp": 18,
+   "pos": "C"
+  },
+  {
+   "name": "HUERTAS, MARCELINHO",
+   "team": "BAS",
+   "pir": 14,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "PERKINS, DORON",
+   "team": "TEL",
+   "pir": 13.4,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "NESTEROVIC, RASHO",
+   "team": "OLY",
+   "pir": 13.4,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "LAVRINOVIC, KSISTOF",
+   "team": "SIE",
+   "pir": 13.3,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "GREGORY, KENNY",
+   "team": "LJU",
+   "pir": 13.3,
+   "gp": 16,
+   "pos": "F"
+  },
+  {
+   "name": "MCCALEBB, BO",
+   "team": "SIE",
+   "pir": 13.1,
+   "gp": 15,
+   "pos": "G"
+  },
+  {
+   "name": "TELETOVIC, MIRZA",
+   "team": "BAS",
+   "pir": 13,
+   "gp": 20,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "RAKOCEVIC, IGOR",
+   "team": "IST",
+   "gp": 14,
+   "pir": 15
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2010"
+}

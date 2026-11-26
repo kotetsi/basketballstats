@@ -1,0 +1,249 @@
+{
+ "season": "E2012",
+ "label": "2012-13",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "OLY",
+  "name": "Olympiacos Piraeus",
+  "date": "2013-05-12"
+ },
+ "coach": {
+  "name": "Bartzokas",
+  "full": "BARTZOKAS, GEORGIOS",
+  "team": "OLY"
+ },
+ "players": [
+  {
+   "name": "Krstic",
+   "full": "KRSTIC, NENAD",
+   "pos": "C",
+   "team": "CSK",
+   "num": 12,
+   "pir": 16.8,
+   "gp": 29,
+   "code": "AUO"
+  },
+  {
+   "name": "Tomic",
+   "full": "TOMIC, ANTE",
+   "pos": "C",
+   "team": "BAR",
+   "num": 44,
+   "pir": 16.8,
+   "gp": 30,
+   "code": "002507"
+  },
+  {
+   "name": "Khryapa",
+   "full": "KHRYAPA, VICTOR",
+   "pos": "F",
+   "team": "CSK",
+   "num": 31,
+   "pir": 17,
+   "gp": 26,
+   "code": "BCQ"
+  },
+  {
+   "name": "Bogdanovic",
+   "full": "BOGDANOVIC, BOJAN",
+   "pos": "F",
+   "team": "ULK",
+   "num": 44,
+   "pir": 15.5,
+   "gp": 21,
+   "code": "000009"
+  },
+  {
+   "name": "Nachbar",
+   "full": "NACHBAR, BOSTJAN",
+   "pos": "F",
+   "team": "BAM",
+   "num": 7,
+   "pir": 13.8,
+   "gp": 23,
+   "code": "AHX"
+  },
+  {
+   "name": "Thompson",
+   "full": "THOMPSON, DEON",
+   "pos": "F",
+   "team": "BER",
+   "num": 9,
+   "pir": 13.6,
+   "gp": 23,
+   "code": "003453"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, BOBBY",
+   "pos": "G",
+   "team": "SIE",
+   "num": 6,
+   "pir": 17.4,
+   "gp": 24,
+   "code": "000129"
+  },
+  {
+   "name": "Fernandez",
+   "full": "FERNANDEZ, RUDY",
+   "pos": "G",
+   "team": "MAD",
+   "num": 5,
+   "pir": 16.2,
+   "gp": 27,
+   "code": "BMT"
+  },
+  {
+   "name": "Planinic",
+   "full": "PLANINIC, ZORAN",
+   "pos": "G",
+   "team": "KHI",
+   "num": 34,
+   "pir": 15.2,
+   "gp": 22,
+   "code": "AFP"
+  },
+  {
+   "name": "Spanoulis",
+   "full": "SPANOULIS, VASSILIS",
+   "pos": "G",
+   "team": "OLY",
+   "num": 7,
+   "pir": 15.1,
+   "gp": 31,
+   "code": "JUO"
+  }
+ ],
+ "checked": [
+  {
+   "name": "BROWN, BOBBY",
+   "team": "SIE",
+   "pir": 17.4,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "KHRYAPA, VICTOR",
+   "team": "CSK",
+   "pir": 17,
+   "gp": 26,
+   "pos": "F"
+  },
+  {
+   "name": "KRSTIC, NENAD",
+   "team": "CSK",
+   "pir": 16.8,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "TOMIC, ANTE",
+   "team": "BAR",
+   "pir": 16.8,
+   "gp": 30,
+   "pos": "C"
+  },
+  {
+   "name": "JAMES, SHAWN",
+   "team": "TEL",
+   "pir": 16.6,
+   "gp": 27,
+   "pos": "C"
+  },
+  {
+   "name": "FERNANDEZ, RUDY",
+   "team": "MAD",
+   "pir": 16.2,
+   "gp": 27,
+   "pos": "G"
+  },
+  {
+   "name": "DAVIS, PAUL",
+   "team": "KHI",
+   "pir": 16.1,
+   "gp": 23,
+   "pos": "C"
+  },
+  {
+   "name": "BOGDANOVIC, BOJAN",
+   "team": "ULK",
+   "pir": 15.5,
+   "gp": 21,
+   "pos": "F"
+  },
+  {
+   "name": "PLANINIC, ZORAN",
+   "team": "KHI",
+   "pir": 15.2,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "SPANOULIS, VASSILIS",
+   "team": "OLY",
+   "pir": 15.1,
+   "gp": 31,
+   "pos": "G"
+  },
+  {
+   "name": "HICKMAN, RICKY",
+   "team": "TEL",
+   "pir": 14.9,
+   "gp": 27,
+   "pos": "G"
+  },
+  {
+   "name": "FARMAR, JORDAN",
+   "team": "IST",
+   "pir": 14.1,
+   "gp": 29,
+   "pos": "G"
+  },
+  {
+   "name": "JERRELLS, CURTIS",
+   "team": "BES",
+   "pir": 14.1,
+   "gp": 17,
+   "pos": "G"
+  },
+  {
+   "name": "LAMPE, MACIEJ",
+   "team": "BAS",
+   "pir": 13.8,
+   "gp": 28,
+   "pos": "C"
+  },
+  {
+   "name": "ZORIC, LUKA",
+   "team": "MAL",
+   "pir": 13.8,
+   "gp": 24,
+   "pos": "C"
+  },
+  {
+   "name": "NACHBAR, BOSTJAN",
+   "team": "BAM",
+   "pir": 13.8,
+   "gp": 23,
+   "pos": "F"
+  },
+  {
+   "name": "THOMPSON, DEON",
+   "team": "BER",
+   "pir": 13.6,
+   "gp": 23,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2012"
+}

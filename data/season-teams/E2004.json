@@ -1,0 +1,246 @@
+{
+ "season": "E2004",
+ "label": "2004-05",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "TEL",
+  "name": "Maccabi Elite Tel Aviv",
+  "date": "2005-05-08"
+ },
+ "coach": {
+  "name": "Gershon",
+  "full": "GERSHON, PINI",
+  "team": "TEL"
+ },
+ "players": [
+  {
+   "name": "Baston",
+   "full": "BASTON, MACEO",
+   "pos": "C",
+   "team": "TEL",
+   "num": 5,
+   "pir": 18.7,
+   "gp": 24,
+   "code": "BMP"
+  },
+  {
+   "name": "Vujcic",
+   "full": "VUJCIC, NIKOLA",
+   "pos": "C",
+   "team": "TEL",
+   "num": 7,
+   "pir": 17.9,
+   "gp": 21,
+   "code": "APB"
+  },
+  {
+   "name": "Parker",
+   "full": "PARKER, ANTHONY",
+   "pos": "F",
+   "team": "TEL",
+   "num": 8,
+   "pir": 24.9,
+   "gp": 24,
+   "code": "AOW"
+  },
+  {
+   "name": "Beard",
+   "full": "BEARD, TANOKA",
+   "pos": "F",
+   "team": "ZAL",
+   "num": 6,
+   "pir": 22,
+   "gp": 20,
+   "code": "BTR"
+  },
+  {
+   "name": "Scola",
+   "full": "SCOLA, LUIS",
+   "pos": "F",
+   "team": "BAS",
+   "num": 4,
+   "pir": 16.9,
+   "gp": 24,
+   "code": "AJG"
+  },
+  {
+   "name": "Bodiroga",
+   "full": "BODIROGA, DEJAN",
+   "pos": "F",
+   "team": "BAR",
+   "num": 10,
+   "pir": 16,
+   "gp": 20,
+   "code": "APN"
+  },
+  {
+   "name": "Smith",
+   "full": "SMITH, CHARLES",
+   "pos": "G",
+   "team": "PES",
+   "num": 7,
+   "pir": 18.3,
+   "gp": 20,
+   "code": "CTN"
+  },
+  {
+   "name": "Macijauskas",
+   "full": "MACIJAUSKAS, ARVYDAS",
+   "pos": "G",
+   "team": "BAS",
+   "num": 7,
+   "pir": 18.3,
+   "gp": 22,
+   "code": "CBV"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, MARCUS",
+   "pos": "G",
+   "team": "CSK",
+   "num": 5,
+   "pir": 16.8,
+   "gp": 24,
+   "code": "AHT"
+  },
+  {
+   "name": "Jasikevicius",
+   "full": "JASIKEVICIUS, SARAS",
+   "pos": "G",
+   "team": "TEL",
+   "num": 13,
+   "pir": 16.6,
+   "gp": 24,
+   "code": "ADG"
+  }
+ ],
+ "checked": [
+  {
+   "name": "PARKER, ANTHONY",
+   "team": "TEL",
+   "pir": 24.9,
+   "gp": 24,
+   "pos": "F"
+  },
+  {
+   "name": "BEARD, TANOKA",
+   "team": "ZAL",
+   "pir": 22,
+   "gp": 20,
+   "pos": "F"
+  },
+  {
+   "name": "BASTON, MACEO",
+   "team": "TEL",
+   "pir": 18.7,
+   "gp": 24,
+   "pos": "C"
+  },
+  {
+   "name": "SMITH, CHARLES",
+   "team": "PES",
+   "pir": 18.3,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "MACIJAUSKAS, ARVYDAS",
+   "team": "BAS",
+   "pir": 18.3,
+   "gp": 22,
+   "pos": "G"
+  },
+  {
+   "name": "VUJCIC, NIKOLA",
+   "team": "TEL",
+   "pir": 17.9,
+   "gp": 21,
+   "pos": "C"
+  },
+  {
+   "name": "ANDERSEN, DAVID",
+   "team": "CSK",
+   "pir": 17.7,
+   "gp": 23,
+   "pos": "C"
+  },
+  {
+   "name": "SCOLA, LUIS",
+   "team": "BAS",
+   "pir": 16.9,
+   "gp": 24,
+   "pos": "F"
+  },
+  {
+   "name": "BROWN, MARCUS",
+   "team": "CSK",
+   "pir": 16.8,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "JASIKEVICIUS, SARAS",
+   "team": "TEL",
+   "pir": 16.6,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "POPOVIC, MARKO",
+   "team": "CIB",
+   "pir": 16.2,
+   "gp": 17,
+   "pos": "G"
+  },
+  {
+   "name": "VUJANIC, MILOS",
+   "team": "FOR",
+   "pir": 16.2,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "BODIROGA, DEJAN",
+   "team": "BAR",
+   "pir": 16,
+   "gp": 20,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "WILLIAMS, CHRIS",
+   "team": "FRA",
+   "gp": 14,
+   "pir": 21.5
+  },
+  {
+   "name": "GARBAJOSA, JORGE",
+   "team": "MAL",
+   "gp": 13,
+   "pir": 21.2
+  },
+  {
+   "name": "CHATMAN, MIRE",
+   "team": "PAU",
+   "gp": 14,
+   "pir": 18.9
+  },
+  {
+   "name": "GARCES, RUBEN",
+   "team": "EST",
+   "gp": 14,
+   "pir": 17.1
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2004"
+}

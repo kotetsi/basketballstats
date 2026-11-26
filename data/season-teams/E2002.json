@@ -1,0 +1,232 @@
+{
+ "season": "E2002",
+ "label": "2002-03",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "BAR",
+  "name": "FC Barcelona",
+  "date": "2003-05-11"
+ },
+ "coach": {
+  "name": "Pesic",
+  "full": "PESIC, SVETISLAV",
+  "team": "BAR"
+ },
+ "players": [
+  {
+   "name": "Blair",
+   "full": "BLAIR, JOSEPH",
+   "pos": "C",
+   "team": "ULK",
+   "num": 10,
+   "pir": 23.7,
+   "gp": 18,
+   "code": "AID"
+  },
+  {
+   "name": "Vujcic",
+   "full": "VUJCIC, NIKOLA",
+   "pos": "C",
+   "team": "TEL",
+   "num": 7,
+   "pir": 21.2,
+   "gp": 20,
+   "code": "APB"
+  },
+  {
+   "name": "Turkcan",
+   "full": "TURKCAN, MIRSAD",
+   "pos": "F",
+   "team": "SIE",
+   "num": 6,
+   "pir": 24,
+   "gp": 21,
+   "code": "AYR"
+  },
+  {
+   "name": "Garbajosa",
+   "full": "GARBAJOSA, JORGE",
+   "pos": "F",
+   "team": "TRE",
+   "num": 15,
+   "pir": 19.3,
+   "gp": 22,
+   "code": "AHV"
+  },
+  {
+   "name": "Bodiroga",
+   "full": "BODIROGA, DEJAN",
+   "pos": "F",
+   "team": "BAR",
+   "num": 10,
+   "pir": 18.9,
+   "gp": 22,
+   "code": "APN"
+  },
+  {
+   "name": "Nocioni",
+   "full": "NOCIONI, ANDRES",
+   "pos": "F",
+   "team": "BAS",
+   "num": 5,
+   "pir": 18,
+   "gp": 19,
+   "code": "APR"
+  },
+  {
+   "name": "Brown",
+   "full": "BROWN, MARCUS",
+   "pos": "G",
+   "team": "IST",
+   "num": 5,
+   "pir": 21.4,
+   "gp": 19,
+   "code": "AHT"
+  },
+  {
+   "name": "Edney",
+   "full": "EDNEY, TYUS",
+   "pos": "G",
+   "team": "TRE",
+   "num": 5,
+   "pir": 18.2,
+   "gp": 18,
+   "code": "ARH"
+  },
+  {
+   "name": "Booker",
+   "full": "BOOKER, MELVIN",
+   "pos": "G",
+   "team": "ULK",
+   "num": 5,
+   "pir": 17.2,
+   "gp": 20,
+   "code": "AVD"
+  },
+  {
+   "name": "Ford",
+   "full": "FORD, ALPHONSO",
+   "pos": "G",
+   "team": "SIE",
+   "num": 10,
+   "pir": 16.5,
+   "gp": 22,
+   "code": "ACF"
+  }
+ ],
+ "checked": [
+  {
+   "name": "TURKCAN, MIRSAD",
+   "team": "SIE",
+   "pir": 24,
+   "gp": 21,
+   "pos": "F"
+  },
+  {
+   "name": "BLAIR, JOSEPH",
+   "team": "ULK",
+   "pir": 23.7,
+   "gp": 18,
+   "pos": "C"
+  },
+  {
+   "name": "BROWN, MARCUS",
+   "team": "IST",
+   "pir": 21.4,
+   "gp": 19,
+   "pos": "G"
+  },
+  {
+   "name": "VUJCIC, NIKOLA",
+   "team": "TEL",
+   "pir": 21.2,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "KAMBALA, KASPARS",
+   "team": "IST",
+   "pir": 19.3,
+   "gp": 20,
+   "pos": "C"
+  },
+  {
+   "name": "GARBAJOSA, JORGE",
+   "team": "TRE",
+   "pir": 19.3,
+   "gp": 22,
+   "pos": "F"
+  },
+  {
+   "name": "BODIROGA, DEJAN",
+   "team": "BAR",
+   "pir": 18.9,
+   "gp": 22,
+   "pos": "F"
+  },
+  {
+   "name": "EDNEY, TYUS",
+   "team": "TRE",
+   "pir": 18.2,
+   "gp": 18,
+   "pos": "G"
+  },
+  {
+   "name": "NOCIONI, ANDRES",
+   "team": "BAS",
+   "pir": 18,
+   "gp": 19,
+   "pos": "F"
+  },
+  {
+   "name": "BOOKER, MELVIN",
+   "team": "ULK",
+   "pir": 17.2,
+   "gp": 20,
+   "pos": "G"
+  },
+  {
+   "name": "FORD, ALPHONSO",
+   "team": "SIE",
+   "pir": 16.5,
+   "gp": 22,
+   "pos": "G"
+  }
+ ],
+ "excludedFewGames": [
+  {
+   "name": "VUJANIC, MILOS",
+   "team": "PAR",
+   "gp": 14,
+   "pir": 24
+  },
+  {
+   "name": "DAVID, KORNEL",
+   "team": "ZAL",
+   "gp": 13,
+   "pir": 21.8
+  },
+  {
+   "name": "LOLLIS, QUADRE-MICHAEL",
+   "team": "BER",
+   "gp": 12,
+   "pir": 21.2
+  },
+  {
+   "name": "SELLERS, ROD",
+   "team": "PAU",
+   "gp": 14,
+   "pir": 16.9
+  }
+ ],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2002"
+}

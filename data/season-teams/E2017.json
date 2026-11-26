@@ -1,0 +1,298 @@
+{
+ "season": "E2017",
+ "label": "2017-18",
+ "rules": {
+  "minGames": 15,
+  "need": {
+   "C": 2,
+   "F": 4,
+   "G": 4
+  },
+  "sort": "PIR per game desc"
+ },
+ "complete": true,
+ "champion": {
+  "team": "MAD",
+  "name": "Real Madrid",
+  "date": "2018-05-20"
+ },
+ "coach": {
+  "name": "Laso",
+  "full": "LASO, PABLO",
+  "team": "MAD"
+ },
+ "players": [
+  {
+   "name": "Shengelia",
+   "full": "SHENGELIA, TORNIKE",
+   "pos": "C",
+   "team": "BAS",
+   "num": 23,
+   "pir": 18.2,
+   "gp": 33,
+   "code": "001133"
+  },
+  {
+   "name": "Vesely",
+   "full": "VESELY, JAN",
+   "pos": "C",
+   "team": "ULK",
+   "num": 24,
+   "pir": 16.1,
+   "gp": 34,
+   "code": "000925"
+  },
+  {
+   "name": "Jankunas",
+   "full": "JANKUNAS, PAULIUS",
+   "pos": "F",
+   "team": "ZAL",
+   "num": 13,
+   "pir": 13.7,
+   "gp": 35,
+   "code": "BWI"
+  },
+  {
+   "name": "Printezis",
+   "full": "PRINTEZIS, GEORGIOS",
+   "pos": "F",
+   "team": "OLY",
+   "num": 15,
+   "pir": 13.7,
+   "gp": 28,
+   "code": "AMM"
+  },
+  {
+   "name": "Clyburn",
+   "full": "CLYBURN, WILL",
+   "pos": "F",
+   "team": "CSK",
+   "num": 21,
+   "pir": 13.6,
+   "gp": 36,
+   "code": "004888"
+  },
+  {
+   "name": "Gill",
+   "full": "GILL, ANTHONY",
+   "pos": "F",
+   "team": "KHI",
+   "num": 13,
+   "pir": 13.1,
+   "gp": 32,
+   "code": "008001"
+  },
+  {
+   "name": "Doncic",
+   "full": "DONCIC, LUKA",
+   "pos": "G",
+   "team": "MAD",
+   "num": 7,
+   "pir": 21.5,
+   "gp": 33,
+   "code": "005929"
+  },
+  {
+   "name": "Shved",
+   "full": "SHVED, ALEXEY",
+   "pos": "G",
+   "team": "KHI",
+   "num": 1,
+   "pir": 20.4,
+   "gp": 34,
+   "code": "KVZ"
+  },
+  {
+   "name": "De Colo",
+   "full": "DE COLO, NANDO",
+   "pos": "G",
+   "team": "CSK",
+   "num": 1,
+   "pir": 18.9,
+   "gp": 32,
+   "code": "002100"
+  },
+  {
+   "name": "Calathes",
+   "full": "CALATHES, NICK",
+   "pos": "G",
+   "team": "PAN",
+   "num": 33,
+   "pir": 18.5,
+   "gp": 31,
+   "code": "001932"
+  }
+ ],
+ "checked": [
+  {
+   "name": "DONCIC, LUKA",
+   "team": "MAD",
+   "pir": 21.5,
+   "gp": 33,
+   "pos": "G"
+  },
+  {
+   "name": "SHVED, ALEXEY",
+   "team": "KHI",
+   "pir": 20.4,
+   "gp": 34,
+   "pos": "G"
+  },
+  {
+   "name": "DE COLO, NANDO",
+   "team": "CSK",
+   "pir": 18.9,
+   "gp": 32,
+   "pos": "G"
+  },
+  {
+   "name": "CALATHES, NICK",
+   "team": "PAN",
+   "pir": 18.5,
+   "gp": 31,
+   "pos": "G"
+  },
+  {
+   "name": "SHENGELIA, TORNIKE",
+   "team": "BAS",
+   "pir": 18.2,
+   "gp": 33,
+   "pos": "C"
+  },
+  {
+   "name": "NEDOVIC, NEMANJA",
+   "team": "MAL",
+   "pir": 16.7,
+   "gp": 24,
+   "pos": "G"
+  },
+  {
+   "name": "VESELY, JAN",
+   "team": "ULK",
+   "pir": 16.1,
+   "gp": 34,
+   "pos": "C"
+  },
+  {
+   "name": "DUNSTON, BRYANT",
+   "team": "IST",
+   "pir": 15.5,
+   "gp": 30,
+   "pos": "C"
+  },
+  {
+   "name": "GUDAITIS, ARTURAS",
+   "team": "MIL",
+   "pir": 15.4,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "AUGUSTINE, JAMES",
+   "team": "MAL",
+   "pir": 14.4,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "ROCHESTIE, TAYLOR",
+   "team": "RED",
+   "pir": 14.4,
+   "gp": 30,
+   "pos": "G"
+  },
+  {
+   "name": "JACKSON, PIERRE",
+   "team": "TEL",
+   "pir": 14.3,
+   "gp": 29,
+   "pos": "G"
+  },
+  {
+   "name": "PANGOS, KEVIN",
+   "team": "ZAL",
+   "pir": 14.2,
+   "gp": 36,
+   "pos": "G"
+  },
+  {
+   "name": "MILUTINOV, NIKOLA",
+   "team": "OLY",
+   "pir": 14,
+   "gp": 29,
+   "pos": "C"
+  },
+  {
+   "name": "HEURTEL, THOMAS",
+   "team": "BAR",
+   "pir": 13.9,
+   "gp": 30,
+   "pos": "G"
+  },
+  {
+   "name": "STIMAC, VLADIMIR",
+   "team": "IST",
+   "pir": 13.9,
+   "gp": 30,
+   "pos": "C"
+  },
+  {
+   "name": "RODRIGUEZ, SERGIO",
+   "team": "CSK",
+   "pir": 13.8,
+   "gp": 36,
+   "pos": "G"
+  },
+  {
+   "name": "HIGGINS, CORY",
+   "team": "CSK",
+   "pir": 13.8,
+   "gp": 36,
+   "pos": "G"
+  },
+  {
+   "name": "JANKUNAS, PAULIUS",
+   "team": "ZAL",
+   "pir": 13.7,
+   "gp": 35,
+   "pos": "F"
+  },
+  {
+   "name": "PRINTEZIS, GEORGIOS",
+   "team": "OLY",
+   "pir": 13.7,
+   "gp": 28,
+   "pos": "F"
+  },
+  {
+   "name": "CLYBURN, WILL",
+   "team": "CSK",
+   "pir": 13.6,
+   "gp": 36,
+   "pos": "F"
+  },
+  {
+   "name": "GREEN, ERICK",
+   "team": "PAM",
+   "pir": 13.5,
+   "gp": 28,
+   "pos": "G"
+  },
+  {
+   "name": "DUBLJEVIC, BOJAN",
+   "team": "PAM",
+   "pir": 13.3,
+   "gp": 24,
+   "pos": "C"
+  },
+  {
+   "name": "GILL, ANTHONY",
+   "team": "KHI",
+   "pir": 13.1,
+   "gp": 32,
+   "pos": "F"
+  }
+ ],
+ "excludedFewGames": [],
+ "source": "https://feeds.incrowdsports.com/provider/euroleague-feeds/v3/competitions/E/statistics/players/traditional?seasonCode=E2017"
+}
