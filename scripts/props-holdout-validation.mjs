@@ -7,7 +7,8 @@ import fs from 'node:fs';
 import { STATS, PARAMS, project, pmf, pOver } from '../src/odds/props.mjs';
 
 const C = JSON.parse(fs.readFileSync(new URL('../data/cache.json', import.meta.url)));
-const players = (C.players || []).filter(p => !String(p.t).includes(';'));
+const allPlayers = C.players || [];
+const players = allPlayers.filter(p => !String(p.t).includes(';'));
 const rounds = [...new Set(players.flatMap(p =>
   (p.g || []).filter(r => r[7] > 0).map(r => Number(r[0]))
 ))].filter(Number.isFinite).sort((a, b) => a - b);
@@ -24,7 +25,9 @@ for (const round of rounds) {
   priorAtRound.set(round, Object.fromEntries(stats.map(s => [
     s, cumulativeMinutes > 0 ? cumulative[s] / cumulativeMinutes : 0,
   ])));
-  for (const p of players) {
+  // League prior includes transferred players too; only individual player projections
+  // exclude multi-team season rows, matching the existing backtest convention.
+  for (const p of allPlayers) {
     for (const row of p.g || []) {
       if (Number(row[0]) !== round || !(row[7] > 0)) continue;
       for (const stat of stats) cumulative[stat] += STATS[stat](row);
