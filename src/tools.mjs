@@ -93,6 +93,7 @@ export function catalog(T, u, has = {}) {
     i(u('quiz'), T('Κουίζ EuroLeague', 'EuroLeague quiz', 'Quiz de la EuroLeague', 'Kviz Evrolige', 'EuroLeague bilgi yarışması'), T('Πόσα ξέρεις για τη φετινή σεζόν;', 'How much do you know about this season?', '¿Cuánto sabes de esta temporada?', 'Koliko znaš o ovoj sezoni?', 'Bu sezonu ne kadar biliyorsun?')),
     i(u('app'), T('Εφαρμογή', 'App', 'App', 'Aplikacija', 'Uygulama'), T('Βάλε το site στην αρχική οθόνη του κινητού σου.', 'Add the site to your phone’s home screen.', 'Añade la web a la pantalla de inicio.', 'Dodaj sajt na početni ekran telefona.', 'Siteyi telefonunun ana ekranına ekle.')),
     i(u('widgets'), T('Widget για το site σου', 'Widgets for your site', 'Widgets para tu web', 'Vidžeti za tvoj sajt', 'Siten için widget’lar'), T('Βαθμολογία και αγώνες της EuroLeague στη δική σου σελίδα.', 'EuroLeague standings and games on your own page.', 'Clasificación y partidos en tu propia web.', 'Tabela i utakmice na tvojoj stranici.', 'Kendi sayfanda puan durumu ve maçlar.')),
+    ...(has.shop ? [i(u('shop'), T('🛒 E-shop', '🛒 Shop', '🛒 Tienda', '🛒 Prodavnica', '🛒 Mağaza'), T('Μπάλες, μπασκέτες, NBA Funko Pop και φανέλες από το κατάστημά μας, το Sport Arena.', 'Basketballs, hoops, NBA Funko Pop and shirts from our store, Sport Arena.', 'Balones, canastas, NBA Funko Pop y camisetas de nuestra tienda, Sport Arena.', 'Lopte, koševi, NBA Funko Pop i majice iz naše prodavnice Sport Arena.', 'Mağazamız Sport Arena’dan toplar, potalar, NBA Funko Pop ve formalar.'))] : []),
   ] });
   return G;
 }
