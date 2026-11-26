@@ -5,6 +5,7 @@ on:
       - 'feature/props-walk-forward-backtest'
     paths:
       - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-holdout-validation.mjs'
       - 'scripts/props-residual-diagnostics.mjs'
       - 'scripts/props-minutes-diagnostics.mjs'
       - 'scripts/props-market-audit.mjs'
