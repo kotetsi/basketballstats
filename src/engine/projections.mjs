@@ -6,9 +6,12 @@ import { decodeGameDate } from './data.mjs';
 
 export const ENGINE_VERSION = 'engine-proj-1';
 export const STATS_MODEL = Object.freeze({
-  version: 'engine-stats-x1',
+  version: 'engine-stats-x2',
   // επιλεγμένες σε walk-forward 7 σεζόν (scripts/engine-stats-compare.mjs): ρυθμός με μισή ζωή 16 αγώνες, shrinkage 80 λεπτών
-  // προς prior = ρυθμός της προηγούμενης σεζόν του παίκτη (βάρος 100 λεπτά) σμικρυμένος προς τη λίγκα, λεπτά από το hurdle
+  // προς prior = ρυθμός της προηγούμενης σεζόν του παίκτη (βάρος 100 λεπτά) σμικρυμένος προς τη λίγκα, λεπτά από το hurdle.
+  // x2 (27/11/2026): η «λίγκα» του prior είναι ο ρυθμός της ΘΕΣΗΣ του παίκτη (γκαρντ/φόργουορντ/σέντερ). Το x1 τραβούσε
+  // τους δημιουργούς προς τον μέσο όρο όλης της λίγκας (−0,21 ασίστ/αγώνα σε όσους έχουν ≥3,5). Walk-forward 7 σεζόν:
+  // Brier ασίστ 0,0996→0,0990, ριμπάουντ 0,1331→0,1323, τρίποντα 0,1385→0,1377, πόντοι ίδιοι· καλύτερο σε 7/7 σεζόν.
   P: { ...PARAMS, rateHalf: 16, prior: 80, minSd: 6, disp: { ...PARAMS.disp, pts: 2.5 } },
   prevWeight: 100,
 });
@@ -20,11 +23,18 @@ export const STATUS_MULT = Object.freeze({ playing: 1, doubtful: 0.4, injured: 0
 export const MIN_GAMES = 3;           // όπως το project() των props
 export const EXPERIMENTAL_BELOW = 6;  // λίγοι αγώνες φέτος και χωρίς προηγούμενη σεζόν ⇒ «πειραματικό»
 
-/** ρυθμός λίγκας ανά λεπτό από τους αγώνες ΠΡΙΝ από την αγωνιστική-στόχο */
+/** θέση για το prior: G (γκαρντ), F (φόργουορντ), C (σέντερ) */
+export const posGroup = pos => { const q = String(pos || '').toLowerCase(); return q.startsWith('g') ? 'G' : q.startsWith('c') ? 'C' : 'F'; };
+
+/** ρυθμός λίγκας ανά λεπτό από τους αγώνες ΠΡΙΝ από την αγωνιστική-στόχο· και ανά θέση στο byPos (G/F/C) */
 export function leagueRates(players, beforeRound) {
-  const out = {}; let m = 0; const x = Object.fromEntries(STAT_KEYS.map(s => [s, 0]));
-  for (const p of players) for (const r of p.g || []) if (r[7] > 0 && r[0] < beforeRound) { m += r[7] / 60; for (const s of STAT_KEYS) x[s] += STATS[s](r); }
+  const out = {}; let m = 0; const x = Object.fromEntries(STAT_KEYS.map(s => [s, 0])), P = {};
+  for (const p of players) {
+    const g = posGroup(p.pos), q = (P[g] ||= { m: 0, ...Object.fromEntries(STAT_KEYS.map(s => [s, 0])) });
+    for (const r of p.g || []) if (r[7] > 0 && r[0] < beforeRound) { m += r[7] / 60; q.m += r[7] / 60; for (const s of STAT_KEYS) { const v = STATS[s](r); x[s] += v; q[s] += v; } }
+  }
   for (const s of STAT_KEYS) out[s] = m ? x[s] / m : 0;
+  Object.defineProperty(out, 'byPos', { value: Object.fromEntries(Object.entries(P).filter(([, q]) => q.m > 0).map(([g, q]) => [g, Object.fromEntries(STAT_KEYS.map(s => [s, q[s] / q.m]))])), enumerable: false });
   return out;
 }
 
@@ -66,7 +76,8 @@ export function projectPlayer(p, ctx) {
   const mIf = minutes.min_if_plays;
   const stats = {};
   for (const s of STAT_KEYS) {
-    const pv = prev ? (prev.x[s] + STATS_MODEL.prevWeight * league[s]) / (prev.m + STATS_MODEL.prevWeight) : league[s];
+    const lg = league.byPos?.[posGroup(p.pos)]?.[s] || league[s];   // x2: ρυθμός της θέσης του παίκτη
+    const pv = prev ? (prev.x[s] + STATS_MODEL.prevWeight * lg) / (prev.m + STATS_MODEL.prevWeight) : lg;
     const pr = project(hist, s, { prior: pv, minutes: mIf, P: STATS_MODEL.P });
     stats[s] = { mean: +pr.mu.toFixed(2), median: nbMedian(pr.mu, pr.var), sd: +Math.sqrt(pr.var).toFixed(2), mean_exp: +(pr.mu * p_play).toFixed(2),
       rate_pm: +pr.rate.toFixed(4), over: Object.fromEntries((ladder[s] || []).map(L => [String(L), +pOver(pr.mu, pr.var, L).toFixed(4)])) };

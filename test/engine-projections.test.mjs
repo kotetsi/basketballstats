@@ -74,3 +74,16 @@ test('buildProjections: έκδοση, μοντέλα, pregame', () => {
   assert.equal(before.players.length, 1);
   assert.equal(buildProjections({ cache, minutesFile: mf, now: new Date('2026-12-01T19:00:00Z') }).pregame, false);
 });
+
+test('x2: το prior είναι ο ρυθμός της θέσης του παίκτη (οι δημιουργοί δεν τραβιούνται προς τους ψηλούς)', () => {
+  const guard = { ...player([row(1, 30, 10, 3, 9), row(2, 30, 10, 3, 9)], '000001'), pos: 'Guard' };
+  const center = { ...player([row(1, 30, 10, 9, 1), row(2, 30, 10, 9, 1)], '000002'), pos: 'Center' };
+  const L = leagueRates([guard, center], 3);
+  assert.equal(+L.ast.toFixed(4), +(10 / 60).toFixed(4));          // όλη η λίγκα
+  assert.equal(+L.byPos.G.ast.toFixed(4), +(18 / 60).toFixed(4));   // μόνο γκαρντ
+  assert.deepEqual(Object.keys(L).sort(), [...STAT_KEYS].sort(), 'το byPos δεν εμφανίζεται ως stat');
+  const g = [row(1, 25, 10, 3, 6), row(2, 25, 10, 3, 6), row(3, 25, 10, 3, 6)];
+  const withPos = projectPlayer(player(g), { round: 4, minutes, league: L });
+  const flat = projectPlayer(player(g), { round: 4, minutes, league: { ...L } });   // αντίγραφο χωρίς byPos
+  assert.ok(withPos.stats.ast.mean > flat.stats.ast.mean, 'ο γκαρντ παίρνει prior γκαρντ, όχι όλης της λίγκας');
+});
