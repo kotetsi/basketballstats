@@ -58,3 +58,18 @@ test('gameProps: με engine οι 4 στατιστικές παίρνουν τη
   const R0 = gameProps({ h: 'OLY', a: 'PAN', books }, { players, jur: 'gr', priors: { pts: 0.4, pra: 0.7 }, teamGames: { OLY: [1, 2, 3, 4] } });
   assert.equal(R0.rows.find(x => x.stat === 'pts').src, 'props-v1', 'χωρίς engine: ίδια συμπεριφορά με πριν');
 });
+
+test('gameProps: η διόρθωση κλίσης (cal) αλλάζει μόνο τις πιθανότητες του engine', async () => {
+  const { liveCal } = await import('../src/odds/props.mjs');
+  const r = (round, pts) => { const x = new Array(26).fill(0); Object.assign(x, { 0: round, 2: 'PAN', 3: 1, 7: 1500, 8: pts, 15: 1, 16: 4, 17: 3, 11: 1, 4: 80 }); return x; };
+  const players = [{ c: '1', n: 'ALPHA, A', t: 'OLY', g: [r(1, 10), r(2, 12), r(3, 14), r(4, 11)] }];
+  const books = { b: { title: 'B', lic: ['gr'], props: [{ name: 'Alpha, A', stat: 'pts', line: 14.5, over: 1.9, under: 1.9 }, { name: 'Alpha, A', stat: 'pra', line: 18.5, over: 1.9, under: 1.9 }] } };
+  const E = engineIndex(proj), engine = (c, s, o) => engineDist(E, c, s, 5, o), ctx = { players, jur: 'gr', priors: { pts: 0.4, pra: 0.7 }, teamGames: { OLY: [1, 2, 3, 4] }, engine };
+  const A = gameProps({ h: 'OLY', a: 'PAN', books }, ctx), B = gameProps({ h: 'OLY', a: 'PAN', books }, { ...ctx, cal: { a: 0.5, c: 0.1 } });
+  const p0 = A.rows.find(x => x.stat === 'pts').p, p1 = B.rows.find(x => x.stat === 'pts').p, lg = p => Math.log(p / (1 - p));
+  assert.ok(Math.abs(lg(p1) - (0.5 * lg(p0) + 0.1)) < 1e-3);
+  assert.equal(A.rows.find(x => x.stat === 'pra').p, B.rows.find(x => x.stat === 'pra').p);
+  assert.deepEqual(liveCal({ live_cal: { a: 0.55, c: 0.1, n: 3294 } }), { a: 0.55, c: 0.1 });
+  assert.equal(liveCal({ live_cal: { a: 0.55, c: 0.1, n: 200 } }), null, 'λίγα δεδομένα');
+  assert.equal(liveCal({ live_cal: { a: 3, c: 0.1, n: 5000 } }), null, 'παράλογη κλίση');
+});

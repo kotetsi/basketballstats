@@ -86,6 +86,12 @@ export function pOver(mu, v, line) {
 }
 
 /** πιθανότητα αγοράς χωρίς το περιθώριο του bookmaker (κανονικοποίηση των δύο implied) */
+/** διόρθωση κλίσης του engine από το data/predictions/props-calib.json (scripts/props-calib.mjs), μόνο αν είναι λογική */
+export function liveCal(report) {
+  const c = report?.live_cal; if (!c) return null;
+  return c.n >= 1000 && c.a >= 0.2 && c.a <= 1.2 && Math.abs(c.c) <= 0.5 ? { a: c.a, c: c.c } : null;
+}
+
 export function noVig(over, under) {
   if (!(over > 1 && under > 1)) return null;
   const a = 1 / over, b = 1 / under;
@@ -255,7 +261,7 @@ export function hitRate(values, line) {
  *  inj: { [code]: {m:1|0} }, teamGames: { [team]: [rounds που έχει παίξει η ομάδα] }, jur: χώρα αδειοδότησης */
 // engine (προαιρετικό): (c, stat, { minAdj, minBase }) → [mean, var] από το κοινό engine (src/engine/betting.mjs engineDist) ή null.
 // Όταν δίνει κατανομή, η γραμμή χρησιμοποιεί αυτήν (χωρίς το calShift, που βαθμονομήθηκε για το παλιό μοντέλο) και src = 'engine'.
-export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGames = {}, jur, priors, minEv = 0.08, ctx = {}, adj = null, engine = null }) {
+export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGames = {}, jur, priors, minEv = 0.08, ctx = {}, adj = null, engine = null, cal = null }) {
   const FX = Object.fromEntries(fx.map(p => [p.c, p]));
   const teams = {}, absences = [];
   for (const t of [h, a]) {
@@ -272,7 +278,7 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
       const min = teams[t].M[p.c]; if (!(min > 0)) continue;
       const ed = engine ? engine(p.c, x.stat, { minAdj: min, minBase: p.min }) : null;
       const pr = ed ? { mu: ed[0], var: ed[1], last: p.pl.slice(-5).map(STATS[x.stat]), n: p.pl.length } : project(p.pl, x.stat, { prior: priors[x.stat], minutes: min, teamPts: ctx[t], xrows: p.px }); if (!pr) continue;
-      const po0 = Math.min(Math.max(pOver(pr.mu, pr.var, x.line), 1e-4), 1 - 1e-4), po = ed ? po0 : 1 / (1 + Math.exp(-(Math.log(po0 / (1 - po0)) + PARAMS.calShift))), nv = noVig(x.over, x.under);
+      const po0 = Math.min(Math.max(pOver(pr.mu, pr.var, x.line), 1e-4), 1 - 1e-4), po = ed ? (cal ? 1 / (1 + Math.exp(-(cal.a * Math.log(po0 / (1 - po0)) + cal.c))) : po0) : 1 / (1 + Math.exp(-(Math.log(po0 / (1 - po0)) + PARAMS.calShift))), nv = noVig(x.over, x.under);
       const row = { c: p.c, n: p.n, t, stat: x.stat, line: x.line, book: bk, title: B.title, over: x.over || null, under: x.under || null,
         p: +po.toFixed(4), mkt: nv ? +nv.over.toFixed(4) : null, mu: +pr.mu.toFixed(2), sd: +Math.sqrt(pr.var).toFixed(2), min: +min.toFixed(1), base: +p.min.toFixed(1),
         avg: +(p.pl.reduce((s, r) => s + STATS[x.stat](r), 0) / p.pl.length).toFixed(1), last: pr.last, gp: pr.n, st: p.st, upd: x.upd || B.upd || null, src: ed ? 'engine' : 'props-v1' };
