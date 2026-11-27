@@ -1,4 +1,4 @@
-// Superbet (μέσω ArbPlay, δοκιμαστικό κλειδί έως 3/12/2026): γραμμές παικτών EuroLeague και GBL πριν από τους αγώνες.
+// Superbet (μέσω ArbPlay, δοκιμαστικό κλειδί έως 3/12/2026): γραμμές παικτών EuroLeague, GBL και NBA πριν από τους αγώνες.
 // Το repo είναι δημόσιο, οπότε:
 //   - το κλειδί έρχεται μόνο από το env ARBPLAY_KEY (GitHub secret) και δεν γράφεται πουθενά,
 //   - οι γραμμές αποθηκεύονται κρυπτογραφημένες (AES-256, κωδικός = ARBPLAY_KEY) στο data/superbet/,
@@ -46,16 +46,17 @@ const events = Array.isArray(J.data) ? J.data : [];
 // στη GBL πάει στη GBL γιατί οι υπόλοιποι αγώνες της ίδιας διοργάνωσης είναι ελληνικοί.
 const EL = /olympiacos|olympiakos|panathinaikos|real madrid|barcelona|fenerbahce|efes|monaco|partizan|crvena|red star|zvezda|zalgiris|maccabi|hapoel|bayern|virtus|olimpia|milan|baskonia|valencia|paris basket|^paris|asvel|villeurbanne|dubai/i;
 const GR = /olympiacos|olympiakos|panathinaikos|aek|aris|paok|peristeri|promitheas|kolossos|maroussi|marousi|lavrio|panionios|karditsa|mykonos|iraklis|kifisia|kifissia|amarousiou|rhodes|rodou|apollon|ionikos|psychiko/i;
+const NBA = /hawks|celtics|nets|hornets|bulls|cavaliers|pistons|pacers|\bheat\b|bucks|knicks|magic|76ers|sixers|raptors|wizards|mavericks|nuggets|warriors|rockets|clippers|lakers|grizzlies|timberwolves|pelicans|thunder|\bsuns\b|blazers|\bkings\b|spurs|\bjazz\b/i;
 const teamsOf = ev => String(ev.fixture?.event_name || '').split(/·|\s+-\s+|\s+vs?\.?\s+/i).map(x => x.trim()).filter(Boolean);
-const vote = ev => { const t = teamsOf(ev); if (t.length !== 2) return null; const el = t.every(x => EL.test(x)), gr = t.every(x => GR.test(x)); return el && gr ? 'both' : el ? 'euroleague' : gr ? 'gbl' : null; };
+const vote = ev => { const t = teamsOf(ev); if (t.length !== 2) return null; if (t.every(x => NBA.test(x))) return 'nba'; const el = t.every(x => EL.test(x)), gr = t.every(x => GR.test(x)); return el && gr ? 'both' : el ? 'euroleague' : gr ? 'gbl' : null; };
 const tally = new Map();
-for (const ev of events) { const k = ev.fixture?.tournament_id, v = vote(ev); if (k == null || !v) continue; const o = tally.get(k) ?? { euroleague: 0, gbl: 0, both: 0 }; o[v]++; tally.set(k, o); }
+for (const ev of events) { const k = ev.fixture?.tournament_id, v = vote(ev); if (k == null || !v) continue; const o = tally.get(k) ?? { euroleague: 0, gbl: 0, both: 0, nba: 0 }; o[v]++; tally.set(k, o); }
 // Για να μην πάρουμε π.χ. την ισπανική ACB (Μπαρτσελόνα–Βαλένθια) για EuroLeague: τουλάχιστον 3 αγώνες
 // και το 60% των αγώνων της διοργάνωσης να είναι ανάμεσα σε ομάδες της ίδιας λίστας.
 const size = new Map(); for (const ev of events) { const k = ev.fixture?.tournament_id; size.set(k, (size.get(k) || 0) + 1); }
 const T = new Map([...tally].map(([k, o]) => {
-  const c = o.euroleague > o.gbl ? 'euroleague' : o.gbl > o.euroleague ? 'gbl' : o.both ? 'euroleague' : null;
-  const hits = o[c] + o.both;
+  const c = o.nba > o.euroleague + o.gbl + o.both ? 'nba' : o.euroleague > o.gbl ? 'euroleague' : o.gbl > o.euroleague ? 'gbl' : o.both ? 'euroleague' : null;
+  const hits = c === 'nba' ? o.nba : o[c] + o.both;
   return [k, c && hits >= 3 && hits / size.get(k) >= 0.6 ? c : null];
 }).filter(([, c]) => c));
 const comp = ev => { const k = ev.fixture?.tournament_id, c = T.get(k); return c && vote(ev) ? c : null; };
@@ -95,7 +96,7 @@ for (const ev of events) {
 for (const [k, c] of T) console.log(`  αναγνωρίστηκε: tournament ${k} = ${c} (${JSON.stringify(tally.get(k))})`);
 for (const [t, o] of [...byT].sort((a, b) => b[1].n - a[1].n)) console.log(`  διοργάνωση ${t}: ${o.n} αγώνες, ${o.pm} αγορές παικτών — ${o.ex.join(' | ')}`);
 const nl = keep.reduce((a, e) => a + e.lines.length, 0);
-console.log(`  κρατήθηκαν: ${keep.length} αγώνες EuroLeague/GBL με ${nl} γραμμές παικτών`);
+console.log(`  κρατήθηκαν: ${keep.length} αγώνες (${['euroleague', 'gbl', 'nba'].map(c => `${c} ${keep.filter(e => e.comp === c).length}`).join(', ')}) με ${nl} γραμμές παικτών`);
 if (!keep.length) process.exit(0);
 
 await fs.mkdir(DIR, { recursive: true });
