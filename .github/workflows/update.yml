@@ -75,6 +75,8 @@ jobs:
         run: node scripts/engine-archive.mjs || echo "engine archive - σφάλμα, δες το log (σπασμένη αλυσίδα = δεν γράφτηκε τίποτα)"
       - name: "Intelligence Engine - μέτρηση απέναντι στις αποδόσεις (pregame τιμές) για την πύλη EV των props"
         run: timeout 900 node scripts/engine-market-eval.mjs --json data/predictions/market-eval.json > /dev/null || echo "engine market eval - σφάλμα (η πύλη μένει κλειστή)"
+      - name: CLV στα props (τιμή ~1 μέρα πριν έναντι κλεισίματος)
+        run: timeout 600 node scripts/props-clv.mjs --json data/predictions/props-clv.json || echo "props CLV - σφάλμα"
       - name: Walk-forward σύγκριση κατανομής Player Props με baseline
         run: node scripts/props-distribution-compare.mjs
       - name: "Fantasy model performance - ιστορικές σεζόν (μία φορά), walk-forward backtest, optimizer backtest"
