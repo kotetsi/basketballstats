@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-27T15:12:06.507Z",
+ "generated": "2026-11-27T15:52:53.743Z",
  "season": "E2026",
  "method": "last quote seen before tip-off; locked pregame archive where it exists (else engine as-of round); void if not played",
  "counts": {
@@ -159,134 +159,134 @@
   "games": 28,
   "players": 171,
   "engine": {
-   "brier": 0.244,
-   "logloss": 0.6808
+   "brier": 0.2434,
+   "logloss": 0.6797
   },
   "market": {
    "brier": 0.2451,
    "logloss": 0.6829
   },
   "blend": {
-   "brier": 0.2421,
-   "logloss": 0.6768
+   "brier": 0.242,
+   "logloss": 0.6765
   },
   "brier_engine_minus_market_ci95": [
-   -0.0066,
-   0.0047
+   -0.0071,
+   0.004
   ],
   "brier_blend_minus_market_ci95": [
-   -0.0058,
-   0
+   -0.006,
+   -0.0001
   ],
-  "ece_engine": 0.0411,
-  "ece_blend": 0.017,
+  "ece_engine": 0.0359,
+  "ece_blend": 0.0146,
   "ece_market": 0.033,
   "picks": {
    "ev3": {
     "engine": {
-     "n": 4905,
-     "roi": 0.053,
+     "n": 4723,
+     "roi": 0.049,
      "roi_ci95": [
-      -0.04,
-      0.134
+      -0.045,
+      0.127
      ],
      "naive": {
       "under": -0.012,
       "over": -0.139
      },
-     "edge_vs_naive": 0.065,
+     "edge_vs_naive": 0.061,
      "edge_vs_naive_ci95": [
-      0.011,
-      0.113
+      0.01,
+      0.107
      ]
     },
     "blend": {
-     "n": 2187,
-     "roi": 0.085,
+     "n": 2119,
+     "roi": 0.083,
      "roi_ci95": [
-      -0.027,
-      0.184
+      -0.029,
+      0.188
      ],
      "naive": {
       "under": -0.012,
       "over": -0.139
      },
-     "edge_vs_naive": 0.097,
+     "edge_vs_naive": 0.095,
      "edge_vs_naive_ci95": [
-      0.016,
-      0.172
+      0.01,
+      0.165
      ]
     }
    },
    "ev5": {
     "engine": {
-     "n": 4233,
-     "roi": 0.056,
+     "n": 4072,
+     "roi": 0.057,
      "roi_ci95": [
-      -0.04,
-      0.142
+      -0.035,
+      0.14
      ],
      "naive": {
       "under": -0.012,
       "over": -0.139
      },
-     "edge_vs_naive": 0.068,
+     "edge_vs_naive": 0.069,
      "edge_vs_naive_ci95": [
-      0.011,
-      0.117
+      0.018,
+      0.118
      ]
     },
     "blend": {
-     "n": 1578,
-     "roi": 0.11,
+     "n": 1503,
+     "roi": 0.104,
      "roi_ci95": [
-      0.005,
-      0.21
+      -0.011,
+      0.22
      ],
      "naive": {
       "under": -0.012,
       "over": -0.139
      },
-     "edge_vs_naive": 0.122,
+     "edge_vs_naive": 0.116,
      "edge_vs_naive_ci95": [
-      0.043,
-      0.196
+      0.038,
+      0.203
      ]
     }
    },
    "ev8": {
     "engine": {
-     "n": 3424,
-     "roi": 0.067,
+     "n": 3277,
+     "roi": 0.07,
      "roi_ci95": [
       -0.033,
-      0.162
+      0.171
      ],
      "naive": {
       "under": -0.012,
       "over": -0.139
      },
-     "edge_vs_naive": 0.079,
+     "edge_vs_naive": 0.081,
      "edge_vs_naive_ci95": [
-      0.007,
-      0.14
+      0.015,
+      0.147
      ]
     },
     "blend": {
-     "n": 918,
-     "roi": 0.112,
+     "n": 811,
+     "roi": 0.121,
      "roi_ci95": [
-      0.013,
-      0.218
+      0.003,
+      0.246
      ],
      "naive": {
       "under": -0.012,
       "over": -0.139
      },
-     "edge_vs_naive": 0.124,
+     "edge_vs_naive": 0.133,
      "edge_vs_naive_ci95": [
-      0.035,
-      0.221
+      0.013,
+      0.247
      ]
     }
    }
@@ -297,134 +297,134 @@
   "games": 28,
   "players": 171,
   "engine": {
-   "brier": 0.2421,
-   "logloss": 0.6767
+   "brier": 0.2415,
+   "logloss": 0.6756
   },
   "market": {
    "brier": 0.2428,
    "logloss": 0.6779
   },
   "blend": {
-   "brier": 0.2401,
-   "logloss": 0.6723
+   "brier": 0.2399,
+   "logloss": 0.672
   },
   "brier_engine_minus_market_ci95": [
-   -0.0062,
-   0.0048
+   -0.0066,
+   0.0041
   ],
   "brier_blend_minus_market_ci95": [
-   -0.0056,
-   0.0001
+   -0.0057,
+   -0.0001
   ],
-  "ece_engine": 0.0376,
-  "ece_blend": 0.0164,
+  "ece_engine": 0.0332,
+  "ece_blend": 0.0126,
   "ece_market": 0.0355,
   "picks": {
    "ev3": {
     "engine": {
-     "n": 2486,
-     "roi": 0.037,
+     "n": 2388,
+     "roi": 0.032,
      "roi_ci95": [
-      -0.045,
-      0.122
+      -0.06,
+      0.118
      ],
      "naive": {
       "under": -0.012,
       "over": -0.149
      },
-     "edge_vs_naive": 0.049,
+     "edge_vs_naive": 0.044,
      "edge_vs_naive_ci95": [
-      -0.005,
-      0.1
+      -0.012,
+      0.094
      ]
     },
     "blend": {
-     "n": 1026,
-     "roi": 0.102,
+     "n": 987,
+     "roi": 0.099,
      "roi_ci95": [
-      -0.008,
-      0.207
+      0.003,
+      0.196
      ],
      "naive": {
       "under": -0.012,
       "over": -0.149
      },
-     "edge_vs_naive": 0.114,
+     "edge_vs_naive": 0.111,
      "edge_vs_naive_ci95": [
-      0.03,
-      0.18
+      0.046,
+      0.184
      ]
     }
    },
    "ev5": {
     "engine": {
-     "n": 2126,
-     "roi": 0.045,
+     "n": 2046,
+     "roi": 0.043,
      "roi_ci95": [
-      -0.043,
-      0.138
+      -0.047,
+      0.135
      ],
      "naive": {
       "under": -0.012,
       "over": -0.149
      },
-     "edge_vs_naive": 0.058,
+     "edge_vs_naive": 0.055,
      "edge_vs_naive_ci95": [
       0.001,
       0.111
      ]
     },
     "blend": {
-     "n": 734,
-     "roi": 0.133,
+     "n": 686,
+     "roi": 0.125,
      "roi_ci95": [
-      0.031,
-      0.234
+      0.011,
+      0.237
      ],
      "naive": {
       "under": -0.012,
       "over": -0.149
      },
-     "edge_vs_naive": 0.145,
+     "edge_vs_naive": 0.137,
      "edge_vs_naive_ci95": [
-      0.064,
-      0.228
+      0.049,
+      0.238
      ]
     }
    },
    "ev8": {
     "engine": {
-     "n": 1709,
-     "roi": 0.064,
+     "n": 1635,
+     "roi": 0.061,
      "roi_ci95": [
-      -0.032,
+      -0.034,
       0.165
      ],
      "naive": {
       "under": -0.012,
       "over": -0.149
      },
-     "edge_vs_naive": 0.076,
+     "edge_vs_naive": 0.073,
      "edge_vs_naive_ci95": [
-      0.01,
-      0.139
+      0.011,
+      0.143
      ]
     },
     "blend": {
-     "n": 425,
-     "roi": 0.128,
+     "n": 372,
+     "roi": 0.146,
      "roi_ci95": [
-      0.024,
-      0.231
+      0.004,
+      0.272
      ],
      "naive": {
       "under": -0.012,
       "over": -0.149
      },
-     "edge_vs_naive": 0.141,
+     "edge_vs_naive": 0.158,
      "edge_vs_naive_ci95": [
-      0.047,
-      0.24
+      0.021,
+      0.278
      ]
     }
    }
@@ -436,134 +436,134 @@
    "games": 28,
    "players": 154,
    "engine": {
-    "brier": 0.2451,
-    "logloss": 0.6835
+    "brier": 0.245,
+    "logloss": 0.6833
    },
    "market": {
     "brier": 0.2484,
     "logloss": 0.69
    },
    "blend": {
-    "brier": 0.2445,
-    "logloss": 0.682
+    "brier": 0.2444,
+    "logloss": 0.6818
    },
    "brier_engine_minus_market_ci95": [
-    -0.0132,
-    0.009
+    -0.0134,
+    0.0084
    ],
    "brier_blend_minus_market_ci95": [
-    -0.0091,
-    0.0021
+    -0.0093,
+    0.0017
    ],
-   "ece_engine": 0.0426,
-   "ece_blend": 0.0323,
+   "ece_engine": 0.0326,
+   "ece_blend": 0.0319,
    "ece_market": 0.06,
    "picks": {
     "ev3": {
      "engine": {
-      "n": 1718,
-      "roi": 0.072,
+      "n": 1687,
+      "roi": 0.083,
       "roi_ci95": [
-       -0.069,
-       0.216
+       -0.057,
+       0.221
       ],
       "naive": {
        "under": 0.031,
        "over": -0.185
       },
-      "edge_vs_naive": 0.04,
+      "edge_vs_naive": 0.052,
       "edge_vs_naive_ci95": [
-       -0.051,
-       0.116
+       -0.036,
+       0.132
       ]
      },
      "blend": {
-      "n": 721,
-      "roi": 0.091,
+      "n": 740,
+      "roi": 0.084,
       "roi_ci95": [
-       -0.103,
-       0.27
+       -0.101,
+       0.25
       ],
       "naive": {
        "under": 0.031,
        "over": -0.185
       },
-      "edge_vs_naive": 0.059,
+      "edge_vs_naive": 0.052,
       "edge_vs_naive_ci95": [
-       -0.085,
-       0.194
+       -0.084,
+       0.182
       ]
      }
     },
     "ev5": {
      "engine": {
-      "n": 1453,
-      "roi": 0.074,
+      "n": 1455,
+      "roi": 0.077,
       "roi_ci95": [
-       -0.08,
-       0.212
+       -0.067,
+       0.215
       ],
       "naive": {
        "under": 0.031,
        "over": -0.185
       },
-      "edge_vs_naive": 0.042,
+      "edge_vs_naive": 0.045,
       "edge_vs_naive_ci95": [
-       -0.049,
-       0.118
+       -0.041,
+       0.113
       ]
      },
      "blend": {
-      "n": 515,
-      "roi": 0.108,
+      "n": 529,
+      "roi": 0.109,
       "roi_ci95": [
-       -0.106,
-       0.318
+       -0.138,
+       0.31
       ],
       "naive": {
        "under": 0.031,
        "over": -0.185
       },
-      "edge_vs_naive": 0.077,
+      "edge_vs_naive": 0.078,
       "edge_vs_naive_ci95": [
-       -0.116,
-       0.265
+       -0.105,
+       0.262
       ]
      }
     },
     "ev8": {
      "engine": {
-      "n": 1167,
-      "roi": 0.081,
+      "n": 1157,
+      "roi": 0.098,
       "roi_ci95": [
-       -0.076,
-       0.229
+       -0.058,
+       0.24
       ],
       "naive": {
        "under": 0.031,
        "over": -0.185
       },
-      "edge_vs_naive": 0.049,
+      "edge_vs_naive": 0.067,
       "edge_vs_naive_ci95": [
-       -0.066,
-       0.144
+       -0.05,
+       0.157
       ]
      },
      "blend": {
-      "n": 258,
-      "roi": 0.092,
+      "n": 259,
+      "roi": 0.082,
       "roi_ci95": [
        -0.194,
-       0.383
+       0.387
       ],
       "naive": {
        "under": 0.031,
        "over": -0.185
       },
-      "edge_vs_naive": 0.06,
+      "edge_vs_naive": 0.051,
       "edge_vs_naive_ci95": [
-       -0.177,
-       0.298
+       -0.208,
+       0.301
       ]
      }
     }
@@ -574,134 +574,134 @@
    "games": 28,
    "players": 133,
    "engine": {
-    "brier": 0.2453,
-    "logloss": 0.6832
+    "brier": 0.2442,
+    "logloss": 0.6806
    },
    "market": {
     "brier": 0.2455,
     "logloss": 0.6831
    },
    "blend": {
-    "brier": 0.2426,
-    "logloss": 0.6772
+    "brier": 0.2424,
+    "logloss": 0.6768
    },
    "brier_engine_minus_market_ci95": [
-    -0.0095,
-    0.0106
+    -0.0092,
+    0.0076
    ],
    "brier_blend_minus_market_ci95": [
-    -0.0071,
-    0.002
+    -0.0072,
+    0.0013
    ],
-   "ece_engine": 0.0944,
-   "ece_blend": 0.0478,
+   "ece_engine": 0.0687,
+   "ece_blend": 0.0602,
    "ece_market": 0.029,
    "picks": {
     "ev3": {
      "engine": {
-      "n": 1196,
-      "roi": 0.018,
+      "n": 1147,
+      "roi": 0.012,
       "roi_ci95": [
-       -0.078,
-       0.122
+       -0.093,
+       0.111
       ],
       "naive": {
        "under": -0.04,
        "over": -0.114
       },
-      "edge_vs_naive": 0.058,
+      "edge_vs_naive": 0.052,
       "edge_vs_naive_ci95": [
-       -0.094,
-       0.158
+       -0.086,
+       0.141
       ]
      },
      "blend": {
-      "n": 631,
-      "roi": 0.118,
+      "n": 574,
+      "roi": 0.079,
       "roi_ci95": [
-       0.007,
-       0.246
+       -0.05,
+       0.21
       ],
       "naive": {
        "under": -0.04,
        "over": -0.114
       },
-      "edge_vs_naive": 0.158,
+      "edge_vs_naive": 0.12,
       "edge_vs_naive_ci95": [
-       0.01,
-       0.281
+       -0.058,
+       0.242
       ]
      }
     },
     "ev5": {
      "engine": {
-      "n": 1082,
-      "roi": 0.031,
+      "n": 1027,
+      "roi": 0.038,
       "roi_ci95": [
-       -0.068,
-       0.13
+       -0.073,
+       0.141
       ],
       "naive": {
        "under": -0.04,
        "over": -0.114
       },
-      "edge_vs_naive": 0.071,
+      "edge_vs_naive": 0.078,
       "edge_vs_naive_ci95": [
-       -0.088,
-       0.165
+       -0.066,
+       0.174
       ]
      },
      "blend": {
-      "n": 465,
-      "roi": 0.16,
+      "n": 398,
+      "roi": 0.057,
       "roi_ci95": [
-       0.02,
-       0.324
+       -0.112,
+       0.239
       ],
       "naive": {
        "under": -0.04,
        "over": -0.114
       },
-      "edge_vs_naive": 0.2,
+      "edge_vs_naive": 0.097,
       "edge_vs_naive_ci95": [
-       0.04,
-       0.332
+       -0.097,
+       0.238
       ]
      }
     },
     "ev8": {
      "engine": {
-      "n": 910,
-      "roi": 0.071,
+      "n": 851,
+      "roi": 0.058,
       "roi_ci95": [
-       -0.045,
-       0.188
+       -0.081,
+       0.182
       ],
       "naive": {
        "under": -0.04,
        "over": -0.114
       },
-      "edge_vs_naive": 0.111,
+      "edge_vs_naive": 0.098,
       "edge_vs_naive_ci95": [
-       -0.051,
-       0.218
+       -0.067,
+       0.203
       ]
      },
      "blend": {
-      "n": 290,
-      "roi": 0.104,
+      "n": 226,
+      "roi": 0.14,
       "roi_ci95": [
-       -0.075,
-       0.3
+       -0.068,
+       0.34
       ],
       "naive": {
        "under": -0.04,
        "over": -0.114
       },
-      "edge_vs_naive": 0.144,
+      "edge_vs_naive": 0.18,
       "edge_vs_naive_ci95": [
-       -0.063,
-       0.298
+       -0.066,
+       0.334
       ]
      }
     }
@@ -712,134 +712,134 @@
    "games": 28,
    "players": 121,
    "engine": {
-    "brier": 0.248,
-    "logloss": 0.6888
+    "brier": 0.2467,
+    "logloss": 0.6866
    },
    "market": {
     "brier": 0.2436,
     "logloss": 0.6798
    },
    "blend": {
-    "brier": 0.2434,
-    "logloss": 0.6793
+    "brier": 0.243,
+    "logloss": 0.6786
    },
    "brier_engine_minus_market_ci95": [
-    -0.0077,
-    0.0163
+    -0.0078,
+    0.0135
    ],
    "brier_blend_minus_market_ci95": [
-    -0.0065,
-    0.0059
+    -0.0062,
+    0.0043
    ],
-   "ece_engine": 0.0786,
-   "ece_blend": 0.0591,
+   "ece_engine": 0.0864,
+   "ece_blend": 0.0305,
    "ece_market": 0.0194,
    "picks": {
     "ev3": {
      "engine": {
-      "n": 919,
-      "roi": 0.015,
+      "n": 857,
+      "roi": -0.028,
       "roi_ci95": [
-       -0.137,
-       0.163
+       -0.195,
+       0.143
       ],
       "naive": {
        "under": -0.035,
        "over": -0.11
       },
-      "edge_vs_naive": 0.05,
+      "edge_vs_naive": 0.006,
       "edge_vs_naive_ci95": [
-       -0.13,
-       0.165
+       -0.19,
+       0.132
       ]
      },
      "blend": {
-      "n": 434,
-      "roi": -0.015,
+      "n": 423,
+      "roi": 0.027,
       "roi_ci95": [
-       -0.246,
-       0.211
+       -0.213,
+       0.253
       ],
       "naive": {
        "under": -0.035,
        "over": -0.11
       },
-      "edge_vs_naive": 0.019,
+      "edge_vs_naive": 0.061,
       "edge_vs_naive_ci95": [
-       -0.233,
-       0.179
+       -0.177,
+       0.248
       ]
      }
     },
     "ev5": {
      "engine": {
-      "n": 811,
-      "roi": 0.016,
+      "n": 752,
+      "roi": -0.027,
       "roi_ci95": [
-       -0.148,
-       0.174
+       -0.208,
+       0.146
       ],
       "naive": {
        "under": -0.035,
        "over": -0.11
       },
-      "edge_vs_naive": 0.05,
+      "edge_vs_naive": 0.008,
       "edge_vs_naive_ci95": [
-       -0.153,
-       0.184
+       -0.193,
+       0.141
       ]
      },
      "blend": {
-      "n": 323,
-      "roi": -0.046,
+      "n": 309,
+      "roi": 0.038,
       "roi_ci95": [
-       -0.304,
-       0.209
+       -0.215,
+       0.279
       ],
       "naive": {
        "under": -0.035,
        "over": -0.11
       },
-      "edge_vs_naive": -0.011,
+      "edge_vs_naive": 0.073,
       "edge_vs_naive_ci95": [
-       -0.291,
-       0.19
+       -0.177,
+       0.27
       ]
      }
     },
     "ev8": {
      "engine": {
-      "n": 638,
-      "roi": 0.006,
+      "n": 613,
+      "roi": -0.001,
       "roi_ci95": [
-       -0.189,
-       0.193
+       -0.185,
+       0.207
       ],
       "naive": {
        "under": -0.035,
        "over": -0.11
       },
-      "edge_vs_naive": 0.041,
+      "edge_vs_naive": 0.034,
       "edge_vs_naive_ci95": [
-       -0.184,
-       0.187
+       -0.166,
+       0.183
       ]
      },
      "blend": {
-      "n": 197,
-      "roi": -0.015,
+      "n": 160,
+      "roi": 0.051,
       "roi_ci95": [
-       -0.312,
-       0.275
+       -0.319,
+       0.407
       ],
       "naive": {
        "under": -0.035,
        "over": -0.11
       },
-      "edge_vs_naive": 0.02,
+      "edge_vs_naive": 0.086,
       "edge_vs_naive_ci95": [
-       -0.282,
-       0.254
+       -0.245,
+       0.397
       ]
      }
     }
@@ -851,7 +851,7 @@
    "players": 120,
    "engine": {
     "brier": 0.237,
-    "logloss": 0.6663
+    "logloss": 0.6664
    },
    "market": {
     "brier": 0.2408,
@@ -859,125 +859,125 @@
    },
    "blend": {
     "brier": 0.2368,
-    "logloss": 0.6658
+    "logloss": 0.6659
    },
    "brier_engine_minus_market_ci95": [
-    -0.0128,
-    0.0065
+    -0.0133,
+    0.0067
    ],
    "brier_blend_minus_market_ci95": [
     -0.0088,
-    0.0011
+    0.0012
    ],
-   "ece_engine": 0.0552,
-   "ece_blend": 0.0281,
+   "ece_engine": 0.0494,
+   "ece_blend": 0.0252,
    "ece_market": 0.0283,
    "picks": {
     "ev3": {
      "engine": {
-      "n": 1072,
-      "roi": 0.094,
+      "n": 1032,
+      "roi": 0.098,
       "roi_ci95": [
-       -0.078,
-       0.249
+       -0.086,
+       0.266
       ],
       "naive": {
        "under": -0.028,
        "over": -0.119
       },
-      "edge_vs_naive": 0.122,
+      "edge_vs_naive": 0.126,
       "edge_vs_naive_ci95": [
-       -0.043,
-       0.256
+       -0.044,
+       0.27
       ]
      },
      "blend": {
-      "n": 401,
-      "roi": 0.134,
+      "n": 382,
+      "roi": 0.15,
       "roi_ci95": [
-       -0.158,
-       0.372
+       -0.128,
+       0.393
       ],
       "naive": {
        "under": -0.028,
        "over": -0.119
       },
-      "edge_vs_naive": 0.162,
+      "edge_vs_naive": 0.178,
       "edge_vs_naive_ci95": [
-       -0.089,
-       0.413
+       -0.056,
+       0.432
       ]
      }
     },
     "ev5": {
      "engine": {
-      "n": 887,
-      "roi": 0.094,
+      "n": 838,
+      "roi": 0.121,
       "roi_ci95": [
-       -0.098,
-       0.257
+       -0.081,
+       0.301
       ],
       "naive": {
        "under": -0.028,
        "over": -0.119
       },
-      "edge_vs_naive": 0.122,
+      "edge_vs_naive": 0.149,
       "edge_vs_naive_ci95": [
-       -0.067,
-       0.281
+       -0.048,
+       0.312
       ]
      },
      "blend": {
-      "n": 275,
-      "roi": 0.213,
+      "n": 267,
+      "roi": 0.24,
       "roi_ci95": [
-       -0.072,
-       0.513
+       -0.082,
+       0.583
       ],
       "naive": {
        "under": -0.028,
        "over": -0.119
       },
-      "edge_vs_naive": 0.242,
+      "edge_vs_naive": 0.268,
       "edge_vs_naive_ci95": [
-       -0.068,
-       0.545
+       -0.036,
+       0.609
       ]
      }
     },
     "ev8": {
      "engine": {
-      "n": 709,
-      "roi": 0.094,
+      "n": 656,
+      "roi": 0.1,
       "roi_ci95": [
-       -0.122,
-       0.28
+       -0.121,
+       0.295
       ],
       "naive": {
        "under": -0.028,
        "over": -0.119
       },
-      "edge_vs_naive": 0.122,
+      "edge_vs_naive": 0.128,
       "edge_vs_naive_ci95": [
-       -0.078,
-       0.294
+       -0.09,
+       0.308
       ]
      },
      "blend": {
-      "n": 173,
-      "roi": 0.303,
+      "n": 166,
+      "roi": 0.221,
       "roi_ci95": [
-       -0.07,
-       0.749
+       -0.131,
+       0.64
       ],
       "naive": {
        "under": -0.028,
        "over": -0.119
       },
-      "edge_vs_naive": 0.331,
+      "edge_vs_naive": 0.249,
       "edge_vs_naive_ci95": [
-       -0.052,
-       0.785
+       -0.072,
+       0.651
       ]
      }
     }
@@ -990,72 +990,108 @@
    "games": 10,
    "players": 150,
    "engine": {
-    "brier": 0.2491,
-    "logloss": 0.6912
+    "brier": 0.2486,
+    "logloss": 0.6906
    },
    "market": {
     "brier": 0.2465,
     "logloss": 0.6859
    },
    "blend": {
-    "brier": 0.2452,
-    "logloss": 0.6832
+    "brier": 0.2451,
+    "logloss": 0.6831
    },
    "brier_engine_minus_market_ci95": [
-    -0.005,
-    0.0116
+    -0.0056,
+    0.0111
    ],
    "brier_blend_minus_market_ci95": [
-    -0.0059,
-    0.0037
+    -0.0063,
+    0.0035
    ],
-   "ece_engine": 0.0809,
-   "ece_blend": 0.0573,
+   "ece_engine": 0.0737,
+   "ece_blend": 0.0524,
    "ece_market": 0.0262,
    "picks": {
     "ev3": {
      "engine": {
-      "n": 2440,
-      "roi": 0.011,
+      "n": 2367,
+      "roi": 0.009,
       "roi_ci95": [
-       -0.132,
+       -0.142,
        0.144
       ],
       "naive": {
        "under": -0.063,
        "over": -0.083
       },
-      "edge_vs_naive": 0.074,
+      "edge_vs_naive": 0.071,
       "edge_vs_naive_ci95": [
-       -0.146,
-       0.151
+       -0.151,
+       0.133
       ]
      },
      "blend": {
-      "n": 1139,
-      "roi": 0.026,
+      "n": 1107,
+      "roi": 0.015,
       "roi_ci95": [
-       -0.125,
-       0.148
+       -0.142,
+       0.136
       ],
       "naive": {
        "under": -0.063,
        "over": -0.083
       },
-      "edge_vs_naive": 0.089,
+      "edge_vs_naive": 0.077,
       "edge_vs_naive_ci95": [
-       -0.139,
-       0.142
+       -0.152,
+       0.148
       ]
      }
     },
     "ev5": {
      "engine": {
-      "n": 2117,
+      "n": 2037,
+      "roi": 0.005,
+      "roi_ci95": [
+       -0.133,
+       0.133
+      ],
+      "naive": {
+       "under": -0.063,
+       "over": -0.083
+      },
+      "edge_vs_naive": 0.068,
+      "edge_vs_naive_ci95": [
+       -0.154,
+       0.123
+      ]
+     },
+     "blend": {
+      "n": 783,
+      "roi": 0.034,
+      "roi_ci95": [
+       -0.144,
+       0.161
+      ],
+      "naive": {
+       "under": -0.063,
+       "over": -0.083
+      },
+      "edge_vs_naive": 0.097,
+      "edge_vs_naive_ci95": [
+       -0.164,
+       0.185
+      ]
+     }
+    },
+    "ev8": {
+     "engine": {
+      "n": 1657,
       "roi": 0.013,
       "roi_ci95": [
-       -0.137,
-       0.149
+       -0.145,
+       0.15
       ],
       "naive": {
        "under": -0.063,
@@ -1063,61 +1099,25 @@
       },
       "edge_vs_naive": 0.076,
       "edge_vs_naive_ci95": [
-       -0.145,
-       0.149
+       -0.161,
+       0.137
       ]
      },
      "blend": {
-      "n": 815,
-      "roi": 0.058,
+      "n": 419,
+      "roi": 0.067,
       "roi_ci95": [
-       -0.106,
-       0.164
+       -0.137,
+       0.238
       ],
       "naive": {
        "under": -0.063,
        "over": -0.083
       },
-      "edge_vs_naive": 0.121,
+      "edge_vs_naive": 0.13,
       "edge_vs_naive_ci95": [
-       -0.116,
-       0.173
-      ]
-     }
-    },
-    "ev8": {
-     "engine": {
-      "n": 1746,
-      "roi": 0.021,
-      "roi_ci95": [
-       -0.127,
-       0.157
-      ],
-      "naive": {
-       "under": -0.063,
-       "over": -0.083
-      },
-      "edge_vs_naive": 0.084,
-      "edge_vs_naive_ci95": [
-       -0.15,
-       0.148
-      ]
-     },
-     "blend": {
-      "n": 465,
-      "roi": 0.053,
-      "roi_ci95": [
-       -0.146,
-       0.177
-      ],
-      "naive": {
-       "under": -0.063,
-       "over": -0.083
-      },
-      "edge_vs_naive": 0.116,
-      "edge_vs_naive_ci95": [
-       -0.139,
-       0.215
+       -0.138,
+       0.25
       ]
      }
     }
@@ -1128,134 +1128,134 @@
    "games": 10,
    "players": 141,
    "engine": {
-    "brier": 0.2337,
-    "logloss": 0.659
+    "brier": 0.2328,
+    "logloss": 0.6567
    },
    "market": {
     "brier": 0.2406,
     "logloss": 0.6732
    },
    "blend": {
-    "brier": 0.2348,
-    "logloss": 0.6613
+    "brier": 0.2345,
+    "logloss": 0.6608
    },
    "brier_engine_minus_market_ci95": [
-    -0.0149,
-    0.0023
+    -0.0148,
+    0.0003
    ],
    "brier_blend_minus_market_ci95": [
-    -0.0098,
-    -0.0014
+    -0.0095,
+    -0.0021
    ],
-   "ece_engine": 0.0391,
-   "ece_blend": 0.046,
+   "ece_engine": 0.0482,
+   "ece_blend": 0.0444,
    "ece_market": 0.0714,
    "picks": {
     "ev3": {
      "engine": {
-      "n": 1828,
-      "roi": 0.1,
+      "n": 1719,
+      "roi": 0.095,
       "roi_ci95": [
-       0.005,
-       0.192
+       0.006,
+       0.188
       ],
       "naive": {
        "under": 0.041,
        "over": -0.209
       },
-      "edge_vs_naive": 0.059,
+      "edge_vs_naive": 0.053,
       "edge_vs_naive_ci95": [
-       -0.021,
-       0.12
+       -0.025,
+       0.121
       ]
      },
      "blend": {
-      "n": 798,
-      "roi": 0.157,
+      "n": 762,
+      "roi": 0.169,
       "roi_ci95": [
-       0.008,
-       0.311
+       0.045,
+       0.314
       ],
       "naive": {
        "under": 0.041,
        "over": -0.209
       },
-      "edge_vs_naive": 0.116,
+      "edge_vs_naive": 0.128,
       "edge_vs_naive_ci95": [
-       -0.074,
-       0.234
+       -0.037,
+       0.237
       ]
      }
     },
     "ev5": {
      "engine": {
-      "n": 1591,
-      "roi": 0.104,
+      "n": 1510,
+      "roi": 0.119,
       "roi_ci95": [
-       -0.011,
-       0.209
+       0.013,
+       0.224
       ],
       "naive": {
        "under": 0.041,
        "over": -0.209
       },
-      "edge_vs_naive": 0.063,
+      "edge_vs_naive": 0.077,
       "edge_vs_naive_ci95": [
-       -0.037,
-       0.135
+       -0.015,
+       0.147
       ]
      },
      "blend": {
-      "n": 585,
-      "roi": 0.185,
+      "n": 542,
+      "roi": 0.205,
       "roi_ci95": [
-       0.022,
-       0.355
+       0.055,
+       0.361
       ],
       "naive": {
        "under": 0.041,
        "over": -0.209
       },
-      "edge_vs_naive": 0.143,
+      "edge_vs_naive": 0.163,
       "edge_vs_naive_ci95": [
-       -0.04,
-       0.277
+       0.016,
+       0.286
       ]
      }
     },
     "ev8": {
      "engine": {
-      "n": 1290,
-      "roi": 0.117,
+      "n": 1232,
+      "roi": 0.134,
       "roi_ci95": [
-       -0.014,
-       0.245
+       0.004,
+       0.264
       ],
       "naive": {
        "under": 0.041,
        "over": -0.209
       },
-      "edge_vs_naive": 0.076,
+      "edge_vs_naive": 0.092,
       "edge_vs_naive_ci95": [
-       -0.053,
-       0.164
+       -0.024,
+       0.19
       ]
      },
      "blend": {
-      "n": 348,
-      "roi": 0.198,
+      "n": 287,
+      "roi": 0.209,
       "roi_ci95": [
-       0.057,
-       0.363
+       -0.018,
+       0.405
       ],
       "naive": {
        "under": 0.041,
        "over": -0.209
       },
-      "edge_vs_naive": 0.157,
+      "edge_vs_naive": 0.168,
       "edge_vs_naive_ci95": [
-       0.023,
-       0.281
+       -0.02,
+       0.328
       ]
      }
     }
@@ -1404,15 +1404,15 @@
   "n": 1316,
   "games": 28,
   "brier": {
-   "engine": 0.2415,
+   "engine": 0.2409,
    "props_today": 0.2424,
    "market": 0.2409,
-   "engine_blend": 0.2389,
+   "engine_blend": 0.2387,
    "props_blend": 0.2393
   },
   "ci_engine_minus_props": [
-   -0.0029,
-   0.0012
+   -0.0038,
+   0.0013
   ]
  }
 }
