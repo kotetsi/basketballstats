@@ -82,7 +82,7 @@ for (const stat of stats) {
 console.log(JSON.stringify({
   validation: 'chronological-probability-calibration',
   split: { allRounds: rounds.length, initialModelHistoryRounds: rounds.slice(0,baseSplit), calibrationFitRounds: [...fitRounds], untouchedCalibrationTestRounds: [...testRounds] },
-  eligiblePlayerGames, offsets, lines: 'synthetic model-centred half-point lines; not bookmaker lines',
+  eligibleGames, offsets, lines: 'synthetic model-centred half-point lines; not bookmaker lines',
   methods: 'Logistic calibration uses ridge-regularized Platt scaling on logit probabilities. Isotonic uses pool-adjacent-violators with sparse-block pooling. Both are fitted only on earlier calibration rounds and evaluated on later untouched rounds.',
   limitations: 'Repeated lines from the same player-game are correlated. Results are calibration diagnostics, not independent observations and not evidence of betting ROI. Production parameters and predictions are unchanged.',
   stats: report,
