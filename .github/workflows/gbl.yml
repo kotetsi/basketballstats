@@ -7,8 +7,8 @@ on:
   schedule:
     - cron: "40 23 * * *"   # 01:40 ώρα Ελλάδας τον χειμώνα, πριν από την «Ενημέρωση site» (02:15)
   push:
-    branches: [gbl-data]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
-    paths: [src/gbl/**, scripts/gbl.mjs, .github/workflows/gbl.yml]
+    branches: [gbl-data, gbl-model]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [src/gbl/**, scripts/gbl.mjs, predictor/gbl.py, .github/workflows/gbl.yml]
   workflow_dispatch:
     inputs:
       max:
@@ -36,6 +36,18 @@ jobs:
         run: node --test test/gbl-esake.test.mjs
       - name: Λήψη από το esake.gr
         run: node scripts/gbl.mjs --max "${{ github.event.inputs.max || '150' }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            fantasy/requirements.txt
+            predictor/requirements.txt
+      - name: Μοντέλο GBL (backtest + προβλέψεις)
+        continue-on-error: true   # τα δεδομένα αποθηκεύονται ακόμα κι αν αποτύχει το μοντέλο
+        run: |
+          pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
+          python predictor/gbl.py
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"
