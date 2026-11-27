@@ -3,8 +3,16 @@ on:
   push:
     branches:
       - 'feature/props-walk-forward-backtest'
+      - 'feat/props-chronological-validation'
     paths:
       - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-holdout-validation.mjs'
+      - 'scripts/props-xpts-walkforward-validation.mjs'
+      - 'scripts/props-multiseason-validation.mjs'
+      - 'scripts/props-nested-walkforward.mjs'
+      - 'scripts/props-probability-calibration.mjs'
+      - 'src/odds/calibration.mjs'
+      - 'test/calibration.test.mjs'
       - 'scripts/props-residual-diagnostics.mjs'
       - 'scripts/props-minutes-diagnostics.mjs'
       - 'scripts/props-market-audit.mjs'
@@ -13,6 +21,8 @@ on:
       - 'scripts/odds.mjs'
       - 'src/odds/core.mjs'
       - 'src/odds/props.mjs'
+      - 'src/odds/xpts.mjs'
+      - 'data/shots/**'
       - 'test/odds.test.mjs'
       - 'test/props.test.mjs'
       - 'data/cache.json'
@@ -21,10 +31,19 @@ on:
   pull_request:
     paths:
       - 'scripts/props-distribution-compare.mjs'
+      - 'scripts/props-holdout-validation.mjs'
+      - 'scripts/props-xpts-walkforward-validation.mjs'
+      - 'scripts/props-multiseason-validation.mjs'
+      - 'scripts/props-nested-walkforward.mjs'
+      - 'scripts/props-probability-calibration.mjs'
+      - 'src/odds/calibration.mjs'
+      - 'test/calibration.test.mjs'
       - 'scripts/props-market-audit.mjs'
       - 'test/props-market-audit.test.mjs'
       - '.github/workflows/update.yml'
       - 'src/odds/props.mjs'
+      - 'src/odds/xpts.mjs'
+      - 'data/shots/**'
       - 'data/cache.json'
       - '.github/workflows/props-calibration.yml'
   workflow_dispatch:
@@ -45,6 +64,8 @@ jobs:
         run: node --test test/odds.test.mjs test/props.test.mjs
       - name: Test player-prop market audit
         run: node --test test/props-market-audit.test.mjs
+      - name: Test probability calibration
+        run: node --test test/calibration.test.mjs
       - name: Run player-prop market data audit
         run: node scripts/props-market-audit.mjs | tee props-market-audit.json
       - name: Run walk-forward calibration report
@@ -53,6 +74,16 @@ jobs:
         run: node scripts/props-residual-diagnostics.mjs | tee props-residual-diagnostics.json
       - name: Run walk-forward minutes diagnostics
         run: node scripts/props-minutes-diagnostics.mjs | tee props-minutes-diagnostics.json
+      - name: Run chronological player-prop holdout
+        run: node scripts/props-holdout-validation.mjs | tee props-holdout-validation.json
+      - name: Run leakage-safe xPTS walk-forward holdout
+        run: node scripts/props-xpts-walkforward-validation.mjs | tee props-xpts-walkforward-validation.json
+      - name: Run multi-season chronological validation
+        run: node scripts/props-multiseason-validation.mjs | tee props-multiseason-validation.json
+      - name: Run nested seasonal walk-forward validation
+        run: node scripts/props-nested-walkforward.mjs | tee props-nested-walkforward.json
+      - name: Run chronological probability calibration
+        run: node scripts/props-probability-calibration.mjs | tee props-probability-calibration.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
@@ -62,4 +93,9 @@ jobs:
             props-residual-diagnostics.json
             props-minutes-diagnostics.json
             props-market-audit.json
+            props-holdout-validation.json
+            props-xpts-walkforward-validation.json
+            props-multiseason-validation.json
+            props-nested-walkforward.json
+            props-probability-calibration.json
           if-no-files-found: error
