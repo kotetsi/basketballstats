@@ -55,6 +55,7 @@ jobs:
         run: |
           pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
           python predictor/nba.py
+          node scripts/nba-market-eval.mjs
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"
