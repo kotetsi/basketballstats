@@ -40,10 +40,13 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: predictor/requirements.txt
+          cache-dependency-path: |
+            fantasy/requirements.txt
+            predictor/requirements.txt
       - name: Μοντέλο GBL (backtest + προβλέψεις)
+        continue-on-error: true   # τα δεδομένα αποθηκεύονται ακόμα κι αν αποτύχει το μοντέλο
         run: |
-          pip install -q -r predictor/requirements.txt
+          pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
           python predictor/gbl.py
       - name: Αποθήκευση
         run: |
