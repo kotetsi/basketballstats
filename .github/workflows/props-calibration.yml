@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'feature/props-walk-forward-backtest'
+      - 'feat/props-chronological-validation'
     paths:
       - 'scripts/props-distribution-compare.mjs'
       - 'scripts/props-holdout-validation.mjs'
