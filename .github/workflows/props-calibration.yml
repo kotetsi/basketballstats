@@ -9,6 +9,7 @@ on:
       - 'scripts/props-holdout-validation.mjs'
       - 'scripts/props-xpts-walkforward-validation.mjs'
       - 'scripts/props-multiseason-validation.mjs'
+      - 'scripts/props-nested-walkforward.mjs'
       - 'scripts/props-residual-diagnostics.mjs'
       - 'scripts/props-minutes-diagnostics.mjs'
       - 'scripts/props-market-audit.mjs'
@@ -70,6 +71,8 @@ jobs:
         run: node scripts/props-xpts-walkforward-validation.mjs | tee props-xpts-walkforward-validation.json
       - name: Run multi-season chronological validation
         run: node scripts/props-multiseason-validation.mjs | tee props-multiseason-validation.json
+      - name: Run nested seasonal walk-forward validation
+        run: node scripts/props-nested-walkforward.mjs | tee props-nested-walkforward.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
@@ -82,4 +85,5 @@ jobs:
             props-holdout-validation.json
             props-xpts-walkforward-validation.json
             props-multiseason-validation.json
+            props-nested-walkforward.json
           if-no-files-found: error
