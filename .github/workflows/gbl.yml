@@ -48,6 +48,7 @@ jobs:
         run: |
           pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
           python predictor/gbl.py
+          node scripts/gbl-proj-eval.mjs
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"

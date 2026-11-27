@@ -5,6 +5,7 @@
 // Καθαρές συναρτήσεις: το build.mjs δίνει τα εργαλεία του (esc, slugify, url) και γράφει τις σελίδες.
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { gblProjections } from './projections.mjs';
 
 const readJSON = async f => { try { return JSON.parse(await fs.readFile(f, 'utf8')); } catch { return null; } };
 
@@ -17,12 +18,14 @@ export async function loadGbl(root) {
   for (const S of dirs) { const j = await readJSON(path.join(base, S, 'games.json')); if (j?.games?.length) seasons[S] = j.games; }
   const cur = Object.keys(seasons).sort().at(-1);
   if (!cur) return null;
-  const box = {};
-  for (const g of seasons[cur]) if (g.box) { const b = await readJSON(path.join(base, cur, 'box', `${g.id}.json`)); if (b) box[g.id] = b; }
+  // box scores όλων των σεζόν (η προηγούμενη σεζόν χρειάζεται για το prior των προβολών)
+  const boxAll = {};
+  for (const S of Object.keys(seasons)) { boxAll[S] = {}; for (const g of seasons[S]) if (g.box) { const b = await readJSON(path.join(base, S, 'box', `${g.id}.json`)); if (b) boxAll[S][g.id] = b; } }
+  const box = boxAll[cur];
   // Έλληνες παίκτες στα ελληνικά: data/gbl/greek-names.json (id παίκτη → όνομα), αλλιώς το data/greek-names.json της EuroLeague
   const gn = { ...(await readJSON(path.join(base, 'greek-names.json')) || {}) }; delete gn._σχόλιο; delete gn._latin;
   const el = await readJSON(path.join(root, 'data', 'greek-names.json')) || {};
-  return { cur, seasons, box, model: await readJSON(path.join(base, 'model', 'latest.json')), players: await readJSON(path.join(base, 'players.json')) || {}, gn, el };
+  return { cur, seasons, box, boxAll, model: await readJSON(path.join(base, 'model', 'latest.json')), projEval: await readJSON(path.join(base, 'model', 'projections-eval.json')), players: await readJSON(path.join(base, 'players.json')) || {}, gn, el };
 }
 
 // ---- ονόματα: το esake.gr γράφει κεφαλαία και με χορηγούς. Σύντομο ελληνικό όνομα για πίνακες και URLs.
@@ -39,13 +42,18 @@ export const teamSlug = (n, slugify) => SLUG[n] || slugify(n);
 export const shortName = full => { const s = String(full || '').trim(); for (const [re, n] of SHORT) if (re.test(s)) return n; return s; };
 /** το esake.gr γράφει «ΕΠΩΝΥΜΟ ΟΝΟΜΑ» με κεφαλαία: «VEZENKOV SASHA» → «Sasha Vezenkov», «DE SOUSA SILVIO» → «Silvio De Sousa».
  *  Με 3+ λέξεις χωρίς πρόθεμα επωνύμου η σειρά δεν είναι σίγουρη, οπότε μένει όπως είναι. */
-const cap = w => /^([A-ZΑ-Ω]\.)+$/.test(w) ? w : w.split(/([-'’])/).map(x => /^[-'’]$/.test(x) ? x : x.charAt(0) + x.slice(1).toLocaleLowerCase('el')).join('').replace(/^Mc([a-z])/, (_, c) => 'Mc' + c.toUpperCase());
+const cap = w => /^([A-ZΑ-Ω]\.)+$/.test(w) || /^(II|III|IV)$/.test(w) ? w : /^(JR|SR)\.?$/i.test(w) ? w.charAt(0) + w.slice(1).toLowerCase() : w.split(/([-'’])/).map(x => /^[-'’]$/.test(x) ? x : x.charAt(0) + x.slice(1).toLocaleLowerCase('el')).join('').replace(/^Mc([a-z])/, (_, c) => 'Mc' + c.toUpperCase());
+const SUF = /^(II|III|IV|JR\.?|SR\.?)$/i;
 const PART = /^(DE|DA|DI|DOS|DEL|VAN|VON|LE|LA|EL|AL|MAC|ST\.?)$/i;
+// ονόματα που το esake.gr γράφει με λάθος σειρά
+const FIX = { 'MCINTYRE CODI MILLER': 'Codi Miller-McIntyre' };
 export const niceName = s => {
+  if (FIX[String(s || '').trim()]) return FIX[String(s).trim()];
   const w = String(s || '').trim().split(/\s+/).filter(Boolean);
   let o = w;
   if (w.length === 2) o = [w[1], w[0]];
   else if (w.length === 3 && PART.test(w[0])) o = [w[2], w[0], w[1]];
+  else if (w.length === 3 && SUF.test(w[1])) o = [w[2], w[0], w[1]];          // «NOLLEY II LANDERS» → «Landers Nolley II»
   return o.map(cap).join(' ');
 };
 export const seasonLabel = S => `${S.slice(1)}-${String(+S.slice(1) + 1).slice(2)}`;
@@ -162,7 +170,7 @@ ${bt.elo_accuracy != null ? `<tr><td class="l">Elo (μόνο τα σκορ)</td>
   const crumbs = list => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: list.map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: siteUrl + u })) });
 
   // ---- μενού της GBL: στο κεντρικό μενού του site μόνο «GBL», όλα τα υπόλοιπα εδώ
-  const SECT = [['gbl', 'Βαθμολογία'], ['gbl:programma', 'Πρόγραμμα'], ['gbl:prognostika', 'Προγνωστικά'], ['gbl:koryfaioi', 'Κορυφαίοι & ρεκόρ'], ['gbl:thermometro', 'Θερμόμετρο'], ['gbl:statistika-omadon', 'Στατιστικά ομάδων']];
+  const SECT = [['gbl', 'Βαθμολογία'], ['gbl:programma', 'Πρόγραμμα'], ['gbl:prognostika', 'Προγνωστικά'], ['gbl:provoles', 'Προβολές παικτών'], ['gbl:koryfaioi', 'Κορυφαίοι & ρεκόρ'], ['gbl:thermometro', 'Θερμόμετρο'], ['gbl:statistika-omadon', 'Στατιστικά ομάδων']];
   const nav = cur => `<p class="leadnav gblnav">${SECT.map(([k, n]) => `<a href="${url(k)}"${k === cur ? ' aria-current="page"' : ''}>${esc(n)}</a>`).join('')}</p>`;
   const sect = (key, h1, lede, body, title, desc) => pages.push({ key, title, desc, main: `<section class="article ec">${nav(key)}<h1>${esc(h1)}</h1><p class="lede2">${lede}</p>${body}${note}</section>`,
     ld: [crumbs([[siteName, home], [L, url('gbl')], ...(key === 'gbl' ? [] : [[h1, url(key)]])])] });
@@ -190,6 +198,18 @@ ${qual.length ? `<h2>Κορυφαίοι παίκτες</h2><div class="ecgrid">$
     (predR.length ? predR.map(r => `<h2>${r}η αγωνιστική</h2><div class="ecfx">${upcoming.filter(g => g.round === r).map(fxCard).join('')}</div>`).join('') : '<p>Δεν υπάρχουν ακόμα προβλέψεις για τους επόμενους αγώνες.</p>') + acc,
     `Προγνωστικά Stoiximan GBL: πρόβλεψη για κάθε αγώνα | ${siteName}`,
     `Προγνωστικά για κάθε αγώνα της Stoiximan GBL: πιθανότητα νίκης, εκτιμώμενο σκορ και πόσο πέφτει μέσα το μοντέλο.`);
+
+  // ---- 3β. Προβολές παικτών για τον επόμενο αγώνα κάθε ομάδας
+  const PJ = gblProjections(G), PJP = new Map(PJ.games.flatMap(g => g.players.map(x => [x.pid, { ...x, g }])));
+  const PB = new Map(players.map(p => [p.pid, p]));
+  const pjTbl = (list, opts = {}) => `<div class="tbl"><table><thead><tr><th class="l">Παίκτης</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>3Π</th><th>PIR</th>${opts.noPlay ? '' : '<th>Παίζει</th>'}</tr></thead><tbody>${list.map(x => { const p = PB.get(x.pid); return `<tr><td class="l">${p ? pA(p) : esc(x.pid)}</td><td>${f1(x.min)}</td><td><b>${f1(x.pts)}</b></td><td>${f1(x.reb)}</td><td>${f1(x.ast)}</td><td>${f1(x.fg3)}</td><td><b>${f1(x.pir)}</b></td>${opts.noPlay ? '' : `<td>${Math.round(100 * x.p_play)}%</td>`}</tr>`; }).join('')}</tbody></table></div>`;
+  const PE = G.projEval?.mae, pjAcc = PE ? `<h2>Πόσο πέφτουν μέσα</h2><p>Έλεγχος σε ${G.projEval.n.toLocaleString('el-GR')} εμφανίσεις παικτών από το ${seasonLabel(Object.keys(G.seasons).sort()[1] || S)} και μετά, όπου κάθε προβολή έγινε μόνο με τους αγώνες πριν από αυτόν. Μέσο λάθος (όσο μικρότερο τόσο καλύτερα):</p>
+<div class="tbl"><table><thead><tr><th class="l"></th><th>Λεπτά</th><th>Πόντοι</th><th>Ριμπ.</th><th>Ασίστ</th><th>3Π</th><th>PIR</th></tr></thead><tbody>${[['Μέσος όρος σεζόν', PE.avg], ['Μέσος όρος 5 τελευταίων', PE.last5], ['<b>Προβολή BasketballStats</b>', PE.model]].map(([n, e]) => `<tr><td class="l">${n}</td>${['min', 'pts', 'reb', 'ast', 'fg3', 'pir'].map(k => `<td>${f1(e[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '';
+  sect('gbl:provoles', 'Προβολές παικτών Stoiximan GBL', 'Τι περιμένουμε από κάθε παίκτη στον επόμενο αγώνα της ομάδας του: λεπτά, πόντοι, ριμπάουντ, ασίστ, τρίποντα και PIR, αν παίξει. Η στήλη «Παίζει» δείχνει πόσο συχνά έπαιξε στους τελευταίους 5 αγώνες της ομάδας (δεν ξέρουμε τραυματισμούς της τελευταίας στιγμής).',
+    (PJ.games.length ? PJ.games.map(g => `<h2>${esc(tShort(g.home))} – ${esc(tShort(g.away))}</h2><p class="sub">${esc(g.round ? g.round + 'η αγωνιστική' : g.stage || '')} · ${esc(when(g.date))}</p><div class="ecgrid">${[g.home, g.away].map(t => `<div><h3>${tA(t)}</h3>${pjTbl(g.players.filter(x => x.team === t).slice(0, 10))}</div>`).join('')}</div>`).join('') : '<p>Δεν υπάρχουν επόμενοι αγώνες.</p>') + pjAcc +
+    '<p class="sub">Μέθοδος: ρυθμός ανά λεπτό με έμφαση στους πρόσφατους αγώνες, σμικρυμένος προς την προηγούμενη σεζόν του παίκτη και τον μέσο όρο της θέσης του, επί τα αναμενόμενα λεπτά. Ίδια μέθοδος με τις προβολές μας για την EuroLeague.</p>',
+    `Προβολές παικτών Stoiximan GBL: πόντοι, ριμπάουντ, ασίστ, PIR | ${siteName}`,
+    `Πόσους πόντους, ριμπάουντ, ασίστ και PIR περιμένουμε από κάθε παίκτη της Stoiximan GBL στον επόμενο αγώνα, και πόσο πέφτουν μέσα οι προβολές.`);
 
   // ---- 4. Κορυφαίοι & ρεκόρ
   const ts = p => p.pts / (2 * (p.f2a + p.f3a + 0.44 * p.fta) || 1);
@@ -257,7 +277,7 @@ ${qual.length ? `<h2>Κορυφαίοι παίκτες</h2><div class="ecgrid">$
 <div class="echead">${crest(id, 1)}<div><h1>${esc(nm)}</h1><p class="sub">${esc(full)} · ${t.pos}η θέση · ${t.w}-${t.l} · Έδρα ${t.hw}-${t.hl} · Εκτός ${t.aw}-${t.al}</p></div></div>
 ${nextBox}<h2>Πρόγραμμα και αποτελέσματα</h2>
 <div class="tbl"><table><thead><tr><th class="l">Αγ.</th><th class="l">Αντίπαλος</th><th>Αποτέλεσμα / ώρα</th></tr></thead><tbody>${gs.map(g => { const h = g.home.logo === id, o = h ? g.away.logo : g.home.logo; return `<tr><td class="l">${esc(g.round || g.stage || '')}</td><td class="l">${h ? '' : '@ '}${tA(o)}</td><td>${g.played ? res(g) : esc(when(g.date))}</td></tr>`; }).join('')}</tbody></table></div>
-${advBox}${ros.length ? `<h2>Ρόστερ και μέσοι όροι</h2>
+${next && PJP.size ? (() => { const L = (PJ.games.find(g => g.gid === next.id)?.players || []).filter(x => x.team === id).slice(0, 10); return L.length ? `<h2>Προβολές για τον επόμενο αγώνα</h2>${pjTbl(L)}<p class="sub"><a href="${url('gbl:provoles')}">Όλες οι προβολές →</a></p>` : ''; })() : ''}${advBox}${ros.length ? `<h2>Ρόστερ και μέσοι όροι</h2>
 <div class="tbl"><table><thead><tr><th class="l">Παίκτης</th><th>Αγ.</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>3Π%</th><th>PIR</th></tr></thead><tbody>${ros.map(p => `<tr><td class="l">${pA(p)}</td><td>${p.gp}</td><td>${f1(p.min)}</td><td>${f1(p.ppg)}</td><td>${f1(p.rpg)}</td><td>${f1(p.apg)}</td><td>${pc(p.f3m, p.f3a)}</td><td><b>${f1(p.pirg)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
 ${note}
 </section>`;
@@ -283,7 +303,7 @@ ${note}
 <p class="crumbs"><a href="${url('gbl')}">${esc(L)}</a> › ${tA(p.team)}</p>
 <h1>${esc(p.name)}</h1><p class="sub">${esc(nm)}${info(p.pid)} · ${p.gp} αγώνες · ${f1(p.min)} λεπτά</p>
 <div class="tbl"><table><thead><tr><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>Κλ.</th><th>Κοψ.</th><th>Λάθη</th><th>2Π%</th><th>3Π%</th><th>Βολές</th><th>PIR</th></tr></thead><tbody><tr><td><b>${f1(p.ppg)}</b></td><td>${f1(p.rpg)}</td><td>${f1(p.apg)}</td><td>${f1(p.spg)}</td><td>${f1(p.bpg)}</td><td>${f1(p.tov / p.gp)}</td><td>${pc(p.f2m, p.f2a)}</td><td>${pc(p.f3m, p.f3a)}</td><td>${pc(p.ftm, p.fta)}</td><td><b>${f1(p.pirg)}</b></td></tr></tbody></table></div>
-${adv}<h2>Αγώνας προς αγώνα</h2>
+${PJP.has(p.pid) ? (() => { const x = PJP.get(p.pid); const o = x.team === x.g.home ? x.g.away : x.g.home; return `<h2>Επόμενος αγώνας: ${x.team === x.g.home ? '' : '@ '}${esc(tShort(o))}</h2><p class="sub">${esc(when(x.g.date))} · προβολή αν παίξει</p>${pjTbl([x], { noPlay: true })}`; })() : ''}${adv}<h2>Αγώνας προς αγώνα</h2>
 <div class="tbl"><table><thead><tr><th class="l">Αγ.</th><th class="l">Αντίπαλος</th><th>Σκορ</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>3Π</th><th>PIR</th></tr></thead><tbody>${rows.map(r => `<tr><td class="l">${esc(r.round || r.stage || '')}</td><td class="l">${r.home ? '' : '@ '}${names.has(r.opp) ? tA(r.opp) : esc(shortName(r.oppName))}</td><td><b class="${r.my > r.op ? 'ecw' : 'ecl'}">${r.my > r.op ? 'Ν' : 'Η'} ${r.my}-${r.op}</b></td><td>${Math.round(r.min)}</td><td>${r.pts}</td><td>${r.reb}</td><td>${r.ast}</td><td>${esc(r.f3)}</td><td><b>${r.pir}</b></td></tr>`).join('')}</tbody></table></div>
 ${note}
 </section>`;
