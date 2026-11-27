@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: "40 7 * * *"    # 09:40 ώρα Ελλάδας τον χειμώνα: έχουν τελειώσει όλοι οι αγώνες της νύχτας
   push:
-    branches: [nba-data]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    branches: [nba-data, nba-backfill]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
     paths: [src/nba/**, scripts/nba.mjs, .github/workflows/nba.yml]
   workflow_dispatch:
     inputs:
@@ -14,6 +14,14 @@ on:
         description: "Μέγιστος αριθμός νέων αγώνων σε αυτή την εκτέλεση"
         required: false
         default: "300"
+      from:
+        description: "Από (YYYYMMDD), για παλιά σεζόν π.χ. 20251021"
+        required: false
+        default: "20261020"
+      to:
+        description: "Έως (YYYYMMDD), κενό = σήμερα + 21 μέρες"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -25,7 +33,7 @@ concurrency:
 jobs:
   nba:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,7 +42,7 @@ jobs:
       - name: Τεστ parser
         run: node --test test/nba-espn.test.mjs
       - name: Λήψη από το ESPN
-        run: node scripts/nba.mjs --max "${{ github.event.inputs.max || '300' }}"
+        run: node scripts/nba.mjs --max "${{ github.event.inputs.max || '300' }}" --from "${{ github.event.inputs.from || '20261020' }}" ${{ github.event.inputs.to && format('--to {0}', github.event.inputs.to) || '' }}
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"

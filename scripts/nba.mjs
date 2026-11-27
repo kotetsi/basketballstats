@@ -1,7 +1,8 @@
 // NBA: πρόγραμμα, αποτελέσματα, box scores και σουτ (με θέση και ασίστ) από το ESPN → data/nba/<σεζόν>/
 //   games.json          όλοι οι αγώνες της σεζόν (κανονική περίοδος, play-in, playoffs)
 //   box/<id>.json       box score + σουτ κάθε αγώνα που τελείωσε (κατεβαίνει μία φορά)
-//   node scripts/nba.mjs [--from 20261020] [--max 300]
+//   node scripts/nba.mjs [--from 20261020] [--to YYYYMMDD] [--max 300]
+//   παλιά σεζόν: node scripts/nba.mjs --from 20251021 --to 20260630 --max 1500
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ import { scoreboardUrl, summaryUrl, parseScoreboard, parseSummary, checkSummary,
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const FROM = arg('--from', '20261020'), MAX = +arg('--max', 300);
+const FROM = arg('--from', '20261020'), TO = arg('--to', null), MAX = +arg('--max', 300);
 const ymd = d => d.toISOString().slice(0, 10).replace(/-/g, '');
 let last = 0;
 async function get(url) {
@@ -25,7 +26,8 @@ const readJSON = async (f, d) => { try { return JSON.parse(await fs.readFile(f, 
 
 // πρόγραμμα μέρα-μέρα (το ESPN δεν δέχεται διαστήματα), από την αρχή της σεζόν μέχρι 21 μέρες μπροστά.
 // Οι μέρες που στο games.json έχουν μόνο τελειωμένους αγώνες (και είναι πριν από 3+ μέρες) δεν ξαναρωτιούνται.
-const start = new Date(`${FROM.slice(0, 4)}-${FROM.slice(4, 6)}-${FROM.slice(6)}T12:00:00Z`), end = new Date(Date.now() + 21 * 864e5);
+const dt = s => new Date(`${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}T12:00:00Z`);
+const start = dt(FROM), end = TO ? new Date(+dt(TO) + 864e5) : new Date(Date.now() + 21 * 864e5);
 const prevAll = [];
 for (const d of await fs.readdir(path.join(ROOT, 'data', 'nba')).catch(() => [])) { const j = await readJSON(path.join(ROOT, 'data', 'nba', d, 'games.json'), null); if (j?.games) prevAll.push(...j.games); }
 // ημέρα του αγώνα στις ΗΠΑ (το ESPN ομαδοποιεί με την ώρα της Ν. Υόρκης): UTC − 5 ώρες
@@ -41,21 +43,27 @@ for (let d = new Date(start); d < end; d = new Date(+d + 864e5)) {
   catch (e) { console.log(`NBA πρόγραμμα ${k}: ${e.message}`); }
 }
 console.log(`NBA: ρωτήθηκαν ${asked} μέρες`);
-const games = [...byId.values()].filter(g => g.type !== 1 && g.year).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
-if (!games.length) { console.log('NBA: κανένας αγώνας (άλλαξε το API;)'); process.exit(0); }
-const S = seasonKey(games.at(-1).year), dir = path.join(ROOT, 'data', 'nba', S), bdir = path.join(dir, 'box');
-await fs.mkdir(bdir, { recursive: true });
-const have = new Set((await fs.readdir(bdir)).map(f => f.replace(/\.json$/, '')));
+// κάθε σεζόν στον δικό της φάκελο (σεζόν ESPN 2027 → N2026)
+const all = [...byId.values()].filter(g => g.type !== 1 && g.year && Date.parse(g.date) >= +start - 864e5 && Date.parse(g.date) < +end + 864e5);
+if (!all.length) { console.log('NBA: κανένας αγώνας (άλλαξε το API;)'); process.exit(0); }
 let n = 0, bad = 0;
-for (const g of games.filter(g => g.played && !have.has(g.id))) {
-  if (n >= MAX) break;
-  let s; try { s = parseSummary(await get(summaryUrl(g.id))); } catch (e) { console.log(`NBA ${g.id}: ${e.message}`); continue; }
-  n++;
-  const errs = checkSummary(s);
-  if (errs.length) { bad++; console.log(`NBA ${g.id}: δεν αποθηκεύτηκε (${errs.join('; ')})`); continue; }
-  await fs.writeFile(path.join(bdir, `${g.id}.json`), JSON.stringify({ ...s, type: g.type }));
-  have.add(g.id);
+for (const year of [...new Set(all.map(g => g.year))].sort()) {
+  const S = seasonKey(year), dir = path.join(ROOT, 'data', 'nba', S), bdir = path.join(dir, 'box');
+  await fs.mkdir(bdir, { recursive: true });
+  const prev = await readJSON(path.join(dir, 'games.json'), { games: [] });
+  const map = new Map(prev.games.map(g => [g.id, g])); for (const g of all.filter(g => g.year === year)) map.set(g.id, g);
+  const games = [...map.values()].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const have = new Set((await fs.readdir(bdir)).map(f => f.replace(/\.json$/, '')));
+  for (const g of games.filter(g => g.played && !have.has(g.id))) {
+    if (n >= MAX) break;
+    let s; try { s = parseSummary(await get(summaryUrl(g.id))); } catch (e) { console.log(`NBA ${g.id}: ${e.message}`); continue; }
+    n++;
+    const errs = checkSummary(s);
+    if (errs.length) { bad++; console.log(`NBA ${g.id}: δεν αποθηκεύτηκε (${errs.join('; ')})`); continue; }
+    await fs.writeFile(path.join(bdir, `${g.id}.json`), JSON.stringify({ ...s, type: g.type }));
+    have.add(g.id);
+  }
+  await fs.writeFile(path.join(dir, 'games.json'), JSON.stringify({ season: S, updated: new Date().toISOString(), games: games.map(g => ({ ...g, box: have.has(g.id) })) }));
+  console.log(`NBA ${S}: ${games.length} αγώνες, ${games.filter(g => g.played).length} τελειωμένοι, ${games.filter(g => have.has(g.id)).length} με box score`);
 }
-await fs.writeFile(path.join(dir, 'games.json'), JSON.stringify({ season: S, updated: new Date().toISOString(), games: games.map(g => ({ ...g, box: have.has(g.id) })) }));
-const played = games.filter(g => g.played).length;
-console.log(`NBA ${S}: ${games.length} αγώνες, ${played} τελειωμένοι, ${games.filter(g => have.has(g.id)).length} με box score · ${n} νέοι${bad ? `, ${bad} απορρίφθηκαν` : ''}`);
+console.log(`NBA: ${n} νέοι αγώνες${bad ? `, ${bad} απορρίφθηκαν στον έλεγχο` : ''}`);
