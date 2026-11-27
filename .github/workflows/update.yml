@@ -95,7 +95,7 @@ jobs:
           # προαιρετικές μεταβλητές του repo (Settings → Variables): κενές = προεπιλογές του scripts/odds.mjs
           ODDS_MONTHLY_CAP: ${{ vars.ODDS_MONTHLY_CAP }}
           ODDSPAPI_WINDOWS: ${{ vars.ODDSPAPI_WINDOWS }}
-        run: node scripts/odds.mjs ${{ github.event.inputs.odds_force == 'true' && '--force' || '' }}; echo "rc=$?" >> "$GITHUB_OUTPUT"
+        run: node scripts/odds.mjs ${{ github.event.inputs.odds_force == 'true' && '--force' || '' }}
         continue-on-error: true
       - name: "Αποδόσεις κύριων αγορών από δεύτερο πάροχο (The Odds API, μόνο αν υπάρχει THEODDSAPI_KEY)"
         # 1 κλήση = όλοι οι επόμενοι αγώνες· 3 αγορές × 2 περιοχές = 6 credits ανά κλήση, ~47 εκτελέσεις/μήνα ≈ 280 από τα 500 δωρεάν credits
