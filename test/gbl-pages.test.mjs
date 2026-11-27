@@ -1,0 +1,50 @@
+// Stoiximan GBL: σελίδες (src/gbl/pages.mjs) — βαθμολογία, ονόματα, παραγωγή σελίδων.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { standings, niceName, shortName, gblPages, playerStats } from '../src/gbl/pages.mjs';
+
+const T = (id, name) => ({ logo: id, name });
+const A = T('A', 'ΟΛΥΜΠΙΑΚΟΣ'), B = T('B', 'ΠΑΝΑΘΗΝΑΪΚΟΣ AKTOR'), C = T('C', 'ΜΑΡΟΥΣΙ');
+const g = (id, h, a, hs, as, round, date) => ({ id, round, date, home: h, away: a, hs, as, played: hs != null, phase: 'regular' });
+
+test('βαθμολογία: 2 βαθμοί η νίκη, 1 η ήττα, ισοβαθμία με τα μεταξύ τους', () => {
+  // A, B, C από 1-1: A νίκησε B, B νίκησε C, C νίκησε A → κυκλική ισοβαθμία, λύνεται με τη διαφορά στα μεταξύ τους
+  const st = standings([g('1', A, B, 80, 70, 1), g('2', B, C, 90, 70, 2), g('3', C, A, 75, 74, 3)]);
+  assert.deepEqual(st.map(t => [t.id, t.pts, t.w, t.l]), [['B', 3, 1, 1], ['A', 3, 1, 1], ['C', 3, 1, 1]]);
+  // διαφορές στα μεταξύ τους: B −10+20 = +10, A +10−1 = +9, C −20+1 = −19
+});
+
+test('βαθμολογία: δύο ισόβαθμοι, μετράει η μεταξύ τους νίκη και όχι η συνολική διαφορά', () => {
+  const D = T('D', 'ΑΕΚ');
+  // A και D από 1-1. Ο D έχει πολύ καλύτερη συνολική διαφορά, αλλά ο A νίκησε τον D.
+  const E = T('E', 'ΑΡΗΣ');
+  const st = standings([g('1', A, D, 71, 70, 1), g('2', D, C, 120, 60, 2), g('3', A, E, 70, 71, 3), g('4', C, E, 60, 80, 4)]);
+  const a = st.findIndex(t => t.id === 'A'), d = st.findIndex(t => t.id === 'D');
+  assert.equal(st[a].pts, st[d].pts);
+  assert.ok(a < d);
+});
+
+test('ονόματα παικτών και ομάδων', () => {
+  assert.equal(niceName('VEZENKOV SASHA'), 'Sasha Vezenkov');
+  assert.equal(niceName('DE SOUSA SILVIO'), 'Silvio De Sousa');
+  assert.equal(niceName('JACKSON K.J.'), 'K.J. Jackson');
+  assert.equal(shortName('ΠΑΝΑΘΗΝΑΪΚΟΣ AKTOR'), 'Παναθηναϊκός');
+  assert.equal(shortName('VIKOS ΦALCONS'), 'Vikos Falcons');
+});
+
+test('σελίδες: αρχική, ομάδες, παίκτες, πρόβλεψη επόμενου αγώνα', () => {
+  const games = [g('1', A, B, 80, 70, 1, '2026-10-03T17:00'), { ...g('2', B, A, null, null, 2, '2026-10-10T18:00'), played: false }];
+  const pl = (pid, name, pts, secs) => ({ pid, name, pts, reb: 1, ast: 2, stl: 0, blk: 0, tov: 1, pir: pts, f2m: 1, f2a: 2, f3m: 1, f3a: 3, ftm: 0, fta: 0, secs });
+  const box = { 1: { teams: [{ players: [pl('P1', 'VEZENKOV SASHA', 30, 1800), pl('P2', 'BENCH NOONE', 0, 0)] }, { players: [pl('P3', 'SLOUKAS KOSTAS', 20, 1700)] }] } };
+  assert.equal(playerStats(games, box).length, 2);   // όποιος δεν έπαιξε δεν μετράει
+  const slugify = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9α-ω]+/g, '-').replace(/^-|-$/g, '');
+  const P = gblPages({ cur: 'G2026', seasons: { G2026: games }, box, model: { predictions: [{ id: '2', p_home: 0.61, margin: 4, total: 160 }] } },
+    { esc: s => String(s), slugify, url: k => '/' + k.replace(':', '/') + '/', siteUrl: 'https://x', siteName: 'BS', home: '/' });
+  assert.equal(P[0].key, 'gbl');
+  assert.match(P[0].main, /Stoiximan GBL 2026-27/);
+  assert.match(P[0].main, /61%/);                    // πρόβλεψη στην επόμενη αγωνιστική
+  assert.match(P[0].main, /εκτίμηση 82-78/);
+  assert.equal(P.filter(p => p.key.split('/').length === 1 && p.key !== 'gbl').length, 2);   // 2 ομάδες
+  const v = P.find(p => /Sasha Vezenkov/.test(p.title));
+  assert.ok(v && v.noindex);                         // λιγότεροι από 3 αγώνες → noindex
+});
