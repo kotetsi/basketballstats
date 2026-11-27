@@ -67,7 +67,17 @@ for (const ev of events) {
 }
 
 console.log(`Superbet: ${events.length} αγώνες στο αρχείο, ενημέρωση ${J.updated_at}`);
-for (const [k, v] of Object.entries(seen).sort()) console.log(`  ${k}: ${v}`);
+for (const [k, v] of Object.entries(seen).sort()) if (!k.startsWith('πεδίο')) console.log(`  ${k}: ${v}`);
+// διοργανώσεις: πλήθος αγώνων, αγορές παικτών, δύο παραδείγματα (μόνο ονόματα ομάδων, όχι αποδόσεις)
+const byT = new Map();
+for (const ev of events) {
+  const fx = ev.fixture ?? {}, t = `${fx.category_id}/${fx.tournament_id}`;
+  const o = byT.get(t) ?? { n: 0, pm: 0, ex: [] }; o.n++;
+  o.pm += (ev.markets ?? []).filter(m => /^player/i.test(m.name || '')).length;
+  if (o.ex.length < 2) o.ex.push(fx.event_name);
+  byT.set(t, o);
+}
+for (const [t, o] of [...byT].sort((a, b) => b[1].n - a[1].n)) console.log(`  διοργάνωση ${t}: ${o.n} αγώνες, ${o.pm} αγορές παικτών — ${o.ex.join(' | ')}`);
 const nl = keep.reduce((a, e) => a + e.lines.length, 0);
 console.log(`  κρατήθηκαν: ${keep.length} αγώνες EuroLeague/GBL με ${nl} γραμμές παικτών`);
 if (!keep.length) process.exit(0);
