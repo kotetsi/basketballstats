@@ -76,3 +76,22 @@ E2025 is an intermediate outer fold. E2026 is the primary final untouched holdou
 The search objective is mean per-market predictive log loss across inner folds; mean Brier score breaks ties. MAE and RMSE are reported, not optimized. Same-date games are simultaneous. The workflow is offline/read-only and does not change `src/odds/props.mjs`, production parameters, deployment or betting behavior.
 
 This report evaluates the core player-history projection and league-rate baseline. It does not claim bookmaker ROI or validate optional live-only game-context/xPTS adjustments. A positive result is evidence of predictive generalization, not proof of a profitable betting edge.
+
+## Chronological probability calibration experiment
+
+Run:
+
+```sh
+node scripts/props-probability-calibration.mjs
+```
+
+This experiment separates the existing chronological validation window into an earlier calibration-fit segment and a later untouched calibration-test segment. Player projections and league priors are still built strictly from games before the target round. The calibrators see only earlier validation outcomes; no later test outcome is used to fit them.
+
+For each market, it compares:
+- Raw model over probabilities.
+- Ridge-regularized logistic (Platt-style) calibration on the probability logit.
+- Isotonic calibration using pool-adjacent-violators with sparse-block pooling.
+
+All methods are scored on the exact same later test observations using log loss and Brier score, with reliability-bin summaries. Calibration is diagnostic only: it does not change production parameters, the prediction path, or bookmaker-facing probabilities.
+
+The evaluation uses synthetic model-centred half-point lines, not historical bookmaker lines. Multiple lines from one player-game are correlated, so their count must not be interpreted as an independent sample size. Isotonic calibration can be unstable on small samples; compare it with logistic calibration and raw probabilities, and prefer the simpler method unless the improvement is consistent. This report does not establish EV, CLV or ROI.
