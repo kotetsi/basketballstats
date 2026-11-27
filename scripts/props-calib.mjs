@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pOver, noVig } from '../src/odds/props.mjs';
-import { loadClvRows, clv } from '../src/odds/clv-rows.mjs';
+import { loadClvRows, clv, bootstrapMean } from '../src/odds/clv-rows.mjs';
 import { teamIndex, teamState, fitUsage } from '../src/odds/usage.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -61,6 +61,7 @@ for (const key of Object.keys(VARIANTS)) {
   weights[key] = { all: fit(rows, key).map(v => +v.toFixed(3)) };
   for (const R of rounds.slice(1)) { const w = fit(rows.filter(r => r.round < R), key); weights[key][`wf${R}`] = w.map(v => +v.toFixed(3)); for (const r of rows) if (r.round === R) r[`${key}_wf`] = apply(w, r, key); }
   for (const e of events) { const w = fit(rows.filter(r => r.event !== e), key); for (const r of rows) if (r.event === e) r[`${key}_lo`] = apply(w, r, key); }
+  weights[key].self_all = fit(rows, key, { noMarket: true }).map(v => +v.toFixed(3));
   // μόνο διόρθωση κλίσης/κλίμακας του μοντέλου, χωρίς την αγορά (μένει ανεξάρτητη γνώμη)
   for (const R of rounds.slice(1)) { const w = fit(rows.filter(r => r.round < R), key, { noMarket: true }); weights[key][`self_wf${R}`] = w.map(v => +v.toFixed(3)); for (const r of rows) if (r.round === R) r[`${key}_swf`] = apply(w, r, key); }
   for (const e of events) { const w = fit(rows.filter(r => r.event !== e), key, { noMarket: true }); for (const r of rows) if (r.event === e) r[`${key}_slo`] = apply(w, r, key); }
@@ -81,6 +82,33 @@ const report = { generated: new Date().toISOString(), season, usage_k: K,
   weights, market_mid: { all: score(r => r.pmid), wf: score(r => r.pmid, wfRows) }, variants: {} };
 for (const [key, name] of Object.entries(VARIANTS))
   report.variants[key] = { name, raw: score(r => r[key]), self_loo: score(r => r[`${key}_slo`]), blend_loo: score(r => r[`${key}_lo`]), raw_wf: score(r => r[key], wfRows), self_wf: score(r => r[`${key}_swf`], wfRows), blend_wf: score(r => r[`${key}_wf`], wfRows) };
+
+// 3. καλύτερη τιμή: για κάθε (αγώνας, παίκτης, στατιστικό, γραμμή) η μεγαλύτερη απόδοση ανά πλευρά στο mid από όλα τα books,
+//    CLV έναντι του consensus κλεισίματος (μέση πιθανότητα χωρίς γκανιότα όλων των books)
+const groups = new Map();
+for (const r of rows) { if (r.pcCons == null) continue; const k = `${r.event}|${r.c}|${r.st}|${r.line}`; (groups.get(k) || groups.set(k, []).get(k)).push(r); }
+function bestPrice(pOf, thr, only = null) {
+  const out = [];
+  for (const G of groups.values()) {
+    const L = only ? G.filter(only) : G; if (!L.length) continue;
+    const bo = L.reduce((a, r) => r.mid.over > a.mid.over ? r : a), bu = L.reduce((a, r) => r.mid.under > a.mid.under ? r : a);
+    const pc = L[0].pcCons, p = pOf ? mean(L.map(pOf)) : null;
+    for (const [side, r] of [['over', bo], ['under', bu]]) {
+      const price = r.mid[side], q = side === 'over' ? p : 1 - p;
+      if (pOf && q * price - 1 < thr) continue;
+      out.push({ event: r.event, v: price * (side === 'over' ? pc : 1 - pc) - 1, books: L.length });
+    }
+  }
+  return { n: out.length, clv: out.length ? +mean(out.map(x => x.v)).toFixed(4) : null, ci95: bootstrapMean(out), avg_books: out.length ? +mean(out.map(x => x.books)).toFixed(1) : null };
+}
+const sameCons = (pOf, thr) => { const s = clv(rows, thr, pOf).consensus; return { n: s.n, clv: s.clv, ci95: s.ci95 }; };
+report.best_price = { groups: groups.size,
+  naive_both_sides: bestPrice(null, 0),
+  naive_same_book_cons: (() => { const L = rows.filter(r => r.pcCons != null).flatMap(r => [r.mid.over * r.pcCons - 1, r.mid.under * (1 - r.pcCons) - 1]); return +mean(L).toFixed(4); })(),
+  model: Object.fromEntries(THR.map(t => [t, { best: bestPrice(r => r.pm, t), same_book: sameCons(r => r.pm, t) }])),
+  model_self: Object.fromEntries(THR.map(t => [t, { best: bestPrice(r => r.pu_slo, t), best_greek: bestPrice(r => r.pu_slo, t, r => r.gr), same_book: sameCons(r => r.pu_slo, t) }])),
+  naive_greek: bestPrice(null, 0, r => r.gr) };
+report.live_cal = { from: 'pm', a: weights.pm.self_all[0], c: weights.pm.self_all[2], n: rows.length, rounds };
 if (OUT) fs.writeFileSync(path.join(ROOT, OUT), JSON.stringify(report, null, 1));
 
 const f = x => x == null ? '–' : (100 * x).toFixed(2) + '%';
@@ -95,3 +123,9 @@ console.log(`Walk-forward (εκπαίδευση σε προηγούμενες α
 console.log(line('αγορά στο mid', report.market_mid.wf));
 for (const [k, v] of Object.entries(report.variants)) { console.log(line(v.name, v.raw_wf)); console.log(line('  + διόρθωση κλίσης', v.self_wf)); console.log(line('  + μείξη με αγορά', v.blend_wf)); }
 console.log('Βάρη (μοντέλο, αγορά, σταθερά):', JSON.stringify(weights));
+const bp = report.best_price;
+console.log(`Καλύτερη τιμή (${bp.groups} ομάδες γραμμών, έναντι consensus κλεισίματος): χωρίς επιλογή ${f(bp.naive_both_sides.clv)} (ένα book: ${f(bp.naive_same_book_cons)})`);
+for (const [lab, M] of [['μοντέλο σήμερα', bp.model], ['μοντέλο + συμπαίκτες + κλίση', bp.model_self]])
+  console.log(`  ${lab}: ` + THR.map(t => `EV≥${t * 100}%: καλύτερη ${M[t].best.n} ${f(M[t].best.clv)} ${JSON.stringify(M[t].best.ci95)} · ένα book ${M[t].same_book.n} ${f(M[t].same_book.clv)}`).join(' | '));
+console.log(`  μόνο ελληνικά books: χωρίς επιλογή ${f(bp.naive_greek.clv)} · μοντέλο + συμπαίκτες + κλίση ` + THR.map(t => `EV≥${t * 100}%: ${bp.model_self[t].best_greek.n} ${f(bp.model_self[t].best_greek.clv)} ${JSON.stringify(bp.model_self[t].best_greek.ci95)}`).join(' | '));
+console.log('Ζωντανή διόρθωση κλίσης:', JSON.stringify(report.live_cal));

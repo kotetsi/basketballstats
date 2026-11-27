@@ -1087,13 +1087,14 @@ async function main() {
   try { ENGP = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'projections', 'latest.json'), 'utf8')); } catch { }
   try { MEVAL = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'predictions', 'market-eval.json'), 'utf8')); } catch { }
   const EIDX = ENGP?.season === SEASON ? BET.engineIndex(ENGP) : new Map(), PGATE = BET.propsGate(MEVAL);
+  let PCAL = null; try { PCAL = PROPM.liveCal(JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'predictions', 'props-calib.json'), 'utf8'))); } catch { }
   // Φάση 7: προβλέψεις ανά παίκτη για το προφίλ, μέτρηση σε πραγματικό χρόνο (αρχείο pregame) και σύνοψη backtest
   const ENGPL = new Map(ENGP?.season === SEASON ? ENGP.players.map(x => [x.player_id, x]) : []);
   let ELIVE = null, ESUM = null;
   try { ELIVE = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'predictions', 'report.json'), 'utf8')); } catch { }
   try { ESUM = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'engine', 'evaluation-summary.json'), 'utf8')); } catch { }
   const engFor = r => (EIDX.size ? (c, st, o) => BET.engineDist(EIDX, c, st, r, o) : null);
-  console.log('Props engine:', EIDX.size, 'παίκτες', ENGP ? `(αγωνιστική ${ENGP.round})` : '', '· πύλη EV:', PGATE.open ? 'ανοιχτή' : `κλειστή (${PGATE.reasons.join(', ')})`);
+  console.log('Props engine:', EIDX.size, 'παίκτες', ENGP ? `(αγωνιστική ${ENGP.round})` : '', '· διόρθωση κλίσης:', PCAL ? `a ${PCAL.a}, c ${PCAL.c}` : 'όχι', '· πύλη EV:', PGATE.open ? 'ανοιχτή' : `κλειστή (${PGATE.reasons.join(', ')})`);
   // πλαίσιο αγώνα για τα props: προβλεπόμενοι πόντοι κάθε ομάδας στον επόμενο αγώνα της (Game Predictor, data/matchups/latest.json)
   const PCTX = {};
   // xPTS: ιστορικό πόντων/τριπόντων «διορθωμένο για τύχη» από τις ζώνες σουτ (PARAMS.xLam, scripts/props-xpts-backtest.mjs)
@@ -1115,7 +1116,7 @@ async function main() {
       for (const [gid, G] of Object.entries(OB.latest?.games || {})) {
         const [, r, h, a] = gid.split('-');
         if (new Date(G.t) - now < -3 * 3600e3 || !Object.values(G.books || {}).some(b => b.props?.length)) continue;
-        const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors, ctx: PCTX, adj: XADJ, engine: engFor(+r) });
+        const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors, ctx: PCTX, adj: XADJ, engine: engFor(+r), cal: PCAL });
         if (PRIVATE_PICKS_OUT && jur === 'gr' && new Date(G.t) > now) for (const b of R.value) PRIVATE_PICKS.props.push({ gid, t: G.t, player: b.n, team: b.t, stat: b.stat, line: b.line, side: b.side, price: b.price, book: b.book, p_model: b.pm, p_market: b.mkt == null ? null : (b.side === 'over' ? b.mkt : 1 - b.mkt), ev: b.ev, fair_odds: BET.fairOdds(b.pb), projection: b.mu, minutes: b.min, model: b.src, market_timestamp: b.upd || null, flags: b.flags });
         if (!PGATE.open) { R.hiddenValue = R.value.length; R.value = []; }   // χωρίς αποδεδειγμένο πλεονέκτημα: καμία πρόταση με θετικό EV
         if (R.best.length) games[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
@@ -1128,7 +1129,7 @@ async function main() {
       const [, r, h, a] = gid.split('-');
       const books = Object.fromEntries(Object.entries(G.books || {}).filter(([k, b]) => /^superbet/.test(k) && b.props?.length));
       if (new Date(G.t) - now < -3 * 3600e3 || !Object.keys(books).length) continue;
-      const R = PROPM.gameProps({ h, a, books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur: 'rs', priors, ctx: PCTX, adj: XADJ, engine: engFor(+r) });
+      const R = PROPM.gameProps({ h, a, books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur: 'rs', priors, ctx: PCTX, adj: XADJ, engine: engFor(+r), cal: PCAL });
       if (!PGATE.open) { R.hiddenValue = R.value.length; R.value = []; }
       if (R.best.length) sbg[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
     }
