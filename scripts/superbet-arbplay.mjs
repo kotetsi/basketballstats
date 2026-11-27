@@ -3,7 +3,7 @@
 //   - το κλειδί έρχεται μόνο από το env ARBPLAY_KEY (GitHub secret) και δεν γράφεται πουθενά,
 //   - οι γραμμές αποθηκεύονται κρυπτογραφημένες (AES-256, κωδικός = ARBPLAY_KEY) στο data/superbet/,
 //   - στο log γράφονται μόνο πλήθη, ποτέ αποδόσεις.
-//   node scripts/superbet-arbplay.mjs            λήψη + αποθήκευση (τρέχει στο GitHub Actions)
+//   node scripts/superbet-arbplay.mjs            λήψη + αποθήκευση (στο GitHub Actions)
 //   node scripts/superbet-arbplay.mjs --decrypt  τυπώνει τα αποκρυπτογραφημένα snapshots (JSON lines)
 import fs from 'node:fs/promises';
 import path from 'node:path';
