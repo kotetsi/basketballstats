@@ -41,9 +41,24 @@ if (!r.ok) { console.log(`Superbet: HTTP ${r.status}${r.status === 429 ? ` (Retr
 const J = await r.json();
 const events = Array.isArray(J.data) ? J.data : [];
 
-// Ποια διοργάνωση: δεν ξέρουμε ακόμα το ακριβές πεδίο, οπότε ψάχνουμε σε όλο το fixture.
-const COMP = [['euroleague', /euro\s*league|ευρωλίγκα/i], ['gbl', /greece|greek|ελλάδ|ελλην|basket\s*league|\bgbl\b|stoiximan/i]];
-const comp = ev => { const s = JSON.stringify(ev.fixture ?? ev); for (const [k, re] of COMP) if (re.test(s)) return k; return null; };
+// Ποια διοργάνωση: το fixture έχει μόνο tournament_id (χωρίς όνομα), οπότε τις αναγνωρίζουμε από τις ομάδες
+// (event_name = "Γηπεδούχος·Φιλοξενούμενος", στα αγγλικά). Ψήφος ανά tournament_id: Ολυμπιακός–Παναθηναϊκός
+// στη GBL πάει στη GBL γιατί οι υπόλοιποι αγώνες της ίδιας διοργάνωσης είναι ελληνικοί.
+const EL = /olympiacos|olympiakos|panathinaikos|real madrid|barcelona|fenerbahce|efes|monaco|partizan|crvena|red star|zvezda|zalgiris|maccabi|hapoel|bayern|virtus|olimpia|milan|baskonia|valencia|paris basket|^paris|asvel|villeurbanne|dubai/i;
+const GR = /olympiacos|olympiakos|panathinaikos|aek|aris|paok|peristeri|promitheas|kolossos|maroussi|marousi|lavrio|panionios|karditsa|mykonos|iraklis|kifisia|kifissia|amarousiou|rhodes|rodou|apollon|ionikos|psychiko/i;
+const teamsOf = ev => String(ev.fixture?.event_name || '').split(/·|\s+-\s+|\s+vs?\.?\s+/i).map(x => x.trim()).filter(Boolean);
+const vote = ev => { const t = teamsOf(ev); if (t.length !== 2) return null; const el = t.every(x => EL.test(x)), gr = t.every(x => GR.test(x)); return el && gr ? 'both' : el ? 'euroleague' : gr ? 'gbl' : null; };
+const tally = new Map();
+for (const ev of events) { const k = ev.fixture?.tournament_id, v = vote(ev); if (k == null || !v) continue; const o = tally.get(k) ?? { euroleague: 0, gbl: 0, both: 0 }; o[v]++; tally.set(k, o); }
+// Για να μην πάρουμε π.χ. την ισπανική ACB (Μπαρτσελόνα–Βαλένθια) για EuroLeague: τουλάχιστον 3 αγώνες
+// και το 60% των αγώνων της διοργάνωσης να είναι ανάμεσα σε ομάδες της ίδιας λίστας.
+const size = new Map(); for (const ev of events) { const k = ev.fixture?.tournament_id; size.set(k, (size.get(k) || 0) + 1); }
+const T = new Map([...tally].map(([k, o]) => {
+  const c = o.euroleague > o.gbl ? 'euroleague' : o.gbl > o.euroleague ? 'gbl' : o.both ? 'euroleague' : null;
+  const hits = o[c] + o.both;
+  return [k, c && hits >= 3 && hits / size.get(k) >= 0.6 ? c : null];
+}).filter(([, c]) => c));
+const comp = ev => { const k = ev.fixture?.tournament_id, c = T.get(k); return c && vote(ev) ? c : null; };
 const meta = o => o?.metadata ?? o?.meta ?? {};
 
 const keep = [], seen = {};
@@ -77,6 +92,7 @@ for (const ev of events) {
   if (o.ex.length < 2) o.ex.push(fx.event_name);
   byT.set(t, o);
 }
+for (const [k, c] of T) console.log(`  αναγνωρίστηκε: tournament ${k} = ${c} (${JSON.stringify(tally.get(k))})`);
 for (const [t, o] of [...byT].sort((a, b) => b[1].n - a[1].n)) console.log(`  διοργάνωση ${t}: ${o.n} αγώνες, ${o.pm} αγορές παικτών — ${o.ex.join(' | ')}`);
 const nl = keep.reduce((a, e) => a + e.lines.length, 0);
 console.log(`  κρατήθηκαν: ${keep.length} αγώνες EuroLeague/GBL με ${nl} γραμμές παικτών`);
