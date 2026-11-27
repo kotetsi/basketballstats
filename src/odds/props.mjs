@@ -277,7 +277,7 @@ export function gameProps({ h, a, books }, { players, fx = [], inj = {}, teamGam
       if (!p || p.isOut || p.pl.length < 3) continue;
       const min = teams[t].M[p.c]; if (!(min > 0)) continue;
       let ed = engine ? engine(p.c, x.stat, { minAdj: min, minBase: p.min }) : null;
-      if (ed && ctxf) { const f = ctxf(p.c, t, t === h ? a : h, x.stat); if (f !== 1) ed = [ed[0] * f, ed[1] * f]; }
+      if (ed && ctxf) { const f = ctxf(p.c, t, t === h ? a : h, x.stat, t === h); if (f !== 1) ed = [ed[0] * f, ed[1] * f]; }
       const pr = ed ? { mu: ed[0], var: ed[1], last: p.pl.slice(-5).map(STATS[x.stat]), n: p.pl.length } : project(p.pl, x.stat, { prior: priors[x.stat], minutes: min, teamPts: ctx[t], xrows: p.px }); if (!pr) continue;
       const po0 = Math.min(Math.max(pOver(pr.mu, pr.var, x.line), 1e-4), 1 - 1e-4), po = ed ? (cal ? 1 / (1 + Math.exp(-(cal.a * Math.log(po0 / (1 - po0)) + cal.c))) : po0) : 1 / (1 + Math.exp(-(Math.log(po0 / (1 - po0)) + PARAMS.calShift))), nv = noVig(x.over, x.under);
       const row = { c: p.c, n: p.n, t, stat: x.stat, line: x.line, book: bk, title: B.title, over: x.over || null, under: x.under || null,

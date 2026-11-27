@@ -1091,8 +1091,12 @@ async function main() {
   // διόρθωση κλίσης + πλαίσιο (συμπαίκτες εκτός, αντίπαλος ανά θέση) από το scripts/props-calib.mjs
   let PCAL = null, PCTXF = () => null;
   try { const PC = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'predictions', 'props-calib.json'), 'utf8')); PCAL = PROPM.liveCal(PC);
-    if (PCAL && PC.live_cal.from === 'pc' && PC.usage_k && PC.opp_beta) { const ix = USAGE.teamIndex(players, league.games), ox = USAGE.oppIndex(players, league.games), POS = new Map(players.map(p => [p.c, p.pos]));
-      PCTXF = R => (c, team, opp, s) => USAGE.USAGE_KEYS.includes(s) ? USAGE.contextFactor({ ix, ox, K: PC.usage_k, B: PC.opp_beta }, { c, pos: POS.get(c), team, opp, R, s }) : 1; } } catch { }
+    if (PCAL && ['pc', 'px'].includes(PC.live_cal.from) && PC.usage_k && PC.opp_beta) {
+      const ix = USAGE.teamIndex(players, league.games), ox = USAGE.oppIndex(players, league.games), POS = new Map(players.map(p => [p.c, p.pos]));
+      const gx = PC.live_cal.from === 'px' && PC.pace_blowout ? USAGE.gameIndex(league.games) : null, PG = new Map(players.map(p => [p.c, p.g || []]));
+      const avgMin = (c, R) => { const L = (PG.get(c) || []).filter(x => x[0] < R && x[7] > 0); return L.length ? L.reduce((a, x) => a + x[7] / 60, 0) / L.length : 0; };
+      PCTXF = R => (c, team, opp, s, home) => !USAGE.USAGE_KEYS.includes(s) ? 1 : USAGE.contextFactor({ ix, ox, K: PC.usage_k, B: PC.opp_beta }, { c, pos: POS.get(c), team, opp, R, s })
+        * USAGE.paceBlowFactor({ gx, PB: PC.pace_blowout }, { team, opp, R, s, home, avgMin: avgMin(c, R) }); } } catch { }
   // Φάση 7: προβλέψεις ανά παίκτη για το προφίλ, μέτρηση σε πραγματικό χρόνο (αρχείο pregame) και σύνοψη backtest
   const ENGPL = new Map(ENGP?.season === SEASON ? ENGP.players.map(x => [x.player_id, x]) : []);
   let ELIVE = null, ESUM = null;
