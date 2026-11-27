@@ -1,9 +1,9 @@
 // NBA: ανάγνωση του δημόσιου API του ESPN (site.api.espn.com). Καθαρές συναρτήσεις χωρίς εξαρτήσεις.
-//   πρόγραμμα/αποτελέσματα: /apis/site/v2/sports/basketball/nba/scoreboard?dates=YYYYMMDD-YYYYMMDD&limit=1000
+//   πρόγραμμα/αποτελέσματα μιας μέρας: /apis/site/v2/sports/basketball/nba/scoreboard?dates=YYYYMMDD (διαστήματα: HTTP 400)
 //   αγώνας (box score + play-by-play με θέσεις σουτ): /apis/site/v2/sports/basketball/nba/summary?event=<id>
 // Το επίσημο cdn.nba.com απαντά 403 σε αυτοματοποιημένα αιτήματα, οπότε δεν το χρησιμοποιούμε.
 export const BASE = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba';
-export const scoreboardUrl = (from, to) => `${BASE}/scoreboard?dates=${from}-${to}&limit=1000`;
+export const scoreboardUrl = day => `${BASE}/scoreboard?dates=${day}`;
 export const summaryUrl = id => `${BASE}/summary?event=${id}`;
 /** σεζόν ESPN (έτος λήξης) → δικό μας κλειδί: 2027 → N2026 (σεζόν 2026-27) */
 export const seasonKey = espnYear => `N${espnYear - 1}`;

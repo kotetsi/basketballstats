@@ -23,14 +23,24 @@ async function get(url) {
 }
 const readJSON = async (f, d) => { try { return JSON.parse(await fs.readFile(f, 'utf8')); } catch { return d; } };
 
-// πρόγραμμα σε κομμάτια των 14 ημερών, από την αρχή της σεζόν μέχρι 21 μέρες μπροστά
+// πρόγραμμα μέρα-μέρα (το ESPN δεν δέχεται διαστήματα), από την αρχή της σεζόν μέχρι 21 μέρες μπροστά.
+// Οι μέρες που στο games.json έχουν μόνο τελειωμένους αγώνες (και είναι πριν από 3+ μέρες) δεν ξαναρωτιούνται.
 const start = new Date(`${FROM.slice(0, 4)}-${FROM.slice(4, 6)}-${FROM.slice(6)}T12:00:00Z`), end = new Date(Date.now() + 21 * 864e5);
-const byId = new Map();
-for (let d = new Date(start); d < end; d = new Date(+d + 14 * 864e5)) {
-  const to = new Date(Math.min(+d + 13 * 864e5, +end));
-  try { for (const g of parseScoreboard(await get(scoreboardUrl(ymd(d), ymd(to))))) byId.set(g.id, g); }
-  catch (e) { console.log(`NBA πρόγραμμα ${ymd(d)}: ${e.message}`); }
+const prevAll = [];
+for (const d of await fs.readdir(path.join(ROOT, 'data', 'nba')).catch(() => [])) { const j = await readJSON(path.join(ROOT, 'data', 'nba', d, 'games.json'), null); if (j?.games) prevAll.push(...j.games); }
+// ημέρα του αγώνα στις ΗΠΑ (το ESPN ομαδοποιεί με την ώρα της Ν. Υόρκης): UTC − 5 ώρες
+const usDay = iso => ymd(new Date(Date.parse(iso) - 5 * 3600e3));
+const done = new Set(), byDay = new Map();
+for (const g of prevAll) { const k = usDay(g.date); if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(g); }
+for (const [k, gs] of byDay) if (gs.every(g => g.played) && k < ymd(new Date(Date.now() - 3 * 864e5))) done.add(k);
+const byId = new Map(prevAll.map(g => [g.id, g]));
+let asked = 0;
+for (let d = new Date(start); d < end; d = new Date(+d + 864e5)) {
+  const k = ymd(d); if (done.has(k)) continue;
+  try { for (const g of parseScoreboard(await get(scoreboardUrl(k)))) byId.set(g.id, g); asked++; }
+  catch (e) { console.log(`NBA πρόγραμμα ${k}: ${e.message}`); }
 }
+console.log(`NBA: ρωτήθηκαν ${asked} μέρες`);
 const games = [...byId.values()].filter(g => g.type !== 1 && g.year).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 if (!games.length) { console.log('NBA: κανένας αγώνας (άλλαξε το API;)'); process.exit(0); }
 const S = seasonKey(games.at(-1).year), dir = path.join(ROOT, 'data', 'nba', S), bdir = path.join(dir, 'box');
