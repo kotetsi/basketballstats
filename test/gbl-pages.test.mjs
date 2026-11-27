@@ -44,7 +44,9 @@ test('σελίδες: αρχική, ομάδες, παίκτες, πρόβλεψ
   assert.match(P[0].main, /Stoiximan GBL 2026-27/);
   assert.match(P[0].main, /61%/);                    // πρόβλεψη στην επόμενη αγωνιστική
   assert.match(P[0].main, /εκτίμηση 82-78/);
-  assert.equal(P.filter(p => p.key.split('/').length === 1 && p.key !== 'gbl').length, 2);   // 2 ομάδες
+  assert.equal(P.filter(p => /μπάσκετ:/.test(p.title)).length, 2);   // 2 ομάδες
+  for (const k of ['gbl:programma', 'gbl:prognostika', 'gbl:koryfaioi', 'gbl:thermometro', 'gbl:statistika-omadon']) assert.ok(P.some(p => p.key === k), k);
+  assert.match(P[0].main, /gblnav/);                 // μενού της GBL
   const v = P.find(p => /Sasha Vezenkov/.test(p.title));
   assert.ok(v && v.noindex);                         // λιγότεροι από 3 αγώνες → noindex
 });

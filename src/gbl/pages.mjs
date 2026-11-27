@@ -95,7 +95,7 @@ export function playerStats(games, box, G = {}) {
         const o = P.get(p.pid) ?? { pid: p.pid, name: displayName(p.pid, p.name, G), latin: niceName(p.name), team, gp: 0, secs: 0, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0, pir: 0, f2m: 0, f2a: 0, f3m: 0, f3a: 0, ftm: 0, fta: 0, log: [] };
         o.team = team; o.gp++;
         for (const k of ['secs', 'pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'pir', 'f2m', 'f2a', 'f3m', 'f3a', 'ftm', 'fta']) o[k] += p[k] || 0;
-        o.log.push({ id: g.id, date: g.date, round: g.round, stage: g.stage, home: i === 0, opp: opp.logo, oppName: opp.name, my: i === 0 ? g.hs : g.as, op: i === 0 ? g.as : g.hs, min: p.secs / 60, pts: p.pts, reb: p.reb, ast: p.ast, pir: p.pir, f3: `${p.f3m}/${p.f3a}` });
+        o.log.push({ id: g.id, date: g.date, round: g.round, stage: g.stage, home: i === 0, opp: opp.logo, oppName: opp.name, my: i === 0 ? g.hs : g.as, op: i === 0 ? g.as : g.hs, min: p.secs / 60, pts: p.pts, reb: p.reb, ast: p.ast, pir: p.pir, stl: p.stl, blk: p.blk, f3m: p.f3m, f3: `${p.f3m}/${p.f3a}` });
         P.set(p.pid, o);
       }
     });
@@ -159,23 +159,90 @@ ${bt.elo_accuracy != null ? `<tr><td class="l">Elo (μόνο τα σκορ)</td>
 <p class="sub">Μέσο λάθος στη διαφορά πόντων: ${f1(bt.margin_mae)} · στο σύνολο πόντων: ${f1(bt.total_mae)}.</p>` : '';
 
   const pages = [];
-  const hubMain = `<section class="article ec">
-<h1>${esc(L)}</h1>
-<p class="lede2">Βαθμολογία, αποτελέσματα, πρόγραμμα, κορυφαίοι παίκτες και οι προβλέψεις του μοντέλου μας για κάθε αγώνα της Stoiximan GBL.${lastR ? ` Έως και την ${lastR}η αγωνιστική.` : ''}</p>
-<h2>Βαθμολογία</h2>${standTbl}
-<p class="sub">Νίκη 2 βαθμοί, ήττα 1. Στην ισοβαθμία μετράνε οι μεταξύ τους αγώνες.</p>
-${nextR ? `<h2>Επόμενη αγωνιστική: ${nextR}η, με προβλέψεις</h2><div class="ecfx">${upcoming.filter(g => g.round === nextR).map(fxCard).join('')}</div>` : ''}
-${lastR ? `<h2>Αποτελέσματα: ${lastR}η αγωνιστική</h2><div class="ecfx">${games.filter(g => g.round === lastR && g.played).map(fxCard).join('')}</div>` : ''}
-${qual.length ? `<h2>Κορυφαίοι παίκτες</h2><div class="ecgrid">${LEAD.map(leadTbl).join('')}</div><p class="sub">Μέσοι όροι ανά αγώνα, με τουλάχιστον ${minG} αγώνες και 10 λεπτά.</p>` : ''}
-${acc}
-<h2>Ομάδες</h2><p class="leadnav">${ST.map(t => tA(t.id)).join('')}</p>
-${note}
-</section>`;
-  pages.push({ key: 'gbl', title: `Stoiximan GBL ${SL}: βαθμολογία, αποτελέσματα, προγνωστικά | ${siteName}`,
-    desc: `Η βαθμολογία της Stoiximan GBL ${SL}, αποτελέσματα, πρόγραμμα, κορυφαίοι παίκτες και προβλέψεις για κάθε αγώνα της επόμενης αγωνιστικής.`,
-    main: hubMain, ld: [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [[siteName, home], [L, url('gbl')]].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: siteUrl + u })) }] });
-
   const crumbs = list => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: list.map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: siteUrl + u })) });
+
+  // ---- μενού της GBL: στο κεντρικό μενού του site μόνο «GBL», όλα τα υπόλοιπα εδώ
+  const SECT = [['gbl', 'Βαθμολογία'], ['gbl:programma', 'Πρόγραμμα'], ['gbl:prognostika', 'Προγνωστικά'], ['gbl:koryfaioi', 'Κορυφαίοι & ρεκόρ'], ['gbl:thermometro', 'Θερμόμετρο'], ['gbl:statistika-omadon', 'Στατιστικά ομάδων']];
+  const nav = cur => `<p class="leadnav gblnav">${SECT.map(([k, n]) => `<a href="${url(k)}"${k === cur ? ' aria-current="page"' : ''}>${esc(n)}</a>`).join('')}</p>`;
+  const sect = (key, h1, lede, body, title, desc) => pages.push({ key, title, desc, main: `<section class="article ec">${nav(key)}<h1>${esc(h1)}</h1><p class="lede2">${lede}</p>${body}${note}</section>`,
+    ld: [crumbs([[siteName, home], [L, url('gbl')], ...(key === 'gbl' ? [] : [[h1, url(key)]])])] });
+
+  // ---- 1. Βαθμολογία (αρχική της GBL)
+  sect('gbl', L, `Βαθμολογία, αποτελέσματα και οι προβλέψεις του μοντέλου μας για την επόμενη αγωνιστική της Stoiximan GBL.${lastR ? ` Έως και την ${lastR}η αγωνιστική.` : ''}`,
+    `<h2>Βαθμολογία</h2>${standTbl}<p class="sub">Νίκη 2 βαθμοί, ήττα 1. Στην ισοβαθμία μετράνε οι μεταξύ τους αγώνες.</p>
+${nextR ? `<h2>Επόμενη αγωνιστική: ${nextR}η</h2><div class="ecfx">${upcoming.filter(g => g.round === nextR).map(fxCard).join('')}</div><p class="sub"><a href="${url('gbl:prognostika')}">Όλα τα προγνωστικά και πόσο πέφτει μέσα το μοντέλο →</a></p>` : ''}
+${lastR ? `<h2>Αποτελέσματα: ${lastR}η αγωνιστική</h2><div class="ecfx">${games.filter(g => g.round === lastR && g.played).map(fxCard).join('')}</div>` : ''}
+${qual.length ? `<h2>Κορυφαίοι παίκτες</h2><div class="ecgrid">${LEAD.map(leadTbl).join('')}</div><p class="sub"><a href="${url('gbl:koryfaioi')}">Όλες οι κατηγορίες και τα ρεκόρ →</a></p>` : ''}
+<h2>Ομάδες</h2><p class="leadnav">${ST.map(t => tA(t.id)).join('')}</p>`,
+    `Stoiximan GBL ${SL}: βαθμολογία, αποτελέσματα, προγνωστικά | ${siteName}`,
+    `Η βαθμολογία της Stoiximan GBL ${SL}, αποτελέσματα, πρόγραμμα, κορυφαίοι παίκτες και προβλέψεις για κάθε αγώνα της επόμενης αγωνιστικής.`);
+
+  // ---- 2. Πρόγραμμα: όλες οι αγωνιστικές
+  const byRound = new Map(); for (const g of games.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)))) { const k = g.round ? `${g.round}η αγωνιστική` : (g.stage || 'Playoffs'); if (!byRound.has(k)) byRound.set(k, []); byRound.get(k).push(g); }
+  sect('gbl:programma', `Πρόγραμμα Stoiximan GBL ${SL}`, 'Όλες οι αγωνιστικές, με αποτελέσματα, ώρες Ελλάδας και πρόβλεψη για όσους αγώνες δεν έχουν παιχτεί.',
+    [...byRound].map(([k, gs]) => `<h2 id="${esc(slugify(k))}">${esc(k)}</h2><div class="ecfx">${gs.map(fxCard).join('')}</div>`).join(''),
+    `Πρόγραμμα Stoiximan GBL ${SL}: όλες οι αγωνιστικές και τα αποτελέσματα | ${siteName}`,
+    `Το πρόγραμμα της Stoiximan GBL ${SL}: όλες οι αγωνιστικές με αποτελέσματα, ημέρες και ώρες των αγώνων.`);
+
+  // ---- 3. Προγνωστικά: επόμενες αγωνιστικές + ακρίβεια
+  const predR = [...new Set(upcoming.filter(g => pr.has(g.id)).map(g => g.round))];
+  sect('gbl:prognostika', `Προγνωστικά Stoiximan GBL`, 'Πιθανότητα νίκης και εκτιμώμενο σκορ για κάθε αγώνα, από το μοντέλο μας. Ξαναϋπολογίζονται κάθε βράδυ.',
+    (predR.length ? predR.map(r => `<h2>${r}η αγωνιστική</h2><div class="ecfx">${upcoming.filter(g => g.round === r).map(fxCard).join('')}</div>`).join('') : '<p>Δεν υπάρχουν ακόμα προβλέψεις για τους επόμενους αγώνες.</p>') + acc,
+    `Προγνωστικά Stoiximan GBL: πρόβλεψη για κάθε αγώνα | ${siteName}`,
+    `Προγνωστικά για κάθε αγώνα της Stoiximan GBL: πιθανότητα νίκης, εκτιμώμενο σκορ και πόσο πέφτει μέσα το μοντέλο.`);
+
+  // ---- 4. Κορυφαίοι & ρεκόρ
+  const ts = p => p.pts / (2 * (p.f2a + p.f3a + 0.44 * p.fta) || 1);
+  const efg = p => (p.f2m + 1.5 * p.f3m) / ((p.f2a + p.f3a) || 1);
+  const ALL = [['pirg', 'PIR', f1], ['ppg', 'Πόντοι', f1], ['rpg', 'Ριμπάουντ', f1], ['apg', 'Ασίστ', f1], ['spg', 'Κλεψίματα', f1], ['bpg', 'Κοψίματα', f1],
+    ['tpg', 'Τρίποντα (εύστοχα)', f1], ['min', 'Λεπτά', f1]];
+  for (const p of players) p.tpg = p.f3m / p.gp;
+  const pcts = [['t3', 'Τρίποντα %', p => p.f3a >= 2 * p.gp && p.f3a >= 10, p => p.f3m / p.f3a], ['ft', 'Βολές %', p => p.fta >= 15, p => p.ftm / p.fta], ['ts', 'True Shooting %', p => p.f2a + p.f3a >= 5 * p.gp, ts]];
+  const pv = x => (100 * x).toFixed(1).replace('.', ',') + '%';
+  const top = (list, val, fmt) => `<div class="tbl"><table><tbody>${list.slice().sort((a, b) => val(b) - val(a)).slice(0, 10).map((p, i) => `<tr><td>${i + 1}</td><td class="l">${pA(p)} <small class="muted">${esc(tShort(p.team))}</small></td><td><b>${fmt(val(p))}</b></td></tr>`).join('')}</tbody></table></div>`;
+  const log = players.flatMap(p => p.log.map(r => ({ ...r, p })));
+  const REC = [['pts', 'Πόντοι'], ['reb', 'Ριμπάουντ'], ['ast', 'Ασίστ'], ['pir', 'PIR'], ['f3m', 'Τρίποντα'], ['stl', 'Κλεψίματα'], ['blk', 'Κοψίματα']];
+  const recTbl = ([k, n]) => `<div><h3>${n}</h3><div class="tbl"><table><tbody>${log.slice().sort((a, b) => b[k] - a[k]).slice(0, 5).map(r => `<tr><td class="l">${pA(r.p)} <small class="muted">${r.home ? '' : '@ '}${esc(names.has(r.opp) ? tShort(r.opp) : shortName(r.oppName))} · ${esc(r.round ? r.round + 'η' : r.stage || '')}</small></td><td><b>${r[k]}</b></td></tr>`).join('')}</tbody></table></div></div>`;
+  sect('gbl:koryfaioi', `Κορυφαίοι Stoiximan GBL ${SL}`, `Οι κορυφαίοι της σεζόν σε κάθε κατηγορία (μέσοι όροι ανά αγώνα, με τουλάχιστον ${minG} αγώνες και 10 λεπτά) και οι καλύτερες εμφανίσεις σε έναν αγώνα.`,
+    `<div class="ecgrid">${ALL.map(([k, n, fm]) => `<div><h3>${n}</h3>${top(qual, p => p[k], fm)}</div>`).join('')}${pcts.map(([, n, ok, v]) => `<div><h3>${n}</h3>${top(qual.filter(ok), v, pv)}</div>`).join('')}</div>
+<h2>Ρεκόρ σε έναν αγώνα</h2><div class="ecgrid">${REC.map(recTbl).join('')}</div>`,
+    `Κορυφαίοι Stoiximan GBL ${SL}: πόντοι, ριμπάουντ, ασίστ, PIR, ρεκόρ | ${siteName}`,
+    `Οι κορυφαίοι παίκτες της Stoiximan GBL ${SL} σε πόντους, ριμπάουντ, ασίστ, PIR, κλεψίματα, κοψίματα, τρίποντα και ποσοστά, και τα ρεκόρ σε έναν αγώνα.`);
+
+  // ---- 5. Θερμόμετρο: μέσος PIR των 3 τελευταίων αγώνων έναντι όλων των προηγούμενων
+  const therm = players.filter(p => p.gp >= 4 && p.min >= 10).map(p => { const L3 = p.log.slice(-3), E = p.log.slice(0, -3); const a = L3.reduce((s, r) => s + r.pir, 0) / 3, b = E.reduce((s, r) => s + r.pir, 0) / E.length; return { p, last: a, before: b, d: a - b }; });
+  const thTbl = list => `<div class="tbl"><table><thead><tr><th class="l">Παίκτης</th><th>Τελ. 3</th><th>Πριν</th><th>Διαφορά</th></tr></thead><tbody>${list.map(x => `<tr><td class="l">${pA(x.p)} <small class="muted">${esc(tShort(x.p.team))}</small></td><td><b>${f1(x.last)}</b></td><td>${f1(x.before)}</td><td><b class="${x.d >= 0 ? 'ecw' : 'ecl'}">${x.d >= 0 ? '+' : ''}${f1(x.d)}</b></td></tr>`).join('')}</tbody></table></div>`;
+  sect('gbl:thermometro', 'Θερμόμετρο GBL: ποιος ανεβαίνει, ποιος πέφτει', 'Για κάθε παίκτη συγκρίνουμε τον μέσο PIR των 3 τελευταίων αγώνων με τον μέσο PIR όλων των προηγούμενων. Μετράνε όσοι έχουν τουλάχιστον 4 αγώνες και 10 λεπτά.',
+    `<div class="ecgrid"><div><h2>🔥 Ανεβαίνουν</h2>${thTbl(therm.slice().sort((a, b) => b.d - a.d).slice(0, 15))}</div><div><h2>🧊 Πέφτουν</h2>${thTbl(therm.slice().sort((a, b) => a.d - b.d).slice(0, 15))}</div></div>`,
+    `Θερμόμετρο Stoiximan GBL: οι παίκτες σε φόρμα | ${siteName}`,
+    `Ποιοι παίκτες της Stoiximan GBL είναι σε φόρμα και ποιοι πέφτουν: PIR των 3 τελευταίων αγώνων έναντι των προηγούμενων.`);
+
+  // ---- 6. Στατιστικά ομάδων ανά 100 κατοχές και Four Factors
+  const TS = new Map();
+  for (const g of games) {
+    const b = G.box[g.id]; if (!b || b.teams.length !== 2) continue;
+    const [x, y] = b.teams.map(t => t.totals || {});
+    const poss = t => (t.f2a + t.f3a) - t.oreb + t.tov + 0.44 * t.fta;
+    [[g.home.logo, x, y], [g.away.logo, y, x]].forEach(([id, me, op]) => {
+      const o = TS.get(id) ?? { gp: 0, pts: 0, opp: 0, poss: 0, oposs: 0, fgm2: 0, fgm3: 0, fga: 0, ofgm2: 0, ofgm3: 0, ofga: 0, tov: 0, otov: 0, oreb: 0, dreb: 0, ooreb: 0, odreb: 0, fta: 0, ofta: 0, ast: 0, fgm: 0 };
+      o.gp++; o.pts += me.pts; o.opp += op.pts; o.poss += poss(me); o.oposs += poss(op);
+      o.fgm2 += me.f2m; o.fgm3 += me.f3m; o.fga += me.f2a + me.f3a; o.ofgm2 += op.f2m; o.ofgm3 += op.f3m; o.ofga += op.f2a + op.f3a;
+      o.tov += me.tov; o.otov += op.tov; o.oreb += me.oreb; o.dreb += me.dreb; o.ooreb += op.oreb; o.odreb += op.dreb; o.fta += me.fta; o.ofta += op.fta; o.ast += me.ast; o.fgm += me.f2m + me.f3m;
+      TS.set(id, o);
+    });
+  }
+  const TR = [...TS].map(([id, o]) => { const P = (o.poss + o.oposs) / 2; return { id, ortg: 100 * o.pts / P, drtg: 100 * o.opp / P, pace: P / o.gp, efg: (o.fgm2 + 1.5 * o.fgm3) / o.fga, oefg: (o.ofgm2 + 1.5 * o.ofgm3) / o.ofga, tovp: o.tov / o.poss, otovp: o.otov / o.oposs, orb: o.oreb / (o.oreb + o.odreb), drb: o.dreb / (o.dreb + o.ooreb), ftr: o.fta / o.fga, oftr: o.ofta / o.ofga, astp: o.ast / o.fgm }; });
+  for (const t of TR) t.net = t.ortg - t.drtg;
+  const sg = x => (x > 0 ? '+' : '') + f1(x);
+  sect('gbl:statistika-omadon', `Στατιστικά ομάδων Stoiximan GBL ${SL}`, 'Επίθεση και άμυνα ανά 100 κατοχές (για να συγκρίνονται ομάδες με διαφορετικό ρυθμό), ρυθμός και τα «Four Factors»: σουτ, λάθη, επιθετικά ριμπάουντ και βολές.',
+    `<h2>Επίθεση, άμυνα, ρυθμός</h2><div class="tbl"><table><thead><tr><th class="l">Ομάδα</th><th>Επίθεση</th><th>Άμυνα</th><th>Net</th><th>Κατοχές</th></tr></thead><tbody>${TR.slice().sort((a, b) => b.net - a.net).map(t => `<tr><td class="l">${tn(t.id)}</td><td>${f1(t.ortg)}</td><td>${f1(t.drtg)}</td><td><b>${sg(t.net)}</b></td><td>${f1(t.pace)}</td></tr>`).join('')}</tbody></table></div>
+<p class="sub">Επίθεση/Άμυνα: πόντοι υπέρ/κατά ανά 100 κατοχές. Net: η διαφορά τους. Κατοχές: μέσος όρος ανά αγώνα.</p>
+<h2>Four Factors</h2><div class="tbl"><table><thead><tr><th class="l">Ομάδα</th><th>eFG%</th><th>Λάθη%</th><th>Επ. ριμπ.%</th><th>Βολές/σουτ</th><th>eFG% αντ.</th><th>Λάθη% αντ.</th><th>Αμ. ριμπ.%</th><th>Ασίστ%</th></tr></thead><tbody>${TR.slice().sort((a, b) => b.net - a.net).map(t => `<tr><td class="l">${tn(t.id)}</td><td>${pv(t.efg)}</td><td>${pv(t.tovp)}</td><td>${pv(t.orb)}</td><td>${f1(100 * t.ftr)}</td><td>${pv(t.oefg)}</td><td>${pv(t.otovp)}</td><td>${pv(t.drb)}</td><td>${pv(t.astp)}</td></tr>`).join('')}</tbody></table></div>
+<p class="sub">eFG%: ποσοστό σουτ με το τρίποντο να μετράει 1,5 φορές. Λάθη%: λάθη ανά κατοχή. Επ./Αμ. ριμπ.%: ποσοστό των διαθέσιμων ριμπάουντ που πήρε η ομάδα. Ασίστ%: εύστοχα καλάθια μετά από ασίστ.</p>`,
+    `Στατιστικά ομάδων Stoiximan GBL ${SL}: επίθεση, άμυνα, Four Factors | ${siteName}`,
+    `Τα στατιστικά των ομάδων της Stoiximan GBL ${SL} ανά 100 κατοχές: επίθεση, άμυνα, ρυθμός, eFG%, λάθη, ριμπάουντ και βολές.`);
+  const tAdv = new Map(TR.map(t => [t.id, t]));
+
   for (const t of ST) {
     const id = t.id, nm = tShort(id), full = names.get(id);
     const gs = games.filter(g => g.home.logo === id || g.away.logo === id).sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -183,12 +250,14 @@ ${note}
     const next = gs.find(g => !g.played), np = next && pr.get(next.id);
     const res = g => { const h = g.home.logo === id, my = h ? g.hs : g.as, op = h ? g.as : g.hs; return `<b class="${my > op ? 'ecw' : 'ecl'}">${my > op ? 'Ν' : 'Η'} ${my}-${op}</b>`; };
     const nextBox = next ? `<section class="nextbox"><p class="kicker">Επόμενος αγώνας · ${esc(rd(next))}</p><h2>${esc(tShort(next.home.logo))} – ${esc(tShort(next.away.logo))}</h2><p>🕒 ${esc(when(next.date))} (ώρα Ελλάδας)${next.venue ? ` · ${esc(next.venue)}` : ''}</p>${np ? `<p>Πρόβλεψη: <b>${Math.round(100 * (next.home.logo === id ? np.p_home : 1 - np.p_home))}%</b> πιθανότητα νίκης για ${esc(nm)} · εκτίμηση ${estScore(np)}</p>` : ''}</section>` : '';
-    const main = `<section class="article ec">
+    const A = tAdv.get(id), rk = k => TR.slice().sort((a, b) => k === 'drtg' ? a[k] - b[k] : b[k] - a[k]).findIndex(t => t.id === id) + 1;
+    const advBox = A ? `<h2>Στατιστικά ανά 100 κατοχές</h2><div class="tbl"><table><thead><tr><th>Επίθεση</th><th>Άμυνα</th><th>Net</th><th>Κατοχές</th><th>eFG%</th><th>Λάθη%</th></tr></thead><tbody><tr><td><b>${f1(A.ortg)}</b> <small class="muted">${rk('ortg')}η</small></td><td><b>${f1(A.drtg)}</b> <small class="muted">${rk('drtg')}η</small></td><td><b>${sg(A.net)}</b> <small class="muted">${rk('net')}η</small></td><td>${f1(A.pace)}</td><td>${pv(A.efg)}</td><td>${pv(A.tovp)}</td></tr></tbody></table></div><p class="sub"><a href="${url('gbl:statistika-omadon')}">Σύγκριση με όλες τις ομάδες →</a></p>` : '';
+    const main = `<section class="article ec">${nav('')}
 <p class="crumbs"><a href="${url('gbl')}">${esc(L)}</a></p>
 <div class="echead">${crest(id, 1)}<div><h1>${esc(nm)}</h1><p class="sub">${esc(full)} · ${t.pos}η θέση · ${t.w}-${t.l} · Έδρα ${t.hw}-${t.hl} · Εκτός ${t.aw}-${t.al}</p></div></div>
 ${nextBox}<h2>Πρόγραμμα και αποτελέσματα</h2>
 <div class="tbl"><table><thead><tr><th class="l">Αγ.</th><th class="l">Αντίπαλος</th><th>Αποτέλεσμα / ώρα</th></tr></thead><tbody>${gs.map(g => { const h = g.home.logo === id, o = h ? g.away.logo : g.home.logo; return `<tr><td class="l">${esc(g.round || g.stage || '')}</td><td class="l">${h ? '' : '@ '}${tA(o)}</td><td>${g.played ? res(g) : esc(when(g.date))}</td></tr>`; }).join('')}</tbody></table></div>
-${ros.length ? `<h2>Ρόστερ και μέσοι όροι</h2>
+${advBox}${ros.length ? `<h2>Ρόστερ και μέσοι όροι</h2>
 <div class="tbl"><table><thead><tr><th class="l">Παίκτης</th><th>Αγ.</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>3Π%</th><th>PIR</th></tr></thead><tbody>${ros.map(p => `<tr><td class="l">${pA(p)}</td><td>${p.gp}</td><td>${f1(p.min)}</td><td>${f1(p.ppg)}</td><td>${f1(p.rpg)}</td><td>${f1(p.apg)}</td><td>${pc(p.f3m, p.f3a)}</td><td><b>${f1(p.pirg)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
 ${note}
 </section>`;
@@ -204,11 +273,17 @@ ${note}
   for (const p of players) {
     const nm = tShort(p.team), u = pUrl(p);
     const rows = p.log.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
-    const main = `<section class="article ec">
+    const split = f => { const r = p.log.filter(f); const n = r.length; return n ? { n, pts: r.reduce((a, x) => a + x.pts, 0) / n, reb: r.reduce((a, x) => a + x.reb, 0) / n, ast: r.reduce((a, x) => a + x.ast, 0) / n, pir: r.reduce((a, x) => a + x.pir, 0) / n, min: r.reduce((a, x) => a + x.min, 0) / n } : null; };
+    const last5 = new Set(p.log.slice(-5).map(r => r.id));
+    const SP = [['Έδρα', split(r => r.home)], ['Εκτός', split(r => !r.home)], ['Νίκες', split(r => r.my > r.op)], ['Ήττες', split(r => r.my < r.op)], ['Τελευταίοι 5', split(r => last5.has(r.id))]].filter(x => x[1]);
+    const m36 = k => (p.secs ? p[k] * 2160 / p.secs : NaN);
+    const adv = `<h2>Προχωρημένα</h2><div class="tbl"><table><thead><tr><th>TS%</th><th>eFG%</th><th>Π/36′</th><th>Ριμπ./36′</th><th>Ασ./36′</th><th>PIR/36′</th></tr></thead><tbody><tr><td><b>${pv(ts(p))}</b></td><td>${pv(efg(p))}</td><td>${f1(m36('pts'))}</td><td>${f1(m36('reb'))}</td><td>${f1(m36('ast'))}</td><td>${f1(m36('pir'))}</td></tr></tbody></table></div>
+<h2>Ανά περίπτωση</h2><div class="tbl"><table><thead><tr><th class="l"></th><th>Αγ.</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>PIR</th></tr></thead><tbody>${SP.map(([n, x]) => `<tr><td class="l">${n}</td><td>${x.n}</td><td>${f1(x.min)}</td><td>${f1(x.pts)}</td><td>${f1(x.reb)}</td><td>${f1(x.ast)}</td><td><b>${f1(x.pir)}</b></td></tr>`).join('')}</tbody></table></div>`;
+    const main = `<section class="article ec">${nav('')}
 <p class="crumbs"><a href="${url('gbl')}">${esc(L)}</a> › ${tA(p.team)}</p>
 <h1>${esc(p.name)}</h1><p class="sub">${esc(nm)}${info(p.pid)} · ${p.gp} αγώνες · ${f1(p.min)} λεπτά</p>
 <div class="tbl"><table><thead><tr><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>Κλ.</th><th>Κοψ.</th><th>Λάθη</th><th>2Π%</th><th>3Π%</th><th>Βολές</th><th>PIR</th></tr></thead><tbody><tr><td><b>${f1(p.ppg)}</b></td><td>${f1(p.rpg)}</td><td>${f1(p.apg)}</td><td>${f1(p.spg)}</td><td>${f1(p.bpg)}</td><td>${f1(p.tov / p.gp)}</td><td>${pc(p.f2m, p.f2a)}</td><td>${pc(p.f3m, p.f3a)}</td><td>${pc(p.ftm, p.fta)}</td><td><b>${f1(p.pirg)}</b></td></tr></tbody></table></div>
-<h2>Αγώνας προς αγώνα</h2>
+${adv}<h2>Αγώνας προς αγώνα</h2>
 <div class="tbl"><table><thead><tr><th class="l">Αγ.</th><th class="l">Αντίπαλος</th><th>Σκορ</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>3Π</th><th>PIR</th></tr></thead><tbody>${rows.map(r => `<tr><td class="l">${esc(r.round || r.stage || '')}</td><td class="l">${r.home ? '' : '@ '}${names.has(r.opp) ? tA(r.opp) : esc(shortName(r.oppName))}</td><td><b class="${r.my > r.op ? 'ecw' : 'ecl'}">${r.my > r.op ? 'Ν' : 'Η'} ${r.my}-${r.op}</b></td><td>${Math.round(r.min)}</td><td>${r.pts}</td><td>${r.reb}</td><td>${r.ast}</td><td>${esc(r.f3)}</td><td><b>${r.pir}</b></td></tr>`).join('')}</tbody></table></div>
 ${note}
 </section>`;
