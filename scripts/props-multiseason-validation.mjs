@@ -31,7 +31,7 @@ function sumPeriodStats(periods) {
 for (const season of SEASONS) {
   const dir = path.join(PBP_ROOT, season);
   if (!fs.existsSync(dir)) throw new Error(`Missing PBP season directory: ${season}`);
-  const files = fs.readdirSync(dir).filter(f => /^\\d+\\.json$/.test(f));
+  const files = fs.readdirSync(dir).filter(f => /^\d+\.json$/.test(f));
   const q = quality[season] = { files: files.length, regularSeasonGames: 0, usableGames: 0, missingSplits: 0, failedChecks: 0, playerRows: 0 };
   for (const file of files) {
     let game;
@@ -42,7 +42,7 @@ for (const season of SEASONS) {
     if (!game.ps || !Array.isArray(game.ids) || !game.pl) { q.missingSplits++; continue; }
     if (game.chk?.ok === false) q.failedChecks++;
     const date = String(game.d || '');
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
     let usable = 0;
     for (const team of [game.h, game.a]) {
       for (const entry of game.ps[team] || []) {
