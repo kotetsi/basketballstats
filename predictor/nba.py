@@ -90,9 +90,9 @@ def main():
         out['backtest'] = summarize(bt)
         out['backtest']['by_season'] = {s: summarize([x for x in bt if x['season'] == s]) for s in sorted({x['season'] for x in bt})}
     preds = []
+    now = datetime.now(timezone.utc)
     if rows:
         P = Predictor().fit(rows)
-        now = datetime.now(timezone.utc)
         up = [g for g in sched if not g.get('played') and g['season'] == seasons[-1]
               and now - timedelta(hours=6) <= datetime.fromisoformat(g['date'].replace('Z', '+00:00')) <= now + timedelta(days=HORIZON_DAYS)]
         if up:
@@ -103,6 +103,14 @@ def main():
                               'p_home': round(float(o['p'][j]), 4), 'margin': round(float(o['y_margin'][j]), 1), 'total': round(float(o['y_total'][j]), 1),
                               'elo_p': round(E.expect(g['home']['id'], g['away']['id'], home=not g.get('neutral')), 4)})
     out['predictions'] = preds
+    # αρχείο προβλέψεων πριν από τον αγώνα (append-only): η σύγκριση με την αγορά παίρνει μόνο όσες έγιναν πριν από το τζάμπολ
+    if preds:
+        arch = OUT / 'archive'
+        arch.mkdir(parents=True, exist_ok=True)
+        with (arch / f"{now.strftime('%Y-%m')}.jsonl").open('a') as fh:
+            for x in preds:
+                if datetime.fromisoformat(x['date'].replace('Z', '+00:00')) > now:
+                    fh.write(json.dumps({'id': x['id'], 'at': out['generated_at'], 'model': MODEL_VERSION, 'p_home': x['p_home'], 'margin': x['margin'], 'total': x['total'], 'elo_p': x['elo_p']}) + '\n')
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'latest.json').write_text(json.dumps(out, ensure_ascii=False, indent=1))
     b = out.get('backtest') or {}
