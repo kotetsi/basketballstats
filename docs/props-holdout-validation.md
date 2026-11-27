@@ -57,3 +57,22 @@ For each target game, the player's history and league per-minute priors include 
 PBP splits contain total rebounds rather than offensive/defensive rebounds separately; the validation maps total rebounds into the first rebound slot, preserving the total used by the `reb`, `pr`, `pra` and `ar` market definitions. The report skips games without usable individual splits and games whose PBP integrity check failed, and reports data coverage.
 
 **Important limitation:** current production parameters are frozen. Some were selected using E2026 results, so E2024/E2025 are retrospective robustness tests, not fully independent historical out-of-sample tests. The report uses synthetic model-centred half-point lines, not historical bookmaker prices. It does not establish ROI or profitability. A strict nested walk-forward parameter-selection test is still required before claiming independent multi-season out-of-sample performance.
+
+
+## Nested seasonal walk-forward validation
+
+Run:
+
+```sh
+node scripts/props-nested-walkforward.mjs
+```
+
+This is the strict parameter-selection test. It searches 54 combinations of `minHalf`, `rateHalf`, `prior` and `minSd`. Dispersion, calibration shift, market blend, absence share, game-context and xPTS parameters remain frozen; the report makes this boundary explicit.
+
+For each outer test season, candidates are selected only from earlier data. Inner validation consists of a chronological later portion of E2023 (with only earlier E2023 dates as history), plus each complete intervening prior season evaluated using strictly earlier dates for player histories and league priors. The selected candidate is then evaluated once on the outer season.
+
+E2025 is an intermediate outer fold. E2026 is the primary final untouched holdout: its outcomes are not used in candidate selection, and its report is not fed back into tuning. The output includes the selected parameters, inner folds, top candidates, per-market MAE/RMSE/log loss/Brier and data-quality coverage.
+
+The search objective is mean per-market predictive log loss across inner folds; mean Brier score breaks ties. MAE and RMSE are reported, not optimized. Same-date games are simultaneous. The workflow is offline/read-only and does not change `src/odds/props.mjs`, production parameters, deployment or betting behavior.
+
+This report evaluates the core player-history projection and league-rate baseline. It does not claim bookmaker ROI or validate optional live-only game-context/xPTS adjustments. A positive result is evidence of predictive generalization, not proof of a profitable betting edge.
