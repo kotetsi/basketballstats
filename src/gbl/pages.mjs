@@ -19,7 +19,10 @@ export async function loadGbl(root) {
   if (!cur) return null;
   const box = {};
   for (const g of seasons[cur]) if (g.box) { const b = await readJSON(path.join(base, cur, 'box', `${g.id}.json`)); if (b) box[g.id] = b; }
-  return { cur, seasons, box, model: await readJSON(path.join(base, 'model', 'latest.json')) };
+  // Έλληνες παίκτες στα ελληνικά: data/gbl/greek-names.json (id παίκτη → όνομα), αλλιώς το data/greek-names.json της EuroLeague
+  const gn = { ...(await readJSON(path.join(base, 'greek-names.json')) || {}) }; delete gn._σχόλιο; delete gn._latin;
+  const el = await readJSON(path.join(root, 'data', 'greek-names.json')) || {};
+  return { cur, seasons, box, model: await readJSON(path.join(base, 'model', 'latest.json')), players: await readJSON(path.join(base, 'players.json')) || {}, gn, el };
 }
 
 // ---- ονόματα: το esake.gr γράφει κεφαλαία και με χορηγούς. Σύντομο ελληνικό όνομα για πίνακες και URLs.
@@ -73,8 +76,15 @@ export function standings(games) {
   return out.map((t, i) => ({ ...t, pos: i + 1, pts: pts(t), gp: t.w + t.l, last5: t.form.slice(-5) }));
 }
 
+/** όνομα για τη σελίδα: οι Έλληνες (χώρα ΕΛΛΑΔΑ στο esake.gr) στα ελληνικά, οι υπόλοιποι όπως τους γράφει ο κόσμος (λατινικά) */
+export function displayName(pid, raw, G = {}) {
+  if (G.gn?.[pid]) return G.gn[pid];
+  if (/^ΕΛΛ(ΑΔΑ|ΗΝΙΚΗ)$/.test(G.players?.[pid]?.country || '')) { const w = String(raw).trim().split(/\s+/); const k = w.length === 2 ? `${w[0]}, ${w[1]}` : null; if (k && G.el?.[k]) return G.el[k]; }
+  return niceName(raw);
+}
+
 /** μέσοι όροι παικτών της σεζόν από τα box scores */
-export function playerStats(games, box) {
+export function playerStats(games, box, G = {}) {
   const P = new Map();
   for (const g of games) {
     const b = box[g.id]; if (!b) continue;
@@ -82,7 +92,7 @@ export function playerStats(games, box) {
       const team = i === 0 ? g.home.logo : g.away.logo, opp = i === 0 ? g.away : g.home;
       for (const p of t.players) {
         if (!(p.secs > 0)) continue;
-        const o = P.get(p.pid) ?? { pid: p.pid, name: niceName(p.name), team, gp: 0, secs: 0, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0, pir: 0, f2m: 0, f2a: 0, f3m: 0, f3a: 0, ftm: 0, fta: 0, log: [] };
+        const o = P.get(p.pid) ?? { pid: p.pid, name: displayName(p.pid, p.name, G), latin: niceName(p.name), team, gp: 0, secs: 0, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0, pir: 0, f2m: 0, f2a: 0, f3m: 0, f3a: 0, ftm: 0, fta: 0, log: [] };
         o.team = team; o.gp++;
         for (const k of ['secs', 'pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'pir', 'f2m', 'f2a', 'f3m', 'f3a', 'ftm', 'fta']) o[k] += p[k] || 0;
         o.log.push({ id: g.id, date: g.date, round: g.round, stage: g.stage, home: i === 0, opp: opp.logo, oppName: opp.name, my: i === 0 ? g.hs : g.as, op: i === 0 ? g.as : g.hs, min: p.secs / 60, pts: p.pts, reb: p.reb, ast: p.ast, pir: p.pir, f3: `${p.f3m}/${p.f3a}` });
@@ -113,8 +123,8 @@ export function gblPages(G, { esc, slugify, url, siteUrl, siteName, home }) {
   const estScore = p => { const h = Math.round((p.total + p.margin) / 2), a = Math.round((p.total - p.margin) / 2); return `${h}-${a}`; };
 
   const ST = standings(games);
-  const players = playerStats(games, G.box);
-  const pSlug = new Map(); { const u = new Set(); for (const p of players) { let s = slugify(p.name) || p.pid.toLowerCase(); const k = p.team + '/' + s; if (u.has(k)) s += '-' + p.pid.toLowerCase(); u.add(p.team + '/' + s); pSlug.set(p.pid, s); } }
+  const players = playerStats(games, G.box, G);
+  const pSlug = new Map(); { const u = new Set(); for (const p of players) { let s = slugify(p.latin) || p.pid.toLowerCase(); const k = p.team + '/' + s; if (u.has(k)) s += '-' + p.pid.toLowerCase(); u.add(p.team + '/' + s); pSlug.set(p.pid, s); } }
   const pUrl = p => url(`gbl:${tSlug.get(p.team)}/${pSlug.get(p.pid)}`);
   const pA = p => `<a href="${pUrl(p)}">${esc(p.name)}</a>`;
   const playedR = games.filter(g => g.played && g.round).map(g => g.round);
@@ -187,12 +197,16 @@ ${note}
       ld: [{ '@context': 'https://schema.org', '@type': 'SportsTeam', name: full, alternateName: nm, sport: 'Basketball', url: siteUrl + tUrl(id), memberOf: { '@type': 'SportsOrganization', name: 'Stoiximan GBL' }, athlete: ros.map(p => ({ '@type': 'Person', name: p.name, url: siteUrl + pUrl(p) })) }, crumbs([[siteName, home], [L, url('gbl')], [nm, tUrl(id)]])] });
   }
 
+  const POS = { PG: 'Πλέι μέικερ', SG: 'Σούτινγκ γκαρντ', G: 'Γκαρντ', SF: 'Σμολ φόργουορντ', PF: 'Πάουερ φόργουορντ', F: 'Φόργουορντ', C: 'Σέντερ' };
+  const CTRY = { 'ΕΛΛΑΔΑ': 'Ελλάδα', 'ΕΛΛΗΝΙΚΗ': 'Ελλάδα', 'ΗΠΑ': 'ΗΠΑ', 'ΓΑΛΛΙΑ': 'Γαλλία', 'ΚΑΝΑΔΑΣ': 'Καναδάς', 'ΣΕΡΒΙΑ': 'Σερβία', 'ΣΕΝΕΓΑΛΗ': 'Σενεγάλη', 'ΛΙΘΟΥΑΝΙΑ': 'Λιθουανία', 'ΙΣΠΑΝΙΑ': 'Ισπανία', 'ΓΕΡΜΑΝΙΑ': 'Γερμανία', 'ΝΙΓΗΡΙΑ': 'Νιγηρία', 'ΚΥΠΡΟΣ': 'Κύπρος', 'ΤΟΥΡΚΙΑ': 'Τουρκία', 'ΒΟΥΛΓΑΡΙΑ': 'Βουλγαρία', 'ΑΥΣΤΡΑΛΙΑ': 'Αυστραλία', 'ΛΕΥΚΟΡΩΣΙΑ': 'Λευκορωσία', 'ΑΝΓΚΟΛΑ': 'Αγκόλα', 'Β. ΜΑΚΕΔΟΝΙΑ': 'Β. Μακεδονία', 'ΔΟΜΙΝΙΚΑΝΗ ΔΗΜΟΚΡΑΤΙΑ': 'Δομινικανή Δημοκρατία' };
+  const info = pid => { const x = G.players?.[pid]; if (!x) return ''; const age = x.born ? Math.floor((Date.now() - Date.parse(x.born)) / 31557600000) : null;
+    return [x.pos && (POS[x.pos] || x.pos), x.height && `${x.height.toFixed(2).replace('.', ',')} μ.`, age && `${age} ετών`, x.country && (CTRY[x.country] || x.country)].filter(Boolean).map(v => ' · ' + esc(v)).join(''); };
   for (const p of players) {
     const nm = tShort(p.team), u = pUrl(p);
     const rows = p.log.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
     const main = `<section class="article ec">
 <p class="crumbs"><a href="${url('gbl')}">${esc(L)}</a> › ${tA(p.team)}</p>
-<h1>${esc(p.name)}</h1><p class="sub">${esc(nm)} · ${p.gp} αγώνες · ${f1(p.min)} λεπτά</p>
+<h1>${esc(p.name)}</h1><p class="sub">${esc(nm)}${info(p.pid)} · ${p.gp} αγώνες · ${f1(p.min)} λεπτά</p>
 <div class="tbl"><table><thead><tr><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>Κλ.</th><th>Κοψ.</th><th>Λάθη</th><th>2Π%</th><th>3Π%</th><th>Βολές</th><th>PIR</th></tr></thead><tbody><tr><td><b>${f1(p.ppg)}</b></td><td>${f1(p.rpg)}</td><td>${f1(p.apg)}</td><td>${f1(p.spg)}</td><td>${f1(p.bpg)}</td><td>${f1(p.tov / p.gp)}</td><td>${pc(p.f2m, p.f2a)}</td><td>${pc(p.f3m, p.f3a)}</td><td>${pc(p.ftm, p.fta)}</td><td><b>${f1(p.pirg)}</b></td></tr></tbody></table></div>
 <h2>Αγώνας προς αγώνα</h2>
 <div class="tbl"><table><thead><tr><th class="l">Αγ.</th><th class="l">Αντίπαλος</th><th>Σκορ</th><th>Λεπ.</th><th>Π</th><th>Ριμπ.</th><th>Ασ.</th><th>3Π</th><th>PIR</th></tr></thead><tbody>${rows.map(r => `<tr><td class="l">${esc(r.round || r.stage || '')}</td><td class="l">${r.home ? '' : '@ '}${names.has(r.opp) ? tA(r.opp) : esc(shortName(r.oppName))}</td><td><b class="${r.my > r.op ? 'ecw' : 'ecl'}">${r.my > r.op ? 'Ν' : 'Η'} ${r.my}-${r.op}</b></td><td>${Math.round(r.min)}</td><td>${r.pts}</td><td>${r.reb}</td><td>${r.ast}</td><td>${esc(r.f3)}</td><td><b>${r.pir}</b></td></tr>`).join('')}</tbody></table></div>
@@ -200,7 +214,7 @@ ${note}
 </section>`;
     pages.push({ key: `gbl:${tSlug.get(p.team)}/${pSlug.get(p.pid)}`, title: `${p.name} (${nm}): στατιστικά Stoiximan GBL ${SL} | ${siteName}`,
       desc: `${p.name} στη Stoiximan GBL ${SL} με ${nm}: ${f1(p.ppg)} πόντοι, ${f1(p.rpg)} ριμπάουντ, ${f1(p.apg)} ασίστ και ${f1(p.pirg)} PIR ανά αγώνα, αγώνας προς αγώνα.`, main,
-      ld: [{ '@context': 'https://schema.org', '@type': 'Person', name: p.name, url: siteUrl + u, memberOf: { '@type': 'SportsTeam', name: names.get(p.team), url: siteUrl + tUrl(p.team) } }, crumbs([[siteName, home], [L, url('gbl')], [nm, tUrl(p.team)], [p.name, u]])],
+      ld: [{ '@context': 'https://schema.org', '@type': 'Person', name: p.name, ...(p.latin !== p.name ? { alternateName: p.latin } : {}), url: siteUrl + u, memberOf: { '@type': 'SportsTeam', name: names.get(p.team), url: siteUrl + tUrl(p.team) } }, crumbs([[siteName, home], [L, url('gbl')], [nm, tUrl(p.team)], [p.name, u]])],
       noindex: p.gp < 3 });
   }
   return pages;

@@ -48,3 +48,16 @@ test('σελίδες: αρχική, ομάδες, παίκτες, πρόβλεψ
   const v = P.find(p => /Sasha Vezenkov/.test(p.title));
   assert.ok(v && v.noindex);                         // λιγότεροι από 3 αγώνες → noindex
 });
+
+test('Έλληνες παίκτες στα ελληνικά, οι υπόλοιποι με λατινικά', async () => {
+  const { displayName } = await import('../src/gbl/pages.mjs');
+  const G = { gn: { P1: 'Κώστας Μήτογλου' }, players: { P1: { country: 'ΕΛΛΑΔΑ' }, P2: { country: 'ΕΛΛΑΔΑ' }, P3: { country: 'ΗΠΑ' } }, el: { 'DORSEY, TYLER': 'Τάιλερ Ντόρσεϊ' } };
+  assert.equal(displayName('P1', 'MITOGLOU KOSTAS', G), 'Κώστας Μήτογλου');
+  assert.equal(displayName('P2', 'DORSEY TYLER', G), 'Τάιλερ Ντόρσεϊ');     // από το αρχείο της EuroLeague
+  assert.equal(displayName('P3', 'WALKER JORDAN', G), 'Jordan Walker');
+});
+
+test('σελίδα παίκτη του esake.gr: χώρα, θέση, γέννηση, ύψος', async () => {
+  const { parsePlayer } = await import('../src/gbl/esake.mjs');
+  assert.deepEqual(parsePlayer('<td>ΘΕΣΗ</td><td>PF</td> ΗΜ. ΓΕΝΝΗΣΗΣ 06-08-1995 <b>ΧΩΡΑ</b> ΚΥΠΡΟΣ ΥΨΟΣ 2,06 μ.'), { country: 'ΚΥΠΡΟΣ', pos: 'PF', born: '1995-08-06', height: 2.06 });
+});
