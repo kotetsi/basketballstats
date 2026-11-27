@@ -58,6 +58,10 @@ import { simSeason, simRatings } from './src/sim/season.mjs';
 import { rapmRows, fitRapm } from './src/analytics/rapm.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
+// Ιδιωτικές επιλογές για τον ιδιοκτήτη: με PRIVATE_PICKS_OUT=<αρχείο εκτός dist> το build γράφει εκεί και τις επιλογές
+// με θετικό EV που κρύβει η πύλη. Δεν μπαίνει ποτέ στο site ή στο repository· χωρίς τη μεταβλητή δεν αλλάζει τίποτα.
+const PRIVATE_PICKS_OUT = (process.env.PRIVATE_PICKS_OUT || '').trim();
+const PRIVATE_PICKS = { props: [], games: [] };
 const CONF = JSON.parse(await fs.readFile(path.join(ROOT, 'site.config.json'), 'utf8').catch(() => '{}'));
 // links πρόσκλησης Telegram ανά πηγή (scripts/telegram-links.mjs)· χωρίς αυτά, το κανονικό link του καναλιού
 const TG_LINKS = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'telegram-links.json'), 'utf8').catch(() => '{}'));
@@ -1104,6 +1108,7 @@ async function main() {
         const [, r, h, a] = gid.split('-');
         if (new Date(G.t) - now < -3 * 3600e3 || !Object.values(G.books || {}).some(b => b.props?.length)) continue;
         const R = PROPM.gameProps({ h, a, books: G.books }, { players: solo, fx: FXD?.players || [], inj: INJ.el, teamGames, jur, priors, ctx: PCTX, adj: XADJ, engine: engFor(+r) });
+        if (PRIVATE_PICKS_OUT && jur === 'gr' && new Date(G.t) > now) for (const b of R.value) PRIVATE_PICKS.props.push({ gid, t: G.t, player: b.n, team: b.t, stat: b.stat, line: b.line, side: b.side, price: b.price, book: b.book, p_model: b.pm, p_market: b.mkt == null ? null : (b.side === 'over' ? b.mkt : 1 - b.mkt), ev: b.ev, fair_odds: BET.fairOdds(b.pb), projection: b.mu, minutes: b.min, model: b.src, market_timestamp: b.upd || null, flags: b.flags });
         if (!PGATE.open) { R.hiddenValue = R.value.length; R.value = []; }   // χωρίς αποδεδειγμένο πλεονέκτημα: καμία πρόταση με θετικό EV
         if (R.best.length) games[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
       }
@@ -1120,6 +1125,11 @@ async function main() {
       if (R.best.length) sbg[gid] = { r: +r, h, a, t: G.t, ...R, rows: undefined };
     }
     PROPSJ.sb = sbg;
+    if (PRIVATE_PICKS_OUT) {
+      PRIVATE_PICKS.games = VBOARD.filter(g => g.value?.length).map(g => ({ gid: g.gid, t: g.t, conf: g.conf, stale: g.stale, snap: g.snap, value: g.value }));
+      await fs.writeFile(PRIVATE_PICKS_OUT, JSON.stringify({ generated: new Date().toISOString(), gate_open: PGATE.open, gate_reasons: PGATE.reasons, min_ev_props: 0.08, ...PRIVATE_PICKS }, null, 1));
+      console.log(`Ιδιωτικές επιλογές: ${PRIVATE_PICKS.props.length} props, ${PRIVATE_PICKS.games.length} αγώνες → ${PRIVATE_PICKS_OUT}`);
+    }
     // παρακολούθηση γραμμών (Ελλάδα) και αποτελεσμάτων: data/odds/props-track.json
     const TF = path.join(ROOT, 'data', 'odds', 'props-track.json');
     let TR = { lines: {} }; try { TR = JSON.parse(await fs.readFile(TF, 'utf8')); } catch { }
