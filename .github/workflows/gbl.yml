@@ -14,7 +14,7 @@ on:
       max:
         description: "Μέγιστος αριθμός νέων box scores σε αυτή την εκτέλεση"
         required: false
-        default: "200"
+        default: "150"
 
 permissions:
   contents: write
@@ -26,7 +26,7 @@ concurrency:
 jobs:
   gbl:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,7 +35,7 @@ jobs:
       - name: Τεστ parser
         run: node --test test/gbl-esake.test.mjs
       - name: Λήψη από το esake.gr
-        run: node scripts/gbl.mjs --max "${{ github.event.inputs.max || '200' }}"
+        run: node scripts/gbl.mjs --max "${{ github.event.inputs.max || '150' }}"
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"
