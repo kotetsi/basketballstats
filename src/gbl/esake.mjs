@@ -10,6 +10,7 @@ export const SEASONS = Object.freeze({ G2026: '184645B9', G2025: '44B80BEB', G20
 export const PHASES = Object.freeze({ regular: '00000001', playoffs: '00000002' });
 export const resultsUrl = (id, phase = '', series = '') => `${BASE}/el/action/EsakeResults?idchampionship=${id}&idteam=&idseason=${phase}&series=${series}`;
 export const boxUrl = id => `${BASE}/el/action/EsakegameView?idgame=${id}&mode=3`;
+export const playerUrl = id => `${BASE}/el/action/EsakeplayerView?idplayer=${id}&mode=3`;
 
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
 export const decode = s => String(s).replace(/&(#x?[0-9a-f]+|\w+);/gi, (m, e) => {
@@ -111,4 +112,14 @@ export function checkBox(box, game) {
     if (h !== game.hs || a !== game.as) errs.push(`σκορ ${h}-${a} ≠ Game Center ${game.hs}-${game.as}`);
   }
   return errs;
+}
+
+/** σελίδα παίκτη → { country, pos, born, height } (το esake.gr γράφει «ΘΕΣΗ PG ΗΜ. ΓΕΝΝΗΣΗΣ 26-01-1994 ΧΩΡΑ ΗΠΑ ΥΨΟΣ 1,88 μ.») */
+export function parsePlayer(html) {
+  const t = text(html);
+  const country = /ΧΩΡΑ\s+(.+?)\s+ΥΨΟΣ/.exec(t)?.[1]?.trim() || null;
+  const pos = /ΘΕΣΗ\s*([A-Z]{1,2}(?:\/[A-Z]{1,2})?)\b/.exec(t)?.[1] || null;
+  const b = /ΗΜ\. ΓΕΝΝΗΣΗΣ\s*(\d{2})-(\d{2})-(\d{4})/.exec(t);
+  const h = /ΥΨΟΣ\s*(\d),(\d{2})/.exec(t);
+  return { country, pos, born: b ? `${b[3]}-${b[2]}-${b[1]}` : null, height: h ? +`${h[1]}.${h[2]}` : null };
 }
