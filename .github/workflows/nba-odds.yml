@@ -7,8 +7,8 @@ on:
   schedule:
     - cron: "15 22 * * *"   # 00:15 ώρα Ελλάδας τον χειμώνα: πριν από τα περισσότερα τζάμπολ (00:00–03:30 UTC)
   push:
-    branches: [nba-odds, nba-injuries]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
-    paths: [scripts/nba-odds.mjs, scripts/nba-lineups.mjs, src/nba/rotowire.mjs, predictor/nba.py, .github/workflows/nba-odds.yml]
+    branches: [nba-odds, nba-injuries, nba-proj]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [scripts/nba-proj.mjs, src/nba/projections.mjs, scripts/nba-odds.mjs, scripts/nba-lineups.mjs, src/nba/rotowire.mjs, predictor/nba.py, .github/workflows/nba-odds.yml]
   workflow_dispatch:
 
 permissions:
@@ -41,6 +41,9 @@ jobs:
         run: |
           pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
           python predictor/nba.py --no-bt
+      - name: Προβολές παικτών (κλειδώνονται πριν από τον αγώνα)
+        continue-on-error: true
+        run: node scripts/nba-proj.mjs
       - name: Αποδόσεις NBA
         env:
           ODDS_API_KEY: ${{ secrets.THEODDSAPI_KEY }}
