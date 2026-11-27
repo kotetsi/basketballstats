@@ -1,0 +1,234 @@
+{
+ "generated": "2026-11-27T23:45:40.658Z",
+ "note": "μόνο συγκεντρωτικές μετρήσεις, χωρίς γραμμές ή αποδόσεις",
+ "leagues": [
+  {
+   "league": "EuroLeague + EuroCup",
+   "games": 1255,
+   "accuracy": 0.6335,
+   "brier": 0.2193,
+   "margin_mae": 9.9314
+  },
+  {
+   "league": "Stoiximan GBL",
+   "games": 373,
+   "accuracy": 0.7453,
+   "brier": 0.1605,
+   "margin_mae": 9.7683
+  },
+  {
+   "league": "NBA",
+   "games": 1051,
+   "accuracy": 0.6879,
+   "brier": 0.2018,
+   "margin_mae": 11.842
+  }
+ ],
+ "projections": [
+  {
+   "league": "Stoiximan GBL",
+   "stat": "pts",
+   "n": 6372,
+   "model_mae": 4.106,
+   "season_avg_mae": 4.146,
+   "gain": 0.0096
+  },
+  {
+   "league": "Stoiximan GBL",
+   "stat": "reb",
+   "n": 6372,
+   "model_mae": 1.685,
+   "season_avg_mae": 1.709,
+   "gain": 0.014
+  },
+  {
+   "league": "Stoiximan GBL",
+   "stat": "ast",
+   "n": 6372,
+   "model_mae": 1.158,
+   "season_avg_mae": 1.149,
+   "gain": -0.0078
+  },
+  {
+   "league": "Stoiximan GBL",
+   "stat": "fg3",
+   "n": 6372,
+   "model_mae": 0.763,
+   "season_avg_mae": 0.743,
+   "gain": -0.0269
+  },
+  {
+   "league": "NBA",
+   "stat": "pts",
+   "n": 28365,
+   "model_mae": 4.648,
+   "season_avg_mae": 4.731,
+   "gain": 0.0175
+  },
+  {
+   "league": "NBA",
+   "stat": "reb",
+   "n": 28365,
+   "model_mae": 1.891,
+   "season_avg_mae": 1.925,
+   "gain": 0.0177
+  },
+  {
+   "league": "NBA",
+   "stat": "ast",
+   "n": 28365,
+   "model_mae": 1.359,
+   "season_avg_mae": 1.376,
+   "gain": 0.0124
+  },
+  {
+   "league": "NBA",
+   "stat": "fg3",
+   "n": 28365,
+   "model_mae": 0.912,
+   "season_avg_mae": 0.906,
+   "gain": -0.0066
+  }
+ ],
+ "props_steps": [
+  {
+   "step": "Μοντέλο (αρχικό)",
+   "picks": 1437,
+   "clv": -0.0669,
+   "clv_lo": -0.0736,
+   "clv_hi": -0.0603,
+   "prices": "ένα book"
+  },
+  {
+   "step": "+ διόρθωση κλίσης",
+   "picks": 965,
+   "clv": -0.0603,
+   "clv_lo": -0.067,
+   "clv_hi": -0.0528,
+   "prices": "ένα book"
+  },
+  {
+   "step": "+ συμπαίκτες, αντίπαλος, ρυθμός",
+   "picks": 992,
+   "clv": -0.0609,
+   "clv_lo": -0.0667,
+   "clv_hi": -0.0537,
+   "prices": "ένα book"
+  },
+  {
+   "step": "+ καλύτερη τιμή",
+   "picks": 519,
+   "clv": -0.0399,
+   "clv_lo": -0.0529,
+   "clv_hi": -0.0243,
+   "prices": "καλύτερη τιμή"
+  },
+  {
+   "step": "+ καλύτερη τιμή, μόνο ελληνικά books",
+   "picks": 478,
+   "clv": -0.0449,
+   "clv_lo": -0.0576,
+   "clv_hi": -0.0288,
+   "prices": "ελληνικά books"
+  }
+ ],
+ "props_head": {
+  "lines": 3294,
+  "games": 17,
+  "rounds": "12, 13",
+  "margin": 0.0854
+ },
+ "oos": [
+  {
+   "ev_min": 0.03,
+   "picks": 41,
+   "games": 2,
+   "roi": 0.1746,
+   "hit": 0.561,
+   "ci_lo": null,
+   "ci_hi": null
+  },
+  {
+   "ev_min": 0.05,
+   "picks": 33,
+   "games": 2,
+   "roi": 0.2779,
+   "hit": 0.606,
+   "ci_lo": null,
+   "ci_hi": null
+  },
+  {
+   "ev_min": 0.08,
+   "picks": 23,
+   "games": 2,
+   "roi": 0.4083,
+   "hit": 0.652,
+   "ci_lo": null,
+   "ci_hi": null
+  }
+ ],
+ "oos_head": {
+  "rounds": "14, 15",
+  "settled": 84,
+  "games": 2,
+  "ll_market": 0.7017,
+  "ll_model": 0.6905
+ },
+ "nba_market": [
+  {
+   "who": "Μοντέλο",
+   "brier": 0.1946,
+   "log_loss": 0.5739
+  },
+  {
+   "who": "Μοντέλο, διορθωμένο",
+   "brier": 0.1973,
+   "log_loss": 0.5782
+  },
+  {
+   "who": "Μείξη με άνοιγμα",
+   "brier": 0.1869,
+   "log_loss": 0.5519
+  },
+  {
+   "who": "Αγορά στο άνοιγμα",
+   "brier": 0.1843,
+   "log_loss": 0.5469
+  },
+  {
+   "who": "Αγορά στο κλείσιμο",
+   "brier": 0.1808,
+   "log_loss": 0.5379
+  }
+ ],
+ "nba_bets": [
+  {
+   "model": "Μοντέλο",
+   "picks": 514,
+   "roi": -0.1558,
+   "clv": -0.0184,
+   "clv_lo": -0.0346,
+   "clv_hi": 0.0028
+  },
+  {
+   "model": "Διορθωμένο",
+   "picks": 560,
+   "roi": -0.1693,
+   "clv": -0.0195,
+   "clv_lo": -0.0355,
+   "clv_hi": 0.0029
+  },
+  {
+   "model": "Μείξη",
+   "picks": 139,
+   "roi": -0.3793,
+   "clv": -0.0228,
+   "clv_lo": -0.0497,
+   "clv_hi": 0.0132
+  }
+ ],
+ "nba_head": {
+  "games": 847,
+  "margin": 0.0448
+ }
+}
