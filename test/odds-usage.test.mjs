@@ -26,3 +26,18 @@ test('fitUsage: k > 0 όταν οι υπόλοιποι σκοράρουν περ
   const k = fitUsage([{ players, games: g }]);
   assert.ok(k.pts.k > 0.2, JSON.stringify(k.pts));
 });
+
+test('αντίπαλος ανά θέση: όποιος δίνει περισσότερα σε γκαρντ έχει f > 1, μόνο από αγώνες πριν', async () => {
+  const { oppIndex, contextFactor } = await import('../src/odds/usage.mjs');
+  const g = [[1, '0', 'AAA', 'BBB', 0, 0, 1], [1, '0', 'CCC', 'DDD', 0, 0, 1], [2, '0', 'AAA', 'DDD', 0, 0, 1]];
+  const players = [
+    { c: 'G1', pos: 'Guard', g: [row(1, 'BBB', 30, 30), row(2, 'DDD', 30, 10)] },   // ο BBB έδωσε πολλά σε γκαρντ
+    { c: 'G2', pos: 'Guard', g: [row(1, 'DDD', 30, 10)] },
+  ];
+  const ox = oppIndex(players, g);
+  assert.ok(ox.factor('BBB', 'G', 2, 'pts') > 1 && ox.factor('DDD', 'G', 2, 'pts') < 1);
+  assert.equal(ox.factor('BBB', 'G', 1, 'pts'), 1, 'πριν από την 1η αγωνιστική: τίποτα');
+  const B = { pts: { beta: 0.5 }, reb: { beta: 0 }, ast: { beta: 0 }, fg3: { beta: 0 } };
+  const f = contextFactor({ ox, B }, { c: 'X', pos: 'Guard', team: 'AAA', opp: 'BBB', R: 2, s: 'pts' });
+  assert.ok(Math.abs(f - (1 + 0.5 * (ox.factor('BBB', 'G', 2, 'pts') - 1))) < 1e-12);
+});
