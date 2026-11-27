@@ -1,0 +1,119 @@
+{
+ "generated": "2026-11-27T23:33:16.187Z",
+ "season": "E2026",
+ "rounds": [
+  14,
+  15
+ ],
+ "calibrated_on": [
+  12,
+  13
+ ],
+ "live_cal": {
+  "a": 0.539,
+  "c": 0.079
+ },
+ "method": "κλειδωμένη πρόβλεψη πριν από την τιμή mid · καλύτερη τιμή mid ανάμεσα στα books · εκκαθάριση με το αποτέλεσμα · 1 μονάδα ανά επιλογή",
+ "counts": {
+  "lines": 516,
+  "groups": 90,
+  "settled": 84,
+  "games": 2,
+  "unmatched": 78,
+  "no_prediction": 843
+ },
+ "logloss": {
+  "market": 0.7017,
+  "model_raw": 0.7066,
+  "model_live": 0.6905
+ },
+ "over_rate": 0.476,
+ "baseline": {
+  "all_sides_best": {
+   "n": 168,
+   "games": 2,
+   "roi": -0.0277,
+   "ci95": null,
+   "under": 84,
+   "hit": 0.5
+  }
+ },
+ "live": {
+  "0.03": {
+   "n": 41,
+   "games": 2,
+   "roi": 0.1746,
+   "ci95": null,
+   "under": 24,
+   "hit": 0.561
+  },
+  "0.05": {
+   "n": 33,
+   "games": 2,
+   "roi": 0.2779,
+   "ci95": null,
+   "under": 21,
+   "hit": 0.606
+  },
+  "0.08": {
+   "n": 23,
+   "games": 2,
+   "roi": 0.4083,
+   "ci95": null,
+   "under": 15,
+   "hit": 0.652
+  }
+ },
+ "live_greek": {
+  "0.03": {
+   "n": 32,
+   "games": 2,
+   "roi": 0.3591,
+   "ci95": null,
+   "under": 21,
+   "hit": 0.656
+  },
+  "0.05": {
+   "n": 25,
+   "games": 2,
+   "roi": 0.36,
+   "ci95": null,
+   "under": 17,
+   "hit": 0.64
+  },
+  "0.08": {
+   "n": 15,
+   "games": 2,
+   "roi": 0.198,
+   "ci95": null,
+   "under": 10,
+   "hit": 0.533
+  }
+ },
+ "raw": {
+  "0.03": {
+   "n": 54,
+   "games": 2,
+   "roi": 0.0522,
+   "ci95": null,
+   "under": 39,
+   "hit": 0.537
+  },
+  "0.05": {
+   "n": 49,
+   "games": 2,
+   "roi": 0.0845,
+   "ci95": null,
+   "under": 36,
+   "hit": 0.551
+  },
+  "0.08": {
+   "n": 38,
+   "games": 2,
+   "roi": 0.2637,
+   "ci95": null,
+   "under": 28,
+   "hit": 0.632
+  }
+ }
+}

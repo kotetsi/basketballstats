@@ -6,8 +6,8 @@ on:
   schedule:
     - cron: "40 7 * * *"    # 09:40 ώρα Ελλάδας τον χειμώνα: έχουν τελειώσει όλοι οι αγώνες της νύχτας
   push:
-    branches: [nba-data, nba-backfill]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
-    paths: [src/nba/**, scripts/nba.mjs, predictor/nba.py, .github/workflows/nba.yml]
+    branches: [nba-data, nba-backfill, oos-nba-dashboard]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [src/nba/**, scripts/nba.mjs, scripts/nba-espn-odds.mjs, scripts/nba-calib.mjs, predictor/nba.py, .github/workflows/nba.yml]
   workflow_dispatch:
     inputs:
       max:
@@ -43,6 +43,9 @@ jobs:
         run: node --test test/nba-espn.test.mjs
       - name: Λήψη από το ESPN
         run: node scripts/nba.mjs --max "${{ github.event.inputs.max || '300' }}" --from "${{ github.event.inputs.from || '20261020' }}" ${{ github.event.inputs.to && format('--to {0}', github.event.inputs.to) || '' }}
+      - name: Ιστορικές γραμμές (ESPN BET) για τη μέτρηση έναντι της αγοράς
+        continue-on-error: true
+        run: node scripts/nba-espn-odds.mjs --max 2000
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -57,6 +60,7 @@ jobs:
           python predictor/nba.py
           node scripts/nba-market-eval.mjs
           node scripts/nba-proj-eval.mjs
+          node scripts/nba-calib.mjs --json data/nba/model/calib.json
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"

@@ -107,6 +107,9 @@ def main():
         bt = backtest(rows, min_train=max(200, len(rows) // 3), step=100, test_rows=pre)
         out['backtest'] = summarize(bt)
         out['backtest']['by_season'] = {s: summarize([x for x in bt if x['season'] == s]) for s in sorted({x['season'] for x in bt})}
+        # ανά αγώνα (walk-forward, χωρίς διαρροή) για τη μέτρηση απέναντι στις ιστορικές γραμμές (scripts/nba-calib.mjs)
+        (OUT / 'backtest-games.json').write_text(json.dumps([[x['key'].split('_')[1], x['season'], round(x['p'], 4), round(x['margin'], 2), round(x['total'], 1),
+                                                             int(x['y_win']), x['y_margin'], x['y_total']] for x in bt]))
     preds = []
     now = datetime.now(timezone.utc)
     if rows:
