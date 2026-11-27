@@ -1064,3 +1064,8 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
 /* Stoiximan GBL: μενού ενότητας (στο κινητό σε μία γραμμή που σύρεται) */
 .ec .gblnav{margin:0 0 14px}.ec .gblnav a[aria-current]{border-color:var(--accent);color:var(--accent);font-weight:600}
 @media (max-width:640px){.ec .gblnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ec .gblnav a{flex:none;white-space:nowrap}}
+/* NBA: shot chart (μισό γήπεδο, καλάθι πάνω) */
+.shotchart{margin:8px 0 14px;max-width:520px}.shotchart svg{width:100%;height:auto;display:block;border-radius:8px}
+.shotchart .sc-floor{fill:#f3ead8}.shotchart .sc-l{fill:none;stroke:#8a7a5a;stroke-width:2}
+.shotchart .sc-m{fill:#1f9d55;fill-opacity:.55;stroke:#16733d;stroke-width:1}.shotchart .sc-x{stroke:#c53030;stroke-opacity:.55;stroke-width:2;fill:none}
+.shotchart figcaption{font-size:13px;color:var(--muted,#666);margin-top:4px}.shotchart .sc-k.m{color:#1f9d55}.shotchart .sc-k.x{color:#c53030;font-weight:700}
