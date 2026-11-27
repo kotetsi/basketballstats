@@ -31,7 +31,8 @@ function open(buf) {
 }
 
 if (process.argv.includes('--decrypt')) {
-  for (const f of (await fs.readdir(DIR).catch(() => [])).filter(f => f.endsWith('.bin')).sort()) process.stdout.write(JSON.stringify(open(await fs.readFile(path.join(DIR, f)))) + '\n');
+  for (const f of (await fs.readdir(DIR).catch(() => [])).filter(f => f.endsWith('.bin')).sort())
+  { const line = JSON.stringify(open(await fs.readFile(path.join(DIR, f)))) + '\n'; await new Promise(res => process.stdout.write(line, res)); }   // περιμένουμε να γραφτεί όλο πριν από το exit
   process.exit(0);
 }
 if (Date.now() > UNTIL) { console.log('Superbet: η δοκιμή της ArbPlay έληξε (3/12), τίποτα να κάνω'); process.exit(0); }
