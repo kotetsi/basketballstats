@@ -1,0 +1,38 @@
+# Superbet μέσω ArbPlay (δοκιμαστικό κλειδί έως 3/12/2026): κάθε 2 ώρες κρατά τις γραμμές παικτών
+# EuroLeague και GBL, κρυπτογραφημένες στο data/superbet. Μετά τις 3/12 δεν κάνει τίποτα.
+name: Superbet γραμμές (δοκιμή)
+
+on:
+  schedule:
+    - cron: "5 */2 1-3 12 *"
+  push:
+    branches: [superbet-arbplay]
+    paths: [scripts/superbet-arbplay.mjs, .github/workflows/superbet.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: superbet-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  superbet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Λήψη
+        env:
+          ARBPLAY_KEY: ${{ secrets.ARBPLAY_KEY }}
+        run: node scripts/superbet-arbplay.mjs
+      - name: Αποθήκευση
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          [ -d data/superbet ] && git add data/superbet
+          git diff --cached --quiet || (git commit -m "Superbet: γραμμές $(date -u +%F-%H%M)" && for i in 1 2 3 4; do git push origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 15; git pull --rebase -q origin "${GITHUB_REF_NAME}"; done)
