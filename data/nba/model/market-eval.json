@@ -1,0 +1,29 @@
+{
+ "generated_at": "2026-11-27T23:44:53.604Z",
+ "games": 0,
+ "edge": 0.03,
+ "brier": {
+  "model": null,
+  "market": null,
+  "blend": null,
+  "elo": null
+ },
+ "bets": {
+  "ml": {
+   "n": 0,
+   "roi": null,
+   "avg_ev": null
+  },
+  "spread": {
+   "n": 0,
+   "roi": null,
+   "avg_ev": null
+  },
+  "total": {
+   "n": 0,
+   "roi": null,
+   "avg_ev": null
+  }
+ },
+ "note": "μόνο προβλέψεις κλειδωμένες πριν από τον αγώνα και αποδόσεις πριν από το τζάμπολ· λίγοι αγώνες = μεγάλη αβεβαιότητα"
+}
