@@ -361,8 +361,9 @@ class Builder:
 
     def __init__(self):
         self.teams: dict[tuple, TeamState] = {}
-        self.elo = {'E': Elo(), 'U': Elo()}
-        self.rapm = {'E': RAPM(), 'U': RAPM()}
+        # ανά διοργάνωση (πρώτο γράμμα της σεζόν): E = EuroLeague, U = EuroCup, G = Stoiximan GBL
+        self.elo = defaultdict(Elo)
+        self.rapm = defaultdict(RAPM)
         self.season_of = {}
         self.last_season = {}
         self.results = defaultdict(list)     # σεζόν → [(h, a, hs, as, neutral)]
