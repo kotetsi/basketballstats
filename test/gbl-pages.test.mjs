@@ -28,6 +28,9 @@ test('ονόματα παικτών και ομάδων', () => {
   assert.equal(niceName('VEZENKOV SASHA'), 'Sasha Vezenkov');
   assert.equal(niceName('DE SOUSA SILVIO'), 'Silvio De Sousa');
   assert.equal(niceName('JACKSON K.J.'), 'K.J. Jackson');
+  assert.equal(niceName('NOLLEY II LANDERS'), 'Landers Nolley II');
+  assert.equal(niceName('BROWN III GREG'), 'Greg Brown III');
+  assert.equal(niceName('MCINTYRE CODI MILLER'), 'Codi Miller-McIntyre');
   assert.equal(shortName('ΠΑΝΑΘΗΝΑΪΚΟΣ AKTOR'), 'Παναθηναϊκός');
   assert.equal(shortName('VIKOS ΦALCONS'), 'Vikos Falcons');
 });
@@ -62,4 +65,16 @@ test('Έλληνες παίκτες στα ελληνικά, οι υπόλοιπ
 test('σελίδα παίκτη του esake.gr: χώρα, θέση, γέννηση, ύψος', async () => {
   const { parsePlayer } = await import('../src/gbl/esake.mjs');
   assert.deepEqual(parsePlayer('<td>ΘΕΣΗ</td><td>PF</td> ΗΜ. ΓΕΝΝΗΣΗΣ 06-08-1995 <b>ΧΩΡΑ</b> ΚΥΠΡΟΣ ΥΨΟΣ 2,06 μ.'), { country: 'ΚΥΠΡΟΣ', pos: 'PF', born: '1995-08-06', height: 2.06 });
+});
+
+test('προβολές παικτών: μόνο με το παρελθόν, πιθανότητα να παίξει, εκτός όποιος λείπει 3 αγώνες', async () => {
+  const { projectOne } = await import('../src/gbl/projections.mjs');
+  const ap = (gid, secs, pts) => ({ gid, secs, pts, reb: 4, ast: 2, f3m: 1, pir: pts });
+  const league = { all: { pts: 0.4, reb: 0.15, ast: 0.08, fg3: 0.03, pir: 0.4 }, byPos: {} };
+  const hist = [ap('a', 1200, 10), ap('b', 1200, 12), ap('c', 1200, 14), ap('d', 0, 0), ap('e', 1200, 12)];
+  const pr = projectOne({ hist, teamGames: ['a', 'b', 'c', 'd', 'e'], league });
+  assert.ok(pr.pts > 9 && pr.pts < 14, String(pr.pts));
+  assert.equal(pr.p_play, 0.8);                       // έπαιξε στους 4 από τους 5
+  assert.equal(projectOne({ hist: hist.slice(0, 3), teamGames: ['a', 'b', 'c', 'x', 'y', 'z'], league }), null);   // λείπει 3 αγώνες
+  assert.equal(projectOne({ hist: hist.slice(0, 2), teamGames: ['a', 'b'], league }), null);                       // λιγότεροι από 3 αγώνες
 });
