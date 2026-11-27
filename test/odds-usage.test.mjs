@@ -41,3 +41,16 @@ test('αντίπαλος ανά θέση: όποιος δίνει περισσό
   const f = contextFactor({ ox, B }, { c: 'X', pos: 'Guard', team: 'AAA', opp: 'BBB', R: 2, s: 'pts' });
   assert.ok(Math.abs(f - (1 + 0.5 * (ox.factor('BBB', 'G', 2, 'pts') - 1))) < 1e-12);
 });
+
+test('ρυθμός και κατοστάρα: γρήγορες ομάδες pace > 1, μεγάλη αναμενόμενη διαφορά κόβει λεπτά βασικών', async () => {
+  const { gameIndex, paceBlowFactor } = await import('../src/odds/usage.mjs');
+  const g = [[1, '0', 'AAA', 'BBB', 110, 70, 1], [1, '0', 'CCC', 'DDD', 75, 75, 1], [2, '0', 'AAA', 'CCC', 0, 0, 0]];
+  const gx = gameIndex(g);
+  assert.ok(gx.pace('AAA', 'BBB', 2) > 1 && gx.pace('CCC', 'DDD', 2) < 1);
+  assert.equal(gx.pace('AAA', 'BBB', 1), 1, 'χωρίς αγώνες πριν');
+  assert.ok(gx.margin('AAA', 'CCC', 2, true) > 0 && gx.margin('CCC', 'AAA', 2, false) < 0);
+  const PB = { pts: { coef: 0 }, reb: { coef: 0 }, ast: { coef: 0 }, fg3: { coef: 0 }, min: { coef: -0.1 } };
+  const st = paceBlowFactor({ gx, PB }, { team: 'AAA', opp: 'BBB', R: 2, s: 'pts', home: true, avgMin: 30 });
+  const bench = paceBlowFactor({ gx, PB }, { team: 'AAA', opp: 'BBB', R: 2, s: 'pts', home: true, avgMin: 12 });
+  assert.ok(st < 1 && bench === 1);
+});

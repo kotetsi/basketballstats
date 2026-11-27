@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pOver, noVig } from '../src/odds/props.mjs';
 import { loadClvRows, clv, bootstrapMean } from '../src/odds/clv-rows.mjs';
-import { teamIndex, teamState, fitUsage, oppIndex, fitOpp, contextFactor } from '../src/odds/usage.mjs';
+import { teamIndex, teamState, fitUsage, oppIndex, fitOpp, contextFactor, gameIndex, fitPaceBlowout, paceBlowFactor } from '../src/odds/usage.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outArg = process.argv.indexOf('--json'), OUT = outArg > 0 ? process.argv[outArg + 1] : null;
@@ -20,7 +20,8 @@ const { rows, season, cache } = loadClvRows();
 // 1. usage: k από όλες τις προηγούμενες σεζόν
 const hist = fs.readdirSync(path.join(ROOT, 'data/fantasy/hist')).filter(f => /^E\d{4}\.json$/.test(f) && f.slice(0, 5) < season)
   .map(f => JSON.parse(fs.readFileSync(path.join(ROOT, 'data/fantasy/hist', f), 'utf8'))).map(h => ({ players: h.players, games: h.league.games }));
-const K = fitUsage(hist), B = fitOpp(hist);
+const K = fitUsage(hist), B = fitOpp(hist), PB = fitPaceBlowout(hist, { oppB: B }), gx = gameIndex(cache.league.games);
+const AVGMIN = (c, R) => { const L = (cache.players.find(p => p.c === c)?.g || []).filter(x => x[0] < R && x[7] > 0); return L.length ? L.reduce((a, x) => a + x[7] / 60, 0) / L.length : 0; };
 const ox = oppIndex(cache.players, cache.league.games), POS = new Map(cache.players.map(p => [p.c, p.pos]));
 const ix = teamIndex(cache.players, cache.league.games), stCache = new Map();
 const stateOf = (t, R, actual) => { const k = `${t}|${R}|${actual}`; if (!stCache.has(k)) stCache.set(k, teamState(ix, t, R, { actual })); return stCache.get(k); };
@@ -35,6 +36,8 @@ for (const r of rows) {
   const [, , h, a] = r.event.split('-'), q = { c: r.c, pos: POS.get(r.c), team: r.team, opp: r.team === h ? a : h, R: r.round, s: r.st };
   const fo = contextFactor({ ox, B }, q), fc = contextFactor({ ix, ox, K, B }, q);
   r.po = pOver(r.mean * fo, r.sd ** 2 * fo, r.line); r.pc = pOver(r.mean * fc, r.sd ** 2 * fc, r.line);
+  const fx = fc * paceBlowFactor({ gx, PB }, { team: r.team, opp: q.opp, R: r.round, s: r.st, home: r.team === h, avgMin: AVGMIN(r.c, r.round) });
+  r.px = pOver(r.mean * fx, r.sd ** 2 * fx, r.line);
 }
 
 // 2. βαθμονόμηση (λογιστική με «μαλακό» στόχο, Newton)
@@ -58,7 +61,7 @@ function solve3(A, b) { const M = A.map((r, i) => [...r, b[i]]);
   return M.map((r, i) => r[3] / r[i]); }
 const apply = (w, r, key) => sg(w[0] * lg(r[key]) + w[1] * lg(r.pmid) + w[2]);
 
-const VARIANTS = { pm: 'μοντέλο (σήμερα)', pu: 'μοντέλο + συμπαίκτες εκτός (γνωστό)', pa: 'μοντέλο + συμπαίκτες εκτός (πραγματικό, άνω όριο)', po: 'μοντέλο + αντίπαλος ανά θέση', pc: 'μοντέλο + συμπαίκτες + αντίπαλος' };
+const VARIANTS = { pm: 'μοντέλο (σήμερα)', pu: 'μοντέλο + συμπαίκτες εκτός (γνωστό)', pa: 'μοντέλο + συμπαίκτες εκτός (πραγματικό, άνω όριο)', po: 'μοντέλο + αντίπαλος ανά θέση', pc: 'μοντέλο + συμπαίκτες + αντίπαλος', px: '+ ρυθμός και κατοστάρα' };
 const rounds = [...new Set(rows.map(r => r.round))].sort((a, b) => a - b), events = [...new Set(rows.map(r => r.event))];
 const weights = {};
 for (const key of Object.keys(VARIANTS)) {
@@ -81,7 +84,7 @@ function score(pOf, L = rows) {
   return { logloss_close: +mean(L.map(r => ll(pOf(r), r.pcBook))).toFixed(4), logloss_result: S.length ? +mean(S.map(r => ll(pOf(r), r.y > r.line ? 1 : 0))).toFixed(4) : null, n_settled: S.length, picks: c };
 }
 const wfRows = rows.filter(r => r.round > rounds[0]);
-const report = { generated: new Date().toISOString(), season, usage_k: K, opp_beta: B,
+const report = { generated: new Date().toISOString(), season, usage_k: K, opp_beta: B, pace_blowout: PB,
   counts: { lines: rows.length, games: events.length, rounds, settled: settled.length, with_absent_known: rows.filter(r => r.missK > 0).length, with_absent_actual: rows.filter(r => r.missA > 0).length },
   weights, market_mid: { all: score(r => r.pmid), wf: score(r => r.pmid, wfRows) }, variants: {} };
 for (const [key, name] of Object.entries(VARIANTS))
@@ -112,8 +115,9 @@ report.best_price = { groups: groups.size,
   model: Object.fromEntries(THR.map(t => [t, { best: bestPrice(r => r.pm, t), same_book: sameCons(r => r.pm, t) }])),
   model_self: Object.fromEntries(THR.map(t => [t, { best: bestPrice(r => r.pu_slo, t), best_greek: bestPrice(r => r.pu_slo, t, r => r.gr), same_book: sameCons(r => r.pu_slo, t) }])),
   model_full: Object.fromEntries(THR.map(t => [t, { best: bestPrice(r => r.pc_slo, t), best_greek: bestPrice(r => r.pc_slo, t, r => r.gr), same_book: sameCons(r => r.pc_slo, t) }])),
+  model_pace: Object.fromEntries(THR.map(t => [t, { best: bestPrice(r => r.px_slo, t), best_greek: bestPrice(r => r.px_slo, t, r => r.gr), same_book: sameCons(r => r.px_slo, t) }])),
   naive_greek: bestPrice(null, 0, r => r.gr) };
-report.live_cal = { from: 'pc', a: weights.pc.self_all[0], c: weights.pc.self_all[2], n: rows.length, rounds };   // ζωντανά: engine × (συμπαίκτες, αντίπαλος) και μετά αυτή η κλίση
+report.live_cal = { from: 'px', a: weights.px.self_all[0], c: weights.px.self_all[2], n: rows.length, rounds };   // ζωντανά: engine × (συμπαίκτες, αντίπαλος) και μετά αυτή η κλίση
 if (OUT) fs.writeFileSync(path.join(ROOT, OUT), JSON.stringify(report, null, 1));
 
 const f = x => x == null ? '–' : (100 * x).toFixed(2) + '%';
@@ -130,7 +134,7 @@ for (const [k, v] of Object.entries(report.variants)) { console.log(line(v.name,
 console.log('Βάρη (μοντέλο, αγορά, σταθερά):', JSON.stringify(weights));
 const bp = report.best_price;
 console.log(`Καλύτερη τιμή (${bp.groups} ομάδες γραμμών, έναντι consensus κλεισίματος): χωρίς επιλογή ${f(bp.naive_both_sides.clv)} (ένα book: ${f(bp.naive_same_book_cons)})`);
-for (const [lab, M] of [['μοντέλο σήμερα', bp.model], ['μοντέλο + συμπαίκτες + κλίση', bp.model_self], ['+ αντίπαλος (όλα)', bp.model_full]])
+for (const [lab, M] of [['μοντέλο σήμερα', bp.model], ['μοντέλο + συμπαίκτες + κλίση', bp.model_self], ['+ αντίπαλος (όλα)', bp.model_full], ['+ ρυθμός και κατοστάρα', bp.model_pace]])
   console.log(`  ${lab}: ` + THR.map(t => `EV≥${t * 100}%: καλύτερη ${M[t].best.n} ${f(M[t].best.clv)} ${JSON.stringify(M[t].best.ci95)} · ένα book ${M[t].same_book.n} ${f(M[t].same_book.clv)}`).join(' | '));
 console.log(`  μόνο ελληνικά books: χωρίς επιλογή ${f(bp.naive_greek.clv)} · μοντέλο + συμπαίκτες + κλίση ` + THR.map(t => `EV≥${t * 100}%: ${bp.model_self[t].best_greek.n} ${f(bp.model_self[t].best_greek.clv)} ${JSON.stringify(bp.model_self[t].best_greek.ci95)}`).join(' | '));
 console.log('Ζωντανή διόρθωση κλίσης:', JSON.stringify(report.live_cal));

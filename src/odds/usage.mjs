@@ -108,3 +108,58 @@ export function contextFactor({ ix, ox, K, B }, { c, pos, team, opp, R, s }) {
   if (ox && B && opp) f *= 1 + B[s].beta * (ox.factor(opp, posG(pos), R, s) - 1);
   return Math.min(1.35, Math.max(0.75, f));
 }
+
+// Ρυθμός και «κατοστάρα» από τα σκορ των αγώνων < R (games: [round, date, home, away, hs, as, played]).
+//   pace = (μέσο σύνολο πόντων στους αγώνες της ομάδας + του αντιπάλου) / (2 × μέσο σύνολο λίγκας), συρρίκνωση με PACE_N αγώνες
+//   αναμενόμενη διαφορά = (μέση διαφορά ομάδας − αντιπάλου)/2 ± HOME/2, συρρίκνωση με MARGIN_N αγώνες
+//   ρυθμός_νέος = ρυθμός × (1 + βp·(pace − 1)) · λεπτά_νέα = λεπτά × (1 + γ·|διαφορά|/10) μόνο για βασικούς (≥ 25')
+const PACE_N = 4, MARGIN_N = 3, HOME = 3, STARTER_MIN = 25;
+export function gameIndex(games) {
+  const T = new Map(); const add = (t, R, tot, mar) => (T.get(t) || T.set(t, []).get(t)).push([R, tot, mar]);
+  for (const g of games) if (g[6] && g[4] != null) { add(g[2], g[0], g[4] + g[5], g[4] - g[5] - HOME); add(g[3], g[0], g[4] + g[5], g[5] - g[4] + HOME); }
+  const memo = new Map();
+  const stat = (t, R) => { const k = `${t}|${R}`; if (!memo.has(k)) { const L = (T.get(t) || []).filter(x => x[0] < R);
+    memo.set(k, { n: L.length, tot: L.reduce((a, x) => a + x[1], 0), mar: L.reduce((a, x) => a + x[2], 0) }); } return memo.get(k); };
+  const lgMemo = new Map();
+  const league = R => { if (!lgMemo.has(R)) { const L = games.filter(g => g[6] && g[4] != null && g[0] < R); lgMemo.set(R, L.length ? L.reduce((a, g) => a + g[4] + g[5], 0) / L.length : null); } return lgMemo.get(R); };
+  return {
+    pace(t, o, R) { const lg = league(R); if (!lg) return 1; const a = stat(t, R), b = stat(o, R);
+      return ((a.tot + PACE_N * lg) / (a.n + PACE_N) + (b.tot + PACE_N * lg) / (b.n + PACE_N)) / (2 * lg); },
+    margin(t, o, R, home) { const a = stat(t, R), b = stat(o, R);
+      return (a.mar / (a.n + MARGIN_N) - b.mar / (b.n + MARGIN_N)) / 2 + (home ? HOME / 2 : -HOME / 2); },
+  };
+}
+
+/** βp (ρυθμός, ανά στατιστικό) και γ (λεπτά βασικών ανά 10 πόντους αναμενόμενης διαφοράς) από προηγούμενες σεζόν */
+export function fitPaceBlowout(seasons, { minGames = 5, minRound = 4, oppB = null } = {}) {
+  const acc = Object.fromEntries([...USAGE_KEYS, 'min'].map(s => [s, { n: 0, Sbb: 0, Sbbm: 0, Sbbmm: 0, Syb: 0, Sybm: 0 }]));
+  const push = (a, b, m, y) => { a.n++; a.Sbb += b * b; a.Sbbm += b * b * m; a.Sbbmm += b * b * m * m; a.Syb += (y - b) * b; a.Sybm += (y - b) * b * m; };
+  for (const { players, games } of seasons) {
+    const gx = gameIndex(games), side = new Map(), ox = oppB ? oppIndex(players, games) : null;
+    for (const g of games) { side.set(`${g[0]}|${g[3]}`, [g[2], true]); side.set(`${g[0]}|${g[2]}`, [g[3], false]); }
+    for (const p of players) {
+      const pl = (p.g || []).filter(r => r[7] > 0).sort((a, b) => a[0] - b[0]);
+      const cum = { n: 0, m: 0, x: Object.fromEntries(USAGE_KEYS.map(s => [s, 0])) };
+      for (const r of pl) {
+        const sd = side.get(`${r[0]}|${r[2]}`);
+        if (sd && cum.n >= minGames && r[0] >= minRound) {
+          const [t, home] = sd, pace = gx.pace(t, r[2], r[0]) - 1, avgMin = cum.m / cum.n;
+          if (r[7] / 60 >= 10) for (const s of USAGE_KEYS) push(acc[s], cum.x[s] / cum.m * r[7] / 60 * (ox ? 1 + oppB[s].beta * (ox.factor(r[2], posG(p.pos), r[0], s) - 1) : 1), pace, STATS[s](r));
+          if (avgMin >= STARTER_MIN) push(acc.min, avgMin, Math.abs(gx.margin(t, r[2], r[0], home)) / 10, r[7] / 60);
+        }
+        cum.n++; cum.m += r[7] / 60; for (const s of USAGE_KEYS) cum.x[s] += STATS[s](r);
+      }
+    }
+  }
+  const out = {};
+  for (const [s, a] of Object.entries(acc)) { const det = a.Sbb * a.Sbbmm - a.Sbbm ** 2; out[s] = { coef: +(det > 0 ? (a.Sbb * a.Sybm - a.Sbbm * a.Syb) / det : 0).toFixed(3), n: a.n }; }
+  return out;
+}
+
+/** πολλαπλασιαστής ρυθμού × λεπτών από ρυθμό αγώνα και «κατοστάρα» (avgMin: μέσα λεπτά του παίκτη ως τώρα) */
+export function paceBlowFactor({ gx, PB }, { team, opp, R, s, home, avgMin }) {
+  if (!gx || !PB || !team || !opp) return 1;
+  let f = 1 + PB[s].coef * (gx.pace(team, opp, R) - 1);
+  if (avgMin >= STARTER_MIN) f *= 1 + PB.min.coef * Math.abs(gx.margin(team, opp, R, home)) / 10;
+  return f;
+}
