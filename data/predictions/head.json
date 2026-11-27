@@ -1,14 +1,14 @@
 {
  "season": "E2026",
- "at": "2026-11-27T16:53:41.939Z",
+ "at": "2026-11-27T18:23:29.834Z",
  "files": {
   "r14.jsonl": {
    "n": 2009,
    "head": "c1883e522e3a0405ab47ac85a4bbf1698064ee72e5946434f797521cda57d7da"
   },
   "r15.jsonl": {
-   "n": 6350,
-   "head": "d91778930c60f8f663c82f6bcd9ef208eb950e14f2b28dfe5dc45500cbd603cf"
+   "n": 6639,
+   "head": "54e958a2b02d6c911583bd6deceee413e7ec610ff018277252d5795b3ef80e12"
   }
  }
 }
