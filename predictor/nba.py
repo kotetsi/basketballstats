@@ -77,14 +77,32 @@ def elo_walkforward(sched: list, warmup: str | None) -> tuple[dict, Elo]:
     return ({'n': len(y), 'accuracy': accuracy(y, p), 'log_loss': log_loss(y, p), 'brier': brier(y, p), 'home_accuracy': sum(y) / len(y)} if y else {}), E
 
 
+def unavailable_for(g: dict, L: dict | None) -> tuple[set, list]:
+    """παίκτες (id ESPN) που μάλλον δεν παίζουν, από τις πεντάδες του Rotowire (data/nba/lineups): Out/Doubt (πιθανότητα ≤ 25%)"""
+    if not L:
+        return set(), []
+    for x in L.get('games', []):
+        if x['home'] == g['home'].get('abbr') and x['away'] == g['away'].get('abbr'):
+            out = [p for T in x['teams'].values() for p in T.get('mayNotPlay', []) if p.get('pct', 100) <= 25]
+            return {p['id'] for p in out if p.get('id')}, [p['name'] for p in out]
+    return set(), []
+
+
 def main():
+    no_bt = '--no-bt' in sys.argv
+    try:
+        L = json.loads((ROOT / 'data' / 'nba' / 'lineups' / 'latest.json').read_text())
+        if (datetime.now(timezone.utc) - datetime.fromisoformat(L['at'].replace('Z', '+00:00'))).total_seconds() > 18 * 3600:
+            L = None                                    # παλιές πεντάδες: δεν τις χρησιμοποιούμε
+    except Exception:
+        L = None
     games, sched = load()
     seasons = sorted({g['season'] for g in sched})
     elo, E = elo_walkforward(sched, seasons[0] if len(seasons) > 1 else None)
-    out = {'generated_at': datetime.now(timezone.utc).isoformat(timespec='seconds'), 'model': MODEL_VERSION,
+    out = {'generated_at': datetime.now(timezone.utc).isoformat(timespec='seconds'), 'model': MODEL_VERSION, 'lineups_at': L.get('at') if L else None,
            'games_with_box': len(games), 'games_played': sum(1 for g in sched if g.get('played')), 'elo': elo}
     rows, B = build_dataset(games)
-    if len(rows) >= 250:
+    if len(rows) >= 250 and not no_bt:
         pre = build_dataset(games, known_lineups=False)[0]
         bt = backtest(rows, min_train=max(200, len(rows) // 3), step=100, test_rows=pre)
         out['backtest'] = summarize(bt)
@@ -96,12 +114,14 @@ def main():
         up = [g for g in sched if not g.get('played') and g['season'] == seasons[-1]
               and now - timedelta(hours=6) <= datetime.fromisoformat(g['date'].replace('Z', '+00:00')) <= now + timedelta(days=HORIZON_DAYS)]
         if up:
-            fr = [B.features_for(g['season'], g['home']['id'], g['away']['id'], g['date'][:16], neutral=bool(g.get('neutral'))) for g in up]
+            un = [unavailable_for(g, L) for g in up]
+            fr = [B.features_for(g['season'], g['home']['id'], g['away']['id'], g['date'][:16], unavailable=un[j][0] or None, neutral=bool(g.get('neutral'))) for j, g in enumerate(up)]
             o = P.predict(fr)
             for j, g in enumerate(up):
                 preds.append({'id': g['id'], 'date': g['date'], 'home': g['home'], 'away': g['away'], 'neutral': bool(g.get('neutral')),
                               'p_home': round(float(o['p'][j]), 4), 'margin': round(float(o['y_margin'][j]), 1), 'total': round(float(o['y_total'][j]), 1),
-                              'elo_p': round(E.expect(g['home']['id'], g['away']['id'], home=not g.get('neutral')), 4)})
+                              'elo_p': round(E.expect(g['home']['id'], g['away']['id'], home=not g.get('neutral')), 4),
+                              'out': un[j][1], 'h_absent': round(float(fr[j].get('h_absent') or 0), 3), 'a_absent': round(float(fr[j].get('a_absent') or 0), 3)})
     out['predictions'] = preds
     # αρχείο προβλέψεων πριν από τον αγώνα (append-only): η σύγκριση με την αγορά παίρνει μόνο όσες έγιναν πριν από το τζάμπολ
     if preds:
@@ -110,7 +130,7 @@ def main():
         with (arch / f"{now.strftime('%Y-%m')}.jsonl").open('a') as fh:
             for x in preds:
                 if datetime.fromisoformat(x['date'].replace('Z', '+00:00')) > now:
-                    fh.write(json.dumps({'id': x['id'], 'at': out['generated_at'], 'model': MODEL_VERSION, 'p_home': x['p_home'], 'margin': x['margin'], 'total': x['total'], 'elo_p': x['elo_p']}) + '\n')
+                    fh.write(json.dumps({'id': x['id'], 'at': out['generated_at'], 'model': MODEL_VERSION, 'lineups': bool(L), 'p_home': x['p_home'], 'margin': x['margin'], 'total': x['total'], 'elo_p': x['elo_p']}) + '\n')
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'latest.json').write_text(json.dumps(out, ensure_ascii=False, indent=1))
     b = out.get('backtest') or {}

@@ -1,13 +1,14 @@
-# NBA: αποδόσεις (νικητής, χάντικαπ, σύνολο) από το The Odds API, μία φορά τη μέρα λίγο πριν από τους αγώνες της νύχτας.
+# NBA: λίγο πριν από τους αγώνες της νύχτας: πεντάδες/απουσίες (Rotowire) → προβλέψεις με τις απουσίες (κλειδώνονται)
+# → αποδόσεις (νικητής, χάντικαπ, σύνολο) από το The Odds API.
 # Κόστος: 3 credits ανά κλήση (~93 τον μήνα, από τα 500 δωρεάν που μοιράζεται με την EuroLeague).
-name: NBA αποδόσεις
+name: NBA πεντάδες, προβλέψεις, αποδόσεις
 
 on:
   schedule:
     - cron: "15 22 * * *"   # 00:15 ώρα Ελλάδας τον χειμώνα: πριν από τα περισσότερα τζάμπολ (00:00–03:30 UTC)
   push:
-    branches: [nba-odds]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
-    paths: [scripts/nba-odds.mjs, .github/workflows/nba-odds.yml]
+    branches: [nba-odds, nba-injuries]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [scripts/nba-odds.mjs, scripts/nba-lineups.mjs, src/nba/rotowire.mjs, predictor/nba.py, .github/workflows/nba-odds.yml]
   workflow_dispatch:
 
 permissions:
@@ -20,12 +21,26 @@ concurrency:
 jobs:
   odds:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            fantasy/requirements.txt
+            predictor/requirements.txt
+      - name: Πεντάδες και απουσίες (Rotowire)
+        run: node scripts/nba-lineups.mjs
+      - name: Προβλέψεις με τις απουσίες (κλειδώνονται πριν από τον αγώνα)
+        continue-on-error: true
+        run: |
+          pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
+          python predictor/nba.py --no-bt
       - name: Αποδόσεις NBA
         env:
           ODDS_API_KEY: ${{ secrets.THEODDSAPI_KEY }}
@@ -34,5 +49,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
-          [ -d data/nba/odds ] && git add data/nba/odds
+          for d in data/nba/odds data/nba/lineups data/nba/model; do [ -d $d ] && git add $d; done
           git diff --cached --quiet || (git commit -m "NBA: αποδόσεις $(date -u +%F-%H%M)" && for i in 1 2 3 4; do git push origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 15; git pull --rebase -q origin "${GITHUB_REF_NAME}"; done)
