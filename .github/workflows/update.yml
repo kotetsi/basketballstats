@@ -79,6 +79,10 @@ jobs:
         run: timeout 600 node scripts/props-clv.mjs --json data/predictions/props-clv.json || echo "props CLV - σφάλμα"
       - name: Props - συμπαίκτες εκτός και βαθμονόμηση (μέτρηση CLV)
         run: timeout 600 node scripts/props-calib.mjs --json data/predictions/props-calib.json || echo "props calib - σφάλμα"
+      - name: Props - τεστ εκτός δείγματος (κλειδωμένες προβλέψεις, αποτέλεσμα)
+        run: timeout 600 node scripts/props-oos.mjs --json data/predictions/props-oos.json || echo "props oos - σφάλμα"
+      - name: Συγκεντρωτικά νούμερα για το dashboard επενδυτών (χωρίς γραμμές/αποδόσεις)
+        run: node scripts/investor-metrics.mjs || echo "investor metrics - σφάλμα"
       - name: Walk-forward σύγκριση κατανομής Player Props με baseline
         run: node scripts/props-distribution-compare.mjs
       - name: "Fantasy model performance - ιστορικές σεζόν (μία φορά), walk-forward backtest, optimizer backtest"
