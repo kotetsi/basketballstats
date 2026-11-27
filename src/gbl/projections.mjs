@@ -12,7 +12,8 @@ const P = STATS_MODEL.P, PREV_W = STATS_MODEL.prevWeight;
 
 // γραμμή στη μορφή που περιμένει το project() του props.mjs: r[7] δευτερόλεπτα, r[8] πόντοι, r[11] τρίποντα, r[15]+r[16] ριμπ., r[17] ασίστ
 const row = (i, x) => { const r = new Array(18).fill(0); r[0] = i; r[7] = x.secs; r[8] = x.pts; r[11] = x.f3m; r[15] = x.reb; r[17] = x.ast; return r; };
-const val = { pts: x => x.pts, reb: x => x.reb, ast: x => x.ast, fg3: x => x.f3m, pir: x => x.pir };
+export const val = { pts: x => x.pts, reb: x => x.reb, ast: x => x.ast, fg3: x => x.f3m, pir: x => x.pir, pra: x => x.pts + x.reb + x.ast };
+const NATIVE = new Set(['pts', 'reb', 'ast', 'fg3']);   // όσα ξέρει το project() του props.mjs· τα υπόλοιπα (PIR, PRA) μπαίνουν στη θέση των πόντων
 
 /** όλες οι εμφανίσεις παικτών (με τη σειρά των αγώνων): [{ i, gid, date, season, team, pid, secs, pts, reb, ast, f3m, pir }] */
 export function appearances(G) {
@@ -29,15 +30,15 @@ export function appearances(G) {
 }
 
 /** ρυθμός ανά λεπτό της λίγκας (σύνολο και ανά θέση) από εμφανίσεις */
-export function rates(list, posOf) {
+export function rates(list, posOf, keys = KEYS) {
   const T = { m: 0 }, B = {};
   for (const x of list) {
     if (!(x.secs > 0)) continue;
     const m = x.secs / 60, g = posOf(x.pid), q = (B[g] ||= { m: 0 });
     T.m += m; q.m += m;
-    for (const k of KEYS) { T[k] = (T[k] || 0) + val[k](x); q[k] = (q[k] || 0) + val[k](x); }
+    for (const k of keys) { T[k] = (T[k] || 0) + val[k](x); q[k] = (q[k] || 0) + val[k](x); }
   }
-  const per = o => Object.fromEntries(KEYS.map(k => [k, o.m ? (o[k] || 0) / o.m : 0]));
+  const per = o => Object.fromEntries(keys.map(k => [k, o.m ? (o[k] || 0) / o.m : 0]));
   return { all: per(T), byPos: Object.fromEntries(Object.entries(B).map(([g, q]) => [g, per(q)])) };
 }
 
@@ -45,7 +46,7 @@ export function rates(list, posOf) {
  * Προβολή ενός παίκτη με ό,τι έγινε ΠΡΙΝ από τον αγώνα-στόχο.
  * hist: οι εμφανίσεις του παίκτη στη σεζόν (μόνο πριν), prev: της προηγούμενης σεζόν, teamGames: οι πρόσφατοι αγώνες της ομάδας (gid)
  */
-export function projectOne({ hist, prev = [], teamGames = [], league, pos, params = null }) {
+export function projectOne({ hist, prev = [], teamGames = [], league, pos, params = null, keys = KEYS }) {
   const PP = params ? { ...P, ...params } : P, PW = params?.prevWeight ?? PREV_W;
   const played = hist.filter(x => x.secs > 0);
   if (played.length < 3) return null;
@@ -56,11 +57,11 @@ export function projectOne({ hist, prev = [], teamGames = [], league, pos, param
   const pm = prev.filter(x => x.secs > 0).reduce((a, x) => a + x.secs / 60, 0);
   const rows = played.map((x, j) => row(j, x));
   const out = { n: played.length, p_play: +p_play.toFixed(2) };
-  for (const k of KEYS) {
+  for (const k of keys) {
     const prior = pm ? (prev.reduce((a, x) => a + (x.secs > 0 ? val[k](x) : 0), 0) + PW * lg[k]) / (pm + PW) : lg[k];
-    // το project() ξέρει πόντους/ριμπάουντ/ασίστ/τρίποντα· για το PIR βάζουμε το PIR στη θέση των πόντων
-    const r = k === 'pir' ? played.map((x, j) => row(j, { ...x, pts: x.pir })) : rows;
-    const pr = project(r, k === 'pir' ? 'pts' : k, { prior, P: PP });
+    // το project() ξέρει πόντους/ριμπάουντ/ασίστ/τρίποντα· για PIR/PRA βάζουμε την τιμή στη θέση των πόντων
+    const r = NATIVE.has(k) ? rows : played.map((x, j) => row(j, { ...x, pts: val[k](x) }));
+    const pr = project(r, NATIVE.has(k) ? k : 'pts', { prior, P: PP });
     if (!pr) return null;
     out[k] = +pr.mu.toFixed(2);
     if (k === 'pts') out.min = +pr.min.toFixed(1);
