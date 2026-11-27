@@ -1,0 +1,43 @@
+# NBA: κάθε πρωί (μετά τους αγώνες της νύχτας) κατεβάζει πρόγραμμα, αποτελέσματα, box scores και σουτ από το ESPN
+# στο data/nba. Δεν χτίζει σελίδες· αυτό το κάνει η «Ενημέρωση site».
+name: NBA δεδομένα
+
+on:
+  schedule:
+    - cron: "40 7 * * *"    # 09:40 ώρα Ελλάδας τον χειμώνα: έχουν τελειώσει όλοι οι αγώνες της νύχτας
+  push:
+    branches: [nba-data]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [src/nba/**, scripts/nba.mjs, .github/workflows/nba.yml]
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "Μέγιστος αριθμός νέων αγώνων σε αυτή την εκτέλεση"
+        required: false
+        default: "300"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nba-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  nba:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Τεστ parser
+        run: node --test test/nba-espn.test.mjs
+      - name: Λήψη από το ESPN
+        run: node scripts/nba.mjs --max "${{ github.event.inputs.max || '300' }}"
+      - name: Αποθήκευση
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          [ -d data/nba ] && git add data/nba
+          git diff --cached --quiet || (git commit -m "NBA: δεδομένα $(date -u +%F)" && for i in 1 2 3 4; do git push origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 15; git pull --rebase -q origin "${GITHUB_REF_NAME}"; done)
