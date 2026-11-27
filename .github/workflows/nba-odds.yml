@@ -5,6 +5,9 @@ name: NBA αποδόσεις
 on:
   schedule:
     - cron: "15 22 * * *"   # 00:15 ώρα Ελλάδας τον χειμώνα: πριν από τα περισσότερα τζάμπολ (00:00–03:30 UTC)
+  push:
+    branches: [nba-odds]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [scripts/nba-odds.mjs, .github/workflows/nba-odds.yml]
   workflow_dispatch:
 
 permissions:
@@ -32,4 +35,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
           [ -d data/nba/odds ] && git add data/nba/odds
-          git diff --cached --quiet || (git commit -m "NBA: αποδόσεις $(date -u +%F-%H%M)" && for i in 1 2 3 4; do git push && break; sleep 15; git pull --rebase -q; done)
+          git diff --cached --quiet || (git commit -m "NBA: αποδόσεις $(date -u +%F-%H%M)" && for i in 1 2 3 4; do git push origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 15; git pull --rebase -q origin "${GITHUB_REF_NAME}"; done)
