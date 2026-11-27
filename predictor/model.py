@@ -159,12 +159,16 @@ class Predictor:
         return out
 
 
-def backtest(rows, min_train=250, step=60):
-    """Walk-forward: εκπαίδευση σε όλους τους προηγούμενους αγώνες, πρόβλεψη των επόμενων `step`."""
+def backtest(rows, min_train=250, step=60, test_rows=None):
+    """Walk-forward: εκπαίδευση σε όλους τους προηγούμενους αγώνες, πρόβλεψη των επόμενων `step`.
+    test_rows: οι ίδιοι αγώνες (ίδια σειρά) με features όπως πριν από τον αγώνα, χωρίς τις πραγματικές πεντάδες.
+    Η εκπαίδευση μένει στα rows (μετά τον αγώνα οι πεντάδες είναι γνωστές), η πρόβλεψη γίνεται στα test_rows."""
+    T = test_rows if test_rows is not None else rows
+    assert len(T) == len(rows) and all(a['_key'] == b['_key'] for a, b in zip(rows, T))
     preds = []
     i = min_train
     while i < len(rows):
-        tr, te = rows[:i], rows[i:i + step]
+        tr, te = rows[:i], T[i:i + step]
         P = Predictor().fit(tr)
         o = P.predict(te)
         for j, r in enumerate(te):
@@ -189,6 +193,7 @@ def summarize(preds):
         'pace_mae': mae([x['y_poss'] for x in preds], [x['poss'] for x in preds]),
         'calibration': calibration_table(y, p),
     }
+    s['home_accuracy'] = float(np.mean([x['y_win'] for x in preds]))   # βάση: πάντα ο γηπεδούχος
     bp = [x['base_p'] for x in preds if x['base_p'] is not None]
     if len(bp) == len(preds):   # σύγκριση με σκέτο Elo
         s['elo_log_loss'], s['elo_brier'], s['elo_accuracy'] = log_loss(y, bp), brier(y, bp), accuracy(y, bp)

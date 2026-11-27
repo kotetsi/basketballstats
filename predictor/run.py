@@ -75,8 +75,14 @@ def main():
         return
     rows, B = build_dataset(games)
     # οι πρώτοι αγώνες κάθε σεζόν χωρίς κανένα δεδομένο ομάδας είναι θόρυβος για την εκπαίδευση
-    rows = [r for r in rows if (r.get('h_n_games') or 0) + (r.get('a_n_games') or 0) >= 2 or r.get('h_ortg') is not None]
-    bt = [] if '--no-bt' in sys.argv else backtest(rows, min_train=max(200, len(rows) // 3), step=80)
+    keep = lambda r: (r.get('h_n_games') or 0) + (r.get('a_n_games') or 0) >= 2 or r.get('h_ortg') is not None
+    rows = [r for r in rows if keep(r)]
+    bt = []
+    if '--no-bt' not in sys.argv:
+        # backtest με features όπως πριν από τον αγώνα: χωρίς να ξέρει ποιοι τελικά έπαιξαν (έλεγχος 27/11/2026)
+        keys = {r['_key'] for r in rows}
+        pre = [r for r in build_dataset(games, known_lineups=False)[0] if r['_key'] in keys]
+        bt = backtest(rows, min_train=max(200, len(rows) // 3), step=80, test_rows=pre)
     summ = summarize(bt)
     if bt:
         idx = {r['_key']: r for r in rows}

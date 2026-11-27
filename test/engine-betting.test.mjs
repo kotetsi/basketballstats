@@ -5,7 +5,7 @@ import { propsGate, engineIndex, engineDist, fairOdds, ev, GATE_RULES } from '..
 import { gameProps } from '../src/odds/props.mjs';
 
 const passing = () => ({ generated: 'x', all: { n: 5000, games: 50, engine: { brier: 0.24 }, market: { brier: 0.245 }, blend: { brier: 0.238 },
-  brier_blend_minus_market_ci95: [-0.01, -0.002], ece_blend: 0.02, picks: { ev8: { blend: { n: 400, roi: 0.06, roi_ci95: [0.01, 0.11] } } } } });
+  brier_blend_minus_market_ci95: [-0.01, -0.002], ece_blend: 0.02, picks: { ev8: { blend: { n: 400, roi: 0.06, roi_ci95: [0.01, 0.11], naive: { under: -0.02, over: -0.06 }, edge_vs_naive: 0.08, edge_vs_naive_ci95: [0.01, 0.15] } } } } });
 
 test('πύλη: κλειστή χωρίς δεδομένα και σε κάθε κριτήριο που αποτυγχάνει, ανοιχτή μόνο αν περνούν όλα', () => {
   assert.deepEqual(propsGate(null).reasons, ['no_evidence']);
@@ -17,6 +17,9 @@ test('πύλη: κλειστή χωρίς δεδομένα και σε κάθε 
   fail(a => { a.ece_blend = 0.05; }, 'ece');
   fail(a => { a.picks.ev8.blend.n = 50; }, 'picks');
   fail(a => { a.picks.ev8.blend.roi_ci95 = [-0.02, 0.2]; }, 'roi_ci_lower');
+  // v2: θετικό ROI που δεν κερδίζει το «όλα τα under» δεν ανοίγει την πύλη
+  fail(a => { a.picks.ev8.blend.edge_vs_naive_ci95 = [-0.03, 0.12]; }, 'beats_naive');
+  fail(a => { delete a.picks.ev8.blend.edge_vs_naive_ci95; }, 'beats_naive');
   assert.equal(GATE_RULES.minEv, 0.08);
 });
 
