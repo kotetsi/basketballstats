@@ -482,12 +482,15 @@ class Builder:
         self.results[g.season].append((g.h, g.a, g.hs, g.as_, g.ph == 'FF'))
 
 
-def build_dataset(games: list[Game]):
-    """Γραμμές εκπαίδευσης: features πριν από κάθε αγώνα + στόχοι."""
+def build_dataset(games: list[Game], known_lineups: bool = True):
+    """Γραμμές εκπαίδευσης: features πριν από κάθε αγώνα + στόχοι.
+    known_lineups=True: οι απουσίες/πεντάδες από όσους ΤΕΛΙΚΑ έπαιξαν (για την εκπαίδευση).
+    known_lineups=False: χωρίς αυτή τη γνώση, όπως πριν από τον αγώνα (για το backtest· έλεγχος 27/11/2026)."""
     B = Builder()
     rows = []
     for g in games:
-        f = B.features_for(g.season, g.h, g.a, g.d, set(g.played.get(g.h, {})), set(g.played.get(g.a, {})), neutral=g.ph == 'FF')
+        ph, pa = (set(g.played.get(g.h, {})), set(g.played.get(g.a, {}))) if known_lineups else (None, None)
+        f = B.features_for(g.season, g.h, g.a, g.d, ph, pa, neutral=g.ph == 'FF')
         bh, ba = g.box[g.h], g.box[g.a]
         poss = (possessions(bh) + possessions(ba)) / 2
         f.update({'_key': g.key, '_season': g.season, '_d': g.d, '_h': g.h, '_a': g.a,

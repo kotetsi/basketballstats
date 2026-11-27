@@ -8,9 +8,11 @@ export const ENGINE_STATS = ['pts', 'reb', 'ast', 'fg3'];
 export const fairOdds = p => (p > 0 ? +(1 / p).toFixed(3) : null);
 export const ev = (p, price) => p * price - 1;
 
-/** κριτήρια της πύλης (v1). Όλα πρέπει να ισχύουν. Μετρημένα σε γραμμές με τιμή που υπήρχε πριν από το τζάμπολ. */
+/** κριτήρια της πύλης (v2). Όλα πρέπει να ισχύουν. Μετρημένα σε γραμμές με τιμή που υπήρχε πριν από το τζάμπολ.
+ *  v2 (27/11/2026): οι επιλογές πρέπει επιπλέον να κερδίζουν τη στρατηγική χωρίς μοντέλο «όλα τα under / όλα τα over»
+ *  στις ίδιες γραμμές, ώστε η πύλη να μην ανοίξει σε μια περίοδο όπου απλώς «βγήκαν τα unders». */
 export const GATE_RULES = Object.freeze({
-  version: 'props-gate-1',
+  version: 'props-gate-2',
   minGames: 40,            // ~4 αγωνιστικές
   minLines: 3000,          // γραμμές (bookmaker × παίκτης × stat × γραμμή) με αποτέλεσμα
   probability: 'blend',    // η πιθανότητα που θα εμφανιζόταν: 50% engine + 50% αγορά χωρίς περιθώριο
@@ -18,6 +20,7 @@ export const GATE_RULES = Object.freeze({
   maxEce: 0.03,            // βαθμονόμηση της blend πιθανότητας
   minPicks: 300,           // επιλογές με EV ≥ minEv
   roiCiLowerAbove: 0,      // 95% διάστημα ROI των επιλογών εξ ολοκλήρου > 0
+  edgeCiLowerAbove: 0,     // 95% διάστημα (ROI επιλογών − καλύτερο από «όλα under»/«όλα over») εξ ολοκλήρου > 0
   minEv: 0.08,
 });
 
@@ -34,10 +37,11 @@ export function propsGate(evalReport, R = GATE_RULES) {
     ece: [A.ece_blend ?? null, A.ece_blend != null && A.ece_blend <= R.maxEce],
     picks: [pk.n ?? 0, (pk.n ?? 0) >= R.minPicks],
     roi_ci_lower: [pk.roi_ci95?.[0] ?? null, pk.roi_ci95 != null && pk.roi_ci95[0] > R.roiCiLowerAbove],
+    beats_naive: [pk.edge_vs_naive_ci95?.[0] ?? null, pk.edge_vs_naive_ci95 != null && pk.edge_vs_naive_ci95[0] > R.edgeCiLowerAbove],
   };
   const reasons = Object.entries(checks).filter(([, [, ok]]) => !ok).map(([k]) => k);
   return { open: reasons.length === 0, version: R.version, reasons, checks: Object.fromEntries(Object.entries(checks).map(([k, [v, ok]]) => [k, { value: v, ok }])),
-    evidence: { generated: evalReport.generated, games: A.games, lines: A.n, brier: { engine: A.engine?.brier, market: A.market?.brier, blend: A.blend?.brier }, roi: pk.roi ?? null, roi_ci95: pk.roi_ci95 ?? null } };
+    evidence: { generated: evalReport.generated, games: A.games, lines: A.n, brier: { engine: A.engine?.brier, market: A.market?.brier, blend: A.blend?.brier }, roi: pk.roi ?? null, roi_ci95: pk.roi_ci95 ?? null, naive: pk.naive ?? null, edge_vs_naive: pk.edge_vs_naive ?? null } };
 }
 
 /** πιθανότητες του engine για τον επόμενο αγώνα: Map(c → { round, quality, min, stats: { stat: [mean, var] } }).

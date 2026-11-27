@@ -30,6 +30,20 @@ const HZ = new Map();
 { const L = gunzipSync(fs.readFileSync(path.join(ROOT, 'data/fantasy/perf/minutes_hurdle.csv.gz'))).toString().split('\n').filter(Boolean), H = L[0].split(',');
   for (const l of L.slice(1)) { const v = Object.fromEntries(H.map((h, i) => [h, l.split(',')[i]])); if (v.season === season) HZ.set(`${v.round}|${v.c}`, v); } }
 
+// κλειδωμένες pregame προβλέψεις (data/predictions/<σεζόν>/r<N>.jsonl, docs/PREDICTION_ARCHIVE.md): για κάθε αγωνιστική
+// που έχει αρχείο, η πιθανότητα βγαίνει ΜΟΝΟ από την τελευταία πρόβλεψη με predicted_at < tip, όχι από ανακατασκευή.
+// Έτσι κάθε νέα αγωνιστική μετράει αυτόματα και η μέτρηση είναι εντελώς εκτός δείγματος.
+const ARCH = new Map(), ARCH_ROUNDS = new Set();
+{ const dir = path.join(ROOT, 'data', 'predictions', season);
+  let files = []; try { files = fs.readdirSync(dir).filter(f => /^r\d+\.jsonl$/.test(f)); } catch { }
+  for (const f of files) for (const l of fs.readFileSync(path.join(dir, f), 'utf8').split('\n')) {
+    if (!l) continue; let x; try { x = JSON.parse(l); } catch { continue; }
+    if (!x.legacy_gid || !x.player_id || !(x.predicted_at < x.tip)) continue;
+    ARCH_ROUNDS.add(+x.round);
+    const k = `${x.legacy_gid}|${x.player_id}`, o = ARCH.get(k);
+    if (!o || o.predicted_at < x.predicted_at) ARCH.set(k, x);
+  } }
+
 // 1. τελευταία pregame τιμή ανά (event, book, player, stat, line, sel)
 const Q = new Map();
 for (const l of fs.readFileSync(path.join(ROOT, 'data/odds/props-history.jsonl'), 'utf8').split('\n')) {
@@ -46,7 +60,7 @@ const P = new Map(cache.players.map(p => [p.c, p]));
 const rosterOf = t => cache.players.filter(p => String(p.t).split(';').includes(t));
 const projCache = new Map(), leagueAt = new Map();
 const rows = [];
-let unmatched = 0, noMin = 0, voided = 0, insuff = 0, unplayed = 0;
+let unmatched = 0, noMin = 0, voided = 0, insuff = 0, unplayed = 0, noArch = 0;
 for (const x of pairs.values()) {
   if (!(x.over > 1 && x.under > 1)) continue;
   const [, r, h, a] = x.event.split('-'), R = +r;
@@ -54,18 +68,27 @@ for (const x of pairs.values()) {
   if (!pl) { unmatched++; continue; }
   const game = cache.league.games.find(g => g[0] === R && g[2] === h && g[3] === a);
   if (!game?.[6]) { unplayed++; continue; }
-  const hz = HZ.get(`${R}|${pl.c}`); if (!hz) { noMin++; continue; }
-  const key = `${R}|${pl.c}`;
-  if (!projCache.has(key)) {
-    if (!leagueAt.has(R)) leagueAt.set(R, leagueRates(cache.players, R));
-    projCache.set(key, projectPlayer(pl, { round: R, minutes: { p_play: +hz.hz_p, min_if_plays: +hz.hz_cond, min_exp: +hz.hz_exp }, league: leagueAt.get(R), prev: PREV.get(pl.c) || null }));
+  let s, src;
+  if (ARCH_ROUNDS.has(R)) {   // αγωνιστική με κλειδωμένες προβλέψεις: μόνο από το αρχείο
+    const a = ARCH.get(`${x.event}|${pl.c}`);
+    if (!a) { noArch++; continue; }
+    if (!a.stats?.[x.st] || a.quality === 'insufficient' || a.quality === 'out') { insuff++; continue; }
+    s = a.stats[x.st]; src = 'archive';
+  } else {
+    const hz = HZ.get(`${R}|${pl.c}`); if (!hz) { noMin++; continue; }
+    const key = `${R}|${pl.c}`;
+    if (!projCache.has(key)) {
+      if (!leagueAt.has(R)) leagueAt.set(R, leagueRates(cache.players, R));
+      projCache.set(key, projectPlayer(pl, { round: R, minutes: { p_play: +hz.hz_p, min_if_plays: +hz.hz_cond, min_exp: +hz.hz_exp }, league: leagueAt.get(R), prev: PREV.get(pl.c) || null }));
+    }
+    const pj = projCache.get(key);
+    if (!pj.stats) { insuff++; continue; }
+    s = pj.stats[x.st]; src = 'walkforward';
   }
-  const pj = projCache.get(key);
-  if (!pj.stats) { insuff++; continue; }
   const row = pl.g.find(g => g[0] === R && g[7] > 0);
   if (!row) { voided++; continue; }   // δεν έπαιξε: void
-  const s = pj.stats[x.st], pm = pOver(s.mean, s.sd ** 2, x.line), nv = noVig(x.over, x.under), y = STATS[x.st](row) > x.line ? 1 : 0;
-  rows.push({ event: x.event, round: R, book: x.book, gr: isGr(x.book), c: pl.c, st: x.st, line: x.line, over: x.over, under: x.under, pm, pk: nv.over, margin: nv.margin, y });
+  const pm = pOver(s.mean, s.sd ** 2, x.line), nv = noVig(x.over, x.under), y = STATS[x.st](row) > x.line ? 1 : 0;
+  rows.push({ event: x.event, round: R, book: x.book, gr: isGr(x.book), c: pl.c, st: x.st, line: x.line, over: x.over, under: x.under, pm, pk: nv.over, margin: nv.margin, y, src });
 }
 
 // 3. μετρικές
@@ -90,7 +113,21 @@ function picks(xs, prob, thr) {   // στοίχημα 1 μονάδας όπου 
   }
   let ci = null;
   if (n >= 30) { const byG = new Map(); for (const x of ps) (byG.get(x.event) || byG.set(x.event, []).get(x.event)).push(x.v); const G = [...byG.values()]; let seed = 7; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648); const o = []; for (let b = 0; b < 400; b++) { let s = 0, m = 0; for (let i = 0; i < G.length; i++) { const g = G[Math.floor(rnd() * G.length)]; s += g.reduce((a, c) => a + c, 0); m += g.length; } o.push(s / m); } o.sort((a, c) => a - c); ci = [+o[10].toFixed(3), +o[389].toFixed(3)]; }
-  return { n, roi: n ? +(pnl / n).toFixed(3) : null, roi_ci95: ci };
+  // βάση σύγκρισης χωρίς μοντέλο: όλα τα under ή όλα τα over στις ίδιες γραμμές. Οι επιλογές πρέπει να την κερδίζουν,
+  // αλλιώς το ROI μπορεί να είναι απλώς μια περίοδος όπου «βγήκαν τα unders» (έλεγχος 27/11/2026).
+  const nvU = r => (r.y === 0 ? r.under - 1 : -1), nvO = r => (r.y === 1 ? r.over - 1 : -1);
+  const roiU = xs.length ? xs.reduce((a, r) => a + nvU(r), 0) / xs.length : null, roiO = xs.length ? xs.reduce((a, r) => a + nvO(r), 0) / xs.length : null;
+  let edge = null, edgeCi = null;
+  if (n) edge = +(pnl / n - Math.max(roiU, roiO)).toFixed(3);
+  if (n >= 30) {
+    const byG = new Map();
+    for (const r of xs) { const g = byG.get(r.event) || byG.set(r.event, { u: 0, o: 0, k: 0, p: 0, m: 0 }).get(r.event); g.u += nvU(r); g.o += nvO(r); g.k++; }
+    for (const x of ps) { const g = byG.get(x.event); g.p += x.v; g.m++; }
+    const G = [...byG.values()]; let seed = 11; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648); const o = [];
+    for (let b = 0; b < 400; b++) { let u = 0, ov = 0, k = 0, p = 0, m = 0; for (let i = 0; i < G.length; i++) { const g = G[Math.floor(rnd() * G.length)]; u += g.u; ov += g.o; k += g.k; p += g.p; m += g.m; } if (m && k) o.push(p / m - Math.max(u / k, ov / k)); }
+    o.sort((a, c) => a - c); if (o.length >= 100) edgeCi = [+o[Math.floor(0.025 * o.length)].toFixed(3), +o[Math.floor(0.975 * o.length) - 1].toFixed(3)];
+  }
+  return { n, roi: n ? +(pnl / n).toFixed(3) : null, roi_ci95: ci, naive: { under: roiU == null ? null : +roiU.toFixed(3), over: roiO == null ? null : +roiO.toFixed(3) }, edge_vs_naive: edge, edge_vs_naive_ci95: edgeCi };
 }
 function summary(xs) {
   if (!xs.length) return { n: 0 };
@@ -103,7 +140,8 @@ function summary(xs) {
     ece_engine: ece(F.engine), ece_blend: ece(F.blend), ece_market: ece(F.market),
     picks: Object.fromEntries([0.03, 0.05, 0.08].map(t => [`ev${t * 100}`, { engine: picks(xs, F.engine, t), blend: picks(xs, F.blend, t) }])) };
 }
-const report = { generated: new Date().toISOString(), season, method: 'last quote seen before tip-off; engine as-of round; void if not played', counts: { lines: rows.length, unmatched, unplayed, no_minutes: noMin, insufficient: insuff, void_dnp: voided },
+const report = { generated: new Date().toISOString(), season, method: 'last quote seen before tip-off; locked pregame archive where it exists (else engine as-of round); void if not played', counts: { lines: rows.length, archive_lines: rows.filter(r => r.src === 'archive').length, archive_rounds: [...ARCH_ROUNDS].sort((a, b) => a - b), unmatched, unplayed, no_minutes: noMin, no_archive: noArch, insufficient: insuff, void_dnp: voided },
+  out_of_sample: summary(rows.filter(r => r.src === 'archive')),
   all: summary(rows), greece_licensed: summary(rows.filter(r => r.gr)), by_stat: Object.fromEntries(SK.map(s => [s, summary(rows.filter(r => r.st === s))])),
   by_round: Object.fromEntries([...new Set(rows.map(r => r.round))].sort().map(R => [R, summary(rows.filter(r => r.round === R))])) };
 console.log(JSON.stringify({ counts: report.counts, all: report.all, greece: { n: report.greece_licensed.n, ...report.greece_licensed.engine && { engine: report.greece_licensed.engine, market: report.greece_licensed.market, ci: report.greece_licensed.brier_engine_minus_market_ci95, picks: report.greece_licensed.picks } } }, null, 1));
