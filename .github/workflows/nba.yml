@@ -7,7 +7,7 @@ on:
     - cron: "40 7 * * *"    # 09:40 ώρα Ελλάδας τον χειμώνα: έχουν τελειώσει όλοι οι αγώνες της νύχτας
   push:
     branches: [nba-data, nba-backfill]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
-    paths: [src/nba/**, scripts/nba.mjs, .github/workflows/nba.yml]
+    paths: [src/nba/**, scripts/nba.mjs, predictor/nba.py, .github/workflows/nba.yml]
   workflow_dispatch:
     inputs:
       max:
@@ -43,6 +43,18 @@ jobs:
         run: node --test test/nba-espn.test.mjs
       - name: Λήψη από το ESPN
         run: node scripts/nba.mjs --max "${{ github.event.inputs.max || '300' }}" --from "${{ github.event.inputs.from || '20261020' }}" ${{ github.event.inputs.to && format('--to {0}', github.event.inputs.to) || '' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            fantasy/requirements.txt
+            predictor/requirements.txt
+      - name: Μοντέλο NBA (backtest + προβλέψεις)
+        continue-on-error: true   # τα δεδομένα αποθηκεύονται ακόμα κι αν αποτύχει το μοντέλο
+        run: |
+          pip install -q -r fantasy/requirements.txt -r predictor/requirements.txt
+          python predictor/nba.py
       - name: Αποθήκευση
         run: |
           git config user.name "github-actions[bot]"
