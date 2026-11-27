@@ -10,6 +10,9 @@ on:
       - 'scripts/props-xpts-walkforward-validation.mjs'
       - 'scripts/props-multiseason-validation.mjs'
       - 'scripts/props-nested-walkforward.mjs'
+      - 'scripts/props-probability-calibration.mjs'
+      - 'src/odds/calibration.mjs'
+      - 'test/calibration.test.mjs'
       - 'scripts/props-residual-diagnostics.mjs'
       - 'scripts/props-minutes-diagnostics.mjs'
       - 'scripts/props-market-audit.mjs'
@@ -58,6 +61,8 @@ jobs:
         run: node --test test/odds.test.mjs test/props.test.mjs
       - name: Test player-prop market audit
         run: node --test test/props-market-audit.test.mjs
+      - name: Test probability calibration
+        run: node --test test/calibration.test.mjs
       - name: Run player-prop market data audit
         run: node scripts/props-market-audit.mjs | tee props-market-audit.json
       - name: Run walk-forward calibration report
@@ -74,6 +79,8 @@ jobs:
         run: node scripts/props-multiseason-validation.mjs | tee props-multiseason-validation.json
       - name: Run nested seasonal walk-forward validation
         run: node scripts/props-nested-walkforward.mjs | tee props-nested-walkforward.json
+      - name: Run chronological probability calibration
+        run: node scripts/props-probability-calibration.mjs | tee props-probability-calibration.json
       - name: Upload calibration report
         uses: actions/upload-artifact@v4
         with:
@@ -87,4 +94,5 @@ jobs:
             props-xpts-walkforward-validation.json
             props-multiseason-validation.json
             props-nested-walkforward.json
+            props-probability-calibration.json
           if-no-files-found: error
