@@ -140,7 +140,13 @@ const ADAPTERS = {
       if (!FORCE && (propDone.includes(win) || attempt.count >= MAX_PROP_ATTEMPTS ||
           (Number.isFinite(lastAttemptAt) && now - lastAttemptAt < PROP_RETRY_MS))) continue;
       attempts[win] = { count: attempt.count + 1, lastAttempt: new Date(now).toISOString() };
-      const res = await call('odds', { fixtureId: f.id, oddsFormat: 'decimal' }).catch(e => { console.log('Odds:', e.message); return null; });
+      const res = await call('odds', { fixtureId: f.id, oddsFormat: 'decimal' }).catch(e => {
+        console.log('Odds:', e.message);
+        // Quota exhaustion is a collector-level failure, not an empty fixture response.
+        // Re-throw so lastSuccess is not advanced and the stale-feed alert can fire.
+        if (/μηνιαίο όριο/i.test(e.message)) throw e;
+        return null;
+      });
       if (!res) continue;
       if (!done.includes(win)) done.push(win);
       const price = o => { const p = o && (o.players?.['0'] || Object.values(o.players || {})[0]); return p && p.active !== false ? p.price : null; };
