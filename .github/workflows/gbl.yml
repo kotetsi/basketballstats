@@ -1,0 +1,44 @@
+# Stoiximan GBL: κάθε βράδυ κατεβάζει πρόγραμμα, αποτελέσματα και τα νέα box scores από το esake.gr
+# και τα γράφει στο data/gbl. Δεν χτίζει σελίδες· αυτό το κάνει το «Ενημέρωση site».
+# Η πρώτη φορά (4 σεζόν) κατεβαίνει σε λίγες νύχτες, έως --max box scores ανά εκτέλεση.
+name: GBL δεδομένα
+
+on:
+  schedule:
+    - cron: "40 23 * * *"   # 01:40 ώρα Ελλάδας τον χειμώνα, πριν από την «Ενημέρωση site» (02:15)
+  push:
+    branches: [gbl-data]    # δοκιμαστική εκτέλεση στο branch πριν από το merge
+    paths: [src/gbl/**, scripts/gbl.mjs, .github/workflows/gbl.yml]
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "Μέγιστος αριθμός νέων box scores σε αυτή την εκτέλεση"
+        required: false
+        default: "200"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gbl-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gbl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Τεστ parser
+        run: node --test test/gbl-esake.test.mjs
+      - name: Λήψη από το esake.gr
+        run: node scripts/gbl.mjs --max "${{ github.event.inputs.max || '200' }}"
+      - name: Αποθήκευση
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          [ -d data/gbl ] && git add data/gbl
+          git diff --cached --quiet || (git commit -m "GBL: δεδομένα $(date -u +%F)" && for i in 1 2 3 4; do git push origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 15; git pull --rebase -q origin "${GITHUB_REF_NAME}"; done)
