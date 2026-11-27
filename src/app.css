@@ -1061,3 +1061,6 @@ table.cmpfx td.cmpbest{background:rgba(34,160,90,.14);font-weight:700}
   .sa-hero .price{font-size:30px}.sa-hero .sa-cta{margin:0}
   .sa-strip .t{font-size:14px}.sa-strip .go>span{display:none}
 }
+/* Stoiximan GBL: μενού ενότητας (στο κινητό σε μία γραμμή που σύρεται) */
+.ec .gblnav{margin:0 0 14px}.ec .gblnav a[aria-current]{border-color:var(--accent);color:var(--accent);font-weight:600}
+@media (max-width:640px){.ec .gblnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ec .gblnav a{flex:none;white-space:nowrap}}
