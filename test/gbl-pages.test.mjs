@@ -49,7 +49,8 @@ test('σελίδες: αρχική, ομάδες, παίκτες, πρόβλεψ
   assert.match(P[0].main, /εκτίμηση 82-78/);
   assert.equal(P.filter(p => /μπάσκετ:/.test(p.title)).length, 2);   // 2 ομάδες
   for (const k of ['gbl:programma', 'gbl:prognostika', 'gbl:koryfaioi', 'gbl:thermometro', 'gbl:statistika-omadon']) assert.ok(P.some(p => p.key === k), k);
-  assert.match(P[0].main, /gblnav/);                 // μενού της GBL
+  assert.doesNotMatch(P[0].main, /gblnav/);          // οι ενότητες είναι στο κεντρικό μενού
+  assert.match(P.find(p => p.key === 'gbl:provoles').main, /gblnav[\s\S]*Θερμόμετρο/);   // καρτέλες «Παίκτες»
   const v = P.find(p => /Sasha Vezenkov/.test(p.title));
   assert.ok(v && v.noindex);                         // λιγότεροι από 3 αγώνες → noindex
 });

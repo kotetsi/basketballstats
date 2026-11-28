@@ -115,7 +115,9 @@ export function nbaPages(N, { esc, slugify, url, siteUrl, siteName, home }) {
   const note = `<p class="note">Πηγή: ESPN (box scores και play-by-play), απουσίες από τις πεντάδες του Rotowire· ενημέρωση κάθε πρωί και κάθε βράδυ. Ώρες Ελλάδας. Οι προβλέψεις είναι στατιστικές εκτιμήσεις, όχι συμβουλές στοιχήματος· το στοίχημα επιτρέπεται μόνο άνω των 21 ετών.</p>`;
   const pages = [];
   const SECT = [['nba', 'Βαθμολογία'], ['nba:programma', 'Πρόγραμμα'], ['nba:prognostika', 'Προγνωστικά'], ['nba:provoles', 'Προβολές παικτών'], ['nba:koryfaioi', 'Κορυφαίοι'], ['nba:statistika-omadon', 'Στατιστικά ομάδων']];
-  const nav = cur => `<p class="leadnav gblnav">${SECT.map(([k, n]) => `<a href="${url(k)}"${k === cur ? ' aria-current="page"' : ''}>${esc(n)}</a>`).join('')}</p>`;
+  // οι ενότητες του πρωταθλήματος είναι στο κεντρικό μενού (scripts/portal-home.mjs)· εδώ μόνο οι καρτέλες «Παίκτες»
+  const PSECT = ['nba:koryfaioi', 'nba:provoles'];
+  const nav = cur => PSECT.includes(cur) ? `<p class="leadnav gblnav">${SECT.filter(([k]) => PSECT.includes(k)).map(([k, n]) => `<a href="${url(k)}"${k === cur ? ' aria-current="page"' : ''}>${esc(n)}</a>`).join('')}</p>` : '';
   const sect = (key, h1, lede, body, title, desc) => pages.push({ key, title, desc, main: `<section class="article ec">${nav(key)}<h1>${esc(h1)}</h1><p class="lede2">${lede}</p>${body}${note}</section>`,
     ld: [crumbs([[siteName, home], [L, url('nba')], ...(key === 'nba' ? [] : [[h1, url(key)]])])] });
 

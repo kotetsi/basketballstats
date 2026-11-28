@@ -42,6 +42,7 @@ const NAVICO = [
   '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'
 ];
+const NAVICO_CAL = '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>';
 const NAVKEYS = ['home','fantasy','bet','stand','arts'];
 const NAVV = ['today','fantasy','odds','stand','articles'];
 // ποια ενότητα είναι η τρέχουσα, από τη διαδρομή της σελίδας (χωρίς το πρόθεμα γλώσσας)
@@ -54,6 +55,34 @@ const navSection = (lang, rel) => {
   if (seg === r[14]) return 'arts';
   return 'stand';
 };
+// Πρωταθλήματα (μόνο στα ελληνικά): διακόπτης στην κεφαλίδα και ίδιο μενού 5 επιλογών μέσα σε κάθε πρωτάθλημα
+const ICO_LG = {
+  today: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  sched: NAVICO_CAL,
+  pred: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  players: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  teams: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'
+};
+const LG_NAV = {
+  gbl: { name: 'Stoiximan GBL', items: [['Σήμερα', '', 'today'], ['Πρόγραμμα', 'programma/', 'sched'], ['Προγνωστικά', 'prognostika/', 'pred'], ['Παίκτες', 'koryfaioi/', 'players'], ['Ομάδες', 'statistika-omadon/', 'teams']], players: ['koryfaioi', 'provoles', 'thermometro'] },
+  nba: { name: 'NBA', items: [['Σήμερα', '', 'today'], ['Πρόγραμμα', 'programma/', 'sched'], ['Προγνωστικά', 'prognostika/', 'pred'], ['Παίκτες', 'koryfaioi/', 'players'], ['Ομάδες', 'statistika-omadon/', 'teams']], players: ['koryfaioi', 'provoles'] }
+};
+// σε ποιο πρωτάθλημα ανήκει η σελίδα (rel χωρίς πρόθεμα γλώσσας)
+const leagueOf = rel => { const s = rel.split('/').filter(Boolean)[0] || ''; return s === 'gbl' || s === 'nba' ? s : s === 'eurocup' ? 'ec' : 'el'; };
+const lgSection = (lg, rel) => {
+  const seg = rel.split('/').filter(Boolean);
+  if (seg.length < 2) return 'today';
+  const k = seg[1];
+  if (k === 'programma') return 'sched';
+  if (k === 'prognostika') return 'pred';
+  if (LG_NAV[lg].players.includes(k) || seg.length >= 3) return 'players';
+  return 'teams';   // στατιστικά ομάδων και σελίδες ομάδων
+};
+const lgNav = (lg, rel) => { const cur = lgSection(lg, rel); return '<nav class="nav nav5" aria-label="' + esc(LG_NAV[lg].name) + '">' + LG_NAV[lg].items.map(([n, u, k]) => '<a href="/' + lg + '/' + u + '" data-v="lg-' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICO_LG[k] + '</svg><span>' + esc(n) + '</span></a>').join('') + '</nav>'; };
+const SWITCH = [['el', 'EuroLeague', '/'], ['ec', 'EuroCup', '/eurocup/'], ['gbl', 'GBL', '/gbl/'], ['nba', 'NBA', '/nba/']];
+const BRAND_SUB = { el: null, ec: 'Στατιστικά EuroCup', gbl: 'Στατιστικά Stoiximan GBL', nba: 'Στατιστικά NBA' };
+let HAVE = null;   // ποια πρωταθλήματα υπάρχουν στο build
+const switcher = cur => '<nav class="lgsw" aria-label="Πρωταθλήματα">' + SWITCH.filter(([k]) => HAVE.has(k)).map(([k, n, u]) => '<a href="' + u + '"' + (k === cur ? ' aria-current="true"' : '') + '>' + n + '</a>').join('') + '</nav>';
 const nav = (lang, cur = '') => '<nav class="nav nav5" aria-label="'+L[lang].lang+'">'+NAV5[lang].map((n,i)=>'<a href="'+route(lang,NAVKEYS[i])+'" data-v="'+NAVV[i]+'"'+(NAVKEYS[i]===cur?' aria-current="page"':'')+'><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+NAVICO[i]+'</svg><span>'+esc(n)+'</span></a>').join('')+'</nav>';
 const meta = (html,title,desc,canonical) => html
  .replace(/<title>[\s\S]*?<\/title>/i,'<title>'+esc(title)+'</title>')
@@ -118,11 +147,19 @@ async function updateNavigation(dir, lang) {
     if (!entry.isFile() || !entry.name.endsWith('.html')) continue;
     let html = await fs.readFile(file, 'utf8');
     const rel = path.relative(path.join(root, L[lang].dir), file).replace(/\\/g, '/').replace(/index\.html$/, '');
-    html = html.replace(/<nav class="nav[^"]*"[\s\S]*?<\/nav>/, nav(lang, navSection(lang, rel)));
+    if (lang === 'el' && /^(en|es|sr|tr)\//.test(rel)) continue;   // οι άλλες γλώσσες έχουν δικό τους πέρασμα
+    const lg = lang === 'el' ? leagueOf(rel) : 'el';
+    html = html.replace(/<nav class="nav[^"]*"[\s\S]*?<\/nav>/, LG_NAV[lg] ? lgNav(lg, rel) : nav(lang, lg === 'ec' ? '' : navSection(lang, rel)));
+    if (lang === 'el' && HAVE.size > 1) {
+      html = html.replace(/<p class="leadnav leagues"[\s\S]*?<\/p>/g, '');   // παλιά γραμμή πρωταθλημάτων μέσα στη σελίδα
+      html = html.replace(/(<a class="brand"[^>]*>[\s\S]*?<\/a>)/, (m) => (BRAND_SUB[lg] ? m.replace(/<span>[^<]*<\/span>/, '<span>' + BRAND_SUB[lg] + '</span>') : m) + switcher(lg));
+    }
     html = html.replace(/(<nav class="foot">[\s\S]*?<a href=")[^"]*(")/, "$1" + route(lang, "stand") + "$2");
     await fs.writeFile(file, html);
   }
 }
+HAVE = new Set(['el']);
+for (const [k, d] of [['ec', 'eurocup'], ['gbl', 'gbl'], ['nba', 'nba']]) { try { await fs.access(path.join(root, d, 'index.html')); HAVE.add(k); } catch { } }
 for (const [lang, cfg] of Object.entries(L)) await updateNavigation(path.join(root, cfg.dir), lang);
 
 console.log('Basketball Intelligence homepage and localized standings pages generated.');
