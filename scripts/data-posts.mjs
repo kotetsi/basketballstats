@@ -7,7 +7,7 @@
 //   DP_ALL=1  φτιάχνει όλα τα διαθέσιμα της ημέρας (για προεπισκόπηση), όχι μόνο το επόμενο · DP_DRY=1 χωρίς εικόνες
 //
 // Θέματα (κάθε μέρα 3, χωρίς επανάληψη):
-//   recap    Το ματς της βραδιάς: σκορ, δωδεκάλεπτα, το δωδεκάλεπτο που έκρινε τον αγώνα, κορυφαίοι (μετά από βραδιά με αγώνες)
+//   recap    Το ματς της βραδιάς: σκορ, δεκάλεπτα, το δεκάλεπτο που έκρινε τον αγώνα, κορυφαίοι (μετά από βραδιά με αγώνες)
 //   matchup  Η μάχη της ημέρας: επίθεση της μίας ομάδας απέναντι στην άμυνα της άλλης (πόντοι ανά 100 κατοχές) (μέρα με αγώνες)
 //   mvp      Η κούρσα του MVP με δύο τρόπους: PIR ανά αγώνα και +/− ανά αγώνα (μία φορά ανά αγωνιστική)
 //   shotq    Καλά σουτ ή καλό σουτάρισμα; Αναμενόμενο eFG% από τη θέση των σουτ απέναντι στο πραγματικό (μία φορά ανά αγωνιστική)
@@ -134,7 +134,7 @@ function recap() {
   const q = qs(g), W = g.hs > g.as ? g.h : g.a, L = W === g.h ? g.a : g.h, wi = W === g.h ? 0 : 1;
   let worst = 0; for (const e of g.sc) worst = Math.min(worst, wi === 0 ? e[4] - e[5] : e[5] - e[4]);
   const qd = q.map((x, i) => ({ i, d: wi === 0 ? x[0] - x[1] : x[1] - x[0], x }));
-  const best = [...qd].sort((a, b) => b.d - a.d)[0], qn = i => i < 4 ? `${i + 1}ο δωδεκάλεπτο` : (i === 4 ? 'παράταση' : `${i - 3}η παράταση`);
+  const best = [...qd].sort((a, b) => b.d - a.d)[0], qn = i => i < 4 ? `${i + 1}ο δεκάλεπτο` : (i === 4 ? 'παράταση' : `${i - 3}η παράταση`);
   const top = c => Object.entries(g.pl || {}).filter(([, v]) => v[1] === c).sort((a, b) => b[1][2] - a[1][2])[0];
   // πόντοι παίκτη από data.players (επίσημο box)
   const ptsOf = (pid) => { const p = data.players.find(p => p.c === pid.replace(/^P/, '')); const x = p?.g.find(x => x[0] === g.r && x[7] > 0); return x ? { n: p.n, pts: x[8], reb: x[15] + x[16], ast: x[17], pir: x[25] } : null; };
@@ -151,7 +151,7 @@ function recap() {
     <table style="margin-top:44px"><tr><td></td>${q.map((_, j) => `<td class="n muted" style="font-size:24px">${j < 4 ? j + 1 + 'ο' : 'Π' + (j - 3)}</td>`).join('')}<td class="n muted" style="font-size:24px">ΤΕΛ</td></tr>${qrow(g.h, 0)}${qrow(g.a, 1)}</table>
     <div style="margin-top:34px;font-size:34px;line-height:1.35">${esc(why)} ${Nom(W)} πάει στο <b>${rec(W)}</b>${pos(W) ? ` (${pos(W)}η θέση)` : ''}.</div>${ln(W, lw)}${ln(L, ll)}`;
   const text = `🏀 ${tn(g.h)} – ${tn(g.a)} ${g.hs}-${g.as}: ${head.toLowerCase().replace(/^./, m => m.toUpperCase())}\n\n${why}\n${lw ? `Κορυφαίος ο ${grName(lw.n)} με ${lw.pts} πόντους και ${lw.pir} PIR.` : ''}\n\n${Nom(W)} πάει στο ${rec(W)}, ${nom(L)} στο ${rec(L)}. Τι κράτησες από το ματς; 👇\n\nΌλο το box score: basketballstats.eu\n\n#EuroLeague #μπάσκετ #basketball`;
-  items.push({ fmt: 'recap', key, html: card({ col: vis(team(W)[1]), tag: 'ΤΟ ΜΑΤΣ ΤΗΣ ΒΡΑΔΙΑΣ', kicker: `EuroLeague · ${g.r}η αγωνιστική`, title: esc(head), body }), text, alt: `${tn(g.h)} – ${tn(g.a)} ${g.hs}-${g.as}, σκορ ανά δωδεκάλεπτο` });
+  items.push({ fmt: 'recap', key, html: card({ col: vis(team(W)[1]), tag: 'ΤΟ ΜΑΤΣ ΤΗΣ ΒΡΑΔΙΑΣ', kicker: `EuroLeague · ${g.r}η αγωνιστική`, title: esc(head), body }), text, alt: `${tn(g.h)} – ${tn(g.a)} ${g.hs}-${g.as}, σκορ ανά δεκάλεπτο` });
 }
 
 // matchup: το ματς της ημέρας, επίθεση απέναντι σε άμυνα
