@@ -1,0 +1,40 @@
+# Ένα βίντεο TikTok την ημέρα: «Σταμάτα το βίντεο: η πεντάδα σου» (scripts/tiktok-stop.mjs), εναλλάξ EuroLeague / GBL.
+# Το βίντεο ΔΕΝ ανεβαίνει από εδώ: το ανεβάζει η ρουτίνα από τον Chrome στο TikTok @basketballstats.eu και του βάζει ήχο
+# από τη βιβλιοθήκη του TikTok. Εδώ φτιάχνεται και αποθηκεύεται στο social/tiktok/<ημερομηνία>/ (βίντεο, caption.txt, meta.json).
+name: "TikTok: βίντεο ημέρας"
+on:
+  schedule:
+    - cron: "20 5 * * *"   # 07:20 ώρα Ελλάδας τον χειμώνα, πριν από τη ρουτίνα
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: "el ή gbl · κενό = εναλλάξ ανά ημέρα"
+        required: false
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  group: tiktok-video
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Εργαλεία (Chromium, ffmpeg, emoji)
+        run: |
+          sudo -E apt-get update -qq && sudo -E apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-color-emoji
+          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Βίντεο
+        env:
+          TS_THEME: ${{ inputs.theme }}
+        run: node scripts/tiktok-stop.mjs
+      - name: Αποθήκευση στο repo
+        run: |
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add social/tiktok
+          git diff --cached --quiet || (git commit -m "TikTok: βίντεο $(TZ=Europe/Athens date +%F)" && for i in 1 2 3 4; do git push && break; sleep 10; git pull --rebase -q; done)
