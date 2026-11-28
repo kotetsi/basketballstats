@@ -1,0 +1,33 @@
+# Κάθε 30 λεπτά: αποδόσεις νικητή αγώνα της Superbet.gr (EuroLeague, GBL, NBA) πριν από τους αγώνες,
+# στο data/superbet-odds/. Από εκεί βγαίνει το Excel «Έλεγχος μοντέλου» (scripts/model-check-xlsx.py).
+name: Superbet αποδόσεις (νικητής)
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: superbet-odds
+  cancel-in-progress: false
+
+jobs:
+  odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Λήψη
+        run: node scripts/superbet-odds.mjs
+      - name: Αποθήκευση
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add data/superbet-odds
+          git diff --cached --quiet || (git commit -q -m "Superbet: αποδόσεις $(date -u +%F-%H%M)" && for i in 1 2 3 4; do git push -q && break; sleep 10; git pull --rebase -q; done)
