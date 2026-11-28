@@ -9,6 +9,9 @@ import path from 'node:path';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DIST = path.join(ROOT, 'dist');
 const MAN = path.join(ROOT, 'data', 'published-urls.json');
+// URLs που η Google είχε ήδη ευρετηριάσει πριν ξεκινήσει το published-urls.json (από το Search Console).
+// Χωριστό αρχείο, ώστε να μη συγκρούεται με τα αυτόματα commits του published-urls.json.
+const LEGACY = path.join(ROOT, 'data', 'legacy-urls.json');
 const SITE = 'https://basketballstats.eu';
 const LANGS = ['en', 'es', 'sr', 'tr'];
 const PLAYER_DIR = { el: 'paiktis', en: 'player', es: 'jugador', sr: 'igrac', tr: 'oyuncu' };
@@ -68,7 +71,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   walk(DIST, '/', live);
   let man = [];
   try { man = JSON.parse(fs.readFileSync(MAN, 'utf8')); } catch { }
-  const all = new Set(man);
+  let legacy = [];
+  try { legacy = JSON.parse(fs.readFileSync(LEGACY, 'utf8')); } catch { }
+  const all = new Set([...man, ...legacy]);
   let n = 0;
   for (const u of all) {
     if (live.has(u)) continue;
