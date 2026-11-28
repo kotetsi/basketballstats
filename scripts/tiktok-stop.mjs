@@ -1,5 +1,5 @@
 // TikTok «Σταμάτα το βίντεο: η πεντάδα σου» — ένα κάθετο βίντεο την ημέρα (1080×1920, 30 fps, ~19΄΄, ΧΩΡΙΣ ήχο:
-// τον ήχο τον διαλέγει η ρουτίνα από τη βιβλιοθήκη του TikTok). Ύφος για 15–20 ετών, χωρίς στοίχημα, χωρίς σήματα/πρόσωπα.
+// με πρωτότυπη μουσική από το scripts/tiktok-beat.mjs, χωρίς τραγούδια τρίτων). Ύφος για 15–20 ετών, χωρίς στοίχημα, χωρίς σήματα/πρόσωπα.
 // Σε 5 θέσεις (2 γκαρντ, 2 φόργουορντ, σέντερ) οι 10 κορυφαίοι σε PIR ανά θέση αλλάζουν κάθε 0,1΄΄. Ο θεατής κάνει pause
 // και «του πέφτει» η πεντάδα του· στο τέλος τη γράφει στα σχόλια (η καλύτερη σε PIR καρφιτσώνεται).
 //   node scripts/tiktok-stop.mjs          → social/tiktok/<ημερομηνία>/stop-<el|gbl>.mp4 + caption.txt + meta.json
@@ -9,6 +9,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadGbl, displayName, shortName, seasonLabel } from '../src/gbl/pages.mjs';
+import { makeBeat, BEAT } from './tiktok-beat.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), E = process.env;
 const today = E.TS_TODAY || new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
@@ -45,7 +46,8 @@ if (Object.values(POOL).some(L => L.length < 6)) { console.log('λίγοι πα�
 // ------------------------------------------------------------------ σελίδα
 const font = f => fs.readFileSync(path.join(ROOT, 'scripts', 'fonts', f)).toString('base64');
 const ff = (fam, w, base) => ['greek', 'latin'].map(s => `@font-face{font-family:${fam};font-weight:${w};src:url(data:font/woff2;base64,${font(`${base}-${s}-${w}-normal.woff2`)}) format('woff2');${s === 'greek' ? 'unicode-range:U+0370-03FF,U+1F00-1FFF' : ''}}`).join('');
-const DUR = 19, FPS = 30, W = 1080, H = 1920;
+// χρόνοι στον ρυθμό της μουσικής (150 BPM): εισαγωγή 1 μέτρο, θέση 6 χτύποι, «Κλείδωσε» 1 χτύπος
+const DUR = 19, FPS = 30, W = 1080, H = 1920, T0 = 4 * BEAT, SL = 6 * BEAT, GAP = BEAT, END = T0 + 5 * (SL + GAP);
 const html = `<!doctype html><html lang="el"><head><meta charset="utf-8"><style>
 ${ff('X', 900, 'fira-sans-extra-condensed')}${ff('F', 700, 'fira-sans')}${ff('F', 500, 'fira-sans')}
 *{box-sizing:border-box;margin:0}body{width:${W}px;height:${H}px;overflow:hidden;background:#07080c;color:#fff;font-family:F,'Noto Color Emoji',sans-serif;position:relative}
@@ -73,7 +75,7 @@ let seed=${dayN % 2147483646 + 1}; const rnd=()=>(seed=(seed*16807)%2147483647)/
 const ORD=SLOTS.map(s=>{const L=P[s[1]].slice();for(let k=L.length-1;k>0;k--){const j=Math.floor(rnd()*(k+1));[L[k],L[j]]=[L[j],L[k]];}return L;});
 const $=id=>document.getElementById(id);
 const vis=c=>{const m=/^#?([0-9a-f]{6})$/i.exec(c||'');if(!m)return '#5b6478';const n=parseInt(m[1],16),r=n>>16,g=(n>>8)&255,b=n&255,L=0.2126*r+0.7152*g+0.0722*b;if(L<22)return '#5b6478';if(L>=35)return '#'+m[1];const k=.35,f=x=>Math.round(x+(255-x)*k);return 'rgb('+f(r)+','+f(g)+','+f(b)+')'};
-const T0=1.8,SL=2.4,GAP=.35,END=T0+5*(SL+GAP);
+const T0=${T0},SL=${SL},GAP=${GAP},END=${END};
 window.setT=t=>{
  $('bar').style.width=(100*t/${DUR})+'%';
  $('hook').style.opacity=t<T0?1:0; $('hook').style.transform='scale('+(1+.15*Math.exp(-t*8))+')';
@@ -108,11 +110,15 @@ if (E.TS_FRAMES) {
   for (let i = 0; i < DUR * FPS; i++) { await pg.evaluate(x => setT(x), i / FPS); const buf = await pg.screenshot({ type: 'jpeg', quality: 92 }); if (!f.stdin.write(buf)) await new Promise(r => f.stdin.once('drain', r)); }
   f.stdin.end(); const code = await new Promise(r => f.on('close', r));
   if (code !== 0) { console.error('ffmpeg απέτυχε'); process.exit(1); }
-  fs.renameSync(tmp, outMp4);
+  // μουσική: πρωτότυπο beat, πάνω στο ίδιο βίντεο χωρίς νέα κωδικοποίηση εικόνας
+  const wav = outMp4.replace(/\.mp4$/, '.wav'); fs.writeFileSync(wav, makeBeat({ T0, SL, GAP, END, DUR, seed: dayN }));
+  const m = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmp, '-i', wav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=7', '-ar', '44100', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', outMp4], { stdio: 'inherit' });
+  if (await new Promise(r => m.on('close', r)) !== 0) { console.error('ffmpeg (ήχος) απέτυχε'); process.exit(1); }
+  fs.rmSync(tmp); fs.rmSync(wav);
   const tag = THEME === 'el' ? '#euroleague' : '#gbl #basketleague';
   const caption = `Σταμάτα το βίντεο 5 φορές ✋ ποια πεντάδα σου έπεσε; γράψ' την στα σχόλια 👇 η καλύτερη σε PIR μπαίνει καρφιτσωμένη 📌 ${tag} #μπάσκετ #basketball #fyp`;
   fs.writeFileSync(path.join(outDir, 'caption.txt'), caption + '\n');
-  fs.writeFileSync(path.join(outDir, 'meta.json'), JSON.stringify({ date: today, theme: THEME, league: LEAGUE, video: path.relative(ROOT, outMp4), caption, sound: 'να διαλεχτεί στο TikTok (βιβλιοθήκη/Commercial Music Library)', pool: POOL }, null, 1));
+  fs.writeFileSync(path.join(outDir, 'meta.json'), JSON.stringify({ date: today, theme: THEME, league: LEAGUE, video: path.relative(ROOT, outMp4), caption, sound: 'πρωτότυπη μουσική (scripts/tiktok-beat.mjs) μέσα στο βίντεο· στο TikTok ανεβαίνει ως έχει, χωρίς άλλον ήχο', pool: POOL }, null, 1));
   console.log(`→ ${path.relative(ROOT, outMp4)} (${(fs.statSync(outMp4).size / 1e6).toFixed(1)} MB)`);
 }
 await br.close();
