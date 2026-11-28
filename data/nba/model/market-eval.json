@@ -1,28 +1,28 @@
 {
- "generated_at": "2026-11-27T23:44:53.604Z",
- "games": 0,
+ "generated_at": "2026-11-28T16:25:10.791Z",
+ "games": 11,
  "edge": 0.03,
  "brier": {
-  "model": null,
-  "market": null,
-  "blend": null,
-  "elo": null
+  "model": 0.2498,
+  "market": 0.2168,
+  "blend": 0.2309,
+  "elo": 0.2493
  },
  "bets": {
   "ml": {
-   "n": 0,
-   "roi": null,
-   "avg_ev": null
+   "n": 10,
+   "roi": 0.134,
+   "avg_ev": 0.1451
   },
   "spread": {
-   "n": 0,
-   "roi": null,
-   "avg_ev": null
+   "n": 8,
+   "roi": -0.5062,
+   "avg_ev": 0.1857
   },
   "total": {
-   "n": 0,
-   "roi": null,
-   "avg_ev": null
+   "n": 9,
+   "roi": 0.3011,
+   "avg_ev": 0.1202
   }
  },
  "note": "μόνο προβλέψεις κλειδωμένες πριν από τον αγώνα και αποδόσεις πριν από το τζάμπολ· λίγοι αγώνες = μεγάλη αβεβαιότητα"
