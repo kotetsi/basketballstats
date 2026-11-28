@@ -14,7 +14,7 @@ const COMPS = { E: 19114, G: 319, N: 164 };   // Superbet tournament ids: EuroLe
 const ML = 759;                                // «Νικητής Αγώνα (Συμπ. Παράταση)»
 
 const now = new Date();
-const iso = d => d.toISOString().replace(/\.\d+Z$/, '.000Z');
+const iso = d => d.toISOString().slice(0, 13) + ':00:00.000Z';   // το API δέχεται μόνο ακέραιες ώρες
 const start = iso(new Date(now.getTime() - 3600e3)), end = iso(new Date(now.getTime() + 10 * 86400e3));
 
 await fs.mkdir(DIR, { recursive: true });
