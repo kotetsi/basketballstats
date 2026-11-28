@@ -1,7 +1,7 @@
 {
- "generated_at": "2026-11-27T23:44:05+00:00",
+ "generated_at": "2026-11-28T03:54:43+00:00",
  "model": "mp-1.4",
- "lineups_at": "2026-11-27T21:51:58.228Z",
+ "lineups_at": "2026-11-28T03:54:24.135Z",
  "games_with_box": 1576,
  "games_played": 1596,
  "elo": {
@@ -10,272 +10,6 @@
   "log_loss": 0.6197711641178739,
   "brier": 0.21419199814595327,
   "home_accuracy": 0.5185185185185185
- },
- "backtest": {
-  "n": 1051,
-  "log_loss": 0.5900211278595804,
-  "brier": 0.20184407115216355,
-  "accuracy": 0.6879162702188392,
-  "ece": 0.0325604186489058,
-  "margin_mae": 11.84198530425132,
-  "margin_rmse": 15.12480302265579,
-  "total_mae": 15.477494944316355,
-  "total_rmse": 20.795669259462393,
-  "pace_mae": 3.145116966601512,
-  "calibration": [
-   {
-    "lo": 0.0,
-    "hi": 0.1,
-    "n": 6,
-    "pred": 0.087,
-    "obs": 0.167
-   },
-   {
-    "lo": 0.1,
-    "hi": 0.2,
-    "n": 47,
-    "pred": 0.16,
-    "obs": 0.064
-   },
-   {
-    "lo": 0.2,
-    "hi": 0.3,
-    "n": 86,
-    "pred": 0.258,
-    "obs": 0.221
-   },
-   {
-    "lo": 0.3,
-    "hi": 0.4,
-    "n": 117,
-    "pred": 0.351,
-    "obs": 0.308
-   },
-   {
-    "lo": 0.4,
-    "hi": 0.5,
-    "n": 133,
-    "pred": 0.449,
-    "obs": 0.474
-   },
-   {
-    "lo": 0.5,
-    "hi": 0.6,
-    "n": 151,
-    "pred": 0.554,
-    "obs": 0.55
-   },
-   {
-    "lo": 0.6,
-    "hi": 0.7,
-    "n": 164,
-    "pred": 0.648,
-    "obs": 0.646
-   },
-   {
-    "lo": 0.7,
-    "hi": 0.8,
-    "n": 151,
-    "pred": 0.751,
-    "obs": 0.715
-   },
-   {
-    "lo": 0.8,
-    "hi": 0.9,
-    "n": 145,
-    "pred": 0.849,
-    "obs": 0.779
-   },
-   {
-    "lo": 0.9,
-    "hi": 1.0,
-    "n": 51,
-    "pred": 0.925,
-    "obs": 0.902
-   }
-  ],
-  "home_accuracy": 0.5499524262607041,
-  "elo_log_loss": 0.5932354396922873,
-  "elo_brier": 0.20265861627352458,
-  "elo_accuracy": 0.69267364414843,
-  "by_season": {
-   "N2025": {
-    "n": 781,
-    "log_loss": 0.5823827785368973,
-    "brier": 0.19833126913194388,
-    "accuracy": 0.6952624839948783,
-    "ece": 0.026395646606914187,
-    "margin_mae": 11.930870517219685,
-    "margin_rmse": 15.194109413151628,
-    "total_mae": 15.626278393037778,
-    "total_rmse": 21.38249121559792,
-    "pace_mae": 3.1740581451293126,
-    "calibration": [
-     {
-      "lo": 0.0,
-      "hi": 0.1,
-      "n": 2,
-      "pred": 0.099,
-      "obs": 0.0
-     },
-     {
-      "lo": 0.1,
-      "hi": 0.2,
-      "n": 25,
-      "pred": 0.162,
-      "obs": 0.04
-     },
-     {
-      "lo": 0.2,
-      "hi": 0.3,
-      "n": 57,
-      "pred": 0.257,
-      "obs": 0.175
-     },
-     {
-      "lo": 0.3,
-      "hi": 0.4,
-      "n": 86,
-      "pred": 0.353,
-      "obs": 0.302
-     },
-     {
-      "lo": 0.4,
-      "hi": 0.5,
-      "n": 111,
-      "pred": 0.449,
-      "obs": 0.459
-     },
-     {
-      "lo": 0.5,
-      "hi": 0.6,
-      "n": 122,
-      "pred": 0.554,
-      "obs": 0.566
-     },
-     {
-      "lo": 0.6,
-      "hi": 0.7,
-      "n": 126,
-      "pred": 0.647,
-      "obs": 0.651
-     },
-     {
-      "lo": 0.7,
-      "hi": 0.8,
-      "n": 119,
-      "pred": 0.75,
-      "obs": 0.748
-     },
-     {
-      "lo": 0.8,
-      "hi": 0.9,
-      "n": 105,
-      "pred": 0.849,
-      "obs": 0.81
-     },
-     {
-      "lo": 0.9,
-      "hi": 1.0,
-      "n": 28,
-      "pred": 0.925,
-      "obs": 0.893
-     }
-    ],
-    "home_accuracy": 0.5608194622279129,
-    "elo_log_loss": 0.5845959008778112,
-    "elo_brier": 0.1988648781682887,
-    "elo_accuracy": 0.6978233034571063
-   },
-   "N2026": {
-    "n": 270,
-    "log_loss": 0.6121157605300083,
-    "brier": 0.21200517625509524,
-    "accuracy": 0.6666666666666666,
-    "ece": 0.07657037037037039,
-    "margin_mae": 11.584876595628016,
-    "margin_rmse": 14.922515803380502,
-    "total_mae": 15.047125042644385,
-    "total_rmse": 18.996449572696974,
-    "pace_mae": 3.061401927971096,
-    "calibration": [
-     {
-      "lo": 0.0,
-      "hi": 0.1,
-      "n": 4,
-      "pred": 0.081,
-      "obs": 0.25
-     },
-     {
-      "lo": 0.1,
-      "hi": 0.2,
-      "n": 22,
-      "pred": 0.158,
-      "obs": 0.091
-     },
-     {
-      "lo": 0.2,
-      "hi": 0.3,
-      "n": 29,
-      "pred": 0.259,
-      "obs": 0.31
-     },
-     {
-      "lo": 0.3,
-      "hi": 0.4,
-      "n": 31,
-      "pred": 0.346,
-      "obs": 0.323
-     },
-     {
-      "lo": 0.4,
-      "hi": 0.5,
-      "n": 22,
-      "pred": 0.445,
-      "obs": 0.545
-     },
-     {
-      "lo": 0.5,
-      "hi": 0.6,
-      "n": 29,
-      "pred": 0.554,
-      "obs": 0.483
-     },
-     {
-      "lo": 0.6,
-      "hi": 0.7,
-      "n": 38,
-      "pred": 0.653,
-      "obs": 0.632
-     },
-     {
-      "lo": 0.7,
-      "hi": 0.8,
-      "n": 32,
-      "pred": 0.752,
-      "obs": 0.594
-     },
-     {
-      "lo": 0.8,
-      "hi": 0.9,
-      "n": 40,
-      "pred": 0.848,
-      "obs": 0.7
-     },
-     {
-      "lo": 0.9,
-      "hi": 1.0,
-      "n": 23,
-      "pred": 0.926,
-      "obs": 0.913
-     }
-    ],
-    "home_accuracy": 0.5185185185185185,
-    "elo_log_loss": 0.6182261056704567,
-    "elo_brier": 0.21363235501496616,
-    "elo_accuracy": 0.6777777777777778
-   }
-  }
  },
  "predictions": [
   {
@@ -354,19 +88,21 @@
     "score": 0
    },
    "neutral": false,
-   "p_home": 0.3012,
-   "margin": -2.8,
-   "total": 231.0,
+   "p_home": 0.3136,
+   "margin": -1.8,
+   "total": 231.2,
    "elo_p": 0.196,
    "out": [
     "Ariel Hukporti",
     "Jaylen Brown",
+    "Dean Wade",
     "Johnny Furphy",
     "Tyrese Haliburton",
+    "T.J. McConnell",
     "Ben Sheppard"
    ],
-   "h_absent": 0.0,
-   "a_absent": 0.064
+   "h_absent": 0.015,
+   "a_absent": 0.139
   },
   {
    "id": "401909329",
@@ -384,17 +120,18 @@
     "score": 0
    },
    "neutral": false,
-   "p_home": 0.7889,
-   "margin": 11.8,
-   "total": 220.4,
+   "p_home": 0.746,
+   "margin": 7.3,
+   "total": 220.1,
    "elo_p": 0.7821,
    "out": [
     "Nolan Traore",
     "Moritz Wagner",
     "RJ Barrett",
-    "Kawhi Leonard"
+    "Kawhi Leonard",
+    "Ja'Kobe Walter"
    ],
-   "h_absent": 0.0,
+   "h_absent": 0.148,
    "a_absent": 0.081
   },
   {
@@ -444,22 +181,23 @@
     "score": 0
    },
    "neutral": false,
-   "p_home": 0.7132,
-   "margin": 4.0,
-   "total": 225.0,
+   "p_home": 0.7116,
+   "margin": 3.8,
+   "total": 225.4,
    "elo_p": 0.7907,
    "out": [
     "Cameron Boozer",
     "Jerami Grant",
     "GG Jackson",
     "Scotty Pippen",
+    "Isaiah Stewart",
     "LaMelo Ball",
     "Jaylen Clark",
     "Donte DiVincenzo",
     "Anthony Edwards"
    ],
    "h_absent": 0.126,
-   "a_absent": 0.0
+   "a_absent": 0.078
   },
   {
    "id": "401909332",
@@ -477,19 +215,20 @@
     "score": 0
    },
    "neutral": false,
-   "p_home": 0.5973,
-   "margin": 2.6,
-   "total": 222.9,
+   "p_home": 0.6111,
+   "margin": 3.8,
+   "total": 223.2,
    "elo_p": 0.6012,
    "out": [
     "Tarik Biberovic",
     "Sergio de Larrea",
+    "Kyrie Irving",
     "Tobi Lawal",
     "Dereck Lively",
     "Mark Williams"
    ],
    "h_absent": 0.0,
-   "a_absent": 0.0
+   "a_absent": 0.133
   },
   {
    "id": "401909333",
@@ -534,15 +273,16 @@
     "score": 0
    },
    "neutral": false,
-   "p_home": 0.204,
-   "margin": -7.6,
-   "total": 228.2,
+   "p_home": 0.1847,
+   "margin": -9.1,
+   "total": 228.1,
    "elo_p": 0.1576,
    "out": [
+    "Mo Bamba",
     "Jaren Jackson",
     "Lauri Markkanen"
    ],
-   "h_absent": 0.0,
+   "h_absent": 0.1,
    "a_absent": 0.0
   },
   {
@@ -1132,6 +872,174 @@
    "margin": 3.1,
    "total": 233.3,
    "elo_p": 0.4522,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910068",
+   "date": "2026-12-02T00:00Z",
+   "home": {
+    "id": "5",
+    "abbr": "CLE",
+    "name": "Cleveland Cavaliers",
+    "score": 0
+   },
+   "away": {
+    "id": "11",
+    "abbr": "IND",
+    "name": "Indiana Pacers",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.7671,
+   "margin": 7.4,
+   "total": 234.6,
+   "elo_p": 0.8014,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910069",
+   "date": "2026-12-02T00:00Z",
+   "home": {
+    "id": "20",
+    "abbr": "PHI",
+    "name": "Philadelphia 76ers",
+    "score": 0
+   },
+   "away": {
+    "id": "29",
+    "abbr": "MEM",
+    "name": "Memphis Grizzlies",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.5853,
+   "margin": -2.4,
+   "total": 229.6,
+   "elo_p": 0.7223,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910070",
+   "date": "2026-12-02T00:30Z",
+   "home": {
+    "id": "14",
+    "abbr": "MIA",
+    "name": "Miami Heat",
+    "score": 0
+   },
+   "away": {
+    "id": "1",
+    "abbr": "ATL",
+    "name": "Atlanta Hawks",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.5966,
+   "margin": 2.2,
+   "total": 238.0,
+   "elo_p": 0.6286,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910071",
+   "date": "2026-12-02T01:00Z",
+   "home": {
+    "id": "4",
+    "abbr": "CHI",
+    "name": "Chicago Bulls",
+    "score": 0
+   },
+   "away": {
+    "id": "18",
+    "abbr": "NY",
+    "name": "New York Knicks",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.2264,
+   "margin": -7.7,
+   "total": 220.5,
+   "elo_p": 0.1584,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910072",
+   "date": "2026-12-02T01:30Z",
+   "home": {
+    "id": "10",
+    "abbr": "HOU",
+    "name": "Houston Rockets",
+    "score": 0
+   },
+   "away": {
+    "id": "28",
+    "abbr": "TOR",
+    "name": "Toronto Raptors",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.8255,
+   "margin": 10.7,
+   "total": 217.7,
+   "elo_p": 0.8385,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910073",
+   "date": "2026-12-02T02:00Z",
+   "home": {
+    "id": "21",
+    "abbr": "PHX",
+    "name": "Phoenix Suns",
+    "score": 0
+   },
+   "away": {
+    "id": "12",
+    "abbr": "LAC",
+    "name": "LA Clippers",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.7789,
+   "margin": 9.0,
+   "total": 222.1,
+   "elo_p": 0.8031,
+   "out": [],
+   "h_absent": 0.0,
+   "a_absent": 0.0
+  },
+  {
+   "id": "401910075",
+   "date": "2026-12-02T03:00Z",
+   "home": {
+    "id": "9",
+    "abbr": "GS",
+    "name": "Golden State Warriors",
+    "score": 0
+   },
+   "away": {
+    "id": "26",
+    "abbr": "UTAH",
+    "name": "Utah Jazz",
+    "score": 0
+   },
+   "neutral": false,
+   "p_home": 0.8304,
+   "margin": 13.1,
+   "total": 224.7,
+   "elo_p": 0.8244,
    "out": [],
    "h_absent": 0.0,
    "a_absent": 0.0
