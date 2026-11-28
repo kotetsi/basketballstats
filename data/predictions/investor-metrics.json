@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-28T10:53:58.448Z",
+ "generated": "2026-11-28T11:15:06.970Z",
  "note": "μόνο συγκεντρωτικές μετρήσεις, χωρίς γραμμές ή αποδόσεις",
  "leagues": [
   {
    "league": "EuroLeague + EuroCup",
    "games": 1255,
-   "accuracy": 0.6327,
+   "accuracy": 0.6335,
    "brier": 0.2193,
    "margin_mae": 9.9314
   },
