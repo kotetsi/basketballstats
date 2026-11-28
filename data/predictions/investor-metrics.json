@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-28T00:14:19.117Z",
+ "generated": "2026-11-28T07:13:30.606Z",
  "note": "μόνο συγκεντρωτικές μετρήσεις, χωρίς γραμμές ή αποδόσεις",
  "leagues": [
   {
@@ -13,8 +13,8 @@
    "league": "Stoiximan GBL",
    "games": 373,
    "accuracy": 0.7453,
-   "brier": 0.1605,
-   "margin_mae": 9.7683
+   "brier": 0.1604,
+   "margin_mae": 9.7634
   },
   {
    "league": "NBA",
@@ -37,25 +37,25 @@
    "league": "Stoiximan GBL",
    "stat": "reb",
    "n": 6372,
-   "model_mae": 1.685,
+   "model_mae": 1.684,
    "season_avg_mae": 1.709,
-   "gain": 0.014
+   "gain": 0.0146
   },
   {
    "league": "Stoiximan GBL",
    "stat": "ast",
    "n": 6372,
-   "model_mae": 1.158,
+   "model_mae": 1.152,
    "season_avg_mae": 1.149,
-   "gain": -0.0078
+   "gain": -0.0026
   },
   {
    "league": "Stoiximan GBL",
    "stat": "fg3",
    "n": 6372,
-   "model_mae": 0.763,
+   "model_mae": 0.752,
    "season_avg_mae": 0.743,
-   "gain": -0.0269
+   "gain": -0.0121
   },
   {
    "league": "NBA",
