@@ -1,0 +1,1486 @@
+{
+ "12208166": {
+  "name": "DORSEY TYLER",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1996-02-18",
+  "height": 1.96
+ },
+ "24974100": {
+  "name": "MANTZOUKAS ELEFTHERIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2003-07-08",
+  "height": 2.07
+ },
+ "79510360": {
+  "name": "EUSTATHIADIS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2003-04-29",
+  "height": 1.97
+ },
+ "00000069": {
+  "name": "VEZENKOV SASHA",
+  "country": "ΚΥΠΡΟΣ",
+  "pos": "PF",
+  "born": "1995-08-06",
+  "height": 2.06
+ },
+ "00000167": {
+  "name": "KAVVADAS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1991-12-28",
+  "height": 2.05
+ },
+ "00000174": {
+  "name": "CALATHES NICK",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1989-02-07",
+  "height": 1.98
+ },
+ "000001AD": {
+  "name": "KASELAKIS LEONIDAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1990-06-01",
+  "height": 2.01
+ },
+ "000001BC": {
+  "name": "KATSIVELIS DIMITRIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1991-10-01",
+  "height": 1.96
+ },
+ "00000245": {
+  "name": "LARENTZAKIS GIANNOULIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1993-09-22",
+  "height": 1.96
+ },
+ "0000029C": {
+  "name": "MANTZARIS VAGGELIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1990-04-16",
+  "height": 1.96
+ },
+ "0000037E": {
+  "name": "BOCHORIDIS ELEFTHERIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1994-04-18",
+  "height": 1.93
+ },
+ "00000468": {
+  "name": "PAPANIKOLAOU KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "1990-07-31",
+  "height": 2.03
+ },
+ "00000554": {
+  "name": "SKORDILIS GAIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1987-12-06",
+  "height": 2.08
+ },
+ "00000559": {
+  "name": "SKOULIDAS DIONYSIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "1997-07-29",
+  "height": 2.01
+ },
+ "0000055C": {
+  "name": "SLOUKAS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1990-01-15",
+  "height": 1.9
+ },
+ "0000060F": {
+  "name": "TSAIRELIS MICHALIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1988-02-23",
+  "height": 2.08
+ },
+ "000006F2": {
+  "name": "SLAFTSAKIS DIAMANTIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1994-07-27",
+  "height": 2.01
+ },
+ "000006FD": {
+  "name": "LIAPIS MICHALIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1995-03-11",
+  "height": 1.92
+ },
+ "00000729": {
+  "name": "CHARALAMPOPOULOS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1997-01-06",
+  "height": 2.02
+ },
+ "06AB7612": {
+  "name": "WILLIAMS NEW",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1996-12-10",
+  "height": 1.84
+ },
+ "070AA868": {
+  "name": "STYLES DONTREZ",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "2002-06-26",
+  "height": 1.98
+ },
+ "0760F694": {
+  "name": "KULBOKA ARNOLDAS",
+  "country": "ΛΙΘΟΥΑΝΙΑ",
+  "pos": "PF",
+  "born": "1998-01-04",
+  "height": 2.08
+ },
+ "0A25DDA8": {
+  "name": "TURNER JUSTIN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1998-03-12",
+  "height": 1.92
+ },
+ "0CB6EC08": {
+  "name": "ANTETOKOUNMPO KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1997-11-20",
+  "height": 2.08
+ },
+ "13D42A9A": {
+  "name": "MPOURNELES GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2007-03-04",
+  "height": 1.9
+ },
+ "13E498FF": {
+  "name": "HARRELL RONNIE",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1996-03-11",
+  "height": 2.01
+ },
+ "14A01952": {
+  "name": "KREUSER JACKSON",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1999-03-05",
+  "height": 2.08
+ },
+ "14F5D6AF": {
+  "name": "NETZIPOGLOU OMIROS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2002-11-18",
+  "height": 1.95
+ },
+ "163A0BF8": {
+  "name": "SACHPATZIDIS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1993-09-29",
+  "height": 2.08
+ },
+ "16AE30FC": {
+  "name": "KAKLAMANAKIS DIMITRIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1994-01-25",
+  "height": 2.06
+ },
+ "17637E66": {
+  "name": "BATATEGAS THANASIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "2026-10-02",
+  "height": 2.05
+ },
+ "17A32536": {
+  "name": "ALMONOR ANSLEY",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2002-04-30",
+  "height": 2
+ },
+ "192A9E36": {
+  "name": "HAYES-DAVIS NIGEL",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1994-12-16",
+  "height": 2.03
+ },
+ "1A1AA377": {
+  "name": "ITTOUNAS JOHN",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2002-09-02",
+  "height": 1.91
+ },
+ "1B250824": {
+  "name": "CHATZINIKOLAS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1995-10-07",
+  "height": 1.93
+ },
+ "1B782B1C": {
+  "name": "ANDERSON TYTAN",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "2002-04-17",
+  "height": 1.97
+ },
+ "1E4DF9F2": {
+  "name": "FREEMAN ALLERIK",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1994-10-30",
+  "height": 1.91
+ },
+ "1F2A8343": {
+  "name": "TSALMPOURIS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1996-06-22",
+  "height": 2.17
+ },
+ "1F680C1B": {
+  "name": "KALAVROS ANTONIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2006-06-13",
+  "height": 1.83
+ },
+ "207A5E89": {
+  "name": "SMITH CHRIS",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1999-12-24",
+  "height": 2.06
+ },
+ "210FB913": {
+  "name": "PAPAS GEORGE",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1998-03-15",
+  "height": 1.96
+ },
+ "219EDB0A": {
+  "name": "ROBINSON-EARL JEREMIAH",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2000-11-03",
+  "height": 2.06
+ },
+ "21C5ED0D": {
+  "name": "KOUROUPAKIS PERIKLIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "2002-08-12",
+  "height": 2.04
+ },
+ "265441F3": {
+  "name": "MOKOKA ADAM",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "PG",
+  "born": "1998-07-18",
+  "height": 1.95
+ },
+ "27BA8959": {
+  "name": "SMITH ADAM",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1992-11-08",
+  "height": 1.85
+ },
+ "27F22948": {
+  "name": "CHOUGKAZ NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2000-10-04",
+  "height": 2.08
+ },
+ "2BA367B6": {
+  "name": "JUSTICE KESHAWN",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1999-10-22",
+  "height": 2
+ },
+ "2BB1AF1F": {
+  "name": "LOUNTZIS MICHALIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1998-08-04",
+  "height": 1.98
+ },
+ "2BBFE416": {
+  "name": "AGRAVANIS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1998-11-13",
+  "height": 1.98
+ },
+ "2BD65881": {
+  "name": "KAMPOURIDIS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1999-06-24",
+  "height": 2.02
+ },
+ "2C26B404": {
+  "name": "ROGKAVOPOULOS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2001-06-27",
+  "height": 2.02
+ },
+ "2FDD0350": {
+  "name": "PETROPOULOS ANDREAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1994-02-11",
+  "height": 1.96
+ },
+ "2FE11222": {
+  "name": "CHATZILAMPROU CHRYSOSTOMOS",
+  "country": "ΕΛΛΗΝΙΚΗ",
+  "pos": "SG",
+  "born": "2008-07-12",
+  "height": 2.01
+ },
+ "306A4360": {
+  "name": "SIDIROILIAS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2001-10-29",
+  "height": 2.01
+ },
+ "31E31E64": {
+  "name": "MOTIEJUNAS DONATAS",
+  "country": "ΛΙΘΟΥΑΝΙΑ",
+  "pos": "C",
+  "born": "1990-09-20",
+  "height": 2.13
+ },
+ "32F994EF": {
+  "name": "MORGAN MATT",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1997-11-07",
+  "height": 1.88
+ },
+ "332619C4": {
+  "name": "VARVARITIS IASONAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2010-05-01",
+  "height": 2.02
+ },
+ "335BE66C": {
+  "name": "TOLIAS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2002-10-30",
+  "height": 1.95
+ },
+ "337C5ABE": {
+  "name": "GANT JAKEENAN",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1996-05-06",
+  "height": 2.03
+ },
+ "34FF7118": {
+  "name": "HORCHLER NOAH",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1998-01-01",
+  "height": 2.04
+ },
+ "360291D1": {
+  "name": "BOGUES SHANNON",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1997-02-20",
+  "height": 1.87
+ },
+ "3793B035": {
+  "name": "WARD ΤYSON",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1997-07-26",
+  "height": 1.98
+ },
+ "3CEC7051": {
+  "name": "FREIDEL NOAH",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "2000-09-26",
+  "height": 1.92
+ },
+ "41010DDA": {
+  "name": "PAPADAKIS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1998-09-27",
+  "height": 1.91
+ },
+ "417F3359": {
+  "name": "EVANS SHANNON",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1994-07-19",
+  "height": 1.85
+ },
+ "448AF744": {
+  "name": "BAZINAS THANASIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2003-10-18",
+  "height": 1.94
+ },
+ "479A7018": {
+  "name": "VENETIDIS CHRISTOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2008-06-22",
+  "height": 1.97
+ },
+ "481F0638": {
+  "name": "BILALIS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2004-03-25",
+  "height": 1.85
+ },
+ "49574E22": {
+  "name": "PERSIDIS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1995-09-08",
+  "height": 2
+ },
+ "4A288CB9": {
+  "name": "WILLIAMS DERRICK",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1991-05-25",
+  "height": 2.03
+ },
+ "4A30A4F1": {
+  "name": "HERNANGOMEZ JUANCHO",
+  "country": "ΙΣΠΑΝΙΑ",
+  "pos": "PF",
+  "born": "1995-09-28",
+  "height": 2.06
+ },
+ "4AABE918": {
+  "name": "COLEMAN KENDAL",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2002-08-21",
+  "height": 2.03
+ },
+ "4BBBBCE9": {
+  "name": "MITROU-LONG NAZ",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1993-07-29",
+  "height": 1.93
+ },
+ "4C0E5F4B": {
+  "name": "KOUZELOGLOU GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1995-04-01",
+  "height": 2.08
+ },
+ "4C3E0D1F": {
+  "name": "DE SOUSA SILVIO",
+  "country": "ΑΝΓΚΟΛΑ",
+  "pos": "C",
+  "born": "1998-10-07",
+  "height": 2.06
+ },
+ "4E78654C": {
+  "name": "MCNAIR WILL",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "2000-05-25",
+  "height": 2.1
+ },
+ "4F36A3A9": {
+  "name": "ROBINSON TREY",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "2002-03-09",
+  "height": 1.98
+ },
+ "4F4B199C": {
+  "name": "COOK TASOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2002-12-10",
+  "height": 1.88
+ },
+ "5099E231": {
+  "name": "KAMPERIDIS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1999-10-01",
+  "height": 2.01
+ },
+ "52ABD8D7": {
+  "name": "MONTERO JEAN CLAUDIO",
+  "country": "ΔΟΜΙΝΙΚΑΝΗ ΔΗΜΟΚΡΑΤΙΑ",
+  "pos": "SG",
+  "born": "2003-07-03",
+  "height": 1.88
+ },
+ "542556D0": {
+  "name": "VISSARIOU TILEMACHOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2002-01-28",
+  "height": 1.97
+ },
+ "55AFD2FB": {
+  "name": "FUNDERBURK D.J.",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "1997-04-12",
+  "height": 2.08
+ },
+ "5AA30EE4": {
+  "name": "DIMITRIJEVIC NENAD",
+  "country": "Β. ΜΑΚΕΔΟΝΙΑ",
+  "pos": "PG",
+  "born": "1998-02-23",
+  "height": 1.88
+ },
+ "5BE8C2DD": {
+  "name": "ANTETOKOUNMPO THANASIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1992-07-18",
+  "height": 2.01
+ },
+ "5D43F9F8": {
+  "name": "LIDDELL E.J.",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2000-12-18",
+  "height": 2
+ },
+ "5FA42D38": {
+  "name": "BARNETT JORDAN",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1995-12-31",
+  "height": 2.01
+ },
+ "5FF950F2": {
+  "name": "IORDANOU CHRISTOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "1998-11-23",
+  "height": 1.96
+ },
+ "63F9CEF0": {
+  "name": "CANNADY DEVIN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1996-05-21",
+  "height": 1.88
+ },
+ "647ACEAC": {
+  "name": "DIPLAROS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1997-06-28",
+  "height": 1.9
+ },
+ "6547DF27": {
+  "name": "NIKOLAIDIS ALEXANDROS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2002-08-21",
+  "height": 1.9
+ },
+ "662906B1": {
+  "name": "SALASH MAKSIM",
+  "country": "ΛΕΥΚΟΡΩΣΙΑ",
+  "pos": "PF",
+  "born": "1996-05-06",
+  "height": 2.08
+ },
+ "698E6BD5": {
+  "name": "ASONITIS VANGELIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2009-05-29",
+  "height": 1.95
+ },
+ "6BC4B84C": {
+  "name": "ARSENOPOULOS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2000-05-19",
+  "height": 1.96
+ },
+ "6C188DE9": {
+  "name": "GYMNOPOULOS STAVROS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2008-08-27",
+  "height": 1.93
+ },
+ "6C8C0631": {
+  "name": "JACKSON ZEB",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "2001-11-14",
+  "height": 1.95
+ },
+ "6D99E217": {
+  "name": "HARMON DE’VION",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "2001-01-22",
+  "height": 1.86
+ },
+ "6E2AFDA4": {
+  "name": "WALKER JORDAN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1999-08-11",
+  "height": 1.79
+ },
+ "6E776956": {
+  "name": "WARE LANCE",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "2001-02-08",
+  "height": 2.06
+ },
+ "726D6513": {
+  "name": "LONG ELIJAH",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1996-12-15",
+  "height": 1.85
+ },
+ "72DD1F38": {
+  "name": "TOULIATOS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2005-09-28",
+  "height": 2.03
+ },
+ "76DE295F": {
+  "name": "UTHOFF JARROD",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1993-05-19",
+  "height": 2.06
+ },
+ "77C8FCA5": {
+  "name": "IATRIDIS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2001-10-14",
+  "height": 2.06
+ },
+ "78071CFE": {
+  "name": "JOSEPH NELLY",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "2001-11-20",
+  "height": 2.05
+ },
+ "786D1826": {
+  "name": "THOMAKOS ALEXANDROS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2008-05-26",
+  "height": 1.96
+ },
+ "7B2F55F7": {
+  "name": "PARRISH MICAH",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "2001-02-17",
+  "height": 1.97
+ },
+ "7CE2BFA4": {
+  "name": "HEURTEL THOMAS",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "PG",
+  "born": "1989-04-10",
+  "height": 1.89
+ },
+ "7CF732B1": {
+  "name": "LECQUE JALEN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "2000-06-13",
+  "height": 1.93
+ },
+ "7D80AD55": {
+  "name": "NUNN KENDRICK",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1995-08-03",
+  "height": 1.95
+ },
+ "7E5D147D": {
+  "name": "GIANNIKOS MARIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2007-02-20",
+  "height": 2.02
+ },
+ "7EAA048C": {
+  "name": "TYREE BREEIN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1998-01-13",
+  "height": 1.88
+ },
+ "7F6E6DE3": {
+  "name": "MITOGLOU KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1996-06-11",
+  "height": 2.1
+ },
+ "81B0524B": {
+  "name": "MOORE KHALID",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2000-07-29",
+  "height": 2.01
+ },
+ "81B5C4BA": {
+  "name": "FRANCISCO SYLVAIN",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "PG",
+  "born": "1997-10-10",
+  "height": 1.85
+ },
+ "83B11FF5": {
+  "name": "HALL DONTA",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "1997-08-07",
+  "height": 2.08
+ },
+ "8430176A": {
+  "name": "PASAGIANNIS MANOLIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2006-09-07",
+  "height": 1.98
+ },
+ "843A5FAB": {
+  "name": "BIRCH KHEM",
+  "country": "ΚΑΝΑΔΑΣ",
+  "pos": "C",
+  "born": "1992-09-28",
+  "height": 2.06
+ },
+ "87BA43A1": {
+  "name": "CHANTZIS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2006-06-20",
+  "height": 1.91
+ },
+ "884C7918": {
+  "name": "STEVENSON TYLER",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "2000-04-21",
+  "height": 2.02
+ },
+ "8A20EF38": {
+  "name": "PLOTAS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2004-06-12",
+  "height": 1.95
+ },
+ "8DFB21EC": {
+  "name": "BARTLEY FRANK",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1994-02-25",
+  "height": 1.91
+ },
+ "8E76E4FF": {
+  "name": "CARIUS WILL",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1998-03-09",
+  "height": 2
+ },
+ "90ECEF25": {
+  "name": "ARMS ADONIS",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1998-06-26",
+  "height": 1.98
+ },
+ "92F6A168": {
+  "name": "OKORO FRANCIS",
+  "country": "ΝΙΓΗΡΙΑ",
+  "pos": "C",
+  "born": "1999-11-09",
+  "height": 2.06
+ },
+ "93419A43": {
+  "name": "KAPETAKIS EVDOXIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2005-06-09",
+  "height": 1.95
+ },
+ "9484425D": {
+  "name": "FALL MOUSTAPHA",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "C",
+  "born": "1992-02-23",
+  "height": 2.18
+ },
+ "948D3EC2": {
+  "name": "CHRISTIDIS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1998-07-10",
+  "height": 2.07
+ },
+ "949AE5A4": {
+  "name": "BONGA ISAAC",
+  "country": "ΓΕΡΜΑΝΙΑ",
+  "pos": "SF",
+  "born": "1999-11-08",
+  "height": 2.03
+ },
+ "9625BDE0": {
+  "name": "POZOGLOU NIC",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2026-09-19",
+  "height": 1.98
+ },
+ "96B38FA6": {
+  "name": "PAYNE OMAR",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "2000-11-02",
+  "height": 2.08
+ },
+ "97F0888E": {
+  "name": "LAGIOS AGGELOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2003-04-14",
+  "height": 2.02
+ },
+ "9A1EDD91": {
+  "name": "STAVRAKOPOULOS SOTIRIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2004-11-29",
+  "height": 2.03
+ },
+ "9B0B82A0": {
+  "name": "KARAGIANNIDIS ANTONIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "2002-04-13",
+  "height": 2.04
+ },
+ "9DBC8FE2": {
+  "name": "FORRESTER JAKOB",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "1999-01-01",
+  "height": 2.07
+ },
+ "9E3DB04D": {
+  "name": "KALAITZAKIS PANAGIOTIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1999-01-02",
+  "height": 2
+ },
+ "9F68444D": {
+  "name": "POULIANITIS MARIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1999-11-29",
+  "height": 1.93
+ },
+ "A1D217D1": {
+  "name": "KARAKOSTAS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2004-02-04",
+  "height": 1.9
+ },
+ "A22FB46C": {
+  "name": "DRECHSEL TREY",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1996-07-27",
+  "height": 1.98
+ },
+ "A2B85043": {
+  "name": "PINCKNEY DEANDRE",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2000-02-29",
+  "height": 2.02
+ },
+ "A5CD2CDC": {
+  "name": "ARNOKOUROS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2000-12-10",
+  "height": 2.01
+ },
+ "A61713DB": {
+  "name": "RALLIS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2007-10-23",
+  "height": 1.95
+ },
+ "AA426196": {
+  "name": "DIPLAROS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2009-01-01",
+  "height": 1.94
+ },
+ "AB6D75D6": {
+  "name": "TSIAKMAS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1999-10-29",
+  "height": 1.88
+ },
+ "ADF973BF": {
+  "name": "CUTHBERTSON ZACHARY",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1996-12-27",
+  "height": 2.01
+ },
+ "AE01432F": {
+  "name": "APPLEBY TYREE",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1998-09-30",
+  "height": 1.85
+ },
+ "AF728220": {
+  "name": "JOSEPH CORY",
+  "country": "ΚΑΝΑΔΑΣ",
+  "pos": "PG",
+  "born": "1991-08-20",
+  "height": 1.92
+ },
+ "B047FBDE": {
+  "name": "MCINTYRE CODI MILLER",
+  "country": "ΒΟΥΛΓΑΡΙΑ",
+  "pos": "PG",
+  "born": "1994-06-01",
+  "height": 1.91
+ },
+ "B2A41EE3": {
+  "name": "LEKAVICIUS LUKAS",
+  "country": "ΛΙΘΟΥΑΝΙΑ",
+  "pos": "PG",
+  "born": "1994-03-30",
+  "height": 1.8
+ },
+ "B2A97905": {
+  "name": "FLIONIS DIMITRIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1997-04-08",
+  "height": 1.88
+ },
+ "B3BB0A69": {
+  "name": "CHARTONAS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2026-09-24",
+  "height": 1.95
+ },
+ "B76F35F2": {
+  "name": "FOSTER MARCUS",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1995-06-03",
+  "height": 1.91
+ },
+ "B91AE9D3": {
+  "name": "KARAMPELAS ZOIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2001-04-27",
+  "height": 1.86
+ },
+ "B9778770": {
+  "name": "KALAITZAKIS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "1999-01-02",
+  "height": 2.02
+ },
+ "BB419345": {
+  "name": "JONES DENVER",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "2000-11-02",
+  "height": 1.94
+ },
+ "BC555A0B": {
+  "name": "NICHOLS TY",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1996-10-13",
+  "height": 1.91
+ },
+ "BC598ED2": {
+  "name": "HARRIS CJ",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1991-02-19",
+  "height": 1.91
+ },
+ "BC64636C": {
+  "name": "BROWN III GREG",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "2001-09-01",
+  "height": 2.06
+ },
+ "BFA5ABF7": {
+  "name": "MOORE BEN",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "1995-05-13",
+  "height": 2.03
+ },
+ "C151B736": {
+  "name": "PATRIKIS ANDREAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2006-11-13",
+  "height": 2.02
+ },
+ "C22BD6D1": {
+  "name": "NIKOLAIDIS APOSTOLOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2006-03-31",
+  "height": 1.9
+ },
+ "C2E87EF6": {
+  "name": "FYTROS GIANNIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2004-01-21",
+  "height": 1.97
+ },
+ "C5820A1E": {
+  "name": "BADIO BRANCOU",
+  "country": "ΣΕΝΕΓΑΛΗ",
+  "pos": "PG",
+  "born": "1999-02-17",
+  "height": 1.88
+ },
+ "C64AED82": {
+  "name": "NDIAYE MBAYE",
+  "country": "ΣΕΝΕΓΑΛΗ",
+  "pos": "SF",
+  "born": "1999-01-04",
+  "height": 2.04
+ },
+ "C7AE99E7": {
+  "name": "MANJON EZRA",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "2000-12-03",
+  "height": 1.8
+ },
+ "C7E2715A": {
+  "name": "MARCH RONALD",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1993-07-24",
+  "height": 1.96
+ },
+ "C7F71003": {
+  "name": "FOURNIER EVAN",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "SF",
+  "born": "1992-10-29",
+  "height": 1.98
+ },
+ "C8627F95": {
+  "name": "FRANCIS JA’VIER",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "2003-10-20",
+  "height": 2.03
+ },
+ "C921D75C": {
+  "name": "PARASKEVOPOULOS CHARIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2005-01-03",
+  "height": 1.98
+ },
+ "CAA8D9F2": {
+  "name": "KALAITZAKIS ALEXANDROS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2003-03-11",
+  "height": 2
+ },
+ "CC57C559": {
+  "name": "GKIKAS NIKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1990-11-22",
+  "height": 1.85
+ },
+ "CC7D0D5D": {
+  "name": "PETRAKIS JOE",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "2001-03-28",
+  "height": 2.11
+ },
+ "CD105647": {
+  "name": "OSMAN CEDI",
+  "country": "ΤΟΥΡΚΙΑ",
+  "pos": "SF",
+  "born": "1995-04-08",
+  "height": 2.01
+ },
+ "CE63DCE2": {
+  "name": "FINCH JALEN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1999-06-25",
+  "height": 1.84
+ },
+ "CF580EB7": {
+  "name": "KONIARIS ANTONIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1997-09-30",
+  "height": 1.93
+ },
+ "D1B546BE": {
+  "name": "MCRAE JORDAN",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "1991-03-28",
+  "height": 1.98
+ },
+ "D2783E95": {
+  "name": "HUDGINS TREVOR",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "2026-09-17",
+  "height": 1.8
+ },
+ "D400B3A0": {
+  "name": "LOVE JERMAINE",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1989-03-27",
+  "height": 1.91
+ },
+ "D445A5DF": {
+  "name": "KUANY KUANY",
+  "country": "ΑΥΣΤΡΑΛΙΑ",
+  "pos": "PF",
+  "born": "2000-03-27",
+  "height": 2.05
+ },
+ "D45D0C59": {
+  "name": "CHATZIDAKIS MANOLIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "2000-04-21",
+  "height": 2.08
+ },
+ "D502EA88": {
+  "name": "ROUMOGLOU APOSTOLOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2003-05-15",
+  "height": 2.01
+ },
+ "D77658A1": {
+  "name": "TIGKAS FILIPPOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2002-11-05",
+  "height": 1.83
+ },
+ "D82710F7": {
+  "name": "NOLLEY II LANDERS",
+  "country": "ΗΠΑ",
+  "pos": "SF",
+  "born": "2000-03-05",
+  "height": 2.01
+ },
+ "D8361DB3": {
+  "name": "TOLIOPOULOS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1996-06-15",
+  "height": 1.88
+ },
+ "D9193424": {
+  "name": "YABUSELE GUERSCHON",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "PF",
+  "born": "1995-12-17",
+  "height": 1.98
+ },
+ "D953EB46": {
+  "name": "PETANIDIS KYRIAKOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "2001-03-30",
+  "height": 2.04
+ },
+ "DDB66B0A": {
+  "name": "KAMATEROS TASOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2000-05-19",
+  "height": 2.02
+ },
+ "DF30F505": {
+  "name": "ANTETOKOUNMPO ALEX",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2001-08-27",
+  "height": 2.03
+ },
+ "E02706AA": {
+  "name": "GONTIKAS KOSTAS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "C",
+  "born": "1994-03-15",
+  "height": 2.06
+ },
+ "E223062A": {
+  "name": "GKIOUZELIS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "1995-11-23",
+  "height": 2.06
+ },
+ "E310A6FC": {
+  "name": "PATRAS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "1995-03-22",
+  "height": 1.95
+ },
+ "E625EBD8": {
+  "name": "LESSORT MATHIAS",
+  "country": "ΓΑΛΛΙΑ",
+  "pos": "C",
+  "born": "1995-09-29",
+  "height": 2.06
+ },
+ "E6EC7439": {
+  "name": "MILUTINOV NIKOLA",
+  "country": "ΣΕΡΒΙΑ",
+  "pos": "C",
+  "born": "1994-12-30",
+  "height": 2.13
+ },
+ "E6F7C045": {
+  "name": "SHARMA JOSH",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "1995-09-28",
+  "height": 2.13
+ },
+ "E79B2944": {
+  "name": "MORAITIS DIMITRIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1999-02-03",
+  "height": 1.94
+ },
+ "E7DDBF96": {
+  "name": "MELVIN CLEVELAND",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1991-06-25",
+  "height": 2.03
+ },
+ "EA30854D": {
+  "name": "DIARRA HASSAN",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "2001-03-17",
+  "height": 1.87
+ },
+ "EBF0CF05": {
+  "name": "JOVIC STEFAN",
+  "country": "ΣΕΡΒΙΑ",
+  "pos": "PG",
+  "born": "1990-11-03",
+  "height": 1.98
+ },
+ "ECDEBCD5": {
+  "name": "SOTIRIOU ARIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PF",
+  "born": "2001-07-13",
+  "height": 2.03
+ },
+ "EE1DC08B": {
+  "name": "TSAKIRIS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "2007-05-25",
+  "height": 1.92
+ },
+ "F120DA73": {
+  "name": "HUTSON JACOB",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "2002-08-02",
+  "height": 2.11
+ },
+ "F42B3D2C": {
+  "name": "POULIANITIS STELIOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "1995-04-03",
+  "height": 1.87
+ },
+ "F562063C": {
+  "name": "WILLIS PAYTON",
+  "country": "ΗΠΑ",
+  "pos": "SG",
+  "born": "1998-01-31",
+  "height": 1.93
+ },
+ "F5C9A62B": {
+  "name": "FILLIOS GIORGOS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2002-02-10",
+  "height": 1.96
+ },
+ "F68045AF": {
+  "name": "UPSON DEVONTE",
+  "country": "ΗΠΑ",
+  "pos": "C",
+  "born": "1993-03-23",
+  "height": 2.06
+ },
+ "F687D874": {
+  "name": "FLOYD JORDAN",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1997-05-22",
+  "height": 1.88
+ },
+ "F78CAA5C": {
+  "name": "JACKSON K.J.",
+  "country": "ΗΠΑ",
+  "pos": "PG",
+  "born": "1998-03-27",
+  "height": 1.98
+ },
+ "F81E81B2": {
+  "name": "ALEXANDER KYLE",
+  "country": "ΚΑΝΑΔΑΣ",
+  "pos": "PF",
+  "born": "2026-09-17",
+  "height": 2.12
+ },
+ "F84B55AD": {
+  "name": "SYLLAS COLE",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SF",
+  "born": "2000-08-01",
+  "height": 1.96
+ },
+ "F8C3F7B9": {
+  "name": "POULOS DIMITRIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "SG",
+  "born": "2008-05-14",
+  "height": 1.86
+ },
+ "FB207C24": {
+  "name": "CHILDS ELIJAH",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1999-01-10",
+  "height": 2.01
+ },
+ "FB81693B": {
+  "name": "MASTROGIANNOPOULOS SARANTIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1997-12-03",
+  "height": 1.9
+ },
+ "FD013EDA": {
+  "name": "GRAY RAIQUAN",
+  "country": "ΗΠΑ",
+  "pos": "PF",
+  "born": "1999-07-07",
+  "height": 2.01
+ },
+ "FED5F313": {
+  "name": "MOURATOS VASILIS",
+  "country": "ΕΛΛΑΔΑ",
+  "pos": "PG",
+  "born": "1997-11-24",
+  "height": 1.93
+ }
+}
