@@ -17,6 +17,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { card, vis, esc, f1, pc, sg } from './data-cards.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://basketballstats.eu';
@@ -45,7 +46,6 @@ const grName = n => { const g = GRN[n]; if (!g) return nice(n); const m = g.matc
 const surname = n => { const g = grName(n).split(' '); return g.length > 1 ? g.slice(1).join(' ') : g[0]; };
 const gDate = w => new Date(Date.UTC(2020 + (+w[8]), +w.slice(0, 2) - 1, +w.slice(2, 4), +w.slice(4, 6), +w.slice(6, 8)));
 const hhmm = d => d.toLocaleTimeString('el-GR', { timeZone: 'Europe/Athens', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-const f1 = v => v.toFixed(1).replace('.', ','), pc = v => (100 * v).toFixed(1).replace('.', ',') + '%', sg = v => (v > 0 ? '+' : v < 0 ? '−' : '') + f1(Math.abs(v));
 const SEAS = (() => { const y = +String(data.season || SEASON).replace(/\D/g, ''); return y ? `${y}-${String(y + 1).slice(2)}` : ''; })();
 
 // ------------------------------------------------------------------ δεδομένα αγώνων (box score + σκορ + σουτ)
@@ -82,31 +82,8 @@ const stand = Object.fromEntries((data.league.stand || []).map(s => [s[1], s]));
 const rec = c => stand[c] ? `${stand[c][2]}-${stand[c][3]}` : `${T[c]?.w}-${T[c]?.g - T[c]?.w}`;
 const pos = c => stand[c]?.[0];
 
-// ------------------------------------------------------------------ κάρτα
+// ------------------------------------------------------------------ κάρτα (scripts/data-cards.mjs)
 const SHORT = { MAD: 'Ρεάλ', BAR: 'Μπαρτσελόνα', HTA: 'Χάποελ', TEL: 'Μακάμπι', IST: 'Εφές', MIL: 'Αρμάνι', RED: 'Ερυθρός', VIR: 'Βίρτους', MUN: 'Μπάγερν', ULK: 'Φενέρ', PAM: 'Βαλένθια', ASV: 'Βιλερμπάν', OLY: 'Ολυμπιακός', PAN: 'Παναθηναϊκός' };
-const vis = c => { const m = /^#?([0-9a-f]{6})$/i.exec(c || ''); if (!m) return '#e4572e'; const n = parseInt(m[1], 16), [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255]; return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 70 ? '#' + m[1] : '#e4572e'; };
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-/** k = { col, tag, kicker, title, sub, body (html), note } */
-function card(k) {
-  return `<!doctype html><html lang="el"><head><meta charset="utf-8"><style>
-*{box-sizing:border-box;margin:0}body{width:1080px;height:1350px;background:#1d2331;color:#fff;font-family:'Liberation Sans','DejaVu Sans',Arial,sans-serif;overflow:hidden;display:flex;flex-direction:column;padding:76px 72px 56px;position:relative}
-.bar{position:absolute;left:0;right:0;top:0;height:18px;background:${k.col || '#e4572e'}}
-.top{display:flex;justify-content:space-between;align-items:center}.brand{font-size:40px;font-weight:800;letter-spacing:1px}.brand i{font-style:normal;color:#e4572e}
-.tag{background:#e4572e;border-radius:40px;padding:10px 24px;font-size:24px;font-weight:700;letter-spacing:.5px}
-.kick{margin-top:58px;font-size:28px;font-weight:700;color:#e4572e;letter-spacing:2px;text-transform:uppercase}
-h1{margin-top:14px;font-size:70px;line-height:1.05;font-weight:800}.sub{margin-top:16px;font-size:32px;color:#aeb6c8;line-height:1.3}
-.body{margin-top:44px;flex:1;display:flex;flex-direction:column}
-.foot{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-top:24px}.site{font-size:34px;font-weight:700;white-space:nowrap}.note{font-size:22px;color:#8f98ad;line-height:1.35;text-align:right}
-table{width:100%;border-collapse:collapse}td{padding:15px 10px;font-size:32px;border-bottom:1px solid #2e3648}td.n{text-align:right;font-weight:800;white-space:nowrap}
-.rk{display:inline-block;min-width:76px;text-align:center;border-radius:10px;padding:4px 10px;font-size:26px;font-weight:800}
-.trk{height:16px;background:#2e3648;border-radius:8px;overflow:hidden;width:220px}.trk i{display:block;height:100%;border-radius:8px}
-.muted{color:#aeb6c8}.or{color:#e4572e}.gr{color:#3ecf8e}.rd{color:#ff6b6b}
-</style></head><body><div class="bar"></div>
-<div class="top"><div class="brand">BASKETBALL<i>STATS</i></div><div class="tag">${esc(k.tag)}</div></div>
-<div class="kick">${esc(k.kicker)}</div><h1>${k.title}</h1>${k.sub ? `<div class="sub">${k.sub}</div>` : ''}
-<div class="body">${k.body}</div>
-<div class="foot"><div class="site">basketballstats.eu</div><div class="note">${k.note || 'Επίσημα στατιστικά EuroLeague'}</div></div></body></html>`;
-}
 const rkCol = r => r <= 3 ? '#3ecf8e' : r <= 8 ? '#e4572e' : r >= NT - 2 ? '#ff6b6b' : '#5b6478';
 const rk = r => `<span class="rk" style="background:${rkCol(r)}">${r}η</span>`;
 
