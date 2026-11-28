@@ -28,6 +28,7 @@ import { blendPreds } from './src/odds/blend.mjs';
 import { devig, classify, pirOverProb, internalLine, hitRate, minutesRisk } from './src/odds/core.mjs';
 import * as PROPM from './src/odds/props.mjs';
 import * as USAGE from './src/odds/usage.mjs';
+import { crestStyle } from './src/team-colors.mjs';
 import * as BET from './src/engine/betting.mjs';
 import * as EUI from './src/engine/ui.mjs';
 import { leagueZonePct, loadShotIndex, xptsRows } from './src/odds/xpts.mjs';
@@ -5327,7 +5328,7 @@ ${roundAw.map(a => `<section class="award"><h3>${esc(rdTxt0(a.r))}</h3><p>MVP: <
       const ecSlug = c => slugify(ET[c] ? ET[c][0] : c);
       const PAL = ['#c8102e', '#00529b', '#007a3d', '#f28c00', '#5b2c83', '#00838f', '#8d6e63', '#d81b60', '#3949ab', '#2e7d32', '#6d4c41', '#ad1457'];
       const ecCol = c => PAL[[...c].reduce((s, ch) => s + ch.charCodeAt(0), 0) % PAL.length];
-      const crest = (c, big) => `<span class="${big ? 'bigcrest' : 'crest'}" style="background:${ecCol(c)}">${esc(ET[c] ? ET[c][2] : c)}</span>`;
+      const crest = (c, big) => `<span class="${big ? 'bigcrest' : 'crest'}" style="${crestStyle(ET[c] ? ET[c][0] : c, ecCol(c))}">${esc(ET[c] ? ET[c][2] : c)}</span>`;
       const tlink = c => `<a href="${urlFor(LG, 'ec:' + ecSlug(c))}">${esc(ecName(c))}</a>`;
       const loc = { el: 'el-GR', en: 'en-GB', es: 'es-ES', sr: 'sr-Latn-RS', tr: 'tr-TR' }[LG];
       const when = iso => new Date(iso).toLocaleString(loc, { timeZone: 'Europe/Athens', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
