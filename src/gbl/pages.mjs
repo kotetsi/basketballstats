@@ -1,3 +1,4 @@
+import { crestStyle } from '../team-colors.mjs';
 // Stoiximan GBL: σελίδες του site (μόνο στα ελληνικά) από τα data/gbl (scripts/gbl.mjs) και το μοντέλο (predictor/gbl.py).
 //   /gbl/                         βαθμολογία, προβλέψεις επόμενης αγωνιστικής, αποτελέσματα, κορυφαίοι, ακρίβεια μοντέλου
 //   /gbl/<ομάδα>/                 πρόγραμμα, αποτελέσματα, ρόστερ με μέσους όρους, επόμενος αγώνας με πρόβλεψη
@@ -121,7 +122,7 @@ export function gblPages(G, { esc, slugify, url, siteUrl, siteName, home }) {
   const tShort = id => shortName(names.get(id));
   const tA = id => `<a href="${tUrl(id)}">${esc(tShort(id))}</a>`;
   const PAL = ['#c8102e', '#00529b', '#007a3d', '#f28c00', '#5b2c83', '#00838f', '#8d6e63', '#d81b60', '#3949ab', '#2e7d32', '#6d4c41', '#ad1457'];
-  const crest = (id, big) => { const n = tShort(id); return `<span class="${big ? 'bigcrest' : 'crest'}" style="background:${PAL[[...id].reduce((s, c) => s + c.charCodeAt(0), 0) % PAL.length]}">${esc(n.slice(0, 3).toLocaleUpperCase('el'))}</span>`; };
+  const crest = (id, big) => { const n = tShort(id); return `<span class="${big ? 'bigcrest' : 'crest'}" style="${crestStyle(names.get(id), PAL[[...id].reduce((s, c) => s + c.charCodeAt(0), 0) % PAL.length])}">${esc(n.slice(0, 3).toLocaleUpperCase('el'))}</span>`; };
   const tn = id => `<span class="ectn">${crest(id)}${tA(id)}</span>`;
   const f1 = x => (Number.isFinite(x) ? x.toFixed(1).replace('.', ',') : '–');
   const pc = (m, a) => (a ? Math.round(100 * m / a) + '%' : '–');
@@ -171,7 +172,9 @@ ${bt.elo_accuracy != null ? `<tr><td class="l">Elo (μόνο τα σκορ)</td>
 
   // ---- μενού της GBL: στο κεντρικό μενού του site μόνο «GBL», όλα τα υπόλοιπα εδώ
   const SECT = [['gbl', 'Βαθμολογία'], ['gbl:programma', 'Πρόγραμμα'], ['gbl:prognostika', 'Προγνωστικά'], ['gbl:provoles', 'Προβολές παικτών'], ['gbl:koryfaioi', 'Κορυφαίοι & ρεκόρ'], ['gbl:thermometro', 'Θερμόμετρο'], ['gbl:statistika-omadon', 'Στατιστικά ομάδων']];
-  const nav = cur => `<p class="leadnav gblnav">${SECT.map(([k, n]) => `<a href="${url(k)}"${k === cur ? ' aria-current="page"' : ''}>${esc(n)}</a>`).join('')}</p>`;
+  // οι ενότητες του πρωταθλήματος είναι στο κεντρικό μενού (scripts/portal-home.mjs)· εδώ μόνο οι καρτέλες «Παίκτες»
+  const PSECT = ['gbl:koryfaioi', 'gbl:provoles', 'gbl:thermometro'];
+  const nav = cur => PSECT.includes(cur) ? `<p class="leadnav gblnav">${SECT.filter(([k]) => PSECT.includes(k)).map(([k, n]) => `<a href="${url(k)}"${k === cur ? ' aria-current="page"' : ''}>${esc(n)}</a>`).join('')}</p>` : '';
   const sect = (key, h1, lede, body, title, desc) => pages.push({ key, title, desc, main: `<section class="article ec">${nav(key)}<h1>${esc(h1)}</h1><p class="lede2">${lede}</p>${body}${note}</section>`,
     ld: [crumbs([[siteName, home], [L, url('gbl')], ...(key === 'gbl' ? [] : [[h1, url(key)]])])] });
 
