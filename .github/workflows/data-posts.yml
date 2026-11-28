@@ -1,0 +1,60 @@
+# 3 επιπλέον αναρτήσεις την ημέρα με αναλύσεις δεδομένων (scripts/data-posts.mjs): το ματς της βραδιάς, η μάχη της ημέρας,
+# κούρσα MVP, ανάλυση σουτ, επίθεση/άμυνα, προφίλ ομάδας. Μία ανάρτηση σε κάθε εκτέλεση, σε Facebook, Instagram, Threads.
+# Πέρα από τη ρουτίνα «Social καθημερινά» (12:10 / 18:10). Τίποτα δεν αναρτάται δύο φορές (data/daily-social.json).
+name: "Social: data posts"
+on:
+  schedule:
+    - cron: "10 12 * * *"   # 14:10 ώρα Ελλάδας τον χειμώνα
+    - cron: "10 15 * * *"   # 17:10
+    - cron: "40 20 * * *"   # 22:40
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Μόνο ένα θέμα: recap, matchup, mvp, shotq, ratings, profile · κενό = το επόμενο της ημέρας"
+        required: false
+        default: ""
+      dry:
+        description: "Δοκιμή: φτιάχνει την κάρτα αλλά δεν αναρτά (1 = ναι)"
+        required: false
+        default: "0"
+permissions:
+  contents: write
+concurrency:
+  group: social
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Εργαλεία (Chromium)
+        run: |
+          npm i --no-save --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Κάρτα της επόμενης ανάρτησης
+        env:
+          DP_ONLY: ${{ inputs.only }}
+        run: node scripts/data-posts.mjs prepare
+      - name: Δημοσίευση της εικόνας στο repo (δημόσιο URL για Instagram/Threads)
+        run: |
+          git config user.name "basketballstats-bot"; git config user.email "basketballstats-bot@users.noreply.github.com"
+          git add social/data
+          git diff --cached --quiet || (git commit -m "Social: data post $(date -u +%F)" && for i in 1 2 3 4; do git push && break; sleep 10; git pull --rebase -q; done)
+          sleep 20
+      - name: Ανάρτηση
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          FB_PAGE_ID: "1372786612592081"
+          IG_USER_ID: "17841438627851733"
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          SOCIAL_DRY: ${{ inputs.dry == '1' && '1' || '0' }}
+          SOCIAL_PLAN: social/data/plan.json
+        run: node scripts/daily-social.mjs post
+      - name: Αποθήκευση (τι αναρτήθηκε)
+        if: always()
+        run: |
+          git add data/daily-social.json 2>/dev/null || exit 0
+          git diff --cached --quiet || (git commit -m "Social: data post αναρτήθηκε" && for i in 1 2 3 4; do git push && break; sleep 10; git pull --rebase -q; done)
